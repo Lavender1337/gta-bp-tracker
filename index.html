@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>BP Farm Tracker</title>
+  
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+  :root{
+    --bg-1:#070707;
+    --bg-2:#0f111a; 
+    --panel:rgba(15, 17, 26, 0.95);
+    --glass:rgba(255,255,255,0.03);
+    --muted:#a6a6a6;
+    --text:#f4f4f4;
+    --accent:#00aaff; 
+    --accent2:#00e0ff; 
+    --neon:rgba(0, 170, 255, 0.12); 
+    --danger:#ef4444;
+    --success: #22c55e;
+    --soon: rgba(255, 255, 0, 0.1);
+    --paused: rgba(100, 100, 150, 0.15); 
+    --shadow:0 10px 30px rgba(0,0,0,0.8);
+    --blur:blur(10px);
+    --radius:14px;
+  }
+
+  *{box-sizing:border-box;transition:all .18s ease; -webkit-tap-highlight-color: transparent;}
+  
+  body{ 
+    margin:0; 
+    font-family:Inter,ui-sans-serif,system-ui,Arial,Helvetica,sans-serif; 
+    background:var(--bg-1); /* Фон */
+    color:var(--text); 
+    padding:14px; 
+    padding-bottom: 80px; /* Отступ снизу для прокрутки на телефоне */
+  }
+  
+  /* Если открыто в Телеграме, берем фон оттуда (по желанию) */
+  body.tg-active {
+     background: var(--tg-theme-bg-color, var(--bg-1));
+  }
+
+  .wrap{max-width:1400px;margin:0 auto}
+  
+  header{ 
+    position:sticky;top:5px;z-index:40; 
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:10px; border-radius:var(--radius); 
+    background:linear-gradient(180deg,rgba(20, 22, 30, 0.95),rgba(10, 11, 15, 0.9)); 
+    box-shadow:0 0 25px rgba(0, 170, 255, 0.15), inset 0 1px 0 rgba(255,255,255,0.03); 
+    backdrop-filter:var(--blur); 
+    border:1px solid rgba(255,255,255,0.05); 
+    flex-wrap: wrap; /* Чтобы на телефоне не ломалось */
+  }
+  .brand{display:flex;gap:10px;align-items:center}
+  .logo{ 
+    width:36px;height:36px;border-radius:10px; 
+    background:linear-gradient(120deg,var(--accent2),var(--accent)); 
+    display:flex;align-items:center;justify-content:center; 
+    font-weight:900;color:#000; font-size: 13px;
+    box-shadow:0 0 15px rgba(0, 170, 255, 0.3); 
+  }
+  h1{font-size:16px;margin:0;color:var(--accent2);letter-spacing:0.5px; line-height: 1.2;}
+  .desc{font-size:11px;color:var(--muted); display: none;} /* Скрываем описание на телефоне */
+  
+  .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap; width: 100%;}
+  
+  .search-wrap { display: inline-flex; align-items: center; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); padding-left: 10px; border-radius: 10px; min-height: 36px; color: var(--muted); flex: 1; }
+  .search-wrap input[type=text] { border: none !important; background: transparent !important; box-shadow: none !important; min-height: auto; padding-left: 6px; width: 100%; padding-right: 12px; font-size: 14px; color: var(--text);}
+  
+  input[type=number], input[type=text], select{ background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08); padding:8px;border-radius:10px;color:var(--text); outline:none;min-height:36px; font-size: 14px;}
+  
+  .header-stat { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); padding: 0 8px; white-space: nowrap;}
+  .header-stat span { font-size: 15px; font-weight: 700; color: var(--accent2); }
+  
+  .btn{ padding:8px 12px;border-radius:10px;border:0; background:linear-gradient(90deg,var(--accent2),var(--accent)); color:#000;font-weight:700;cursor:pointer; box-shadow:0 0 18px var(--neon); min-height: 36px; display: inline-flex; align-items: center; justify-content: center; font-size: 13px;}
+  .btn.ghost{ background:transparent; border:1px solid rgba(255,255,255,0.08); color:var(--text); box-shadow: none; }
+  .btn.success { background: var(--success); color: #000; box-shadow: 0 0 18px rgba(34, 197, 94, 0.2); }
+  .btn-small { padding: 6px 10px !important; min-height: auto; font-size: 14px; line-height: 1; }
+  .btn-preset { padding: 6px 8px !important; min-height: auto; font-size: 11px !important; line-height: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: var(--muted); box-shadow: none; }
+  
+  .btn-icon { background: transparent; border: none; color: var(--muted); cursor: pointer; padding: 8px; font-size: 18px; line-height: 1; } 
+  .btn-icon:hover { color: var(--text); }
+  .btn-icon.edit:hover { color: var(--accent2); }
+  .btn-icon.delete:hover { color: var(--danger); }
+  .btn-icon.timer:hover { color: var(--accent2); } 
+  
+  main{ display:grid; grid-template-rows: auto 1fr; grid-template-columns:1fr 420px; gap:16px; margin-top:16px; }
+  .panel{ background:var(--panel); padding:14px;border-radius:14px; box-shadow:var(--shadow); backdrop-filter:var(--blur); border:1px solid rgba(255,255,255,0.05); }
+  #timerPanel { grid-column: 1 / -1; display: none; }
+  
+  @media(max-width:1020px){
+    main{grid-template-columns:1fr}
+    .desc { display: none; }
+  }
+
+  .timer-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+  .timer-profile-controls { display: flex; align-items: center; gap: 8px; }
+  .timer-settings { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+  .timer-add-controls { display: flex; align-items: center; gap: 8px; }
+  #timerList { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; overflow: hidden; max-height: 10000px; transition: max-height .4s ease-out; }
+  #timerList.collapsed { max-height: 0; margin-top: 0; transition: max-height .3s ease-in; }
+  .timer-task { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px; border-radius: 12px; background: linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.05); }
+  .timer-task.on-cooldown { background: linear-gradient(90deg,rgba(100,100,100,0.1),rgba(100,100,100,0.05)); color: var(--muted); }
+  .timer-task.paused { background: linear-gradient(90deg, var(--paused), rgba(100, 100, 150, 0.05)); color: var(--muted); border-left: 4px solid #646496; }
+  .timer-task.soon { background: linear-gradient(90deg, var(--soon), rgba(255,255,0, 0.02)); border-left: 4px solid #ffcc00; color: var(--text); }
+  .timer-task-title { font-weight: 600; flex: 1; min-width: 150px; }
+  .timer-countdown { font-size: 14px; font-weight: 700; color: var(--accent2); min-width: 80px; text-align: right; }
+  .timer-task-actions { display: flex; gap: 6px; align-items: center; margin-left: auto; flex-wrap: wrap; }
+  
+  #bpGroupFilters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; margin-top: 4px; }
+  .group-trigger-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: var(--muted); padding: 6px 10px; border-radius: 8px; font-size: 13px; cursor: pointer; }
+  .group-trigger-btn.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
+  
+  #taskPopover { position: absolute; z-index: 50; min-width: 300px; max-height: 50vh; overflow-y: auto; padding: 10px; border-color: var(--accent); box-shadow: 0 0 25px var(--neon); border-radius: 12px; background: var(--bg-2); }
+  .popover-task-item { font-size: 14px; padding: 10px 12px; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.03);}
+  .popover-task-item:hover { background: rgba(255,255,255,0.1); }
+  .popover-task-item .info { font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+  .task{ display:flex;align-items:center;gap:12px; padding:12px;border-radius:12px;margin-bottom:10px; background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.05); touch-action: manipulation; }
+  .task:active{transform:scale(0.98);}
+  .task.completed{background:linear-gradient(90deg,rgba(0, 170, 255, 0.1),rgba(0, 170, 255, 0.05));border-left:4px solid var(--accent)}
+  .task.dragging { opacity: 0.4; background: var(--accent); }
+  .task .meta { flex: 1; min-width: 180px; display: flex; flex-direction: column; gap: 4px; }
+  .task .meta .title { font-weight: 600; font-size: 15px;}
+  .task .meta .hint { font-size: 12px; color: var(--muted); }
+  .task .meta .hint .user-time { color: var(--success); font-weight: 600; }
+  .task .meta .completed-time { font-size: 11px; color: var(--success); font-weight: 500; margin-top: 4px; }
+  .task .meta .inline-timer-display { font-size: 12px; font-weight: 700; color: var(--accent2); margin-top: 4px; }
+  
+  .task-note { font-size: 12px; color: var(--muted); cursor: help; position: relative; display: inline-block; align-self: flex-start; }
+  .task-note i { font-style: normal; }
+  .task-note .note-content { display: none; position: absolute; bottom: 110%; left: 0; background: var(--bg-1); border: 1px solid rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 8px; z-index: 50; width: 250px; font-weight: 400; color: var(--text); box-shadow: var(--shadow); }
+  .task-note:hover .note-content { display: block; }
+  
+  .task-progress { min-width: 180px; }
+  .task-controls { display:flex; gap:8px; align-items:center; min-height: 32px; flex-wrap: wrap; }
+  .input-small { width: 70px; }
+  .input-xs { width: 50px; }
+  .task-right { display:flex; flex-direction:column; gap:8px; align-items:flex-end; margin-left: auto; }
+  .task-multi { display:flex; gap:6px; align-items: center; }
+  .task-actions { display:flex; gap:4px; align-items: center; }
+  .progress { background: rgba(0,0,0,0.3); border-radius: 4px; height: 6px; overflow: hidden; margin-top: 4px; }
+  .progress > i { display: block; height: 100%; background: var(--accent); border-radius: 4px; width: 0%; transition: width .2s ease; }
+  .bp-badge { display: inline-block; background: linear-gradient(180deg, #2b2215 0%, #1a140d 100%); color: #e6c788; font-weight: 600; font-size: 12px; padding: 2px 6px; border-radius: 3px; border: 1px solid #3b2c18; text-shadow: none; box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 1px 2px rgba(0,0,0,0.4); }
+  
+  .group-header { font-size: 16px; font-weight: 700; color: var(--accent2); padding: 12px 4px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-top: 16px; margin-bottom: 10px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+  .group-header.collapsed .group-title::before { transform: rotate(-90deg); }
+  .group-header .group-title::before { content: '▼'; font-size: 10px; transition: transform .2s ease; display:inline-block; margin-right:8px; }
+  .group-content { overflow: hidden; max-height: 10000px; transition: max-height .4s ease-out; }
+  .group-content.collapsed { max-height: 0; transition: max-height .3s ease-in; }
+  
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 100; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity .3s ease, visibility .3s ease; }
+  .modal-overlay.visible { opacity: 1; visibility: visible; }
+  .modal-content { background: var(--bg-2); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius); padding: 24px; max-width: 600px; width: 90%; box-shadow: var(--shadow); max-height: 80vh; overflow-y: auto; }
+  .modal-content h2 { margin-top: 0; color: var(--accent2); }
+  .modal-close-btn { position: absolute; top: 15px; right: 15px; background: transparent; border: none; color: var(--muted); font-size: 24px; cursor: pointer; }
+  
+  #toastContainer { position: fixed; top: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; pointer-events: none;}
+  .toast { background: var(--panel); color: var(--text); padding: 12px 18px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); box-shadow: var(--shadow); opacity: 0; transform: translateX(100%); animation: toastIn .3s ease forwards; pointer-events: auto; font-size: 14px;}
+  .toast.success { border-left: 4px solid var(--success); }
+  .toast.error { border-left: 4px solid var(--danger); }
+  .toast.warn { border-left: 4px solid var(--accent2); }
+  .toast.info { border-left: 4px solid var(--muted); }
+  @keyframes toastIn { to { opacity: 1; transform: translateX(0); } }
+  
+  select option { color: #000000; background: #FFFFFF; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+        <div class="brand"> <div class="logo">BP</div> <div> <h1>GTA5 Farm</h1> </div> </div>
+        <div class="controls"> 
+          <label class="search-wrap small"> <span>🔍</span> <input id="searchInput" type="text" placeholder="Поиск..."/> </label> 
+          <label class="small" style="font-size:12px;">BP <input id="initialBP" type="number" value="0" style="width:50px; padding: 4px;"/></label> 
+          <label class="small" style="font-size:12px;"><input id="vipToggle" type="checkbox" checked/> VIP</label> 
+          <div class="header-stat"> <span id="headerTotalBP">0</span> </div> 
+          <button class="btn ghost" id="doubleBPBtn" style="padding: 4px 8px; font-size: 12px;">×2</button> 
+          <select id="sortSelect" title="Сортировка" style="max-width: 80px;"> <option value="eff">Effic.</option> <option value="time">Time</option> <option value:="bp">BP</option> <option value="manual">Man.</option> </select> 
+          <button class="btn ghost" id="toggleTimersBtn">⏱️</button> 
+          <button class="btn-icon" id="helpBtn" title="Помощь">?</button> 
+          <input id="topN" type="number" min="1" value="10" style="display:none;"/>
+           <input id="importFile" type="file" accept="application/json" style="display:none"/>
+        </div>
+        <div class="controls" style="margin-top: 8px; justify-content: flex-end;">
+            <button class="btn" id="applyTop" style="font-size: 11px; padding: 4px 8px;">+Топ-10</button>
+            <button class="btn ghost" id="exportBtn" style="font-size: 11px; padding: 4px 8px;">Save BP</button>
+            <label class="btn ghost" for="importFile" style="margin:0; font-size: 11px; padding: 4px 8px;">Load BP</label>
+        </div>
+    </header>
+
+    <main>
+      <section class="panel" id="timerPanel"> 
+        <div class="timer-header"> 
+            <div class="timer-profile-controls"> 
+                <label class="small" style="display: flex; align-items: center; gap: 6px;"> <span>👤</span> <select id="profileSelect" title="Выберите профиль" style="min-width: 120px; font-size:12px;"></select> </label> 
+                <button class="btn ghost btn-small" id="addProfileBtn">+</button> 
+                <button class="btn-icon edit" id="renameProfileBtn">✏️</button> 
+                <button class="btn-icon delete" id="deleteProfileBtn">🗑️</button> 
+                <button class="btn ghost btn-small" id="exportTimersBtn" style="margin-left: 10px;">Save T</button> 
+                <label class="btn ghost btn-small" for="importTimersFile" style="margin:0">Load T</label> 
+                <input id="importTimersFile" type="file" accept="application/json" style="display:none"/>
+            </div> 
+            <div class="timer-settings small" style="margin-top: 8px;"> 
+                 <label style="margin-left:8px;"><input id="soundNotifyCheckbox" type="checkbox"/> 🔊</label> 
+                 <button class="btn ghost btn-small" id="toggleTimerListCollapseBtn" style="margin-left: auto;">[ Свернуть ]</button>
+            </div> 
+            <div class="timer-add-controls" style="margin-top: 8px; width: 100%;"> 
+                <input id="newTimerTaskTitle" type="text" placeholder="Новый таймер..." style="flex: 1;"/> 
+                <button class="btn" id="saveTimerTaskBtn">+</button> 
+                <button class="btn ghost" id="cancelEditTimerBtn" style="display: none;">x</button> 
+            </div> 
+        </div> 
+        <div id="timerList"></div> 
+      </section>
+      
+      <section class="panel"> 
+        <div class="list-header" style="display: flex; justify-content: space-between; align-items: center;"> 
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;"> 
+                <strong>Актуальные</strong> <span class="badge" id="activeCount">0</span> 
+                <span class="small" style="color: var(--muted); border-left: 1px solid var(--muted); padding-left: 8px;"> 
+                    <span id="sumTime" style="color: var(--text);">0</span> мин | 
+                    <span id="sumBP" style="color: var(--text);">0</span> BP
+                </span> 
+            </div> 
+        </div> 
+        <div id="bpGroupFilters"></div>
+        <div class="area" id="activeArea" ondragover="event.preventDefault()"></div> 
+        <div class="group-header" id="completedHeader" style="margin-top: 20px;">
+            <div class="group-title">Выполненные (<span id="completedCount">0</span>)</div>
+        </div>
+        <div class="group-content" id="completedArea" ondragover="event.preventDefault()"></div>
+      </section>
+
+      <aside class="panel"> 
+        <div style="display:flex;flex-direction:column;gap:10px"> 
+             <div style="display:flex; justify-content: space-between;">
+                <div class="small">Итого: <span id="total" class="big" style="color:var(--accent); font-weight:bold;">0</span></div>
+                <div class="small">Получено: <span id="gained">0</span></div>
+            </div>
+            <div class="controls-row"> 
+              <button class="btn" id="markAll" style="font-size:12px;">Все ✓</button> 
+              <button class="btn ghost" id="unmarkAll" style="font-size:12px;">Снять ✓</button> 
+              <button class="btn ghost" id="dailyReset" style="font-size:12px;">Сброс</button> 
+              <button class="btn" id="goldenDay" style="background: var(--accent2); color: #000; flex: 1; font-size: 12px;">Gold</button> 
+            </div> 
+            <button class="btn ghost" id="clearStorage" style="width: 100%; margin-top: 4px; font-size: 11px; opacity: 0.5;">Wipe Data</button>
+            <div class="controls-row" style="margin-top: 8px;"> <button class="btn success" id="optimizeActive" style="flex: 1;">🚀 Оптимизировать</button> </div> 
+            <div style="margin-top:8px"> 
+                <div class="small">Своя задача</div> 
+                <div style="display:flex;gap:8px;margin-top:6px"> 
+                    <input id="newTitle" placeholder="Название" style="flex:1"/> 
+                    <input id="newBP" placeholder="BP" style="width:50px"/> 
+                    <input id="newTime" placeholder="Мин" style="width:50px"/> 
+                </div> 
+                <div style="display:flex;gap:8px;margin-top:6px"> 
+                    <button class="btn" id="saveCustomBtn" style="flex: 1;">Добавить</button> 
+                    <button class="btn ghost" id="cancelEditBtn" style="display: none;">Отмена</button> 
+                </div> 
+            </div> 
+        </div> 
+      </aside>
+    </main>
+    
+    <div id="timeInputModal" class="modal-overlay">
+      <div class="modal-content" style="max-width: 300px;">
+        <h2>Таймер</h2>
+        <p style="font-size: 13px; color: var(--muted); margin-top: -10px;">(например: "4h", "90m")</p>
+        <div style="display:flex; gap: 8px; margin-top: 16px;">
+          <input id="customTimeInput" type="text" style="flex: 1;" placeholder="30m" />
+          <button class="btn" id="customTimeOkBtn">OK</button>
+          <button class="btn ghost" id="customTimeCancelBtn">Отмена</button>
+        </div>
+      </div>
+    </div>
+    
+    <div id="taskPopover" class="panel" style="display: none;"></div>
+    <div id="helpModal" class="modal-overlay"> <div class="modal-content"> <button id="closeHelpBtn" class="modal-close-btn">&times;</button> <h2>Info</h2> <p>Telegram App v5.11</p> <p>Создано для удобного фарма.</p> </div> </div>
+    <div id="toastContainer"></div>
+    <audio id="notifySound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg" preload="auto"></audio>
+  </div>
+
+  <script>
+    // --- TELEGRAM WEB APP INIT ---
+    if (window.Telegram && window.Telegram.WebApp) {
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand(); 
+        document.body.classList.add('tg-active');
+        // Опционально: краская шапка телеграма
+        // tg.setHeaderColor('#0f111a'); 
+    }
+    // -----------------------------
+
+    const ALL_TASKS = [ /* ... BP tasks data ... */ {group:'Актуальные для всех', title:'3 часа в онлайне', bp:'2/4', multi:true, time:180, target:null, note:"Выполняется автоматически, пока вы в игре."}, {group:'Актуальные для всех', title:'Нули в казино', bp:'2/4', time:12, target:null, note:"Рулетка, ставка на Zero (0) или Double Zero (00)."}, {group:'Актуальные для всех', title:'25 действий на стройке', bp:'2/4', time:25, target:25}, {group:'Актуальные для всех', title:'25 действий в порту', bp:'2/4', time:30, target:25}, {group:'Актуальные для всех', title:'25 действий в шахте', bp:'2/4', time:30, target:25}, {group:'Актуальные для всех', title:'3 победы в Дэнс Баттлах', bp:'2/4', time:20, target:3, note:"Локация 'Dance Battle' у казино."}, {group:'Актуальные для всех', title:'Заказ материалов вручную', bp:'1/2', time:2, target:1}, {group:'Актуальные для всех', title:'20 подходов в зале', bp:'1/2', time:18, target:20}, {group:'Актуальные для всех', title:'Успешная тренировка в тире', bp:'1/2', time:8, target:1, note:"Нужно выбить >80 очков."}, {group:'Актуальные для всех', title:'10 посылок на почте', bp:'1/2', time:100, target:10, note:"ВНИМАНИЕ: Кулдаун ~10 минут на КАЖДУЮ посылку. Реальное время ~100+ мин."}, {group:'Актуальные для всех', title:'Арендовать киностудию', bp:'2/4', time:1, target:1}, {group:'Актуальные для всех', title:'Купить лотерейный билет', bp:'1/2', time:1, target:1}, {group:'Актуальные для всех', title:'Выиграть гонку в картинге', bp:'1/2', time:8, target:1}, {group:'Актуальные для всех', title:'10 действий на ферме', bp:'1/2', time:12, target:10}, {group:'Актуальные для всех', title:'Потушить 25 огоньков', bp:'1/2', time:22, target:25}, {group:'Актуальные для всех', title:'Выкопать 1 сокровище', bp:'1/2', time:12, target:1}, {group:'Актуальные для всех', title:'Проехать 1 уличную гонку', bp:'1/2', time:15, target:1, note:"Нужно минимум 2 участника. Время включает ожидание старта."}, {group:'Актуальные для всех', title:'Выполнить 3 заказа дальнобойщиком', bp:'2/4', time:30, target:3}, {group:'Актуальные для всех', title:'Оплатить смену внешности 2 раза', bp:'2/4', time:3, target:2}, {group:'Актуальные для всех', title:'Добавить 5 видео в кинотеатре', bp:'1/2', time:6, target:5}, {group:'Актуальные для всех', title:'Выиграть 5 игр в трениров. комплексе', bp:'1/2', time:15, target:5}, {group:'Актуальные для всех', title:'Выиграть 3 игры на арене', bp:'1/2', time:12, target:3}, {group:'Актуальные для всех', title:'2 круга на маршруте автобусника', bp:'2/4', time:12, target:2}, {group:'Актуальные для всех', title:'5 раз снять 100% шкуру', bp:'2/4', time:20, target:5, note:"Требуется прокачанный навык охоты."}, {group:'Фракционные', title:'7 закрашенных граффити', bp:'1/2', time:15, target:7}, {group:'Фракционные', title:'Сдать 5 контрабанды', bp:'2/4', time:30, target:5}, {group:'Фракционные', title:'Участие в каптах/бизварах', bp:'1/2', time:30, target:1}, {group:'Фракционные', title:'Сдать Хаммер с ВЗХ', bp:'3/6', time:20, target:1, note:"Нужен напарник для взлома и прикрытия."}, {group:'Фракционные', title:'5 выданных медкарт в EMS', bp:'2/4', time:18, target:5}, {group:'Фракционные', title:'Закрыть 15 вызовов в EMS', bp:'2/4', time:30, target:15}, {group:'Фракционные', title:'Отредактировать 40 объявлений в WN', bp:'2/4', time:35, target:40}, {group:'Фракционные', title:'Взломать 15 замков', bp:'2/4', time:35, target:15}, {group:'Фракционные', title:'Закрыть 5 кодов', bp:'2/4', time:20, target:5}, {group:'Фракционные', title:'Поставить на учет 2 авто', bp:'1/2', time:10, target:2}, {group:'Фракционные', title:'Произвести 1 арест в КПЗ', bp:'1/2', time:8, target:1}, {group:'Фракционные', title:'Выкупить двух из КПЗ', bp:'2/4', time:12, target:2}, {group:'НОВОЕ', title:'Посетить любой сайт в браузере', bp:'1/2', time:1, target:1}, {group:'НОВОЕ', title:'Зайти в любой канал в Brawl', bp:'1/2', time:1, target:1}, {group:'НОВОЕ', title:'Поставить лайк любой анкете в Match', bp:'1/2', time:1, target:1}, {group:'НОВОЕ', title:'Прокрутить за DP кейс', bp:'10/20', time:2, target:1}, {group:'НОВОЕ', title:'Кинуть мяч питомцу 15 раз', bp:'2/4', time:8, target:15}, {group:'НОВОЕ', title:'15 выполненных питомцем команд', bp:'2/4', time:8, target:15}, {group:'НОВОЕ', title:'Ставка в колесе удачи', bp:'3/6', time:3, target:1}, {group:'НОВОЕ', title:'Проехать 1 станцию на метро', bp:'2/4', time:5, target:1, note:"Время включает ожидание поезда."}, {group:'НОВОЕ', title:'Поймать 20 рыб', bp:'4/8', time:25, target:20}, {group:'НОВОЕ', title:'Выполнить 2 квеста клубов', bp:'4/8', time:30, target:2}, {group:'НОВОЕ', title:'Починить деталь в автосервисе', bp:'1/2', time:3, target:1}, {group:'НОВОЕ', title:'Забросить 2 мяча в баскетболе', bp:'1/2', time:2, target:2}, {group:'НОВОЕ', title:'Забить 2 гола в футболе', bp:'1/2', time:3, target:2}, {group:'НОВОЕ', title:'Победить в армрестлинге', bp:'1/2', time:5, target:1}, {group:'НОВОЕ', title:'Победить в дартс', bp:'1/2', time:6, target:1}, {group:'НОВОЕ', title:'Забить 10 голов в волейболе', bp:'1/2', time:8, target:10}, {group:'НОВОЕ', title:'1 мин настольный теннис', bp:'1/2', time:2, target:1}, {group:'НОВОЕ', title:'1 мин большой теннис', bp:'1/2', time:3, target:1}, {group:'НОВОЕ', title:'Сыграть в мафию в казино', bp:'3/6', time:15, target:1}, {group:'НОВОЕ', title:'Сделать платеж по лизингу', bp:'1/2', time:1, target:1}, {group:'НОВОЕ', title:'Посадить траву в теплице', bp:'4/8', time:20, target:1}, {group:'НОВОЕ', title:'Переработка обезболивающих', bp:'4/8', time:25, target:1}, {group:'НОВОЕ', title:'Принять участие в 2 аирдропах', bp:'4/8', time:45, target:2, note:"Время включает ожидание и сам аирдроп."} ];
+    function parseBP(s){ const m = (''+s).match(/(\d+)\s*\/\s*(\d+)/); if(!m) return {no:0,vip:0}; return {no:+m[1], vip:+m[2]}; }
+    function uid(){ return Math.random().toString(36).slice(2,9); }
+    const STORAGE_KEY = 'bp-tracker-gta-v4.9.4'; 
+
+    const GOLDEN_ORDER_TITLES = [
+      "Посетить любой сайт в браузере", "Зайти в любой канал в Brawl", "Купить лотерейный билет", 
+      "Поставить лайк любой анкете в Match", "Победить в дартс", "Ставка в колесе удачи", 
+      "Переработка обезболивающих", "Починить деталь в автосервисе", "Успешная тренировка в тире",
+      "Добавить 5 видео в кинотеатре", "Арендовать киностудию", "Нули в казино", 
+      "Выполнить 2 квеста клубов", "1 мин большой теннис", "Забить 10 голов в волейболе",
+      "1 мин настольный теннис", "Забить 2 гола в футболе", "Забросить 2 мяча в баскетболе",
+      "Проехать 1 станцию на метро", "2 круга на маршруте автобусника", "5 раз снять 100% шкуру",
+      "Выкопать 1 сокровище", "15 выполненных питомцем команд", "Кинуть мяч питомцу 15 раз",
+      "10 действий на ферме", "25 действий в порту", "25 действий в шахте",
+      "25 действий на стройке", "Поймать 20 рыб", "Потушить 25 огоньков",
+      "Сделать платеж по лизингу", "Выполнить 3 заказа дальнобойщиком", "Выиграть 3 игры на арене",
+      "Выиграть 5 игр в трениров. комплексе", "Проехать 1 уличную гонку", "Выиграть гонку в картинге",
+      "Победить в армрестлинге", "Сыграть в мафию в казино", "Принять участие в 2 аирдропах",
+      "Сдать 5 контрабанды", "3 часа в онлайне"
+    ];
+    const GOLDEN_ORDER_MAP = new Map(GOLDEN_ORDER_TITLES.map((title, index) => [title, index]));
+    
+    function withScrollRestore(action) { const scrollY = window.scrollY; action(); window.scrollTo(0, scrollY); }
+
+    const dom = { 
+      activeArea: document.getElementById('activeArea'), 
+      initialBP: document.getElementById('initialBP'), 
+      vipToggle: document.getElementById('vipToggle'), 
+      gained: document.getElementById('gained'), 
+      total: document.getElementById('total'), 
+      count: document.getElementById('count'), 
+      sumTime: document.getElementById('sumTime'), 
+      sumBP: document.getElementById('sumBP'), 
+      totalTime: document.getElementById('totalTime'), 
+      activeCount: document.getElementById('activeCount'), 
+      sortSelect: document.getElementById('sortSelect'), 
+      topN: document.getElementById('topN'), 
+      applyTop: document.getElementById('applyTop'), 
+      exportBtn: document.getElementById('exportBtn'), 
+      importFile: document.getElementById('importFile'), 
+      newTitle: document.getElementById('newTitle'), 
+      newBP: document.getElementById('newBP'), 
+      newTime: document.getElementById('newTime'), 
+      markAll: document.getElementById('markAll'), 
+      unmarkAll: document.getElementById('unmarkAll'), 
+      dailyReset: document.getElementById('dailyReset'), 
+      clearStorage: document.getElementById('clearStorage'), 
+      searchInput: document.getElementById('searchInput'), 
+      doubleBPBtn: document.getElementById('doubleBPBtn'), 
+      headerTotalBP: document.getElementById('headerTotalBP'), 
+      optimizeActive: document.getElementById('optimizeActive'), 
+      saveCustomBtn: document.getElementById('saveCustomBtn'), 
+      cancelEditBtn: document.getElementById('cancelEditBtn'), 
+      toggleTimersBtn: document.getElementById('toggleTimersBtn'), 
+      timerPanel: document.getElementById('timerPanel'), 
+      timerList: document.getElementById('timerList'), 
+      newTimerTaskTitle: document.getElementById('newTimerTaskTitle'), 
+      addTimerTaskBtn: document.getElementById('addTimerTaskBtn'), 
+      profileSelect: document.getElementById('profileSelect'), 
+      addProfileBtn: document.getElementById('addProfileBtn'), 
+      deleteProfileBtn: document.getElementById('deleteProfileBtn'), 
+      renameProfileBtn: document.getElementById('renameProfileBtn'), 
+      soundNotifyCheckbox: document.getElementById('soundNotifyCheckbox'), 
+      helpBtn: document.getElementById('helpBtn'), 
+      helpModal: document.getElementById('helpModal'), 
+      closeHelpBtn: document.getElementById('closeHelpBtn'), 
+      notifySound: document.getElementById('notifySound'), 
+      saveTimerTaskBtn: document.getElementById('saveTimerTaskBtn'), 
+      cancelEditTimerBtn: document.getElementById('cancelEditTimerBtn'),
+
+      completedArea: document.getElementById('completedArea'),
+      completedHeader: document.getElementById('completedHeader'),
+      completedCount: document.getElementById('completedCount'),
+      bpGroupFilters: document.getElementById('bpGroupFilters'),
+      taskPopover: document.getElementById('taskPopover'), 
+      
+      goldenDay: document.getElementById('goldenDay'), 
+      
+      timeInputModal: document.getElementById('timeInputModal'),
+      customTimeInput: document.getElementById('customTimeInput'),
+      customTimeOkBtn: document.getElementById('customTimeOkBtn'),
+      customTimeCancelBtn: document.getElementById('customTimeCancelBtn'),
+      
+      toastContainer: document.getElementById('toastContainer'),
+      
+      exportTimersBtn: document.getElementById('exportTimersBtn'),
+      importTimersFile: document.getElementById('importTimersFile'),
+      toggleTimerListCollapseBtn: document.getElementById('toggleTimerListCollapseBtn')
+    };
+    
+    let state = { 
+      vip: true, 
+      initialBP: 0, 
+      sort: 'eff', 
+      topN: 10, 
+      bpDoubled: false, 
+      collapsedGroups: {}, 
+      editingTaskId: null, 
+      activeBpFilterGroup: 'Все', 
+      active: [], 
+      available: [], 
+      completed: [], 
+      activeDropdownGroup: null, 
+      timersVisible: false, 
+      currentProfileId: null, 
+      profiles: {}, 
+      soundNotifyEnabled: false, 
+      editingTimerTaskId: null,
+      timerModalCallback: null,
+      timerListCollapsed: false
+    };
+    
+    function showToast(message, type = 'info') {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      dom.toastContainer.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+    
+    function ensureDefaultProfile() { if (Object.keys(state.profiles).length === 0) { const defaultId = uid(); state.profiles[defaultId] = { name: 'Стандартный', timedTasks: [] }; state.currentProfileId = defaultId; } if (!state.currentProfileId || !state.profiles[state.currentProfileId]) { state.currentProfileId = Object.keys(state.profiles)[0]; } }
+    
+    function mkTaskFromDef(d){ 
+      return { 
+        id: uid(), group: d.group||'Прочее', title: d.title||'', bp: d.bp||'0/0', parsed: parseBP(d.bp||'0/0'), time: d.time||0, target: d.target||null, multi: !!d.multi, times: 1, current: 0, checked: false, custom: !!d.custom, note: d.note || null, linkedTimerId: null, userTime: null, stopwatchStart: null 
+      }; 
+    }
+    
+    function initDefaults(){ 
+      state.available = ALL_TASKS.map(mkTaskFromDef); 
+      state.active = []; 
+      state.completed = []; 
+      state.collapsedGroups = {}; 
+      state.editingTaskId = null; 
+      state.activeBpFilterGroup = 'Все'; 
+      state.timersVisible = false; 
+      state.soundNotifyEnabled = false; 
+      state.editingTimerTaskId = null; 
+      state.timerListCollapsed = false;
+      ensureDefaultProfile(); 
+    }
+
+    function save(){ 
+      const payload = { vip: state.vip, initialBP: state.initialBP, sort: state.sort, topN: state.topN, bpDoubled: state.bpDoubled, collapsedGroups: state.collapsedGroups, editingTaskId: state.editingTaskId, activeBpFilterGroup: state.activeBpFilterGroup, active: state.active, available: state.available, completed: state.completed, timersVisible: state.timersVisible, currentProfileId: state.currentProfileId, profiles: state.profiles, soundNotifyEnabled: state.soundNotifyEnabled, editingTimerTaskId: state.editingTimerTaskId, timerListCollapsed: state.timerListCollapsed }; 
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); 
+    }
+    
+    function load(){ 
+      const raw = localStorage.getItem(STORAGE_KEY); if(!raw) return false; 
+      try{ 
+        const obj = JSON.parse(raw); 
+        state.vip = !!obj.vip; state.initialBP = Number(obj.initialBP)||0; state.sort = obj.sort||'eff'; state.topN = obj.topN||10; state.bpDoubled = !!obj.bpDoubled; 
+        state.collapsedGroups = obj.collapsedGroups || {}; state.editingTaskId = obj.editingTaskId || null; state.activeBpFilterGroup = obj.activeBpFilterGroup || 'Все'; 
+        const mapWithParsed = t => ({ ...t, parsed: t.parsed || parseBP(t.bp||'0/0'), linkedTimerId: t.linkedTimerId || null, userTime: t.userTime || null, stopwatchStart: t.stopwatchStart || null });
+        const allActive = (obj.active||[]).map(mapWithParsed);
+        if (obj.completed) { state.active = allActive.filter(t => !t.checked); state.completed = (obj.completed||[]).map(mapWithParsed); } else { state.active = allActive.filter(t => !t.checked); state.completed = allActive.filter(t => t.checked).map(mapWithParsed); }
+        state.available = (obj.available||[]).map(mapWithParsed); 
+        state.timersVisible = !!obj.timersVisible; state.profiles = obj.profiles || {}; state.currentProfileId = obj.currentProfileId || null; state.soundNotifyEnabled = !!obj.soundNotifyEnabled; state.editingTimerTaskId = obj.editingTimerTaskId || null; state.timerListCollapsed = !!obj.timerListCollapsed; 
+        ensureDefaultProfile(); return true; 
+      }catch(e){ console.warn('load failed', e); return false; } 
+    }
+
+    function baseBpValue(t){ const base = state.vip ? (t.parsed? t.parsed.vip:0) : (t.parsed? t.parsed.no:0); return base * (t.times||1); }
+    let bpValue = baseBpValue;
+    
+    function getTaskTimeInMinutes(t) { if (t.userTime) return t.userTime / 60000; if (t.time) return t.time; return 0; }
+    
+    function efficiency(t){ if (!t) return 0; const timeInMinutes = getTaskTimeInMinutes(t); if (timeInMinutes <= 0) return 9999 + bpValue(t); const timeForFull = timeInMinutes * (t.multi? (t.times||1):1); if(timeForFull <= 0) return 0; return bpValue(t) / timeForFull; }
+    
+    function sortTasks(arr, sortMode) {
+      if (sortMode === 'manual') return; 
+      arr.sort((a, b) => { 
+        if (!a || !b) return 0;
+        if (sortMode === 'eff') return efficiency(b) - efficiency(a); 
+        if (sortMode === 'time') return getTaskTimeInMinutes(a) - getTaskTimeInMinutes(b); 
+        if (sortMode === 'bp') return bpValue(b) - bpValue(a); 
+        return 0; 
+      }); 
+    }
+
+    function sortTasksByGoldenOrder(tasks) {
+      tasks.sort((a, b) => {
+        const posA = GOLDEN_ORDER_MAP.get(a.title) ?? Infinity;
+        const posB = GOLDEN_ORDER_MAP.get(b.title) ?? Infinity;
+        return posA - posB;
+      });
+    }
+
+    function createNode(t, from){
+      const el = document.createElement('div'); el.className='task'; el.draggable = true; el.dataset.id = t.id; 
+      if(t.checked) el.classList.add('completed'); 
+      el.addEventListener('dragstart', e=>{ el.classList.add('dragging'); e.dataTransfer.setData('text/plain', JSON.stringify({id:t.id,from})); setTimeout(() => el.style.opacity = '0.4', 0); }); 
+      el.addEventListener('dragend', ()=>{ el.classList.remove('dragging'); el.style.opacity = '1'; }); 
+      if (from === 'active') { el.addEventListener('dragover', e => { e.preventDefault(); const draggingEl = document.querySelector('.task.dragging'); if (!draggingEl || draggingEl === el) return; const rect = el.getBoundingClientRect(); const midwayY = rect.top + rect.height / 2; if (e.clientY < midwayY) { el.parentNode.insertBefore(draggingEl, el); } else { el.parentNode.insertBefore(draggingEl, el.nextSibling); } }); } 
+      const cb = document.createElement('input'); cb.type='checkbox'; cb.checked = !!t.checked; 
+      cb.addEventListener('change', ()=>{ withScrollRestore(() => { t.checked = cb.checked; if(t.target && t.current < t.target && t.checked) t.current = t.target; if (t.checked) { const idx = state.active.findIndex(x => x.id === t.id); if (idx > -1) { const [task] = state.active.splice(idx, 1); task.completedAt = Date.now(); task.stopwatchStart = null; state.completed.unshift(task); } } else { const idx = state.completed.findIndex(x => x.id === t.id); if (idx > -1) { const [task] = state.completed.splice(idx, 1); delete task.completedAt; state.active.push(task); sortTasks(state.active, state.sort); } } render(); save(); }); }); 
+      
+      const meta = document.createElement('div'); meta.className='meta'; 
+      const title = document.createElement('div'); title.className='title'; title.textContent = t.title + (t.custom? ' (мое)':''); 
+      const hint = document.createElement('div'); hint.className='hint'; 
+      const timeInMinutes = getTaskTimeInMinutes(t);
+      let timeString = `${Math.round(timeInMinutes)} мин`;
+      if (t.userTime) { timeString = `<span class="user-time">${timeString} (ваше)</span>`; }
+      hint.innerHTML = `${t.group ? t.group + ' • ' : ''}${t.bp} • ${timeString}` + (t.target? (' • цель: '+t.target):''); 
+      meta.appendChild(title); meta.appendChild(hint); 
+      
+      const inlineTimerEl = document.createElement('div'); inlineTimerEl.className = 'inline-timer-display';
+      const linkedTimer = getCurrentTimedTasks().find(timer => timer.bpTaskId === t.id);
+      if (linkedTimer) { t.linkedTimerId = linkedTimer.id; if (linkedTimer.isPaused) { inlineTimerEl.textContent = `⏸️ ${formatTime(linkedTimer.remainingMsAtPause)}`; } else if (linkedTimer.cooldownEnds && linkedTimer.cooldownEnds > Date.now()) { inlineTimerEl.textContent = `⏱️ ${formatTime(linkedTimer.cooldownEnds - Date.now())}`; } else { inlineTimerEl.style.display = 'none'; } } else { inlineTimerEl.style.display = 'none'; }
+      meta.appendChild(inlineTimerEl);
+
+      if (from === 'completed' && t.completedAt) { const completedEl = document.createElement('div'); completedEl.className = 'completed-time'; const d = new Date(t.completedAt); completedEl.textContent = `✓ ${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`; meta.appendChild(completedEl); }
+      if (t.note) { const noteEl = document.createElement('div'); noteEl.className = 'task-note'; noteEl.innerHTML = `<i>(i)</i><div class="note-content">${t.note}</div>`; meta.appendChild(noteEl); } 
+      
+      const center = document.createElement('div'); center.className = 'task-progress'; const controls = document.createElement('div'); controls.className = 'task-controls';
+      if(t.target){ 
+        const minus = document.createElement('button'); minus.className='btn ghost btn-small'; minus.textContent='−'; const input = document.createElement('input'); input.type='number'; input.min=0; input.value = t.current||0; input.className = 'input-small'; const plus = document.createElement('button'); plus.className='btn ghost btn-small'; plus.textContent='+'; 
+        minus.addEventListener('click', ()=>{ withScrollRestore(() => { t.current = Math.max(0, (t.current||0)-1); input.value = t.current; if(t.current >= t.target) t.checked = true; render(); save(); }); }); 
+        plus.addEventListener('click', ()=>{ withScrollRestore(() => { t.current = (t.current||0)+1; input.value = t.current; if(t.current >= t.target) t.checked = true; render(); save(); }); }); 
+        input.addEventListener('change', ()=>{ withScrollRestore(() => { t.current = Math.max(0, Math.floor(Number(input.value)||0)); input.value = t.current; if(t.current >= t.target) t.checked = true; render(); save(); }); }); 
+        controls.appendChild(minus); controls.appendChild(input); controls.appendChild(plus); center.appendChild(controls); 
+        const pbar = document.createElement('div'); pbar.className='progress'; const inner = document.createElement('i'); pbar.appendChild(inner); center.appendChild(pbar); 
+        const info = document.createElement('div'); info.className='small'; info.style.marginTop='6px'; center.appendChild(info); 
+      } 
+      if (from === 'active') { 
+        const stopwatchWrap = document.createElement('div'); const targetControlWrap = t.target ? controls : stopwatchWrap; 
+        if (t.stopwatchStart) { const stopBtn = document.createElement('button'); stopBtn.className = 'btn ghost btn-small'; stopBtn.innerHTML = `⏱️ Стоп [<span class="stopwatch-display">${formatTime(Date.now() - t.stopwatchStart)}</span>]`; stopBtn.style.marginLeft = t.target ? '10px' : '0'; stopBtn.addEventListener('click', () => { const durationMs = Date.now() - t.stopwatchStart; t.userTime = durationMs; t.stopwatchStart = null; save(); renderBPTracker(); showToast(`Время сохранено: ${formatTime(durationMs)}`, 'success'); }); targetControlWrap.appendChild(stopBtn); } 
+        else { const startBtn = document.createElement('button'); startBtn.className = 'btn ghost btn-small'; startBtn.textContent = t.target ? '▶️' : '▶️ Замерить'; startBtn.style.marginLeft = t.target ? '10px' : '0'; startBtn.addEventListener('click', () => { t.stopwatchStart = Date.now(); save(); renderBPTracker(); }); targetControlWrap.appendChild(startBtn); if (t.userTime) { const resetBtn = document.createElement('button'); resetBtn.className = 'btn-icon delete'; resetBtn.title = `Сбросить время (${formatTime(t.userTime)})`; resetBtn.innerHTML = '🗑️'; resetBtn.style.marginLeft = '8px'; resetBtn.addEventListener('click', () => { t.userTime = null; save(); renderBPTracker(); showToast('Время сброшено', 'info'); }); targetControlWrap.appendChild(resetBtn); } }
+        if (!t.target) { center.appendChild(stopwatchWrap); } 
+      }
+      
+      const right = document.createElement('div'); right.className = 'task-right'; 
+      if(t.multi){ const mult = document.createElement('div'); mult.className='task-multi'; const minusM = document.createElement('button'); minusM.className='btn ghost btn-small'; minusM.textContent='−'; const inpM = document.createElement('input'); inpM.type='number'; inpM.value = t.times||1; inpM.min=1; inpM.className = 'input-xs'; const plusM = document.createElement('button'); plusM.className='btn ghost btn-small'; plusM.textContent='+'; minusM.addEventListener('click', ()=>{ withScrollRestore(() => { t.times = Math.max(1, (t.times||1)-1); inpM.value = t.times; render(); save(); }); }); plusM.addEventListener('click', ()=>{ withScrollRestore(() => { t.times = Math.max(1, (t.times||1)+1); inpM.value = t.times; render(); save(); }); }); inpM.addEventListener('change', ()=>{ withScrollRestore(() => { t.times = Math.max(1, Math.floor(Number(inpM.value)||1)); inpM.value = t.times; render(); save(); }); }); mult.appendChild(minusM); mult.appendChild(inpM); mult.appendChild(plusM); right.appendChild(mult); } else { const spacer = document.createElement('div'); spacer.style.height = '29px'; right.appendChild(spacer); } 
+      const badge = document.createElement('div'); badge.className='bp-badge'; badge.textContent = bpValue(t) + ' BP'; right.appendChild(badge); 
+      const actions = document.createElement('div'); actions.className = 'task-actions'; 
+      const linkTimerBtn = document.createElement('button'); linkTimerBtn.className = 'btn-icon timer'; linkTimerBtn.title = 'Таймер'; linkTimerBtn.innerHTML = '⏱️'; linkTimerBtn.addEventListener('click', () => findOrCreateTimerForTask(t)); actions.appendChild(linkTimerBtn);
+      const editBtn = document.createElement('button'); editBtn.className = 'btn-icon edit'; editBtn.title = 'Ред.'; editBtn.innerHTML = '✏️'; editBtn.addEventListener('click', () => startEditCustom(t.id)); actions.appendChild(editBtn); 
+      if (t.custom) { const delBtn = document.createElement('button'); delBtn.className = 'btn-icon delete'; delBtn.title = 'Удал.'; delBtn.innerHTML = '🗑️'; delBtn.addEventListener('click', () => deleteTask(t.id)); actions.appendChild(delBtn); } 
+      const remBtn = document.createElement('button'); remBtn.className='btn ghost btn-small'; remBtn.textContent = '×'; remBtn.addEventListener('click', ()=> { if (from === 'active') { moveToAvailable(t.id, 'active'); state.sort = 'manual'; dom.sortSelect.value = 'manual'; } else if (from === 'completed') { moveToAvailable(t.id, 'completed'); } }); actions.appendChild(remBtn); 
+      right.appendChild(actions); el.appendChild(cb); el.appendChild(meta); el.appendChild(center); el.appendChild(right); 
+      function refresh(){ if(t.checked) el.classList.add('completed'); else el.classList.remove('completed'); if(t.target){ const p = Math.min(100, Math.round(((t.current||0)/t.target)*100)); const innerEl = el.querySelector('.progress > i'); if(innerEl) innerEl.style.width = p + '%'; const infoEl = el.querySelector('.small'); if(infoEl) infoEl.textContent = `${t.current||0} / ${t.target} (${p}%)`; } const b = el.querySelector('.bp-badge'); if(b) b.textContent = bpValue(t) + ' BP'; } refresh(); return el; 
+    }
+
+    function renderBPTracker(){
+      dom.activeArea.innerHTML = ''; dom.completedArea.innerHTML = ''; const q = dom.searchInput.value.trim().toLowerCase(); 
+      let active = state.active.slice(); if (q) { active = active.filter(t => t.title.toLowerCase().includes(q)); } active.forEach(t=>{ dom.activeArea.appendChild(createNode(t,'active')); });
+      let completed = state.completed.slice(); if (q) { completed = completed.filter(t => t.title.toLowerCase().includes(q)); } completed.forEach(t => { dom.completedArea.appendChild(createNode(t, 'completed')); }); dom.completedCount.textContent = state.completed.length;
+      const isCompletedCollapsed = !!state.collapsedGroups['__completed']; if (isCompletedCollapsed) { dom.completedHeader.classList.add('collapsed'); dom.completedArea.classList.add('collapsed'); } else { dom.completedHeader.classList.remove('collapsed'); dom.completedArea.classList.remove('collapsed'); }
+      renderGroupTriggers(); dom.activeCount.textContent = state.active.length; updateSummary(); updateCrudForm(); 
+      dom.activeArea.ondrop = e => { e.preventDefault(); const draggingEl = document.querySelector('.task.dragging'); if (draggingEl) draggingEl.style.opacity = '1'; try { const d = JSON.parse(e.dataTransfer.getData('text/plain')); if (d.from === 'active') { const newActiveOrder = []; dom.activeArea.querySelectorAll('.task').forEach(taskEl => { const id = taskEl.dataset.id; const task = state.active.find(t => t.id === id); if (task) newActiveOrder.push(task); }); state.active = newActiveOrder; state.sort = 'manual'; dom.sortSelect.value = 'manual'; save(); renderBPTracker(); } else if (d.from === 'completed') { const task = state.completed.find(t => t.id === d.id); if (task) { task.checked = false; delete task.completedAt; if(task.target) task.current = 0; const idx = state.completed.findIndex(x => x.id === d.id); if (idx > -1) { const [t] = state.completed.splice(idx, 1); const droppedOnElement = e.target.closest('.task'); if (droppedOnElement && droppedOnElement.dataset.id) { const targetId = droppedOnElement.dataset.id; const targetIndex = state.active.findIndex(x => x.id === targetId); if (targetIndex !== -1) { state.active.splice(targetIndex, 0, t); } else { state.active.push(t); } } else { state.active.push(t); } state.sort = 'manual'; dom.sortSelect.value = 'manual'; save(); renderBPTracker(); } } } } catch(err) {} }; dom.activeArea.ondragover = e => { e.preventDefault(); }; 
+      dom.completedArea.ondrop = e => { e.preventDefault(); const draggingEl = document.querySelector('.task.dragging'); if (draggingEl) draggingEl.style.opacity = '1'; try { const d = JSON.parse(e.dataTransfer.getData('text/plain')); if (d.from === 'active') { const task = state.active.find(t => t.id === d.id); if (task) { task.checked = true; task.completedAt = Date.now(); task.stopwatchStart = null; if(task.target && task.current < task.target) task.current = task.target; const idx = state.active.findIndex(x => x.id === d.id); if (idx > -1) { const [t] = state.active.splice(idx, 1); state.completed.unshift(t); save(); renderBPTracker(); } } } } catch(err) {} }; dom.completedArea.ondragover = e => { e.preventDefault(); }; 
+    }
+
+    function renderGroupTriggers() {
+      dom.bpGroupFilters.innerHTML = ''; const groups = {}; state.available.forEach(t => { const groupName = t.group || 'Прочее'; if (!groups[groupName]) groups[groupName] = 0; groups[groupName]++; });
+      const sortedGroupNames = Object.keys(groups).sort((a, b) => { if (a === 'Мои') return -1; if (b === 'Мои') return 1; if (a === 'Актуальные для всех') return -1; if (b === 'Актуальные для всех') return 1; return a.localeCompare(b); });
+      sortedGroupNames.forEach(groupName => { const count = groups[groupName]; const btn = document.createElement('button'); btn.className = 'group-trigger-btn'; btn.textContent = `${groupName} (${count})`; btn.dataset.group = groupName; if (groupName === state.activeDropdownGroup) { btn.classList.add('active'); } btn.addEventListener('click', (e) => { e.stopPropagation(); if (state.activeDropdownGroup === groupName) { closePopover(); } else { openTaskPopover(groupName, btn); } }); dom.bpGroupFilters.appendChild(btn); });
+      if (state.completed.length > 0) { const btn = document.createElement('button'); btn.className = 'group-trigger-btn'; btn.style.borderColor = 'var(--accent2)'; btn.style.color = 'var(--accent2)'; btn.textContent = `Выполненные (${state.completed.length})`; btn.dataset.group = '__completed_popover'; if (state.activeDropdownGroup === '__completed_popover') { btn.classList.add('active'); } btn.addEventListener('click', (e) => { e.stopPropagation(); if (state.activeDropdownGroup === '__completed_popover') { closePopover(); } else { openTaskPopover('__completed_popover', btn); } }); dom.bpGroupFilters.appendChild(btn); }
+    }
+
+    const documentClickHandler = (e) => { if (!dom.taskPopover.contains(e.target) && !e.target.closest('.group-trigger-btn')) { closePopover(); } };
+    function openTaskPopover(groupName, triggerButton) {
+      state.activeDropdownGroup = groupName; dom.bpGroupFilters.querySelectorAll('.group-trigger-btn').forEach(btn => btn.classList.remove('active')); triggerButton.classList.add('active'); dom.taskPopover.innerHTML = ''; let tasksToShow = []; let clickHandler = null; let emptyText = 'Пусто';
+      if (groupName === '__completed_popover') { tasksToShow = state.completed.slice(); clickHandler = (t) => moveFromCompletedToActive(t.id); emptyText = 'Список выполненных пуст'; } else { tasksToShow = state.available.filter(t => (t.group || 'Прочее') === groupName); tasksToShow.sort((a, b) => a.title.localeCompare(b.title)); clickHandler = (t) => moveToActive(t.id); emptyText = 'Задачи добавлены'; }
+      if (tasksToShow.length === 0) { dom.taskPopover.innerHTML = `<div style="padding: 8px 10px; color: var(--muted);">${emptyText}</div>`; } else { tasksToShow.forEach(t => { const item = document.createElement('div'); item.className = 'popover-task-item'; let infoHtml = ''; if (groupName === '__completed_popover') { const d = new Date(t.completedAt || Date.now()); const timeString = t.completedAt ? `✓ ${d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}` : ''; infoHtml = `<div style="display: flex; gap: 8px; align-items: center; justify-content: flex-end;"> <span style="color: var(--muted);">${bpValue(t)} BP</span> <span style="color: var(--success);">${timeString}</span> </div>`; } else { infoHtml = `${bpValue(t)} BP`; } item.innerHTML = ` <span class="title">${t.title}</span> <span class="info">${infoHtml}</span> `; item.addEventListener('click', () => { clickHandler(t); closePopover(); }); dom.taskPopover.appendChild(item); }); }
+      const rect = triggerButton.getBoundingClientRect(); dom.taskPopover.style.top = (rect.bottom + window.scrollY + 5) + 'px'; dom.taskPopover.style.left = (rect.left + window.scrollX) + 'px'; dom.taskPopover.style.display = 'block'; setTimeout(() => document.addEventListener('click', documentClickHandler), 0);
+    }
+    function closePopover() { if (!state.activeDropdownGroup) return; state.activeDropdownGroup = null; dom.taskPopover.style.display = 'none'; dom.taskPopover.innerHTML = ''; dom.bpGroupFilters.querySelectorAll('.group-trigger-btn').forEach(btn => btn.classList.remove('active')); document.removeEventListener('click', documentClickHandler); }
+
+    function moveToActive(id){ const idx = state.available.findIndex(x=> x.id===id); if(idx === -1) return; const [t] = state.available.splice(idx,1); state.active.push(t); if (state.sort !== 'manual') { sortTasks(state.active, state.sort); } save(); render(); }
+    function moveFromCompletedToActive(id) { const idx = state.completed.findIndex(x=> x.id===id); if(idx === -1) return; const [t] = state.completed.splice(idx,1); t.checked = false; delete t.completedAt; if (t.target) t.current = 0; state.active.push(t); if (state.sort !== 'manual') { sortTasks(state.active, state.sort); } save(); render(); }
+    function moveToAvailable(id, fromList){ let idx = -1; let taskArr = null; if (fromList === 'active') { idx = state.active.findIndex(x=> x.id===id); taskArr = state.active; } else if (fromList === 'completed') { idx = state.completed.findIndex(x=> x.id===id); taskArr = state.completed; } if(idx === -1 || !taskArr) return; const [t] = taskArr.splice(idx,1); t.checked = false; delete t.completedAt; if (t.target) t.current = 0; t.stopwatchStart = null; state.available.push(t); save(); render(); }
+    function deleteTask(id) { if (!confirm('Удалить задачу?')) return; let idx = state.available.findIndex(t => t.id === id); if (idx > -1) { state.available.splice(idx, 1); } else { idx = state.active.findIndex(t => t.id === id); if (idx > -1) { state.active.splice(idx, 1); } else { idx = state.completed.findIndex(t => t.id === id); if (idx > -1) { state.completed.splice(idx, 1); } } } if (state.editingTaskId === id) { cancelEdit(); } save(); render(); }
+    function startEditCustom(id) { let task = state.available.find(t => t.id === id) || state.active.find(t => t.id === id) || state.completed.find(t => t.id === id); if (!task) return; state.editingTaskId = id; dom.newTitle.value = task.title; dom.newBP.value = task.bp; dom.newTime.value = getTaskTimeInMinutes(task); updateCrudForm(); dom.newTitle.focus(); }
+    function cancelEdit() { state.editingTaskId = null; dom.newTitle.value = ''; dom.newBP.value = ''; dom.newTime.value = ''; updateCrudForm(); }
+    function updateCrudForm() { if (state.editingTaskId) { dom.saveCustomBtn.textContent = 'Сохранить'; dom.saveCustomBtn.classList.add('success'); dom.cancelEditBtn.style.display = 'inline-flex'; } else { dom.saveCustomBtn.textContent = 'Добавить'; dom.saveCustomBtn.classList.remove('success'); dom.cancelEditBtn.style.display = 'none'; } }
+    function saveCustomTask() { const title = (dom.newTitle.value||'').trim(); const bp = (dom.newBP.value||'0/0').trim(); const time = Math.max(0, Math.floor(Number(dom.newTime.value)||0)); if(!title) { showToast('Введите название', 'warn'); return; } if (state.editingTaskId) { let task = state.available.find(t => t.id === state.editingTaskId) || state.active.find(t => t.id === state.editingTaskId) || state.completed.find(t => t.id === state.editingTaskId); if (task) { task.title = title; task.bp = bp; task.parsed = parseBP(bp); task.time = time; task.userTime = null; task.stopwatchStart = null; } } else { const obj = { id: uid(), group: 'Мои', title, bp, parsed: parseBP(bp), time, target: null, multi:false, times:1, current:0, checked:false, custom:true, note: 'Моя кастомная задача', linkedTimerId: null, userTime: null, stopwatchStart: null }; state.available.push(obj); } cancelEdit(); save(); render(); }
+    function updateSummary(){ state.vip = !!state.vip; state.initialBP = Number(state.initialBP)||0; let gained = 0; let activeTime = 0; let activeBP = 0; state.active.forEach(t=>{ if(!t || !t.parsed) return; const doneRatio = t.target ? Math.min(1, (t.current||0)/t.target) : 0; const remainingRatio = t.target ? Math.max(0, (t.target - (t.current||0))/t.target) : 1; const timeInMinutes = getTaskTimeInMinutes(t); const timeForFull = timeInMinutes * (t.multi ? (t.times||1) : 1); const remTime = timeForFull * remainingRatio; activeTime += remTime; activeBP += bpValue(t); }); state.completed.forEach(t => { if(!t || !t.parsed) return; gained += bpValue(t); }); const finalTotal = (Number(state.initialBP)||0) + gained; dom.sumTime.textContent = Math.round(activeTime); dom.sumBP.textContent = activeBP; dom.totalTime.textContent = Math.round(activeTime) + ' мин'; dom.gained.textContent = gained; dom.total.textContent = finalTotal; dom.count.textContent = state.active.length; dom.headerTotalBP.textContent = finalTotal; }
+
+    function showCustomTimeModal(suggestion, callback) { state.timerModalCallback = callback; dom.customTimeInput.value = suggestion; dom.timeInputModal.classList.add('visible'); dom.customTimeInput.focus(); }
+    function closeCustomTimeModal() { state.timerModalCallback = null; dom.timeInputModal.classList.remove('visible'); }
+    function handleCustomTimeOk() { const durationStr = dom.customTimeInput.value.trim(); if (!durationStr) return; const durationMs = parseDuration(durationStr); if (durationMs <= 0) { showToast('Формат: 4h или 90m', 'error'); return; } if (state.timerModalCallback) { state.timerModalCallback(durationStr, durationMs); } closeCustomTimeModal(); }
+    function findOrCreateTimerForTask(task) { const profile = getCurrentProfile(); if (!profile) { showToast('Нет профиля', 'error'); return; } let existingTimer = profile.timedTasks.find(timer => timer.bpTaskId === task.id); if (existingTimer) { task.linkedTimerId = existingTimer.id; showToast(`Таймер найден`, 'info'); } else { const newTimer = { id: uid(), title: task.title, cooldownEnds: null, lastDurationMs: null, isPaused: false, remainingMsAtPause: null, bpTaskId: task.id }; profile.timedTasks.push(newTimer); task.linkedTimerId = newTimer.id; showToast(`Таймер создан`, 'success'); } toggleTimersPanel(true); save(); render(); setTimeout(() => { const timerEl = dom.timerList.querySelector(`[data-id="${task.linkedTimerId}"]`); if (timerEl) { timerEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); timerEl.style.transition = 'box-shadow .3s ease-out'; timerEl.style.boxShadow = '0 0 25px var(--accent)'; setTimeout(() => { timerEl.style.boxShadow = ''; }, 1500); } }, 200); }
+    function getCurrentProfile() { return state.profiles[state.currentProfileId] || null; }
+    function getCurrentTimedTasks() { const profile = getCurrentProfile(); return profile ? profile.timedTasks : []; }
+    function addProfile() { const name = prompt("Имя профиля:"); if (!name || !name.trim()) return; const newId = uid(); state.profiles[newId] = { name: name.trim(), timedTasks: [] }; state.currentProfileId = newId; save(); renderTimerManager(); }
+    function renameProfile() { const profile = getCurrentProfile(); if (!profile) return; const newName = prompt(`Новое имя:`, profile.name); if (!newName || !newName.trim()) return; profile.name = newName.trim(); save(); renderTimerManager(); }
+    function deleteProfile() { const profile = getCurrentProfile(); if (!profile) return; if (Object.keys(state.profiles).length <= 1) { showToast("Нельзя удалить единственный", 'warn'); return; } if (!confirm(`Удалить профиль "${profile.name}"?`)) return; delete state.profiles[state.currentProfileId]; state.currentProfileId = null; ensureDefaultProfile(); save(); renderTimerManager(); showToast(`Удален`, 'info'); }
+    function switchProfile(newId) { if (state.profiles[newId]) { state.currentProfileId = newId; save(); render(); } } 
+    function toggleTimersPanel(forceOpen = null) { const shouldBeVisible = forceOpen !== null ? forceOpen : !state.timersVisible; if (state.timersVisible === shouldBeVisible) return; state.timersVisible = shouldBeVisible; dom.timerPanel.style.display = state.timersVisible ? 'block' : 'none'; if(state.timersVisible) { dom.toggleTimersBtn.classList.remove('ghost'); } else { dom.toggleTimersBtn.classList.add('ghost'); } save(); }
+    function renderTimerManager() { dom.profileSelect.innerHTML = ''; for (const id in state.profiles) { const option = document.createElement('option'); option.value = id; option.textContent = state.profiles[id].name; if (id === state.currentProfileId) option.selected = true; dom.profileSelect.appendChild(option); } dom.soundNotifyCheckbox.checked = state.soundNotifyEnabled; dom.timerList.innerHTML = ''; const currentTasks = getCurrentTimedTasks(); if (!currentTasks.length) { dom.timerList.innerHTML = `<div style="color: var(--muted); font-size:13px; text-align:center;">Нет таймеров</div>`; } else { currentTasks.sort((a, b) => { const aEnds = a.cooldownEnds || (a.isPaused ? Infinity : 0); const bEnds = b.cooldownEnds || (b.isPaused ? Infinity : 0); const aReady = !a.isPaused && aEnds <= Date.now(); const bReady = !b.isPaused && bEnds <= Date.now(); if (aReady && !bReady) return -1; if (!aReady && bReady) return 1; if (!aReady && !bReady) { if (a.isPaused && !b.isPaused) return 1; if (!a.isPaused && b.isPaused) return -1; if (a.isPaused && b.isPaused) return 0; return aEnds - bEnds; } return 0; }); currentTasks.forEach(task => { dom.timerList.appendChild(createTimerTaskNode(task)); }); } if (state.timerListCollapsed) { dom.timerList.classList.add('collapsed'); dom.toggleTimerListCollapseBtn.textContent = '[ Развернуть ]'; } else { dom.timerList.classList.remove('collapsed'); dom.toggleTimerListCollapseBtn.textContent = '[ Свернуть ]'; } dom.timerPanel.style.display = state.timersVisible ? 'block' : 'none'; if(state.timersVisible) { dom.toggleTimersBtn.classList.remove('ghost'); } else { dom.toggleTimersBtn.classList.add('ghost'); } updateTimerCrudForm(); }
+    function createTimerTaskNode(task) { const el = document.createElement('div'); el.className = 'timer-task'; el.dataset.id = task.id; const title = document.createElement('span'); title.className = 'timer-task-title'; title.textContent = task.title; if (task.bpTaskId) { title.innerHTML = `🔗 ${title.textContent}`; } const actions = document.createElement('div'); actions.className = 'timer-task-actions'; const isReady = !task.cooldownEnds && !task.isPaused; const isOnCooldown = task.cooldownEnds && task.cooldownEnds > Date.now() && !task.isPaused; const isPaused = task.isPaused; const remaining = isOnCooldown ? task.cooldownEnds - Date.now() : (isPaused ? task.remainingMsAtPause : 0); const editBtn = document.createElement('button'); editBtn.className = 'btn-icon edit'; editBtn.innerHTML = '✏️'; editBtn.addEventListener('click', () => startEditTimerTask(task.id)); actions.appendChild(editBtn); if (isOnCooldown) { el.classList.add('on-cooldown'); const countdown = document.createElement('span'); countdown.className = 'timer-countdown'; countdown.dataset.cooldownEnd = task.cooldownEnds; countdown.textContent = formatTime(remaining); if (remaining < 10 * 60 * 1000) { el.classList.add('soon'); } const pauseBtn = document.createElement('button'); pauseBtn.className = 'btn ghost btn-small'; pauseBtn.innerHTML = '⏸️'; pauseBtn.addEventListener('click', () => pauseTimer(task.id)); actions.appendChild(countdown); actions.appendChild(pauseBtn); } else if (isPaused) { el.classList.add('paused'); const pausedTime = document.createElement('span'); pausedTime.className = 'timer-countdown'; pausedTime.textContent = formatTime(remaining); const resumeBtn = document.createElement('button'); resumeBtn.className = 'btn ghost btn-small'; resumeBtn.innerHTML = '▶️'; resumeBtn.addEventListener('click', () => resumeTimer(task.id)); const cancelBtn = document.createElement('button'); cancelBtn.className = 'btn ghost btn-small'; cancelBtn.textContent = '×'; cancelBtn.addEventListener('click', () => cancelTimer(task.id)); actions.appendChild(pausedTime); actions.appendChild(resumeBtn); actions.appendChild(cancelBtn); } else { const doneBtn = document.createElement('button'); doneBtn.className = 'btn ghost btn-small'; doneBtn.textContent = '✓'; doneBtn.addEventListener('click', () => manualDoneTimerTask(task.id)); actions.appendChild(doneBtn); if (task.lastDurationMs) { const repeatBtn = document.createElement('button'); repeatBtn.className = 'btn ghost btn-small'; repeatBtn.innerHTML = '🔄'; repeatBtn.addEventListener('click', () => restartTimer(task.id)); actions.appendChild(repeatBtn); } ['10m', '1h', '2h', '3h', '4h'].forEach(preset => { const presetBtn = document.createElement('button'); presetBtn.className = 'btn-preset'; presetBtn.textContent = preset; presetBtn.addEventListener('click', () => startTimer(task.id, preset)); actions.appendChild(presetBtn); }); const startBtn = document.createElement('button'); startBtn.className = 'btn btn-small'; startBtn.innerHTML = '▶️'; startBtn.addEventListener('click', () => startTimer(task.id)); actions.appendChild(startBtn); const delBtn = document.createElement('button'); delBtn.className = 'btn-icon delete'; delBtn.innerHTML = '🗑️'; delBtn.addEventListener('click', () => deleteTimerTask(task.id)); actions.appendChild(delBtn); } el.appendChild(title); el.appendChild(actions); return el; }
+    function parseDuration(str) { if (!str) return 0; const match = str.toLowerCase().match(/^(\d+)([hm]?)$/); if (!match) return 0; const value = parseInt(match[1], 10); const unit = match[2] || 'm'; if (unit === 'm') return value * 60 * 1000; if (unit === 'h') return value * 60 * 60 * 1000; return 0; }
+    function formatTime(ms) { if (ms <= 0) return '00:00:00'; let seconds = Math.floor(ms / 1000); let minutes = Math.floor(seconds / 60); let hours = Math.floor(minutes / 60); seconds %= 60; minutes %= 60; return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`; }
+    function formatDuration(ms) { if (!ms || ms <= 0) return ''; const minutes = Math.round(ms / (60 * 1000)); if (minutes < 60) return `${minutes}m`; const hours = Math.round(minutes / 60); return `${hours}h`; }
+    
+    function startTimer(id, presetDurationStr = null) { const profile = getCurrentProfile(); if (!profile) return; const task = profile.timedTasks.find(t => t.id === id); if (!task) return; if (presetDurationStr) { const durationMs = parseDuration(presetDurationStr); if (durationMs > 0) { task.cooldownEnds = Date.now() + durationMs; task.lastDurationMs = durationMs; task.isPaused = false; task.remainingMsAtPause = null; save(); render(); } } else { const suggestion = task.lastDurationMs ? formatDuration(task.lastDurationMs) : "30m"; showCustomTimeModal(suggestion, (durationStr, durationMs) => { task.cooldownEnds = Date.now() + durationMs; task.lastDurationMs = durationMs; task.isPaused = false; task.remainingMsAtPause = null; save(); render(); }); } }
+    function restartTimer(id) { const profile = getCurrentProfile(); if (!profile) return; const task = profile.timedTasks.find(t => t.id === id); if (!task) return; if (task.lastDurationMs > 0) { task.cooldownEnds = Date.now() + task.lastDurationMs; task.isPaused = false; task.remainingMsAtPause = null; save(); render(); } else { startTimer(id); } }
+    function manualDoneTimerTask(id) { const profile = getCurrentProfile(); if (!profile) return; const task = profile.timedTasks.find(t => t.id === id); if (!task) return; task.cooldownEnds = null; task.isPaused = false; task.remainingMsAtPause = null; save(); render(); }
+    function cancelTimer(id) { const profile = getCurrentProfile(); if (!profile) return; const task = profile.timedTasks.find(t => t.id === id); if (task) { task.cooldownEnds = null; task.isPaused = false; task.remainingMsAtPause = null; save(); render(); } }
+    function deleteTimerTask(id) { const profile = getCurrentProfile(); if (!profile) return; const taskIndex = profile.timedTasks.findIndex(t => t.id === id); if (taskIndex === -1) return; const taskTitle = profile.timedTasks[taskIndex].title; if (!confirm(`Удалить таймер "${taskTitle}"?`)) return; if (state.editingTimerTaskId === id) cancelEditTimerTask(); profile.timedTasks.splice(taskIndex, 1); showToast(`Таймер удален`, 'info'); save(); render(); }
+    function pauseTimer(id) { const profile = getCurrentProfile(); if (!profile) return; const task = profile.timedTasks.find(t => t.id === id); if (!task || task.isPaused || !task.cooldownEnds) return; const remainingMs = task.cooldownEnds - Date.now(); if (remainingMs <= 0) return; task.isPaused = true; task.remainingMsAtPause = remainingMs; task.cooldownEnds = null; save(); render(); }
+    function resumeTimer(id) { const profile = getCurrentProfile(); if (!profile) return; const task = profile.timedTasks.find(t => t.id === id); if (!task || !task.isPaused || !task.remainingMsAtPause) return; task.isPaused = false; task.cooldownEnds = Date.now() + task.remainingMsAtPause; task.remainingMsAtPause = null; save(); render(); }
+    function startEditTimerTask(id) { const profile = getCurrentProfile(); if (!profile) return; const task = profile.timedTasks.find(t => t.id === id); if (!task) return; state.editingTimerTaskId = id; dom.newTimerTaskTitle.value = task.title; updateTimerCrudForm(); dom.newTimerTaskTitle.focus(); }
+    function cancelEditTimerTask() { state.editingTimerTaskId = null; dom.newTimerTaskTitle.value = ''; updateTimerCrudForm(); }
+    function saveTimerTask() { const profile = getCurrentProfile(); if (!profile) return; const title = dom.newTimerTaskTitle.value.trim(); if (!title) { showToast('Введите название', 'warn'); return; } if (state.editingTimerTaskId) { const task = profile.timedTasks.find(t => t.id === state.editingTimerTaskId); if (task) task.title = title; } else { profile.timedTasks.push({ id: uid(), title: title, cooldownEnds: null, lastDurationMs: null, isPaused: false, remainingMsAtPause: null, bpTaskId: null }); } cancelEditTimerTask(); save(); render(); }
+    function updateTimerCrudForm() { if (state.editingTimerTaskId) { dom.saveTimerTaskBtn.textContent = 'Сохранить'; dom.saveTimerTaskBtn.classList.add('success'); dom.cancelEditTimerBtn.style.display = 'inline-flex'; } else { dom.saveTimerTaskBtn.textContent = 'Добавить'; dom.saveTimerTaskBtn.classList.remove('success'); dom.cancelEditTimerBtn.style.display = 'none'; } }
+    
+    function updateAllTimers() {
+      if (!state.currentProfileId) return; let needsTimerRender = false; const currentTasks = getCurrentTimedTasks(); const now = Date.now();
+      state.active.forEach(task => { if (task.stopwatchStart) { const el = dom.activeArea.querySelector(`.task[data-id="${task.id}"] .stopwatch-display`); if (el) { const elapsedMs = now - task.stopwatchStart; el.textContent = formatTime(elapsedMs); } } });
+      currentTasks.forEach(task => {
+        if (task.bpTaskId) { const bpTaskCard = document.querySelector(`.task[data-id="${task.bpTaskId}"]`); const inlineTimerEl = bpTaskCard ? bpTaskCard.querySelector('.inline-timer-display') : null; if (inlineTimerEl) { if (task.isPaused) { inlineTimerEl.textContent = `⏸️ ${formatTime(task.remainingMsAtPause)}`; inlineTimerEl.style.display = 'block'; } else if (task.cooldownEnds && task.cooldownEnds > now) { inlineTimerEl.textContent = `⏱️ ${formatTime(task.cooldownEnds - now)}`; inlineTimerEl.style.display = 'block'; } else { inlineTimerEl.textContent = ''; inlineTimerEl.style.display = 'none'; } } }
+        if (!task.cooldownEnds || task.isPaused) return; const remaining = task.cooldownEnds - now; const el = dom.timerList.querySelector(`.timer-task[data-id="${task.id}"]`); const countdownEl = el?.querySelector('.timer-countdown');
+        if (remaining <= 0) { task.cooldownEnds = null; needsTimerRender = true; sendNotification(`Таймер завершен: ${task.title}`); playSound(); } else { if (countdownEl) countdownEl.textContent = formatTime(remaining); if (el) { if (remaining < 10 * 60 * 1000) { el.classList.add('soon'); } else { el.classList.remove('soon'); } } }
+      });
+      if (needsTimerRender) { save(); render(); }
+    }
+    
+    function requestNotificationPermission() { if (!('Notification' in window)) return; if (Notification.permission !== 'default') return; Notification.requestPermission(); }
+    function sendNotification(title) { if (!('Notification' in window)) return; if (Notification.permission === 'granted') { new Notification('Задача готова!', { body: title, icon: 'https://img.icons8.com/color/48/000000/alarm-clock.png' }); } }
+    function playSound() { if (state.soundNotifyEnabled && dom.notifySound) { dom.notifySound.play().catch(e => console.warn("Звук не воспроизведен:", e)); } }
+    function openHelpModal() { dom.helpModal.classList.add('visible'); }
+    function closeHelpModal() { dom.helpModal.classList.remove('visible'); }
+
+    // Controls
+    dom.searchInput.addEventListener('input', renderBPTracker);
+    dom.optimizeActive.addEventListener('click', () => { if (!state.active.length) return; sortTasks(state.active, 'eff'); state.sort = 'manual'; dom.sortSelect.value = 'manual'; save(); renderBPTracker(); });
+    dom.sortSelect.addEventListener('change', ()=>{ state.sort = dom.sortSelect.value; sortTasks(state.active, state.sort); save(); renderBPTracker(); });
+    dom.initialBP.addEventListener('change', ()=>{ withScrollRestore(() => { state.initialBP = Number(dom.initialBP.value)||0; save(); updateSummary(); }); });
+    dom.vipToggle.addEventListener('change', ()=>{ withScrollRestore(() => { state.vip = dom.vipToggle.checked; save(); renderBPTracker(); }); });
+    dom.doubleBPBtn.addEventListener('click', () => { withScrollRestore(() => { state.bpDoubled = !state.bpDoubled; bpValue = state.bpDoubled ? (t => baseBpValue(t) * 2) : baseBpValue; updateDoubleBPVisual(); save(); renderBPTracker(); }); });
+    function updateDoubleBPVisual() { dom.doubleBPBtn.textContent = state.bpDoubled ? "×2 АКТИВНО" : "×2 BP"; if (state.bpDoubled) { dom.doubleBPBtn.classList.remove('ghost'); dom.doubleBPBtn.style.background = "linear-gradient(90deg,var(--accent2),var(--accent))"; dom.doubleBPBtn.style.color = "#000"; } else { dom.doubleBPBtn.classList.add('ghost'); dom.doubleBPBtn.style.background = ""; dom.doubleBPBtn.style.color = ""; } }
+    dom.topN.addEventListener('change', ()=>{ state.topN = Math.max(1, Math.floor(Number(dom.topN.value)||10)); save(); });
+    dom.applyTop.addEventListener('click', ()=>{ const n = Math.max(1, Math.floor(Number(dom.topN.value)||10)); const sortedAvail = state.available.slice(); sortTasks(sortedAvail, 'eff'); const take = sortedAvail.slice(0,n); take.forEach(t=>{ const idx = state.available.findIndex(x=> x.id === t.id); if(idx > -1){ const [m] = state.available.splice(idx,1); state.active.push(m); } }); save(); renderBPTracker(); });
+    
+    dom.exportBtn.addEventListener('click', ()=>{ const data = JSON.stringify({ vip: state.vip, initialBP: state.initialBP, sort: state.sort, topN: state.topN, bpDoubled: state.bpDoubled, active: state.active, available: state.available, completed: state.completed, collapsedGroups: state.collapsedGroups, activeBpFilterGroup: state.activeBpFilterGroup, editingTaskId: null }, null, 2); const blob = new Blob([data], {type:'application/json'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `bp-data.json`; a.click(); URL.revokeObjectURL(url); });
+    dom.importFile.addEventListener('change', (e)=>{ const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ()=> { try{ const obj = JSON.parse(r.result); state.vip = !!obj.vip; dom.vipToggle.checked = state.vip; state.initialBP = Number(obj.initialBP)||0; dom.initialBP.value = state.initialBP; state.sort = obj.sort||state.sort; dom.sortSelect.value = state.sort; state.topN = obj.topN||state.topN; state.bpDoubled = !!obj.bpDoubled; state.collapsedGroups = obj.collapsedGroups || {}; state.editingTaskId = null; state.activeBpFilterGroup = obj.activeBpFilterGroup || 'Все'; const mapWithParsed = t => ({...t, parsed: t.parsed || parseBP(t.bp||'0/0'), linkedTimerId: t.linkedTimerId || null, userTime: t.userTime || null, stopwatchStart: t.stopwatchStart || null }); const allActive = (obj.active||[]).map(mapWithParsed); if (obj.completed) { state.active = allActive.filter(t => !t.checked); state.completed = (obj.completed||[]).map(mapWithParsed); } else { state.active = allActive.filter(t => !t.checked); state.completed = allActive.filter(t => t.checked).map(mapWithParsed); } state.available = (obj.available||[]).map(mapWithParsed); bpValue = state.bpDoubled ? (t => baseBpValue(t) * 2) : baseBpValue; updateDoubleBPVisual(); cancelEdit(); save(); render(); showToast('Импорт BP завершён', 'success'); }catch(err){ showToast(`Ошибка: ${err.message}`, 'error'); } }; r.readAsText(f); dom.importFile.value = ''; });
+    
+    dom.saveCustomBtn.addEventListener('click', saveCustomTask);
+    dom.cancelEditBtn.addEventListener('click', cancelEdit);
+    
+    dom.markAll.addEventListener('click', ()=>{ if (!state.active.length) return; state.active.forEach(t=>{ if(t.target) t.current = t.target; t.checked = true; t.completedAt = Date.now(); t.stopwatchStart = null; }); state.completed.unshift(...state.active); state.active = []; save(); render(); });
+    dom.unmarkAll.addEventListener('click', ()=>{ if (!state.completed.length) return; state.completed.forEach(t=>{ t.checked=false; delete t.completedAt; if(t.target) t.current=0; }); state.active.push(...state.completed); state.completed = []; sortTasks(state.active, state.sort); save(); render(); });
+    dom.dailyReset.addEventListener('click', ()=>{ if(!confirm('Сбросить день?')) return; const allTasks = [...state.active, ...state.completed]; allTasks.forEach(t=>{ t.checked=false; delete t.completedAt; if(t.target) t.current=0; t.stopwatchStart = null; }); state.active = allTasks; state.completed = []; sortTasks(state.active, state.sort); save(); render(); });
+    dom.clearStorage.addEventListener('click', ()=>{ if(!confirm('Сбросить все BP?')) return; state.active = []; state.completed = []; state.available = ALL_TASKS.map(mkTaskFromDef); state.collapsedGroups = {}; state.editingTaskId = null; state.activeBpFilterGroup = 'Все'; state.initialBP = 0; state.vip = true; state.sort = 'eff'; state.topN = 10; state.bpDoubled = false; dom.initialBP.value = state.initialBP; dom.vipToggle.checked = state.vip; dom.sortSelect.value = state.sort; dom.topN.value = state.topN; bpValue = baseBpValue; updateDoubleBPVisual(); cancelEdit(); save(); render(); showToast('Сброшено', 'info'); });
+
+    dom.completedHeader.addEventListener('click', () => { withScrollRestore(() => { const key = '__completed'; state.collapsedGroups[key] = !state.collapsedGroups[key]; save(); renderBPTracker(); }); });
+    
+    dom.toggleTimersBtn.addEventListener('click', () => toggleTimersPanel());
+    dom.saveTimerTaskBtn.addEventListener('click', saveTimerTask);
+    dom.newTimerTaskTitle.addEventListener('keypress', (e) => { if (e.key === 'Enter') saveTimerTask(); });
+    dom.cancelEditTimerBtn.addEventListener('click', cancelEditTimerTask);
+	dom.profileSelect.addEventListener('change', (e) => switchProfile(e.target.value));
+    dom.addProfileBtn.addEventListener('click', addProfile);
+    dom.renameProfileBtn.addEventListener('click', renameProfile);
+    dom.deleteProfileBtn.addEventListener('click', deleteProfile);
+    dom.soundNotifyCheckbox.addEventListener('change', (e) => { state.soundNotifyEnabled = e.target.checked; save(); });
+    dom.toggleTimerListCollapseBtn.addEventListener('click', () => { state.timerListCollapsed = !state.timerListCollapsed; save(); renderTimerManager(); });
+    dom.exportTimersBtn.addEventListener('click', () => { const data = JSON.stringify({ profiles: state.profiles, currentProfileId: state.currentProfileId }, null, 2); const blob = new Blob([data], {type:'application/json'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `bp-timers.json`; a.click(); URL.revokeObjectURL(url); showToast('Таймеры экспортированы', 'success'); });
+    dom.importTimersFile.addEventListener('change', (e) => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ()=> { try{ const obj = JSON.parse(r.result); if (obj.profiles && obj.currentProfileId) { state.profiles = obj.profiles; state.currentProfileId = obj.currentProfileId; ensureDefaultProfile(); save(); render(); showToast('Таймеры загружены', 'success'); } else { showToast('Неверный файл', 'error'); } }catch(err){ showToast(`Ошибка: ${err.message}`, 'error'); } }; r.readAsText(f); dom.importTimersFile.value = ''; });
+    dom.goldenDay.addEventListener('click', () => { if (!confirm('Загрузить Золотой список?')) return; state.active = []; state.completed = []; const allTasks = ALL_TASKS.map(mkTaskFromDef); const newActiveList = []; const titlesInGoldenOrder = new Set(GOLDEN_ORDER_TITLES); const tasksForAvailableList = []; allTasks.forEach(task => { const existingTask = state.available.find(t => t.title === task.title); if (existingTask && existingTask.userTime) { task.userTime = existingTask.userTime; } if (titlesInGoldenOrder.has(task.title)) { newActiveList.push(task); } else { tasksForAvailableList.push(task); } }); sortTasksByGoldenOrder(newActiveList); state.active = newActiveList; state.available = tasksForAvailableList; state.completed = []; state.sort = 'manual'; dom.sortSelect.value = 'manual'; save(); render(); showToast('Золотой список загружен!', 'success'); });
+
+    dom.helpBtn.addEventListener('click', openHelpModal);
+    dom.closeHelpBtn.addEventListener('click', closeHelpModal);
+    dom.helpModal.addEventListener('click', (e) => { if (e.target === dom.helpModal) closeHelpModal(); });
+    dom.customTimeOkBtn.addEventListener('click', handleCustomTimeOk);
+    dom.customTimeCancelBtn.addEventListener('click', closeCustomTimeModal);
+    dom.timeInputModal.addEventListener('click', (e) => { if (e.target === dom.timeInputModal) closeCustomTimeModal(); });
+    dom.customTimeInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleCustomTimeOk(); });
+
+    // Init
+    if(!load()) { initDefaults(); }
+    dom.initialBP.value = state.initialBP; dom.vipToggle.checked = state.vip; dom.sortSelect.value = state.sort; dom.topN.value = state.topN;
+    state.available.forEach(t=>{ if(!t.parsed) t.parsed = parseBP(t.bp||'0/0'); if(!t.group) t.group = 'Прочее'; }); state.active.forEach(t=>{ if(!t.parsed) t.parsed = parseBP(t.bp||'0/0'); if(!t.group) t.group = 'Прочее'; }); state.completed.forEach(t=>{ if(!t.parsed) t.parsed = parseBP(t.bp||'0/0'); if(!t.group) t.group = 'Прочее'; });
+    bpValue = state.bpDoubled ? (t => baseBpValue(t) * 2) : baseBpValue; updateDoubleBPVisual();
+    if (state.editingTaskId) startEditCustom(state.editingTaskId);
+    dom.soundNotifyCheckbox.checked = state.soundNotifyEnabled; 
+    requestNotificationPermission(); 
+    setInterval(updateAllTimers, 1000);
+    render(); 
+    if (state.editingTimerTaskId) startEditTimerTask(state.editingTimerTaskId);
+    window.addEventListener('beforeunload', save);
+  </script>
+</body>
+</html>
