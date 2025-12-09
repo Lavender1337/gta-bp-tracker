@@ -361,16 +361,7 @@
         <div class="header">Таймеры</div>
         
         <div class="section-title">Быстрый запуск</div>
-        <div class="timer-presets">
-            <button class="preset-btn" onclick="addQuickTimer(5)">5 мин</button>
-            <button class="preset-btn" onclick="addQuickTimer(10)">10 мин</button>
-            <button class="preset-btn" onclick="addQuickTimer(15)">15 мин</button>
-            <button class="preset-btn" onclick="addQuickTimer(30)">30 мин</button>
-            <button class="preset-btn" onclick="addQuickTimer(60)">1 час</button>
-            <button class="preset-btn" onclick="addQuickTimer(120)">2 часа</button>
-        </div>
-
-<div class="section-title">Игровые таймеры</div>
+        <div class="section-title">Игровые таймеры</div>
 <div class="timer-grid" id="timerGrid"></div>
 
         <div class="custom-timer">
@@ -684,7 +675,7 @@ let saveTimers = {}; // Хранилище таймеров для каждог�
             document.getElementById('btnX2').classList.toggle('active', BP.x2);
             
             renderBP(); updateBP();
-            renderTimers(); renderCal(); renderCars(); renderFood(); 
+            renderTimers(); renderTimerPresets(); renderCal(); renderCars(); renderFood(); 
             const activeGuideBtn = document.querySelector('#tab-guides .seg-btn.active');
             if(activeGuideBtn) setGuide('payment', activeGuideBtn);
             
