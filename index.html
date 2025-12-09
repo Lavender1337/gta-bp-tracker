@@ -235,6 +235,69 @@
         .tag { display: inline-block; background: rgba(255,255,255,0.1); padding: 6px 10px; border-radius: 8px; font-size: 13px; margin: 3px; font-weight: 600; }
         .food-stats-mini { display: flex; gap: 8px; margin-top: 4px; font-size: 11px; font-weight: 600; }
         .fs-i { display: flex; align-items: center; gap: 2px; background: rgba(255,255,255,0.05); padding: 2px 5px; border-radius: 4px; }
+/* --- Сетка таймеров --- */
+.timer-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Две колонки */
+    gap: 8px; /* Отступ между карточками */
+    padding: 0 15px;
+    margin-bottom: 20px;
+}
+
+/* Карточка таймера */
+.timer-card-btn {
+    background: #1c1c1e; /* Темный фон */
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 14px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.1s, background 0.2s;
+}
+
+.timer-card-btn:active {
+    transform: scale(0.98);
+    background: #2c2c2e;
+}
+
+/* Левая часть (Инфо) */
+.t-card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+/* Заголовок с иконкой */
+.t-card-head {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #888; /* Серый цвет текста */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Время (крупно) */
+.t-card-time {
+    font-size: 22px;
+    font-weight: 500; /* Чуть тоньше, как на Apple */
+    color: #fff;
+    font-variant-numeric: tabular-nums; /* Чтобы цифры не скакали */
+    letter-spacing: -0.5px;
+}
+
+/* Правая часть (Треугольник Play) */
+.t-card-play {
+    color: #fff;
+    font-size: 14px;
+    opacity: 0.8;
+}
+
     </style>
 </head>
 <body>
@@ -307,19 +370,8 @@
             <button class="preset-btn" onclick="addQuickTimer(120)">2 часа</button>
         </div>
 
-        <div class="section-title">Игровые таймеры</div>
-        <div class="timer-presets">
-            <button class="preset-btn" onclick="addGameTimer('mail')">Почта</button>
-            <button class="preset-btn" onclick="addGameTimer('mech')">Механик</button>
-            <button class="preset-btn" onclick="addGameTimer('taxi')">Такси</button>
-            <button class="preset-btn" onclick="addGameTimer('train')">Дресс</button>
-            <button class="preset-btn" onclick="addGameTimer('theft')">Угон</button>
-            <button class="preset-btn" onclick="addGameTimer('shoot')">Тир</button>
-            <button class="preset-btn" onclick="addGameTimer('pimp')">Сутенер</button>
-            <button class="preset-btn" onclick="addGameTimer('club')">Клуб</button>
-            <button class="preset-btn" onclick="addGameTimer('tarot')">Таро</button>
-            <button class="preset-btn" onclick="addGameTimer('casino')">Казино</button>
-        </div>
+<div class="section-title">Игровые таймеры</div>
+<div class="timer-grid" id="timerGrid"></div>
 
         <div class="custom-timer">
             <input type="number" id="customMin" placeholder="Свои минуты...">
@@ -500,7 +552,7 @@
                 {t:"Принять участие в двух аирдропах",q:2,b:4,v:8}
             ],
             timers: [
-                {id:'t5',l:'5 мин',s:300},{id:'t10',l:'10 мин',s:600},{id:'t15',l:'15 мин',s:900},{id:'t30',l:'30 мин',s:1800},{id:'t60',l:'1 час',s:3600},{id:'t120',l:'2 часа',s:7200},{id:'mail',l:'Почта (10м)',s:600},{id:'tarot',l:'Таро (3ч)',s:10800},{id:'mech',l:'Механик (5м)',s:300},{id:'taxi',l:'Таксист (5м)',s:300},{id:'theft',l:'Автоугон (1.5ч)',s:5400},{id:'club',l:'Клуб (2ч)',s:7200},{id:'shoot',l:'Тир (1.5ч)',s:5400},{id:'train',l:'Дрессировка (15м)',s:900},{id:'pimp',l:'Сутенерка (1.5ч)',s:5400},{id:'casino',l:'Казино (24ч)',s:86400}
+                {id:'t5',l:'5 мин',s:300},{id:'t10',l:'10 мин',s:600},{id:'t15',l:'15 мин',s:900},{id:'t30',l:'30 мин',s:1800},{id:'t60',l:'1 час',s:3600},{id:'t120',l:'2 часа',s:7200},{id:'mail',l:'Почта (10м)',s:600, i:'img/poshta.png'},{id:'tarot',l:'Таро (3ч)',s:10800},{id:'mech',l:'Механик (5м)',s:300},{id:'taxi',l:'Таксист (5м)',s:300},{id:'theft',l:'Автоугон (1.5ч)',s:5400},{id:'club',l:'Клуб (2ч)',s:7200},{id:'shoot',l:'Тир (1.5ч)',s:5400},{id:'train',l:'Дрессировка (15м)',s:900},{id:'pimp',l:'Сутенерка (1.5ч)',s:5400},{id:'casino',l:'Казино (24ч)',s:86400}
             ],
             guides: {
                 payment: {
@@ -645,6 +697,45 @@ let saveTimers = {}; // Хранилище таймеров для каждог�
             document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active'));
             btn.classList.add('active');
         }
+function renderTimerPresets() {
+    // 1. Находим контейнер. 
+    // ВАЖНО: В HTML замени <div class="timer-presets"> на <div class="timer-grid" id="timerGrid">
+    const container = document.getElementById('timerGrid'); 
+    if(!container) return;
+    
+    container.innerHTML = '';
+
+    // 2. Проходимся по всем таймерам из базы
+    DB.timers.forEach(t => {
+        // Форматируем время (секунды -> Ч:ММ:СС или ММ:СС)
+        const timeStr = fmtTimeSimple(t.s);
+        
+        // Рисуем карточку
+        container.innerHTML += `
+            <div class="timer-card-btn" onclick="addGameTimer('${t.id}')">
+                <div class="t-card-info">
+                    <div class="t-card-head">
+                        <span>${t.i}</span> <span>${t.l}</span> </div>
+                    <div class="t-card-time">${timeStr}</div>
+                </div>
+                <div class="t-card-play">▶</div>
+            </div>
+        `;
+    });
+}
+
+// Вспомогательная функция для красивого формата времени (1:30:00 или 15:00)
+function fmtTimeSimple(s) {
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    
+    if (h > 0) {
+        return `${h}:${pad(m)}:${pad(sec)}`;
+    } else {
+        return `${m}:${pad(sec)}`;
+    }
+}
 
         // --- BP LOGIC ---
         function saveBP() { 
