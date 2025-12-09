@@ -52,7 +52,55 @@
 
         /* --- HEADER & SEARCH --- */
         .header { padding: 20px 15px 10px; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
-        .sticky-search { position: sticky; top: 0; z-index: 100; background: rgba(0,0,0,0.9); backdrop-filter: blur(20px); padding: 10px 15px 15px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        /* --- ОБНОВЛЕННЫЙ STICKY SEARCH И МИНИ-СТАТЫ --- */
+.sticky-search { 
+    position: sticky; 
+    top: 0; 
+    z-index: 100; 
+    background: rgba(0,0,0,0.95); /* Чуть темнее фон для читаемости */
+    backdrop-filter: blur(20px); 
+    padding: 10px 15px 15px; 
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Мини-панель с цифрами внутри липкой шапки */
+.mini-stats-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 5px;
+    font-size: 13px;
+    color: #888;
+}
+
+.mini-stat-val {
+    font-size: 16px;
+    font-weight: 800;
+    color: white;
+    margin-left: 5px;
+}
+
+/* Блок "Нафармлено" для основной панели кнопок */
+.farmed-box {
+    grid-column: span 2; /* Растянуть на всю ширину под кнопками */
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    font-size: 14px;
+}
+.farmed-val-big {
+    font-size: 18px;
+    color: var(--green);
+    font-weight: 800;
+}
         .search-input { width: 100%; padding: 12px 16px; border-radius: 12px; border: none; background: rgba(255,255,255,0.12); color: white; font-size: 16px; transition: 0.2s; }
         .search-input:focus { background: rgba(255,255,255,0.18); box-shadow: 0 0 0 2px var(--accent); }
 
@@ -196,7 +244,7 @@
         <div style="margin-top:10px; color:#666; font-size:12px;">Синхронизация...</div>
     </div>
 
-    <div id="tab-bp" class="tab-content active">
+<div id="tab-bp" class="tab-content active">
         <div class="bp-hero">
             <div class="bp-row">
                 <div style="display:flex; flex-direction:column; gap:5px;">
@@ -214,15 +262,20 @@
             </div>
         </div>
 
-<div class="bp-actions-top">
+        <div class="bp-actions-top">
             <button class="action-btn new-day" onclick="newDay()">🌅 Новый день</button>
             <button class="action-btn" onclick="resetHiddenBP()">👁 Вернуть скрытые</button>
-            <button class="action-btn" onclick="forceSync()" style="border-color:var(--accent); color:var(--accent);">🔄 Синхронизация</button>
+            <button class="action-btn" onclick="forceSync()" style="border-color:var(--accent); color:var(--accent);">🔄 Обновить</button>
+            
+            <div class="action-btn" style="cursor:default; border-color:rgba(255,255,255,0.05); background: rgba(255,255,255,0.03);">
+                <span style="color:#888">Нафармлено:</span>
+                <span id="farmedBpMain" style="color:var(--green); font-weight:800; font-size:15px; margin-left:6px;">+0</span>
+            </div>
         </div>
         
         <div class="sort-container" style="padding: 0 15px 10px; display: flex; justify-content: space-between; color:#666; font-size: 12px; align-items: center;">
             <span>Удерживайте <b style="color:#aaa">⋮⋮</b> для перемещения</span>
-            <select id="bpSort" class="sort-select" onchange="renderBP()" style="background: #2c2c2e; color: white; border: 1px solid #444; padding: 8px 12px; border-radius: 10px; font-size: 13px; outline: none;">
+            <select id="bpSort" class="sort-select" onchange="renderBP()">
                 <option value="user">Сорт: Своя (Drag)</option>
                 <option value="def">Сорт: По списку</option>
                 <option value="max">Сорт: Кол-во (Много)</option>
@@ -231,8 +284,13 @@
         </div>
 
         <div class="sticky-search">
+            <div class="mini-stats-row">
+                <div>Итого: <span class="mini-stat-val" style="color:var(--gold)" id="stickyTotal">0</span></div>
+                <div>Нафармлено: <span class="mini-stat-val" style="color:var(--green)" id="stickyFarmed">+0</span></div>
+            </div>
             <input type="text" class="search-input" id="searchBp" placeholder="🔍 Найти задание..." oninput="renderBP()">
         </div>
+
         <div class="list-container" id="listBP"></div>
     </div>
 
@@ -595,11 +653,38 @@ let saveTimers = {}; // Хранилище таймеров для каждог�
         }
         function toggleVip() { BP.vip = !BP.vip; document.getElementById('btnVip').classList.toggle('active'); saveBP(); renderBP(); updateBP(); }
         function toggleX2() { BP.x2 = !BP.x2; document.getElementById('btnX2').classList.toggle('active'); saveBP(); renderBP(); updateBP(); }
-        function updateBP() {
-            BP.start = parseInt(document.getElementById('startBp').value)||0;
+ function updateBP() {
+            // Получаем стартовое значение
+            BP.start = parseInt(document.getElementById('startBp').value) || 0;
+            
             let total = BP.start;
-            BP.done.forEach(i => { let r = BP.vip ? DB.bp[i].v : DB.bp[i].b; if(BP.x2) r *= 2; total += r; });
+            
+            // Считаем сумму выполненных заданий
+            BP.done.forEach(i => { 
+                // Ищем задание в DB по ID (так как у нас теперь сортировка может менять индексы)
+                // Но у нас массив IDs в done, а DB.bp - это массив объектов.
+                // В текущей логике i - это индекс в DB.bp
+                let task = DB.bp[i]; 
+                if(task) {
+                    let r = BP.vip ? task.v : task.b; 
+                    if(BP.x2) r *= 2; 
+                    total += r; 
+                }
+            });
+
+            // Считаем "Нафармлено" (Текущее - Старт)
+            let farmed = total - BP.start;
+
+            // Обновляем ГЛАВНЫЕ значения
             document.getElementById('totalBp').innerText = total;
+            document.getElementById('farmedBpMain').innerText = '+' + farmed;
+
+            // Обновляем ЛИПКИЕ значения (в шапке поиска)
+            const stickyTotal = document.getElementById('stickyTotal');
+            const stickyFarmed = document.getElementById('stickyFarmed');
+            if(stickyTotal) stickyTotal.innerText = total;
+            if(stickyFarmed) stickyFarmed.innerText = '+' + farmed;
+
             saveBP();
         }
         
