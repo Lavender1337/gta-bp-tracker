@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GTA Helper v22</title>
+    <title>GTA Helper v22 Cloud</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <style>
@@ -61,7 +61,7 @@
         .sort-container { padding: 0 15px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #666; }
         .sort-select { background: #2c2c2e; color: white; border: 1px solid #444; padding: 8px 12px; border-radius: 10px; font-size: 13px; outline: none; }
 
-        /* --- LIST ITEMS (UPDATED) --- */
+        /* --- LIST ITEMS --- */
         .list-container { padding: 0 15px; }
         
         .task-item { 
@@ -72,7 +72,6 @@
         }
         .task-item.completed { border-color: var(--green); background: rgba(48,209,88,0.08); }
         
-        /* Drag Handle */
         .drag-handle {
             color: #444; font-size: 22px; cursor: grab; 
             display: flex; align-items: center; justify-content: center; 
@@ -88,7 +87,6 @@
         .checkbox { min-width: 24px; height: 24px; border-radius: 7px; border: 2px solid var(--text-sub); display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .task-item.completed .checkbox { background: var(--green); border-color: var(--green); color: black; font-weight: bold; }
         
-        /* Unified Button Style (Cross, Plus, Minus - UPDATED) */
         .icon-btn { 
             background: rgba(255,255,255,0.08); border: none; 
             color: #888; width: 28px; height: 28px; border-radius: 8px;
@@ -97,7 +95,6 @@
         }
         .icon-btn:active { background: rgba(255,255,255,0.2); color: white; }
         
-        /* Counter */
         .counter-wrapper { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
         .counter-val { font-size: 13px; font-weight: 600; min-width: 30px; text-align: center; color: var(--text-main); }
 
@@ -203,9 +200,9 @@
             <button class="action-btn" onclick="resetHiddenBP()">👁 Вернуть скрытые</button>
         </div>
         
-        <div class="sort-container" style="padding: 0 15px 10px; display: flex; justify-content: space-between; color:#666; font-size: 12px; align-items: center;">
+        <div class="sort-container">
             <span>Удерживайте <b style="color:#aaa">⋮⋮</b> для перемещения</span>
-            <select id="bpSort" class="sort-select" onchange="renderBP()" style="background: #2c2c2e; color: white; border: 1px solid #444; padding: 8px 12px; border-radius: 10px; font-size: 13px; outline: none;">
+            <select id="bpSort" class="sort-select" onchange="renderBP()">
                 <option value="user">Сорт: Своя (Drag)</option>
                 <option value="def">Сорт: По списку</option>
                 <option value="max">Сорт: Кол-во (Много)</option>
@@ -340,490 +337,522 @@
             <div id="mContent"></div>
         </div>
     </div>
-
-    <script>
-        // ================= FULL DATA =================
-        const DB = {
-            cars: {
-                platinum: [
-                    {realName:"VW Golf MK1",gameName:"BF Wolf MK1",price:200000,speed:222,trunk:60,slots:12},{realName:"Audi 80 B4 1996",gameName:"Obey 80 B4 1996",price:225000,speed:222,trunk:60,slots:12},{realName:"BMW 7-series e38",gameName:"Ubermacht 7-line E38",price:250000,speed:220,trunk:60,slots:18},{realName:"Kia Ceed",gameName:"Bollokan Speed",price:250000,speed:235,trunk:90,slots:30},{realName:"Toyota GR Yaris",gameName:"Karin Waris GR 2021",price:275000,speed:237,trunk:90,slots:30},{realName:"BMW 5",gameName:"Ubermacht 5-line E34",price:300000,speed:197,trunk:60,slots:24},{realName:"Skoda Octavia A7 2017",gameName:"BF Olivia A7 2017",price:300000,speed:240,trunk:60,slots:18},{realName:"Subaru Impreza",gameName:"Karin Imperia MRX STI 1",price:350000,speed:246,trunk:60,slots:18},{realName:"BMW 1973 2002",gameName:"Ubermacht 2002 1973",price:375000,speed:238,trunk:60,slots:18},{realName:"BMW 3",gameName:"Ubermacht 3-line E36",price:400000,speed:202,trunk:60,slots:24},{realName:"Toyota AE86 Trueno",gameName:"Karin AE86 Brueno",price:400000,speed:230,trunk:60,slots:18},{realName:"Mazda Miata 1990",gameName:"Annis Myata 1990",price:425000,speed:247,trunk:60,slots:12},{realName:"Toyota Altezza",gameName:"Karin Altura 2001",price:450000,speed:248,trunk:60,slots:18},{realName:"Nissan Silvia S13",gameName:"Annis Slivia S13",price:450000,speed:244,trunk:60,slots:18},{realName:"Toyota Camry V40",gameName:"Karin Camria V40",price:500000,speed:212,trunk:70,slots:24},{realName:"Mitsubishi evo 6",gameName:"Maibatsu Lance Revolution 6",price:500000,speed:250,trunk:60,slots:24},{realName:"BMW e28",gameName:"Ubermacht W5 E28",price:500000,speed:230,trunk:60,slots:18},{realName:"Honda Integra Type R",gameName:"Dinka Entegra Type R 1998",price:525000,speed:257,trunk:60,slots:18},{realName:"Lexus SC300",gameName:"Emperor CS300 2000",price:550000,speed:266,trunk:60,slots:18},{realName:"Toyota Camry",gameName:"Karin Camria V55",price:600000,speed:240,trunk:60,slots:24},{realName:"Nissan GTR Skyline R32",gameName:"Annis GS-R M32",price:600000,speed:248,trunk:60,slots:12},{realName:"Nissan 350z",gameName:"Annis 350x",price:600000,speed:266,trunk:60,slots:12},{realName:"Nissan 240z",gameName:"Annis 240x",price:650000,speed:252,trunk:60,slots:12},{realName:"Honda NSX",gameName:"Dinka NSY 1995",price:700000,speed:263,trunk:60,slots:18},{realName:"BMW e39",gameName:"Ubermacht W5 E39",price:700000,speed:256,trunk:70,slots:18},{realName:"Nissan Silvia S15",gameName:"Annis Slivia S15",price:700000,speed:270,trunk:60,slots:24},{realName:"Ford Mustang Boss 1970",gameName:"Vapid Stud Boss 1970",price:700000,speed:255,trunk:60,slots:12},{realName:"Mercedes A45",gameName:"Benefactor A-series 45 W176",price:750000,speed:235,trunk:90,slots:30},{realName:"Chevrolet Impala 67",gameName:"Declasse Implata 67",price:750000,speed:235,trunk:60,slots:24},{realName:"Infiniti FX50S",gameName:"Fathom XF50 S",price:800000,speed:255,trunk:100,slots:30},{realName:"Volkswagen Touareg",gameName:"BF Twareg",price:800000,speed:238,trunk:125,slots:24},{realName:"Nissan GTR2000",gameName:"Annis GS-R2000",price:800000,speed:260,trunk:60,slots:18},{realName:"Toyota Supra",gameName:"Karin Superia A80",price:850000,speed:260,trunk:60,slots:12},{realName:"Toyota Mark 2",gameName:"Karin Marco 2",price:850000,speed:257,trunk:60,slots:24},{realName:"Subaru WRX STI",gameName:"Karin Imperia MRX STE 3",price:900000,speed:262,trunk:90,slots:24},{realName:"Mitsubishi Evo 10",gameName:"Maibatsu Lance Revolution 10",price:900000,speed:257,trunk:60,slots:18},{realName:"Honda Civic 2019",gameName:"Dinka Civil 2019",price:900000,speed:263,trunk:60,slots:12},{realName:"Mercedes E55",gameName:"Benefactor E-series 55 W210",price:1000000,speed:230,trunk:65,slots:24},{realName:"Nissan Skyline GTR R33",gameName:"Annis GS-R M33",price:1000000,speed:260,trunk:65,slots:30},{realName:"Lexus IS F",gameName:"Emperor IC-F 2012",price:1150000,speed:266,trunk:65,slots:18},{realName:"Toyota Land Cruiser 100",gameName:"Karin Grand Cruiser 100",price:1200000,speed:245,trunk:125,slots:24},{realName:"Subaru Impreza WRX STI",gameName:"Karin Imperia MRX STE 2010",price:1225000,speed:268,trunk:65,slots:18},{realName:"Honda Civic Type R",gameName:"Dinka Civil Type R 2023",price:1250000,speed:265,trunk:75,slots:24},{realName:"Nissan Skyline GTR R34",gameName:"Annis GS-R M34",price:1300000,speed:270,trunk:65,slots:30},{realName:"Mazda rx7",gameName:"Annis PX7",price:1300000,speed:252,trunk:65,slots:18},{realName:"Mercedes CLS",gameName:"Benefactor ZLS C219",price:1400000,speed:248,trunk:75,slots:24},{realName:"VW Golf",gameName:"BF Wolf R7",price:1400000,speed:247,trunk:95,slots:18},{realName:"Mercedes-Benz S-Class W140",gameName:"Benefactor S-series W140",price:1500000,speed:227,trunk:65,slots:24},{realName:"Ford Mustang 1965",gameName:"Vapid Stud 1965",price:1500000,speed:247,trunk:65,slots:18},{realName:"BMW 1M E82",gameName:"Ubermacht 1W E82",price:1550000,speed:262,trunk:65,slots:18},{realName:"Audi RS2 B4",gameName:"Obey PS2 B4",price:1600000,speed:261,trunk:105,slots:24},{realName:"Kia EV6 GT",gameName:"Bollokan IV6 GT 2023",price:1650000,speed:267,trunk:95,slots:36},{realName:"Audi RS6 2002",gameName:"Obey PS6 2002",price:1700000,speed:275,trunk:105,slots:24},{realName:"Dodge Challenger SRT Demon",gameName:"Bravado Contender SPT Demon",price:1800000,speed:265,trunk:65,slots:18},{realName:"BMW M5 E60",gameName:"Ubermacht W5 E60",price:1800000,speed:269,trunk:75,slots:18},{realName:"Alfa Romeo Giulia",gameName:"Lampadati Julia",price:1850000,speed:277,trunk:75,slots:18},{realName:"Land Cruiser 200",gameName:"Karin Grand Cruiser 200",price:2000000,speed:257,trunk:125,slots:24},{realName:"BMW X5 E53",gameName:"Ubermacht Y5 E53",price:2000000,speed:247,trunk:125,slots:30},{realName:"Dodge Charger SRT",gameName:"Bravado Changer SPT",price:2000000,speed:269,trunk:65,slots:18},{realName:"Audi RS5 2020",gameName:"Obey PS5 2020",price:2000000,speed:268,trunk:105,slots:24},{realName:"Audi RS 6 Avant",gameName:"Obey PS6 Awand",price:2200000,speed:263,trunk:105,slots:24},{realName:"Ford Raptor",gameName:"Vapid Predator",price:2200000,speed:232,trunk:205,slots:30},{realName:"Mercedes-Benz S-Class W221",gameName:"Benefactor S-series W221",price:2300000,speed:280,trunk:65,slots:24},{realName:"Audi Q7 V12 2007",gameName:"Obey O7 V12 2007",price:2400000,speed:267,trunk:130,slots:30},{realName:"Toyota GR Supra",gameName:"Karin GR Superia A90",price:2500000,speed:270,trunk:20,slots:18},{realName:"Mercedes GLS 63",gameName:"Benefactor JLS 63 X166",price:3000000,speed:272,trunk:130,slots:30},{realName:"Lexus LFA",gameName:"Emperor MFA",price:3000000,speed:265,trunk:20,slots:12},{realName:"Ford Mustang 2019",gameName:"Vapid Stud 2019",price:3000000,speed:271,trunk:70,slots:18},{realName:"Land Rover Range Rover",gameName:"Gallivanter Range Rider",price:3100000,speed:282,trunk:130,slots:24},{realName:"Audi TT RS 2017",gameName:"Obey DD PS 2017",price:3200000,speed:283,trunk:12,slots:6},{realName:"Ford Mustang 2024",gameName:"Vapid Stud 2024",price:3300000,speed:298,trunk:70,slots:18},{realName:"Cadillac Escalade",gameName:"Albany Excalibur",price:3400000,speed:252,trunk:130,slots:24},{realName:"BMW Z4",gameName:"Ubermacht S4 E86",price:3500000,speed:250,trunk:70,slots:24},{realName:"Audi RS 3 2023",gameName:"Obey PS3 2023",price:3600000,speed:283,trunk:70,slots:18},{realName:"BMW M5 F10",gameName:"Ubermacht W5 H10 2016",price:3650000,speed:285,trunk:70,slots:18},{realName:"BMW M4 F82",gameName:"Ubermacht W4 F82",price:3700000,speed:277,trunk:70,slots:12},{realName:"Lexus GS",gameName:"Emperor GC",price:3750000,speed:290,trunk:80,slots:24},{realName:"Nissan GTR R35",gameName:"Annis GS-R M35",price:3900000,speed:279,trunk:70,slots:12},{realName:"Tesla Model X",gameName:"Coil Line X",price:4000000,speed:235,trunk:80,slots:30},{realName:"Mercedes C63S",gameName:"Benefactor C-series 63S",price:4000000,speed:271,trunk:80,slots:18},{realName:"BMW M5 F90",gameName:"Ubermacht W5 F90",price:4000000,speed:273,trunk:80,slots:18},{realName:"Lexus LX570",gameName:"Emperor MX570",price:4000000,speed:277,trunk:135,slots:30},{realName:"Audi RS6 2020",gameName:"Obey PS6 2020",price:4000000,speed:284,trunk:110,slots:24},{realName:"Porsche Cayenne",gameName:"Pfister Rayenne",price:4200000,speed:270,trunk:135,slots:24},{realName:"Porsche 911 Carrera",gameName:"Pfister 811 Carvera",price:4200000,speed:285,trunk:10,slots:12},{realName:"Tesla Model S",gameName:"Coil Line S",price:4300000,speed:302,trunk:80,slots:24},{realName:"Mercedes G63 2019",gameName:"Benefactor G-series 63",price:4500000,speed:277,trunk:140,slots:30},{realName:"BMW M5 F90 LCI",gameName:"Ubermacht W5 H90 LCI 2021",price:4750000,speed:304,trunk:70,slots:24},{realName:"Audi Q8 2022",gameName:"Obey O8 2022",price:4750000,speed:321,trunk:135,slots:24},{realName:"Lamborghini Gallardo",gameName:"Pegassi Leonardo",price:4800000,speed:302,trunk:5,slots:12},{realName:"Audi RS 7",gameName:"Obey PS7",price:5000000,speed:315,trunk:85,slots:24},{realName:"BMW X6M",gameName:"Ubermacht Y6W F86",price:5000000,speed:313,trunk:140,slots:24},{realName:"Porsche Carrera",gameName:"Pfister Carvera GT",price:5100000,speed:305,trunk:10,slots:6},{realName:"Audi R8 2020",gameName:"Obey P8 2020",price:5200000,speed:323,trunk:10,slots:6},{realName:"Lexus LC500 2018",gameName:"Emperor MC500 2018",price:5300000,speed:330,trunk:75,slots:18},{realName:"BMW i8",gameName:"Ubermacht I8",price:5500000,speed:272,trunk:10,slots:6},{realName:"Lamborghini Huracan",gameName:"Pegassi Hurricane",price:5500000,speed:297,trunk:15,slots:12},{realName:"Chevrolet Corvette 2009",gameName:"Declasse Covetto 2009",price:5600000,speed:309,trunk:30,slots:12},{realName:"Toyota Tundra",gameName:"Karin Thunder 2021",price:5750000,speed:260,trunk:245,slots:42},{realName:"Lucid Air 2021",gameName:"Coil Air 2021",price:6000000,speed:332,trunk:75,slots:24},{realName:"Lamborghini Veneno",gameName:"Pegassi Verano",price:6250000,speed:330,trunk:15,slots:12},{realName:"Mercedes SLR",gameName:"Benefactor CLR Progen C199",price:6700000,speed:303,trunk:75,slots:12},{realName:"BMW X5 M",gameName:"Ubermacht Y5 G05",price:7000000,speed:306,trunk:140,slots:24},{realName:"Lamborghini Urus",gameName:"Pegassi Ursus",price:7400000,speed:315,trunk:145,slots:24},{realName:"Mercedes Maybach",gameName:"Benefactor M-Bach S560",price:7500000,speed:310,trunk:90,slots:18},{realName:"Ferrari F12 Berlinetta",gameName:"Grotti P12 Verleenetta",price:7800000,speed:307,trunk:15,slots:12},{realName:"Rolls Royce Wraith",gameName:"Enus Veil",price:8000000,speed:300,trunk:80,slots:18},{realName:"Bentley Bentayga",gameName:"Enus Benteygo",price:8000000,speed:288,trunk:115,slots:24},{realName:"McLaren GT 2020",gameName:"Progen GT 2020",price:8000000,speed:347,trunk:15,slots:12},{realName:"BMW X7M",gameName:"Ubermacht Y7W G07",price:8300000,speed:301,trunk:145,slots:30},{realName:"McLaren 720s",gameName:"Progen 720c",price:8600000,speed:305,trunk:10,slots:6},{realName:"Tesla Roadster",gameName:"Coil Roadster",price:8600000,speed:310,trunk:80,slots:18},{realName:"Ferrari Aperta",gameName:"Grotti Ascenda",price:9000000,speed:342,trunk:10,slots:12},{realName:"G63 AMG 6x6",gameName:"Benefactor G-series 63 6x6",price:9000000,speed:290,trunk:230,slots:60},{realName:"Ford GT",gameName:"Vapid GT",price:9100000,speed:325,trunk:10,slots:12},{realName:"McLaren Senna",gameName:"Progen Serena",price:9500000,speed:312,trunk:10,slots:12},{realName:"Aston Martin Vulcan",gameName:"Dewbauchee Vulcore",price:10000000,speed:380,trunk:10,slots:12},{realName:"Rolls Royce Cullinan",gameName:"Enus Callinon",price:12000000,speed:343,trunk:125,slots:24},{realName:"Pininfarina Battista",gameName:"Pegassi Bellista 2022",price:12500000,speed:398,trunk:10,slots:12},{realName:"Bugatti Chiron",gameName:"Truffade Shiron",price:15000000,speed:413,trunk:15,slots:12},{realName:"Koenigsegg Jesko",gameName:"Overflod Gesko",price:16000000,speed:392,trunk:15,slots:10},{realName:"Koenigsegg Agera",gameName:"Overflod Ahera",price:17000000,speed:420,trunk:15,slots:12},{realName:"Ferrari 458 Italia",gameName:"Grotti 854 Italy",price:17500000,speed:435,trunk:15,slots:12},{realName:"Pagani Huayra Roadster",gameName:"Pegassi Hayra Roadster",price:18000000,speed:455,trunk:15,slots:12},{realName:"Bugatti Veyron Vitesse",gameName:"Truffade Weyron Witesse",price:18000000,speed:415,trunk:15,slots:12},{realName:"Koenigsegg Gemera",gameName:"Overflod Genera",price:22000000,speed:428,trunk:15,slots:12},{realName:"Bugatti Divo",gameName:"Truffade Vivo 2020",price:22500000,speed:445,trunk:10,slots:12},{realName:"Mercedes-Benz Vision AVTR",gameName:"Benefactor Illusion Avatar",price:25000000,speed:355,trunk:15,slots:15},{realName:"Bentley EXP 100",gameName:"Enus EPX 100",price:25000000,speed:435,trunk:15,slots:12}
-                ],
-                moto: [
-                    {realName:"KTM 125 2006",gameName:"Principe 125 2006",price:350000,speed:260,trunk:0,slots:0},{realName:"Honda Bros 2009",gameName:"Dinka Bro 2009",price:425000,speed:267,trunk:0,slots:0},{realName:"KTM 450 2020",gameName:"Principe 450 2020",price:850000,speed:281,trunk:0,slots:0},{realName:"Ducati 900SS",gameName:"Principe 900SS",price:900000,speed:285,trunk:4,slots:6},{realName:"BMW R75",gameName:"Ubermacht R75",price:1100000,speed:237,trunk:8,slots:6},{realName:"Yamaha R1",gameName:"Nagasaki P1",price:1200000,speed:288,trunk:4,slots:6},{realName:"KTM 690 2017",gameName:"Principe 690 2017",price:1250000,speed:298,trunk:0,slots:0},{realName:"Suzuki GSX-R1000",gameName:"Shitzu CSX-R1000",price:1320000,speed:294,trunk:4,slots:6},{realName:"Yamaha R6 2008",gameName:"Nagasaki P6 2008",price:1500000,speed:296,trunk:4,slots:6},{realName:"Honda CBR1000RR 2017",gameName:"Dinka SBP 1000RR",price:1800000,speed:315,trunk:3,slots:6},{realName:"Yamaha R6 2010",gameName:"Nagasaki P6 2010",price:1800000,speed:331,trunk:4,slots:6},{realName:"Honda Fireblade 2020",gameName:"Dinka SMP 1000RR",price:2000000,speed:331,trunk:4,slots:6},{realName:"Suzuki Hayabusa",gameName:"Shitzu GSX1300R",price:2300000,speed:338,trunk:4,slots:6},{realName:"Yamaha YZF-R1M",gameName:"Nagasaki ZYF-R1M",price:2600000,speed:340,trunk:4,slots:6},{realName:"Kawasaki Ninja ZX-10RR",gameName:"Nagasaki Shinobi",price:2800000,speed:353,trunk:4,slots:6},{realName:"Ducati Panigale V4 R",gameName:"Principe Ranigale",price:3700000,speed:344,trunk:4,slots:6},{realName:"Ducati V4S 2021",gameName:"Principe W4S 2021",price:4000000,speed:348,trunk:4,slots:6},{realName:"Harley Davidson Fat Boy",gameName:"WMC F Boy",price:4000000,speed:249,trunk:8,slots:6},{realName:"Indian Motorcycle",gameName:"WMC Chief Dark Steed",price:4300000,speed:257,trunk:10,slots:6},{realName:"Kawasaki Ninja H2R",gameName:"Nagasaki Shinobi H2R",price:4600000,speed:339,trunk:4,slots:6},{realName:"Harley Davidson iron",gameName:"WMC Copper 883",price:4700000,speed:260,trunk:8,slots:6},{realName:"Harley Davidson Street Glide",gameName:"WMC Country Glide",price:4900000,speed:270,trunk:20,slots:6},{realName:"KTM RC 390",gameName:"Principe RC 390",price:7700000,speed:370,trunk:4,slots:6},{realName:"Honda RC213V-S",gameName:"Dinka PS213V-S",price:13500000,speed:351,trunk:4,slots:6}
-                ],
-                container: [
-                    {realName:"Range Rover Evoque",gameName:"Gallivanter Range Rider Revogue",price:0,speed:290,trunk:135,slots:24},{realName:"BMW M3 G81 Touring",gameName:"Ubermacht W3 G81 Touring",price:0,speed:307,trunk:110,slots:24},{realName:"Jaguar I-Pace",gameName:"Ocelot I-Model",price:0,speed:309,trunk:100,slots:30},{realName:"Mercedes E63s 2022",gameName:"Benefactor E-series 63S ASG W213",price:0,speed:308,trunk:70,slots:24},{realName:"BMW M2 G87",gameName:"Ubermacht W2 G87",price:0,speed:304,trunk:70,slots:24},{realName:"Mercedes C63s AMG W206",gameName:"Benefactor C-series 63S ASG W206",price:0,speed:323,trunk:75,slots:24},{realName:"BMW M4 G82",gameName:"Ubermacht W4 G82",price:0,speed:327,trunk:75,slots:24},{realName:"BMW M6 F13",gameName:"Ubermacht W6 F13",price:0,speed:340,trunk:75,slots:24},{realName:"Audi RS7 2020",gameName:"Obey PS7 2020",price:0,speed:335,trunk:85,slots:24},{realName:"BMW M5 F90 CS 2020",gameName:"Ubermacht W5 F90 CS 2020",price:0,speed:340,trunk:75,slots:24},{realName:"Chevrolet Corvette C8",gameName:"Declasse Covetto Wingray C8",price:0,speed:345,trunk:20,slots:18},{realName:"Audi RS E-TRON GT",gameName:"Obey PS I-tron GT",price:0,speed:350,trunk:80,slots:24},{realName:"Porsche 911 GT3 2021",gameName:"Pfister 811 GT3 2021",price:0,speed:360,trunk:20,slots:12},{realName:"Dodge RAM TRX",gameName:"Bravado RUM TPX",price:0,speed:307,trunk:235,slots:60},{realName:"Porsche 918 Spyder",gameName:"Pfister 819 Spyro",price:0,speed:430,trunk:10,slots:12},{realName:"Aston Martin Victor",gameName:"Dewbauchee Vico",price:0,speed:415,trunk:20,slots:12},{realName:"Lamborghini Countach 1990",gameName:"Pegassi Coutron 1990",price:0,speed:322,trunk:10,slots:12},{realName:"Audi R8 2015",gameName:"Obey P8 2015",price:0,speed:340,trunk:15,slots:12},{realName:"Mercedes E63s W213",gameName:"Benefactor E-series 63S W213",price:0,speed:315,trunk:110,slots:24},{realName:"BMW X6M F96",gameName:"Ubermacht Y6W F96",price:0,speed:333,trunk:145,slots:24},{realName:"Audi RSQ8 2022",gameName:"Obey PSO8 2022",price:0,speed:338,trunk:145,slots:24},{realName:"Mercedes SLS 2009",gameName:"Benefactor CLC ASG C197",price:0,speed:340,trunk:20,slots:12},{realName:"Aston Martin Vantage",gameName:"Dewbauchee Voyage",price:0,speed:340,trunk:95,slots:24}
-                ],
-                pass: [
-                    {realName:"Banana buggy",gameName:"Banana buggy",price:145000,speed:248,season:"Летний 2021",trunk:0,slots:0},{realName:"Highheel (Каблук)",gameName:"Highheel (Каблук)",price:145000,speed:200,season:"Летний 2021",trunk:0,slots:0},{realName:"Eli",gameName:"Eli",price:145000,speed:230,season:"Летний 2021",trunk:20,slots:6},{realName:"Minibug",gameName:"Minibug",price:145000,speed:205,season:"Летний 2021",trunk:20,slots:6},{realName:"Mini Fiat",gameName:"Minigrotti",price:145000,speed:205,season:"Летний 2021",trunk:40,slots:12},{realName:"VISION 6",gameName:"Benefactor M-bach Illusion 6",price:268000,speed:361,season:"Летний 2021",trunk:30,slots:6},{realName:"Studebaker Golden Hawk",gameName:"Studebaker Golden Hawk",price:268000,speed:211,season:"Зимний 2021-2022",trunk:20,slots:6},{realName:"Suzuki Carry",gameName:"Shitzu Carry",price:268000,speed:208,season:"Зимний 2021-2022",trunk:40,slots:12},{realName:"Nash Metropol",gameName:"Nash Metropolitan",price:268000,speed:205,season:"Зимний 2021-2022",trunk:20,slots:6},{realName:"Plymouth Bubbletop 1959",gameName:"Plymouth Bubbletop 1959",price:268000,speed:222,season:"Зимний 2021-2022",trunk:20,slots:6},{realName:"Ford Hot Wheels 1949",gameName:"Vapid Hot Wheels 1949",price:268000,speed:210,season:"Зимний 2021-2022",trunk:20,slots:6},{realName:"Porsche Taycan",gameName:"Pfister Teycan",price:268000,speed:384,season:"Зимний 2021-2022",trunk:15,slots:12},{realName:"Bugatti Atlantic",gameName:"Truffade Pacific",price:268000,speed:447,season:"Зимний 2021-2022",trunk:15,slots:12},{realName:"AC Cobra 474",gameName:"Vapid Cobra",price:268000,speed:229,season:"Летний 2022",trunk:15,slots:6},{realName:"Porsche 365",gameName:"Pfister 356",price:268000,speed:229,season:"Летний 2022",trunk:15,slots:6},{realName:"Ferrari 250 GTO",gameName:"Grotti 250 GTO",price:268000,speed:225,season:"Летний 2022",trunk:15,slots:6},{realName:"Jaguar E-Type",gameName:"Ocelot E-Model",price:268000,speed:229,season:"Летний 2022",trunk:15,slots:6},{realName:"Lotus Evija",gameName:"Ocelot Evia",price:268000,speed:425,season:"Летний 2022",trunk:15,slots:6},{realName:"Ferrari Monza SP2",gameName:"Grotti Wonza SP2",price:268000,speed:455,season:"Летний 2022",trunk:15,slots:6},{realName:"Pontiac Firebird",gameName:"Imponte Firefly",price:145000,speed:228,season:"Зимний 22/23",trunk:60,slots:12},{realName:"Mercedes SL280",gameName:"Benefactor CL280 W113",price:145000,speed:228,season:"Зимний 22/23",trunk:60,slots:12},{realName:"Mercedes AMG ONE",gameName:"Benefactor ASG P-One",price:268000,speed:441,season:"Зимний 22/23",trunk:10,slots:6},{realName:"Apollo Intensa Imazion",gameName:"Overflod Intenza Emotiva",price:268000,speed:441,season:"Зимний 22/23",trunk:10,slots:6},{realName:"Volkswagen Beetle 65",gameName:"BF Beatles 1965",price:145000,speed:231,season:"Летний 2023",trunk:60,slots:18},{realName:"Ford Capri II 1974",gameName:"Vapid Capricorn II 1974",price:145000,speed:231,season:"Летний 2023",trunk:60,slots:12},{realName:"McLaren Speedtail",gameName:"Progen SpeedT",price:268000,speed:465,season:"Летний 2023",trunk:10,slots:6},{realName:"Ferrari SF90 Stradale",gameName:"Grotti SP90 Strata",price:268000,speed:465,season:"Летний 2023",trunk:10,slots:6},{realName:"TVR Tuscan Speed Six",gameName:"Dewbauchee Tuscan",price:145000,speed:235,season:"Зимний 23/24",trunk:60,slots:18},{realName:"Mitsubishi Starion",gameName:"Maibatsu Star",price:145000,speed:238,season:"Зимний 23/24",trunk:60,slots:12},{realName:"Lamborghini Countach 2022",gameName:"Pegassi Coutron 2022",price:268000,speed:455,season:"Зимний 23/24",trunk:10,slots:6},{realName:"Lamborghini Revuelto",gameName:"Pegassi Rewuelto",price:268000,speed:457,season:"Зимний 23/24",trunk:10,slots:6},{realName:"Ford Focus RS",gameName:"Vapid Pocus RS 2003",price:145000,speed:242,season:"Летний 2024",trunk:60,slots:12},{realName:"VW Golf R32",gameName:"BF Wolf R32 2003",price:145000,speed:241,season:"Летний 2024",trunk:60,slots:12},{realName:"Ferrari 812 Superfast",gameName:"Grotti 821 SP 2017",price:268000,speed:440,season:"Летний 2024",trunk:20,slots:6},{realName:"Lamborghini Murcielago",gameName:"Pegassi Purcielago VS 2009",price:268000,speed:440,season:"Летний 2024",trunk:20,slots:6},{realName:"Nissan Pulsar",gameName:"Annis Pulse 1992",price:145000,speed:240,season:"Зимний 24/25",trunk:60,slots:18},{realName:"Toyota MR-2",gameName:"Karin MR-2 1995",price:145000,speed:240,season:"Зимний 24/25",trunk:60,slots:12},{realName:"Chevtolet Impala SS 1996",gameName:"Declasse Implata SS 1996",price:145000,speed:240,season:"Зимний 24/25",trunk:60,slots:12},{realName:"Ford Escort",gameName:"Vapid Export 1992",price:145000,speed:240,season:"Зимний 24/25",trunk:60,slots:18},{realName:"Honda Civic Type-R 2001",gameName:"Dinka Civil Type-R 2001",price:145000,speed:242,season:"Зимний 24/25",trunk:60,slots:18},{realName:"Ford Mustang SVT Cobra 1993",gameName:"Vapid Stud SVT Cobra 1993",price:145000,speed:242,season:"Зимний 24/25",trunk:60,slots:12},{realName:"Lamborghini Centenario",gameName:"Pegassi Centario 2017",price:268000,speed:450,season:"Зимний 24/25",trunk:20,slots:6},{realName:"Ferrari 296 GTB",gameName:"Grotti 269 GTB 2022",price:268000,speed:450,season:"Зимний 24/25",trunk:20,slots:6},{realName:"Subaru SVX",gameName:"Karin SVX 1991",price:145000,speed:241,season:"Летний 2025",trunk:60,slots:18},{realName:"Toyota Chaser JZX81",gameName:"Karin Racer 81 1991",price:145000,speed:241,season:"Летний 2025",trunk:60,slots:18},{realName:"Toyota Sera",gameName:"Karin Cera 1990",price:145000,speed:241,season:"Летний 2025",trunk:60,slots:12},{realName:"Volvo C30 Polestar",gameName:"Vulcar X30 Polestop 2013",price:145000,speed:241,season:"Летний 2025",trunk:90,slots:18},{realName:"Vauxhall Astra",gameName:"Maxwell Astral XVR 2006",price:145000,speed:241,season:"Летний 2025",trunk:90,slots:18},{realName:"Ford Focus RS",gameName:"Vapid Pocus RS 2010",price:145000,speed:241,season:"Летний 2025",trunk:90,slots:18},{realName:"Ford Transit",gameName:"Vapid Cargo 2011",price:223000,speed:241,season:"Летний 2025",trunk:260,slots:60},{realName:"Lamborghini Temerario",gameName:"Pegassi Temario 2025",price:268000,speed:448,season:"Летний 2025",trunk:20,slots:6},{realName:"Ferrari 12Cilindri",gameName:"Crotti 12Cil 2025",price:268000,speed:443,season:"Летний 2025",trunk:20,slots:6},{realName:"Mitsubishi Pajero Evolution",gameName:"Maibatsu Monterjo Revolution 1997",price:145000,speed:246,season:"Зимний 25/26",trunk:120,slots:18},{realName:"Volvo 850 R",gameName:"Vulcar 850R 1997",price:0,speed:0,season:"Зимний 25/26",trunk:0,slots:0},{realName:"Nissan Stagea RS Four V",gameName:"Annis Stage PS 4 V",price:0,speed:0,season:"Зимний 25/26",trunk:0,slots:0},{realName:"Mitsubishi Galant VR-4",gameName:"Maibatsu Garant RV 4 1990",price:0,speed:0,season:"Зимний 25/26",trunk:0,slots:0},{realName:"BMW 323ti Sport",gameName:"Ubermacht 323ti Sport 2000",price:0,speed:0,season:"Зимний 25/26",trunk:0,slots:0},{realName:"Abarth 695 Biposto",gameName:"Grotti 695 Bipost 2016",price:0,speed:0,season:"Зимний 25/26",trunk:0,slots:0},{realName:"Aston Martin Valkyrie",gameName:"Dewbauchee Vanguard Arachna 2022",price:268000,speed:466,season:"Зимний 25/26",trunk:0,slots:0},{realName:"BMW XM",gameName:"Ubermacht YW J09 2023",price:268000,speed:366,season:"Зимний 25/26",trunk:200,slots:42}
-                ],
-                event: [
-                    {realName:"Cadillac ECTO-1 Ghostbusters",gameName:"Albany ECTO-1 Ghostbusters",price:0,speed:280,trunk:200,slots:42},{realName:"Quadra Turbo-R V-Tech",gameName:"Quadra Turbo-R V-Tech",price:0,speed:310,trunk:60,slots:42},{realName:"Hummer H2 Limo",gameName:"Mammoth N2 Limo",price:0,speed:255,trunk:200,slots:42},{realName:"Школьный автобус",gameName:"Школьный автобус",price:0,speed:0,trunk:200,slots:42},{realName:"Tesla Cybertruck",gameName:"Coil Electruck",price:0,speed:320,trunk:240,slots:60},{realName:"Lamborghini Urus 6x6",gameName:"Pegassi Ursus 6x6",price:0,speed:274,trunk:230,slots:60},{realName:"Bugatti Mistral",gameName:"Truffade Wistral 2024",price:0,speed:450,trunk:10,slots:12},{realName:"Karin Technical Aqua",gameName:"Karin Technical Aqua",price:0,speed:163,trunk:200,slots:30},{realName:"Ferrari Roma",gameName:"Grotti Roman",price:0,speed:350,trunk:10,slots:12},{realName:"Toyota Alphard",gameName:"Karin Alfa",price:0,speed:230,trunk:260,slots:60},{realName:"Rolls-Royce Spectre",gameName:"Enus Spectrum",price:0,speed:370,trunk:60,slots:24},{realName:"Rivian R1T",gameName:"Coil R1T",price:0,speed:335,trunk:240,slots:60},{realName:"Lucis Regalia",gameName:"Lucis Regalia",price:0,speed:335,trunk:60,slots:42},{realName:"Morgan Aero GT",gameName:"Truffade Aero GT",price:0,speed:302,trunk:60,slots:42},{realName:"Mercedes-Benz EQG",gameName:"Benefactor IQ G-series",price:0,speed:358,trunk:165,slots:36},{realName:"Mercedes-Benz EQS",gameName:"Benefactor IQ S-series",price:0,speed:378,trunk:100,slots:18},{realName:"Zeekr 001",gameName:"Coil 001",price:0,speed:349,trunk:165,slots:36},{realName:"Lixiang L9",gameName:"Coil L9",price:0,speed:283,trunk:165,slots:36},{realName:"Mercedes-Benz EQS SUV",gameName:"Benefactor IQ S-series SUV 2024",price:0,speed:340,trunk:165,slots:36},{realName:"Aurus Senat",gameName:"Enus Senate 2024",price:0,speed:315,trunk:160,slots:30},{realName:"Hiphi z",gameName:"Coil Z",price:0,speed:345,trunk:165,slots:36},{realName:"Jeep Gladiator Apocalypse 6x6",gameName:"Canis Gladiator Apocalypse 6x6",price:0,speed:280,trunk:240,slots:60},{realName:"Гусеничный квадроцикл",gameName:"Nagasaki Snowquad",price:0,speed:170,trunk:30,slots:18},{realName:"Снегоход",gameName:"Nagasaki Snowmobile",price:0,speed:170,trunk:30,slots:18},{realName:"Bentley Flying Spur",gameName:"Enus Flying Scott 2020",price:0,speed:346,trunk:80,slots:24},{realName:"Jeep Gladiator",gameName:"Canis Glad 2019",price:0,speed:324,trunk:145,slots:30},{realName:"Bugatti La Voiture Noire",gameName:"Truffade Le Voyage Noire 2021",price:0,speed:450,trunk:15,slots:12},{realName:"Rolls-Royce Droptail",gameName:"Enus Sleektail 2024",price:0,speed:450,trunk:15,slots:12},{realName:"Rolls-Royce Boat tail",gameName:"Enus Coattail",price:0,speed:360,trunk:120,slots:36},{realName:"Lamborghini Lanzador",gameName:"Pegassi Lancelot",price:0,speed:362,trunk:165,slots:36},{realName:"Zeekr 009",gameName:"Coil 009",price:0,speed:247,trunk:300,slots:60},{realName:"Cadilac Escalade 2025",gameName:"Albany Excalibur 2025",price:0,speed:251,trunk:145,slots:30},{realName:"Lincoln Continental Mark III 1968",gameName:"Dundreary Kontinental MK3 1968",price:0,speed:313,trunk:60,slots:42},{realName:"Dodge Charger 1968",gameName:"Bravado Changer 1968",price:0,speed:0,trunk:60,slots:42}
-                ]
-            },
-            kitchen: [
-                {name:"Фруктовый салат",icon:"🥗",ing:["Фрукты"],sat:15,mood:40,str:-3,skill:0,tool:"Нож"},{name:"Овощной салат",icon:"🥗",ing:["Овощи"],sat:10,mood:5,str:0,skill:0,tool:"Нож"},{name:"Овощной смузи",icon:"🥤",ing:["Овощи","Вода"],sat:20,mood:35,str:0,skill:2,tool:"Венчик"},{name:"Фруктовый смузи",icon:"🍹",ing:["Фрукты","Вода"],sat:20,mood:50,str:-7,skill:2,tool:"Венчик"},{name:"Фруктовый лёд",icon:"🍧",ing:["Фрукты","Лед","Сахар"],sat:10,mood:65,str:-7,skill:2,tool:"Венчик"},{name:"Масло",icon:"🧈",ing:["Молоко"],sat:5,mood:0,str:-1,skill:2,tool:"Венчик"},{name:"Рыбный фарш",icon:"🥣",ing:["Любая рыба"],sat:0,mood:0,str:0,skill:2,tool:"Нож"},{name:"Сухая рыбная котлета",icon:"🍘",ing:["Рыбный фарш"],sat:10,mood:0,str:-3,skill:2,tool:"Огонь"},{name:"Рыбная котлета",icon:"🧆",ing:["Рыбный фарш","Масло"],sat:25,mood:10,str:-10,skill:2,tool:"Огонь"},{name:"Мясной фарш",icon:"🥩",ing:["Мясо"],sat:0,mood:0,str:0,skill:2,tool:"Нож"},{name:"Мясная котлета",icon:"🥩",ing:["Мясной фарш","Масло"],sat:25,mood:10,str:-10,skill:2,tool:"Огонь"},{name:"Сухая мясная котлета",icon:"🥩",ing:["Мясной фарш"],sat:10,mood:0,str:-3,skill:2,tool:"Огонь"},{name:"Картофельное пюре",icon:"🥣",ing:["Овощи","Масло","Молоко"],sat:10,mood:10,str:-5,skill:2,tool:"Венчик/Огонь"},{name:"Мясная котлета с пюре",icon:"🍛",ing:["Карт. пюре","Мясная котлета"],sat:50,mood:50,str:-20,skill:3,tool:"-"},{name:"Рыбная котлета с пюре",icon:"🍛",ing:["Карт. пюре","Рыбная котлета"],sat:50,mood:50,str:-20,skill:3,tool:"-"},{name:"Вареный рис",icon:"🍚",ing:["Рис","Вода"],sat:10,mood:0,str:-1,skill:2,tool:"Огонь"},{name:"Рыбная котлета с рисом",icon:"🍛",ing:["Рыбная котлета","Вареный рис"],sat:45,mood:40,str:-12,skill:2,tool:"-"},{name:"Котлета с рисом",icon:"🍛",ing:["Мясная котлета","Вареный рис"],sat:45,mood:40,str:-12,skill:2,tool:"-"},{name:"Ролл с лососем",icon:"🍣",ing:["Лосось","Вареный рис"],sat:25,mood:20,str:-3,skill:2,tool:"Нож"},{name:"Ролл с тунцом",icon:"🍣",ing:["Тунец","Вареный рис"],sat:25,mood:20,str:-3,skill:2,tool:"Нож"},{name:"Овощной ролл",icon:"🍣",ing:["Овощи","Вареный рис"],sat:20,mood:10,str:-2,skill:2,tool:"Нож"},{name:"Рыба с рисом",icon:"🍣",ing:["Любая рыба","Вареный рис"],sat:40,mood:10,str:-5,skill:2,tool:"Огонь"},{name:"Рыба с овощами",icon:"🥗",ing:["Любая рыба","Овощи"],sat:35,mood:15,str:-3,skill:2,tool:"Огонь"},{name:"Мясо с овощами",icon:"🍖",ing:["Мясо","Овощи"],sat:40,mood:10,str:-3,skill:2,tool:"Огонь"},{name:"Яичница",icon:"🍳",ing:["Яйцо"],sat:15,mood:5,str:-3,skill:2,tool:"Огонь"},{name:"Яичница с беконом",icon:"🍳",ing:["Яйцо","Мясо","Масло"],sat:25,mood:15,str:-6,skill:3,tool:"Огонь"},{name:"Омлет",icon:"🥚",ing:["Яйцо","Молоко"],sat:20,mood:10,str:-4,skill:2,tool:"Венчик/Огонь"},{name:"Крем-брюле",icon:"🍮",ing:["Молоко","Сахар","Яйцо"],sat:10,mood:80,str:-7,skill:4,tool:"Огонь"},{name:"Суфле",icon:"🧁",ing:["Яйцо","Сахар"],sat:20,mood:80,str:-2,skill:5,tool:"Венчик/Огонь"},{name:"Овощной омлет",icon:"🥚",ing:["Яйцо","Молоко","Овощи"],sat:25,mood:10,str:-4,skill:3,tool:"Венчик/Огонь"},{name:"Компот",icon:"🍹",ing:["Сахар","Вода","Фрукты"],sat:5,mood:50,str:-7,skill:3,tool:"Огонь"},{name:"Карамель",icon:"🍬",ing:["Сахар"],sat:5,mood:10,str:-5,skill:4,tool:"Огонь"},{name:"Оладьи",icon:"🥞",ing:["Яйцо","Молоко","Мука","Сахар"],sat:20,mood:20,str:-10,skill:3,tool:"Венчик/Огонь"},{name:"Оладьи с карамелью",icon:"🥞",ing:["Оладьи","Карамель"],sat:25,mood:40,str:-20,skill:0,tool:"-"},{name:"Тесто",icon:"🍞",ing:["Мука","Вода","Яйцо"],sat:0,mood:0,str:0,skill:0,tool:"Венчик"},{name:"Чизкейк",icon:"🍰",ing:["Тесто","Сыр","Сахар"],sat:30,mood:60,str:-15,skill:4,tool:"Венчик/Огонь"},{name:"Карамельный чизкейк",icon:"🍰",ing:["Чизкейк","Карамель"],sat:35,mood:85,str:-25,skill:5,tool:"-"},{name:"Фруктовый чизкейк",icon:"🍰",ing:["Чизкейк","Фрукты"],sat:35,mood:70,str:-20,skill:5,tool:"-"},{name:"Яблоко в карамели",icon:"🍎",ing:["Карамель","Фрукты"],sat:20,mood:55,str:-7,skill:4,tool:"-"},{name:"Фруктовый салат с карамелью",icon:"🥗",ing:["Карамель","Фруктовый салат"],sat:25,mood:60,str:-11,skill:0,tool:"-"},{name:"Мороженое",icon:"🍦",ing:["Яйцо","Сахар","Молоко","Лёд"],sat:10,mood:70,str:-15,skill:2,tool:"Венчик"},{name:"Карамельное мороженое",icon:"🍦",ing:["Карамель","Мороженое"],sat:15,mood:80,str:-20,skill:0,tool:"-"},{name:"Молочный коктейль",icon:"🥤",ing:["Мороженое","Молоко"],sat:20,mood:70,str:-15,skill:3,tool:"Венчик"},{name:"Карамельный коктейль",icon:"🥤",ing:["Карамель","Молочный коктейль"],sat:25,mood:80,str:-20,skill:0,tool:"-"},{name:"Бульон",icon:"🍲",ing:["Мясо","Вода"],sat:10,mood:0,str:-25,skill:0,tool:"Огонь"},{name:"Стейк с фруктовым соусом и рисом",icon:"🍛",ing:["Стейк с ф.с.","Вареный рис"],sat:80,mood:60,str:-13,skill:5,tool:"-"},{name:"Стейк с фруктовым соусом и пюре",icon:"🍛",ing:["Стейк с ф.с.","Картофельное пюре"],sat:80,mood:80,str:-15,skill:5,tool:"-"},{name:"Рыба с фруктовым соусом",icon:"🍲",ing:["Рыба","Фрукты","Сахар"],sat:60,mood:50,str:-10,skill:5,tool:"Огонь"},{name:"Рыба с фруктовым соусом и рисом",icon:"🍛",ing:["Рыба с ф.с","Вареный рис"],sat:80,mood:60,str:-13,skill:5,tool:"-"},{name:"Рыба с фруктовым соусом и пюре",icon:"🍛",ing:["Рыба с ф.с","Картофельное пюре"],sat:80,mood:80,str:-15,skill:5,tool:"-"},{name:"Лазанья",icon:"🍕",ing:["Молоко","Мука","Сыр","Овощи","Мясной фарш"],sat:65,mood:50,str:-20,skill:5,tool:"Огонь"},{name:"Бургер",icon:"🍔",ing:["Мясная котлета","Овощи","Хлеб"],sat:40,mood:0,str:-10,skill:2,tool:"-"},{name:"Ризотто",icon:"🍚",ing:["Бульон","Рисовая крупа","Сыр"],sat:40,mood:20,str:-20,skill:0,tool:"Огонь"},{name:"Тако с мясом",icon:"🌮",ing:["Хлеб","Мясной фарш","Сыр","Овощи"],sat:30,mood:30,str:-10,skill:3,tool:"Огонь"},{name:"Тако с рыбой",icon:"🌮",ing:["Хлеб","Рыбный фарш","Сыр","Овощи"],sat:30,mood:30,str:-10,skill:3,tool:"Огонь"},{name:"Буррито",icon:"🌯",ing:["Хлеб","Вареный рис","Мясной фарш","Овощи","Сыр"],sat:50,mood:50,str:-15,skill:3,tool:"Огонь"},{name:"Поке",icon:"🍲",ing:["Вареный рис","Сыр","Овощи","Лосось"],sat:70,mood:50,str:-15,skill:4,tool:"-"},{name:"Мальма в сливочном соусе",icon:"🐟",ing:["Мальма","Овощи","Молоко"],sat:75,mood:75,str:-13,skill:5,tool:"Огонь"},{name:"Мясо по-французски",icon:"🥩",ing:["Мясо","Овощи","Сыр"],sat:60,mood:40,str:-15,skill:5,tool:"Огонь"},{name:"Оливье",icon:"🥗",ing:["Мясо","Овощи","Яйца","Вода"],sat:60,mood:50,str:-25,skill:5,tool:"Нож/Огонь"},{name:"Сашими из фугу",icon:"🐡",ing:["Фугу"],sat:20,mood:60,str:0,skill:0,tool:"Нож"},{name:"Сашими из лосося",icon:"🍣",ing:["Лосось"],sat:10,mood:30,str:0,skill:4,tool:"Нож"},{name:"Сашими из тунца",icon:"🍣",ing:["Тунец"],sat:10,mood:30,str:0,skill:4,tool:"Нож"}
+<script>
+    // ================= FULL DATA (DB) =================
+    const DB = {
+        cars: {
+            platinum: [
+                {realName:"VW Golf MK1",gameName:"BF Wolf MK1",price:200000,speed:222,trunk:60,slots:12},{realName:"Audi 80 B4 1996",gameName:"Obey 80 B4 1996",price:225000,speed:222,trunk:60,slots:12},{realName:"BMW 7-series e38",gameName:"Ubermacht 7-line E38",price:250000,speed:220,trunk:60,slots:18},{realName:"Kia Ceed",gameName:"Bollokan Speed",price:250000,speed:235,trunk:90,slots:30},{realName:"Toyota GR Yaris",gameName:"Karin Waris GR 2021",price:275000,speed:237,trunk:90,slots:30},{realName:"BMW 5",gameName:"Ubermacht 5-line E34",price:300000,speed:197,trunk:60,slots:24},{realName:"Skoda Octavia A7 2017",gameName:"BF Olivia A7 2017",price:300000,speed:240,trunk:60,slots:18},{realName:"Subaru Impreza",gameName:"Karin Imperia MRX STI 1",price:350000,speed:246,trunk:60,slots:18},{realName:"BMW 1973 2002",gameName:"Ubermacht 2002 1973",price:375000,speed:238,trunk:60,slots:18},{realName:"BMW 3",gameName:"Ubermacht 3-line E36",price:400000,speed:202,trunk:60,slots:24},{realName:"Toyota AE86 Trueno",gameName:"Karin AE86 Brueno",price:400000,speed:230,trunk:60,slots:18},{realName:"Mazda Miata 1990",gameName:"Annis Myata 1990",price:425000,speed:247,trunk:60,slots:12},{realName:"Toyota Altezza",gameName:"Karin Altura 2001",price:450000,speed:248,trunk:60,slots:18},{realName:"Nissan Silvia S13",gameName:"Annis Slivia S13",price:450000,speed:244,trunk:60,slots:18},{realName:"Toyota Camry V40",gameName:"Karin Camria V40",price:500000,speed:212,trunk:70,slots:24},{realName:"Mitsubishi evo 6",gameName:"Maibatsu Lance Revolution 6",price:500000,speed:250,trunk:60,slots:24},{realName:"BMW e28",gameName:"Ubermacht W5 E28",price:500000,speed:230,trunk:60,slots:18},{realName:"Honda Integra Type R",gameName:"Dinka Entegra Type R 1998",price:525000,speed:257,trunk:60,slots:18},{realName:"Lexus SC300",gameName:"Emperor CS300 2000",price:550000,speed:266,trunk:60,slots:18},{realName:"Toyota Camry",gameName:"Karin Camria V55",price:600000,speed:240,trunk:60,slots:24},{realName:"Nissan GTR Skyline R32",gameName:"Annis GS-R M32",price:600000,speed:248,trunk:60,slots:12},{realName:"Nissan 350z",gameName:"Annis 350x",price:600000,speed:266,trunk:60,slots:12},{realName:"Nissan 240z",gameName:"Annis 240x",price:650000,speed:252,trunk:60,slots:12},{realName:"Honda NSX",gameName:"Dinka NSY 1995",price:700000,speed:263,trunk:60,slots:18},{realName:"BMW e39",gameName:"Ubermacht W5 E39",price:700000,speed:256,trunk:70,slots:18},{realName:"Nissan Silvia S15",gameName:"Annis Slivia S15",price:700000,speed:270,trunk:60,slots:24},{realName:"Ford Mustang Boss 1970",gameName:"Vapid Stud Boss 1970",price:700000,speed:255,trunk:60,slots:12},{realName:"Mercedes A45",gameName:"Benefactor A-series 45 W176",price:750000,speed:235,trunk:90,slots:30},{realName:"Chevrolet Impala 67",gameName:"Declasse Implata 67",price:750000,speed:235,trunk:60,slots:24},{realName:"Infiniti FX50S",gameName:"Fathom XF50 S",price:800000,speed:255,trunk:100,slots:30},{realName:"Volkswagen Touareg",gameName:"BF Twareg",price:800000,speed:238,trunk:125,slots:24},{realName:"Nissan GTR2000",gameName:"Annis GS-R2000",price:800000,speed:260,trunk:60,slots:18},{realName:"Toyota Supra",gameName:"Karin Superia A80",price:850000,speed:260,trunk:60,slots:12},{realName:"Toyota Mark 2",gameName:"Karin Marco 2",price:850000,speed:257,trunk:60,slots:24},{realName:"Subaru WRX STI",gameName:"Karin Imperia MRX STE 3",price:900000,speed:262,trunk:90,slots:24},{realName:"Mitsubishi Evo 10",gameName:"Maibatsu Lance Revolution 10",price:900000,speed:257,trunk:60,slots:18},{realName:"Honda Civic 2019",gameName:"Dinka Civil 2019",price:900000,speed:263,trunk:60,slots:12},{realName:"Mercedes E55",gameName:"Benefactor E-series 55 W210",price:1000000,speed:230,trunk:65,slots:24},{realName:"Nissan Skyline GTR R33",gameName:"Annis GS-R M33",price:1000000,speed:260,trunk:65,slots:30},{realName:"Lexus IS F",gameName:"Emperor IC-F 2012",price:1150000,speed:266,trunk:65,slots:18},{realName:"Toyota Land Cruiser 100",gameName:"Karin Grand Cruiser 100",price:1200000,speed:245,trunk:125,slots:24},{realName:"Subaru Impreza WRX STI",gameName:"Karin Imperia MRX STE 2010",price:1225000,speed:268,trunk:65,slots:18},{realName:"Honda Civic Type R",gameName:"Dinka Civil Type R 2023",price:1250000,speed:265,trunk:75,slots:24},{realName:"Nissan Skyline GTR R34",gameName:"Annis GS-R M34",price:1300000,speed:270,trunk:65,slots:30},{realName:"Mazda rx7",gameName:"Annis PX7",price:1300000,speed:252,trunk:65,slots:18},{realName:"Mercedes CLS",gameName:"Benefactor ZLS C219",price:1400000,speed:248,trunk:75,slots:24},{realName:"VW Golf",gameName:"BF Wolf R7",price:1400000,speed:247,trunk:95,slots:18},{realName:"Mercedes-Benz S-Class W140",gameName:"Benefactor S-series W140",price:1500000,speed:227,trunk:65,slots:24},{realName:"Ford Mustang 1965",gameName:"Vapid Stud 1965",price:1500000,speed:247,trunk:65,slots:18},{realName:"BMW 1M E82",gameName:"Ubermacht 1W E82",price:1550000,speed:262,trunk:65,slots:18},{realName:"Audi RS2 B4",gameName:"Obey PS2 B4",price:1600000,speed:261,trunk:105,slots:24},{realName:"Kia EV6 GT",gameName:"Bollokan IV6 GT 2023",price:1650000,speed:267,trunk:95,slots:36},{realName:"Audi RS6 2002",gameName:"Obey PS6 2002",price:1700000,speed:275,trunk:105,slots:24},{realName:"Dodge Challenger SRT Demon",gameName:"Bravado Contender SPT Demon",price:1800000,speed:265,trunk:65,slots:18},{realName:"BMW M5 E60",gameName:"Ubermacht W5 E60",price:1800000,speed:269,trunk:75,slots:18},{realName:"Alfa Romeo Giulia",gameName:"Lampadati Julia",price:1850000,speed:277,trunk:75,slots:18},{realName:"Land Cruiser 200",gameName:"Karin Grand Cruiser 200",price:2000000,speed:257,trunk:125,slots:24},{realName:"BMW X5 E53",gameName:"Ubermacht Y5 E53",price:2000000,speed:247,trunk:125,slots:30},{realName:"Dodge Charger SRT",gameName:"Bravado Changer SPT",price:2000000,speed:269,trunk:65,slots:18},{realName:"Audi RS5 2020",gameName:"Obey PS5 2020",price:2000000,speed:268,trunk:105,slots:24},{realName:"Audi RS 6 Avant",gameName:"Obey PS6 Awand",price:2200000,speed:263,trunk:105,slots:24},{realName:"Ford Raptor",gameName:"Vapid Predator",price:2200000,speed:232,trunk:205,slots:30},{realName:"Mercedes-Benz S-Class W221",gameName:"Benefactor S-series W221",price:2300000,speed:280,trunk:65,slots:24},{realName:"Audi Q7 V12 2007",gameName:"Obey O7 V12 2007",price:2400000,speed:267,trunk:130,slots:30},{realName:"Toyota GR Supra",gameName:"Karin GR Superia A90",price:2500000,speed:270,trunk:20,slots:18},{realName:"Mercedes GLS 63",gameName:"Benefactor JLS 63 X166",price:3000000,speed:272,trunk:130,slots:30},{realName:"Lexus LFA",gameName:"Emperor MFA",price:3000000,speed:265,trunk:20,slots:12},{realName:"Ford Mustang 2019",gameName:"Vapid Stud 2019",price:3000000,speed:271,trunk:70,slots:18},{realName:"Land Rover Range Rover",gameName:"Gallivanter Range Rider",price:3100000,speed:282,trunk:130,slots:24},{realName:"Audi TT RS 2017",gameName:"Obey DD PS 2017",price:3200000,speed:283,trunk:12,slots:6},{realName:"Ford Mustang 2024",gameName:"Vapid Stud 2024",price:3300000,speed:298,trunk:70,slots:18},{realName:"Cadillac Escalade",gameName:"Albany Excalibur",price:3400000,speed:252,trunk:130,slots:24},{realName:"BMW Z4",gameName:"Ubermacht S4 E86",price:3500000,speed:250,trunk:70,slots:24},{realName:"Audi RS 3 2023",gameName:"Obey PS3 2023",price:3600000,speed:283,trunk:70,slots:18},{realName:"BMW M5 F10",gameName:"Ubermacht W5 H10 2016",price:3650000,speed:285,trunk:70,slots:18},{realName:"BMW M4 F82",gameName:"Ubermacht W4 F82",price:3700000,speed:277,trunk:70,slots:12},{realName:"Lexus GS",gameName:"Emperor GC",price:3750000,speed:290,trunk:80,slots:24},{realName:"Nissan GTR R35",gameName:"Annis GS-R M35",price:3900000,speed:279,trunk:70,slots:12},{realName:"Tesla Model X",gameName:"Coil Line X",price:4000000,speed:235,trunk:80,slots:30},{realName:"Mercedes C63S",gameName:"Benefactor C-series 63S",price:4000000,speed:271,trunk:80,slots:18},{realName:"BMW M5 F90",gameName:"Ubermacht W5 F90",price:4000000,speed:273,trunk:80,slots:18},{realName:"Lexus LX570",gameName:"Emperor MX570",price:4000000,speed:277,trunk:135,slots:30},{realName:"Audi RS6 2020",gameName:"Obey PS6 2020",price:4000000,speed:284,trunk:110,slots:24},{realName:"Porsche Cayenne",gameName:"Pfister Rayenne",price:4200000,speed:270,trunk:135,slots:24},{realName:"Porsche 911 Carrera",gameName:"Pfister 811 Carvera",price:4200000,speed:285,trunk:10,slots:12},{realName:"Tesla Model S",gameName:"Coil Line S",price:4300000,speed:302,trunk:80,slots:24},{realName:"Mercedes G63 2019",gameName:"Benefactor G-series 63",price:4500000,speed:277,trunk:140,slots:30},{realName:"BMW M5 F90 LCI",gameName:"Ubermacht W5 H90 LCI 2021",price:4750000,speed:304,trunk:70,slots:24},{realName:"Audi Q8 2022",gameName:"Obey O8 2022",price:4750000,speed:321,trunk:135,slots:24},{realName:"Lamborghini Gallardo",gameName:"Pegassi Leonardo",price:4800000,speed:302,trunk:5,slots:12},{realName:"Audi RS 7",gameName:"Obey PS7",price:5000000,speed:315,trunk:85,slots:24},{realName:"BMW X6M",gameName:"Ubermacht Y6W F86",price:5000000,speed:313,trunk:140,slots:24},{realName:"Porsche Carrera",gameName:"Pfister Carvera GT",price:5100000,speed:305,trunk:10,slots:6},{realName:"Audi R8 2020",gameName:"Obey P8 2020",price:5200000,speed:323,trunk:10,slots:6},{realName:"Lexus LC500 2018",gameName:"Emperor MC500 2018",price:5300000,speed:330,trunk:75,slots:18},{realName:"BMW i8",gameName:"Ubermacht I8",price:5500000,speed:272,trunk:10,slots:6},{realName:"Lamborghini Huracan",gameName:"Pegassi Hurricane",price:5500000,speed:297,trunk:15,slots:12},{realName:"Chevrolet Corvette 2009",gameName:"Declasse Covetto 2009",price:5600000,speed:309,trunk:30,slots:12},{realName:"Toyota Tundra",gameName:"Karin Thunder 2021",price:5750000,speed:260,trunk:245,slots:42},{realName:"Lucid Air 2021",gameName:"Coil Air 2021",price:6000000,speed:332,trunk:75,slots:24},{realName:"Lamborghini Veneno",gameName:"Pegassi Verano",price:6250000,speed:330,trunk:15,slots:12},{realName:"Mercedes SLR",gameName:"Benefactor CLR Progen C199",price:6700000,speed:303,trunk:75,slots:12},{realName:"BMW X5 M",gameName:"Ubermacht Y5 G05",price:7000000,speed:306,trunk:140,slots:24},{realName:"Lamborghini Urus",gameName:"Pegassi Ursus",price:7400000,speed:315,trunk:145,slots:24},{realName:"Mercedes Maybach",gameName:"Benefactor M-Bach S560",price:7500000,speed:310,trunk:90,slots:18},{realName:"Ferrari F12 Berlinetta",gameName:"Grotti P12 Verleenetta",price:7800000,speed:307,trunk:15,slots:12},{realName:"Rolls Royce Wraith",gameName:"Enus Veil",price:8000000,speed:300,trunk:80,slots:18},{realName:"Bentley Bentayga",gameName:"Enus Benteygo",price:8000000,speed:288,trunk:115,slots:24},{realName:"McLaren GT 2020",gameName:"Progen GT 2020",price:8000000,speed:347,trunk:15,slots:12},{realName:"BMW X7M",gameName:"Ubermacht Y7W G07",price:8300000,speed:301,trunk:145,slots:30},{realName:"McLaren 720s",gameName:"Progen 720c",price:8600000,speed:305,trunk:10,slots:6},{realName:"Tesla Roadster",gameName:"Coil Roadster",price:8600000,speed:310,trunk:80,slots:18},{realName:"Ferrari Aperta",gameName:"Grotti Ascenda",price:9000000,speed:342,trunk:10,slots:12},{realName:"G63 AMG 6x6",gameName:"Benefactor G-series 63 6x6",price:9000000,speed:290,trunk:230,slots:60},{realName:"Ford GT",gameName:"Vapid GT",price:9100000,speed:325,trunk:10,slots:12},{realName:"McLaren Senna",gameName:"Progen Serena",price:9500000,speed:312,trunk:10,slots:12},{realName:"Aston Martin Vulcan",gameName:"Dewbauchee Vulcore",price:10000000,speed:380,trunk:10,slots:12},{realName:"Rolls Royce Cullinan",gameName:"Enus Callinon",price:12000000,speed:343,trunk:125,slots:24},{realName:"Pininfarina Battista",gameName:"Pegassi Bellista 2022",price:12500000,speed:398,trunk:10,slots:12},{realName:"Bugatti Chiron",gameName:"Truffade Shiron",price:15000000,speed:413,trunk:15,slots:12},{realName:"Koenigsegg Jesko",gameName:"Overflod Gesko",price:16000000,speed:392,trunk:15,slots:10},{realName:"Koenigsegg Agera",gameName:"Overflod Ahera",price:17000000,speed:420,trunk:15,slots:12},{realName:"Ferrari 458 Italia",gameName:"Grotti 854 Italy",price:17500000,speed:435,trunk:15,slots:12},{realName:"Pagani Huayra Roadster",gameName:"Pegassi Hayra Roadster",price:18000000,speed:455,trunk:15,slots:12},{realName:"Bugatti Veyron Vitesse",gameName:"Truffade Weyron Witesse",price:18000000,speed:415,trunk:15,slots:12},{realName:"Koenigsegg Gemera",gameName:"Overflod Genera",price:22000000,speed:428,trunk:15,slots:12},{realName:"Bugatti Divo",gameName:"Truffade Vivo 2020",price:22500000,speed:445,trunk:10,slots:12},{realName:"Mercedes-Benz Vision AVTR",gameName:"Benefactor Illusion Avatar",price:25000000,speed:355,trunk:15,slots:15},{realName:"Bentley EXP 100",gameName:"Enus EPX 100",price:25000000,speed:435,trunk:15,slots:12}
             ],
-            bp: [
-                {t:"Отыграть 3 часа в онлайне",q:1,b:2,v:4},
-                {t:"Выбить 0 или 00 в рулетке",q:1,b:2,v:4},
-                {t:"Выполнить 25 действий на стройке",q:25,b:2,v:4},
-                {t:"Выполнить 25 действий в порту",q:25,b:2,v:4},
-                {t:"Выполнить 25 действий в шахте",q:25,b:2,v:4},
-                {t:"Одержать 3 победы в Дэнс Баттлах",q:3,b:2,v:4},
-                {t:"Сделать заказ материалов",q:1,b:1,v:2},
-                {t:"Сделать 20 подходов в спортзале",q:20,b:1,v:2},
-                {t:"Пройти тренировку в тире",q:1,b:1,v:2},
-                {t:"Развезти 10 посылок на почте",q:10,b:1,v:2},
-                {t:"Арендовать павильон на киностудии",q:1,b:2,v:4},
-                {t:"Купить лотерейный билет",q:1,b:1,v:2},
-                {t:"Выиграть гонку в картинге",q:1,b:1,v:2},
-                {t:"Выполнить 10 действий на ферме",q:10,b:1,v:2},
-                {t:"Потушить 25 \"огоньков\"",q:25,b:1,v:2},
-                {t:"Выкопать 1 сокровище",q:1,b:1,v:2},
-                {t:"Проехать 1 уличную гонку",q:1,b:1,v:2},
-                {t:"Выполнить 3 заказа дальнобойщиком",q:3,b:2,v:4},
-                {t:"Два раза оплатить смену внешности",q:2,b:2,v:4},
-                {t:"Добавить 5 видео в кинотеатре",q:5,b:1,v:2},
-                {t:"Выиграть 5 игр в тренировочном комплексе",q:5,b:1,v:2},
-                {t:"Выиграть 3 любых игры на арене",q:3,b:1,v:2},
-                {t:"2 круга на любом маршруте автобусника",q:2,b:2,v:4},
-                {t:"5 раз снять 100% шкуру с животных",q:5,b:2,v:4},
-                {t:"7 закрашенных граффити",q:7,b:1,v:2},
-                {t:"Сдать 5 контрабанды",q:5,b:2,v:4},
-                {t:"Участие в каптах/бизварах",q:1,b:1,v:2},
-                {t:"Сдать Хаммер с ВЗХ",q:1,b:3,v:6},
-                {t:"5 выданных медкарт в EMS",q:5,b:2,v:4},
-                {t:"Закрыть 15 вызовов в EMS",q:15,b:2,v:4},
-                {t:"Отредактировать 40 объявлений в WN",q:40,b:2,v:4},
-                {t:"Взломать 15 замков",q:15,b:2,v:4},
-                {t:"Закрыть 5 кодов в силовых",q:5,b:2,v:4},
-                {t:"Поставить на учет 2 автомобиля",q:2,b:1,v:2},
-                {t:"Произвести 1 арест в КПЗ",q:1,b:1,v:2},
-                {t:"Выкупить двух человек из КПЗ",q:2,b:2,v:4},
-                {t:"Посетить любой сайт в браузере",q:1,b:1,v:2},
-                {t:"Зайти в любой канал в Brawl",q:1,b:1,v:2},
-                {t:"Поставить лайк любой анкете в Match",q:1,b:1,v:2},
-                {t:"Прокрутить за DP кейс",q:1,b:10,v:20},
-                {t:"Кинуть мяч питомцу 15 раз",q:15,b:2,v:4},
-                {t:"15 выполненных питомцем команд",q:15,b:2,v:4},
-                {t:"Ставка в колесе удачи в казино",q:1,b:3,v:6},
-                {t:"Проехать 1 станцию на метро",q:1,b:2,v:4},
-                {t:"Поймать 20 рыб",q:20,b:4,v:8},
-                {t:"Выполнить 2 квеста любых клубов",q:2,b:4,v:8},
-                {t:"Починить деталь в автосервисе",q:1,b:1,v:2},
-                {t:"Забросить 2 мяча в баскетболе",q:2,b:1,v:2},
-                {t:"Забить 2 гола в футболе",q:2,b:1,v:2},
-                {t:"Победить в армрестлинге",q:1,b:1,v:2},
-                {t:"Победить в дартс",q:1,b:1,v:2},
-                {t:"Поиграть 1 минуту в волейбол",q:1,b:1,v:2},
-                {t:"Поиграть 1 минуту в настольный теннис",q:1,b:1,v:2},
-                {t:"Поиграть 1 минуту в большой теннис",q:1,b:1,v:2},
-                {t:"Сыграть в мафию в казино",q:1,b:3,v:6},
-                {t:"Сделать платеж по лизингу",q:1,b:1,v:2},
-                {t:"Посадить траву в теплице",q:1,b:4,v:8},
-                {t:"Запустить переработку в лаборатории",q:1,b:4,v:8},
-                {t:"Принять участие в двух аирдропах",q:2,b:4,v:8}
+            moto: [
+                {realName:"KTM 125 2006",gameName:"Principe 125 2006",price:350000,speed:260,trunk:0,slots:0},{realName:"Honda Bros 2009",gameName:"Dinka Bro 2009",price:425000,speed:267,trunk:0,slots:0},{realName:"KTM 450 2020",gameName:"Principe 450 2020",price:850000,speed:281,trunk:0,slots:0},{realName:"Ducati 900SS",gameName:"Principe 900SS",price:900000,speed:285,trunk:4,slots:6},{realName:"BMW R75",gameName:"Ubermacht R75",price:1100000,speed:237,trunk:8,slots:6},{realName:"Yamaha R1",gameName:"Nagasaki P1",price:1200000,speed:288,trunk:4,slots:6},{realName:"KTM 690 2017",gameName:"Principe 690 2017",price:1250000,speed:298,trunk:0,slots:0},{realName:"Suzuki GSX-R1000",gameName:"Shitzu CSX-R1000",price:1320000,speed:294,trunk:4,slots:6},{realName:"Yamaha R6 2008",gameName:"Nagasaki P6 2008",price:1500000,speed:296,trunk:4,slots:6},{realName:"Honda CBR1000RR 2017",gameName:"Dinka SBP 1000RR",price:1800000,speed:315,trunk:3,slots:6},{realName:"Yamaha R6 2010",gameName:"Nagasaki P6 2010",price:1800000,speed:331,trunk:4,slots:6},{realName:"Honda Fireblade 2020",gameName:"Dinka SMP 1000RR",price:2000000,speed:331,trunk:4,slots:6},{realName:"Suzuki Hayabusa",gameName:"Shitzu GSX1300R",price:2300000,speed:338,trunk:4,slots:6},{realName:"Yamaha YZF-R1M",gameName:"Nagasaki ZYF-R1M",price:2600000,speed:340,trunk:4,slots:6},{realName:"Kawasaki Ninja ZX-10RR",gameName:"Nagasaki Shinobi",price:2800000,speed:353,trunk:4,slots:6},{realName:"Ducati Panigale V4 R",gameName:"Principe Ranigale",price:3700000,speed:344,trunk:4,slots:6},{realName:"Ducati V4S 2021",gameName:"Principe W4S 2021",price:4000000,speed:348,trunk:4,slots:6},{realName:"Harley Davidson Fat Boy",gameName:"WMC F Boy",price:4000000,speed:249,trunk:8,slots:6},{realName:"Indian Motorcycle",gameName:"WMC Chief Dark Steed",price:4300000,speed:257,trunk:10,slots:6},{realName:"Kawasaki Ninja H2R",gameName:"Nagasaki Shinobi H2R",price:4600000,speed:339,trunk:4,slots:6},{realName:"Harley Davidson iron",gameName:"WMC Copper 883",price:4700000,speed:260,trunk:8,slots:6},{realName:"Harley Davidson Street Glide",gameName:"WMC Country Glide",price:4900000,speed:270,trunk:20,slots:6},{realName:"KTM RC 390",gameName:"Principe RC 390",price:7700000,speed:370,trunk:4,slots:6},{realName:"Honda RC213V-S",gameName:"Dinka PS213V-S",price:13500000,speed:351,trunk:4,slots:6}
             ],
-            timers: [
-                {id:'t5',l:'5 мин',s:300},{id:'t10',l:'10 мин',s:600},{id:'t15',l:'15 мин',s:900},{id:'t30',l:'30 мин',s:1800},{id:'t60',l:'1 час',s:3600},{id:'t120',l:'2 часа',s:7200},{id:'mail',l:'Почта (10м)',s:600},{id:'tarot',l:'Таро (3ч)',s:10800},{id:'mech',l:'Механик (5м)',s:300},{id:'taxi',l:'Таксист (5м)',s:300},{id:'theft',l:'Автоугон (1.5ч)',s:5400},{id:'club',l:'Клуб (2ч)',s:7200},{id:'shoot',l:'Тир (1.5ч)',s:5400},{id:'train',l:'Дрессировка (15м)',s:900},{id:'pimp',l:'Сутенерка (1.5ч)',s:5400},{id:'casino',l:'Казино (24ч)',s:86400}
+            container: [
+                {realName:"Range Rover Evoque",gameName:"Gallivanter Range Rider Revogue",price:0,speed:290,trunk:135,slots:24},{realName:"BMW M3 G81 Touring",gameName:"Ubermacht W3 G81 Touring",price:0,speed:307,trunk:110,slots:24},{realName:"Jaguar I-Pace",gameName:"Ocelot I-Model",price:0,speed:309,trunk:100,slots:30},{realName:"Mercedes E63s 2022",gameName:"Benefactor E-series 63S ASG W213",price:0,speed:308,trunk:70,slots:24},{realName:"BMW M2 G87",gameName:"Ubermacht W2 G87",price:0,speed:304,trunk:70,slots:24},{realName:"Mercedes C63s AMG W206",gameName:"Benefactor C-series 63S ASG W206",price:0,speed:323,trunk:75,slots:24},{realName:"BMW M4 G82",gameName:"Ubermacht W4 G82",price:0,speed:327,trunk:75,slots:24},{realName:"BMW M6 F13",gameName:"Ubermacht W6 F13",price:0,speed:340,trunk:75,slots:24},{realName:"Audi RS7 2020",gameName:"Obey PS7 2020",price:0,speed:335,trunk:85,slots:24},{realName:"BMW M5 F90 CS 2020",gameName:"Ubermacht W5 F90 CS 2020",price:0,speed:340,trunk:75,slots:24},{realName:"Chevrolet Corvette C8",gameName:"Declasse Covetto Wingray C8",price:0,speed:345,trunk:20,slots:18},{realName:"Audi RS E-TRON GT",gameName:"Obey PS I-tron GT",price:0,speed:350,trunk:80,slots:24},{realName:"Porsche 911 GT3 2021",gameName:"Pfister 811 GT3 2021",price:0,speed:360,trunk:20,slots:12},{realName:"Dodge RAM TRX",gameName:"Bravado RUM TPX",price:0,speed:307,trunk:235,slots:60},{realName:"Porsche 918 Spyder",gameName:"Pfister 819 Spyro",price:0,speed:430,trunk:10,slots:12},{realName:"Aston Martin Victor",gameName:"Dewbauchee Vico",price:0,speed:415,trunk:20,slots:12},{realName:"Lamborghini Countach 1990",gameName:"Pegassi Coutron 1990",price:0,speed:322,trunk:10,slots:12},{realName:"Audi R8 2015",gameName:"Obey P8 2015",price:0,speed:340,trunk:15,slots:12},{realName:"Mercedes E63s W213",gameName:"Benefactor E-series 63S W213",price:0,speed:315,trunk:110,slots:24},{realName:"BMW X6M F96",gameName:"Ubermacht Y6W F96",price:0,speed:333,trunk:145,slots:24},{realName:"Audi RSQ8 2022",gameName:"Obey PSO8 2022",price:0,speed:338,trunk:145,slots:24},{realName:"Mercedes SLS 2009",gameName:"Benefactor CLC ASG C197",price:0,speed:340,trunk:20,slots:12},{realName:"Aston Martin Vantage",gameName:"Dewbauchee Voyage",price:0,speed:340,trunk:95,slots:24}
             ],
-            guides: {
-                payment: {
-                    animals: { h: ["Зверь","Скупщик","Rednecks"], r: [["Кролик","1.000$","1.160$"],["Кабан","2.500$","2.900$"],["Олень","4.000$","4.640$"],["Койот","7.500$","8.700$"],["Пума","15.000$","17.400$"]] },
-                    treasures: { h: ["Название","Скуп 0","Скуп 5","Red 0","Red 5"], r: [["Дублон","1-3к","1.5-4.5к","1.1-3.4к","1.7-5.2к"],["Самородок","2-5к","3-7.5к","2.3-5.8к","3.4-8.7к"],["Инструмент","6-10к","9-15к","6.9-11.6к","10.4-17.4к"],["Медаль","9-15к","13.5-22.5к","10.4-17.4к","15.6-26.1к"],["Украшение","12-18к","18-27к","13.9-20.8к","20.8-31.3к"],["Метеорит","22-28к","33-42к","25.5-32.4к","38.2-48.7к"]] }
-                },
-                pet: { h: ["Питомец","Еда / Лакомство","Навык"], r: [["🐱 Кот","Еда: Нормяу<br>Лак: Лакомкот","1. Восстанавливает настроение (на руках)<br>2. Восстанавливает здоровье (на руках)"],["🐵 Обезьяна","Еда: Овощи и фрукты<br>Лак: Похвалобез","1. Ворует еду и рыбу из инвентаря других игроков.<br>2. Рыбачит вместе с вами и периодически отдает улов."],["🦁 Пума","Еда: Мясо<br>Лак: Лакомкот","1. Режим охоты: бежит к животным в радиусе 100м.<br>2. Режим атаки: нападает на игроков, которые атаковали вы."],["🐀 Крыса","Еда: Хрумкажуй<br>Лак: Лакомгрыз","1. С вероятностью 50% заменяет хлам на сокровище при их поиске.<br>2. Увеличивает шанс найти обезболивающее на стартовых работах."],["🐗 Кабан","Еда: Любые блюда и отходы<br>Лак: Умнисвин","1. С вероятностью 50% заменяет хлам на сокровище при их поиске.<br>2. Режим атаки: нападает на игроков, которых атаковали вы."],["🐰 Заяц","Еда: Хрумкажуй<br>Лак: Лакомгрыз","1. Увеличивает шанс найти семена на ферме, если следует за игроком.<br>2. Восстанавливает здоровье, если взять его на руки."],["🐶 Собака","Еда: Нормалай<br>Лак: Молодог","1. В режиме охоты бежит к животным в радиусе 100 метров.<br>2. В режиме атаки нападает на игроков, которых атаковали вы."]] },
-                med: { h: ["Травма","Лечение"], r: [["🩸⬆️ Артериальное кровотечение","Жгут выше раны"],["🩸⬇️ Венозное кровотечение","Жгут ниже раны"],["🔫 Огнестрел","Повязка антисептическая"],["🩸 Рана","Повязка антисептическая"],["🧪 Ожог кислотой (Ph0-2)","Щелочной раствор"],["🍋 Ожог щелочью (Ph12-14)","Кислый раствор"],["🔥 Ожог термический","Холодный компресс"],["❄️ Обморожение","Тепло"],["💊 Недостаточность","Таблетки"],["🦴 Перелом","Наложить шину"],["🦴 Вывих","Наложить шину"],["🤕 Растяжение","Тугая повязка"],["🧊 Ушиб","Лёд/Холод. компресс"]] },
-                rep: { h: ["Компонент","Пробег 100%","Цена починки"], r: [["Двигатель","100.000 км","30% от гос"],["Тормоза","20.000 км","9% от гос"],["Покрышки","20.000 км","6% от гос (макс 100к)"],["Топливо","20.000 км","6% от гос (макс 100к)"],["Выхлоп","10.000 км","6% от гос (макс 100к)"],["Кузов","100.000 км","19% от гос"],["Аккумулятор","10.000 км","6% от гос (макс 100к)"],["Подвеска","20.000 км","9% от гос"],["Зажигание","20.000 км","6% от гос (макс 100к)"],["Трансмиссия","50.000 км","20% от гос"]] },
-                drop: { h: ["Деятельность","Шанс","5 ранг Red","+Питомец"], r: [["Обезбол (Порт, Стройка, Шахта)","2%","4%","6%"],["Обезбол (Почта разовая)","10%","12%","14%"],["Обезбол (Почта работа)","3%","5%","7%"],["Обезбол (Ограбление домов)","5%","7%","-"],["Семена (Сбор апельсинов/капусты)","6%","8%","10% (с кроликом)"],["Семена (Поиск клада/Контрабанда)","10%","12%","-"]] }
-            },
-            tarot: [
-                {i:"🃏",n:"0. Дурак",d:"Несколько минут будет проигрываться смех 'повара'"},
-                {i:"🎩",n:"1. Маг",d:"Все персонажи вашего пола поблизости копируют вашу внешность и одежду"},
-                {i:"🌙",n:"2. Жрица",d:"У персонажа начинается кровотечение"},
-                {i:"👑",n:"3. Императрица",d:"Включается 'Женская походка'"},
-                {i:"🤴",n:"4. Император",d:"Включается походка 'Раскидывать руками'"},
-                {i:"⛪",n:"5. Иерофант",d:"Восстанавливает здоровье до максимума, но настроение и сытость падают до 0"},
-                {i:"💞",n:"6. Влюбленные",d:"Камера фокусируется на персонажах противоположного пола, пока вы не поцелуетесь"},
-                {i:"🐎",n:"7. Колесница",d:"Ненадолго ускоряет бег персонажа"},
-                {i:"🦁",n:"8. Сила",d:"+50 очков навыка сила"},
-                {i:"🔦",n:"9. Отшельник",d:"X2 зарплата на функциональных работах в течение часа"},
-                {i:"🎡",n:"10. Колесо Фортуны",d:"Сбрасывается счетчик колеса удачи, можно сразу крутить"},
-                {i:"⚖️",n:"11. Справедливость",d:"+1 доллар"},
-                {i:"🧘",n:"12. Повешенный",d:"Тело персонажа станет прозрачным, останется лишь голова в петле"},
-                {i:"💀",n:"13. Смерть",d:"Персонажу становится плохо и он умирает"},
-                {i:"🏺",n:"14. Умеренность",d:"Здоровье падает до минимума, но настроение и сытость становятся 100%"},
-                {i:"😈",n:"15. Дьявол",d:"Персонаж начинает гореть, но не получает урона"},
-                {i:"🏰",n:"16. Башня",d:"Наличные деньги исчезают и возвращаются"},
-                {i:"🌟",n:"17. Звезда",d:"Подкидывает персонажа в воздух"},
-                {i:"🌝",n:"18. Луна",d:"Делает кожу персонажа белой, если был темнокожим"},
-                {i:"🌞",n:"19. Солнце",d:"Делает кожу персонажа чёрной, если был светлокожим"},
-                {i:"🎺",n:"20. Суд",d:"Персонаж получает 2-3 звезды розыска на 2 минуты. В истории не сохр."},
-                {i:"🌍",n:"21. Мир",d:"Персонажа телепортирует в случайные места на карте"}
+            pass: [
+                {realName:"Banana buggy",gameName:"Banana buggy",price:145000,speed:248,season:"Летний 2021",trunk:0,slots:0},{realName:"Highheel (Каблук)",gameName:"Highheel (Каблук)",price:145000,speed:200,season:"Летний 2021",trunk:0,slots:0},{realName:"Eli",gameName:"Eli",price:145000,speed:230,season:"Летний 2021",trunk:20,slots:6},{realName:"Minibug",gameName:"Minibug",price:145000,speed:205,season:"Летний 2021",trunk:20,slots:6},{realName:"Mini Fiat",gameName:"Minigrotti",price:145000,speed:205,season:"Летний 2021",trunk:40,slots:12},{realName:"VISION 6",gameName:"Benefactor M-bach Illusion 6",price:268000,speed:361,season:"Летний 2021",trunk:30,slots:6},{realName:"Studebaker Golden Hawk",gameName:"Studebaker Golden Hawk",price:268000,speed:211,season:"Зимний 2021-2022",trunk:20,slots:6},{realName:"Suzuki Carry",gameName:"Shitzu Carry",price:268000,speed:208,season:"Зимний 2021-2022",trunk:40,slots:12},{realName:"Nash Metropol",gameName:"Nash Metropolitan",price:268000,speed:205,season:"Зимний 2021-2022",trunk:20,slots:6},{realName:"Plymouth Bubbletop 1959",gameName:"Plymouth Bubbletop 1959",price:268000,speed:222,season:"Зимний 2021-2022",trunk:20,slots:6},{realName:"Ford Hot Wheels 1949",gameName:"Vapid Hot Wheels 1949",price:268000,speed:210,season:"Зимний 2021-2022",trunk:20,slots:6},{realName:"Porsche Taycan",gameName:"Pfister Teycan",price:268000,speed:384,season:"Зимний 2021-2022",trunk:15,slots:12},{realName:"Bugatti Atlantic",gameName:"Truffade Pacific",price:268000,speed:447,season:"Зимний 2021-2022",trunk:15,slots:12},{realName:"AC Cobra 474",gameName:"Vapid Cobra",price:268000,speed:229,season:"Летний 2022",trunk:15,slots:6},{realName:"Porsche 365",gameName:"Pfister 356",price:268000,speed:229,season:"Летний 2022",trunk:15,slots:6},{realName:"Ferrari 250 GTO",gameName:"Grotti 250 GTO",price:268000,speed:225,season:"Летний 2022",trunk:15,slots:6},{realName:"Jaguar E-Type",gameName:"Ocelot E-Model",price:268000,speed:229,season:"Летний 2022",trunk:15,slots:6},{realName:"Lotus Evija",gameName:"Ocelot Evia",price:268000,speed:425,season:"Летний 2022",trunk:15,slots:6},{realName:"Ferrari Monza SP2",gameName:"Grotti Wonza SP2",price:268000,speed:455,season:"Летний 2022",trunk:15,slots:6},{realName:"Pontiac Firebird",gameName:"Imponte Firefly",price:145000,speed:228,season:"Зимний 22/23",trunk:60,slots:12},{realName:"Mercedes SL280",gameName:"Benefactor CL280 W113",price:145000,speed:228,season:"Зимний 22/23",trunk:60,slots:12},{realName:"Mercedes AMG ONE",gameName:"Benefactor ASG P-One",price:268000,speed:441,season:"Зимний 22/23",trunk:10,slots:6},{realName:"Apollo Intensa Imazion",gameName:"Overflod Intenza Emotiva",price:268000,speed:441,season:"Зимний 22/23",trunk:10,slots:6},{realName:"Volkswagen Beetle 65",gameName:"BF Beatles 1965",price:145000,speed:231,season:"Летний 2023",trunk:60,slots:18},{realName:"Ford Capri II 1974",gameName:"Vapid Capricorn II 1974",price:145000,speed:231,season:"Летний 2023",trunk:60,slots:12},{realName:"McLaren Speedtail",gameName:"Progen SpeedT",price:268000,speed:465,season:"Летний 2023",trunk:10,slots:6},{realName:"Ferrari SF90 Stradale",gameName:"Grotti SP90 Strata",price:268000,speed:465,season:"Летний 2023",trunk:10,slots:6},{realName:"TVR Tuscan Speed Six",gameName:"Dewbauchee Tuscan",price:145000,speed:235,season:"Зимний 23/24",trunk:60,slots:18},{realName:"Mitsubishi Starion",gameName:"Maibatsu Star",price:145000,speed:238,season:"Зимний 23/24",trunk:60,slots:12},{realName:"Lamborghini Countach 2022",gameName:"Pegassi Coutron 2022",price:268000,speed:455,season:"Зимний 23/24",trunk:10,slots:6},{realName:"Lamborghini Revuelto",gameName:"Pegassi Rewuelto",price:268000,speed:457,season:"Зимний 23/24",trunk:10,slots:6},{realName:"Ford Focus RS",gameName:"Vapid Pocus RS 2003",price:145000,speed:242,season:"Летний 2024",trunk:60,slots:12},{realName:"VW Golf R32",gameName:"BF Wolf R32 2003",price:145000,speed:241,season:"Летний 2024",trunk:60,slots:12},{realName:"Ferrari 812 Superfast",gameName:"Grotti 821 SP 2017",price:268000,speed:440,season:"Летний 2024",trunk:20,slots:6},{realName:"Lamborghini Murcielago",gameName:"Pegassi Purcielago VS 2009",price:268000,speed:440,season:"Летний 2024",trunk:20,slots:6},{realName:"Nissan Pulsar",gameName:"Annis Pulse 1992",price:145000,speed:240,season:"Зимний 24/25",trunk:60,slots:18},{realName:"Toyota MR-2",gameName:"Karin MR-2 1995",price:145000,speed:240,season:"Зимний 24/25",trunk:60,slots:12},{realName:"Chevtolet Impala SS 1996",gameName:"Declasse Implata SS 1996",price:145000,speed:240,season:"Зимний 24/25",trunk:60,slots:12},{realName:"Ford Escort",gameName:"Vapid Export 1992",price:145000,speed:240,season:"Зимний 24/25",trunk:60,slots:18},{realName:"Honda Civic Type-R 2001",gameName:"Dinka Civil Type-R 2001",price:145000,speed:242,season:"Зимний 24/25",trunk:60,slots:18},{realName:"Ford Mustang SVT Cobra 1993",gameName:"Vapid Stud SVT Cobra 1993",price:145000,speed:242,season:"Зимний 24/25",trunk:60,slots:12},{realName:"Lamborghini Centenario",gameName:"Pegassi Centario 2017",price:268000,speed:450,season:"Зимний 24/25",trunk:20,slots:6},{realName:"Ferrari 296 GTB",gameName:"Grotti 269 GTB 2022",price:268000,speed:450,season:"Зимний 24/25",trunk:20,slots:6},{realName:"Subaru SVX",gameName:"Karin SVX 1991",price:145000,speed:241,season:"Летний 2025",trunk:60,slots:18},{realName:"Toyota Chaser JZX81",gameName:"Karin Racer 81 1991",price:145000,speed:241,season:"Летний 2025",trunk:60,slots:18},{realName:"Toyota Sera",gameName:"Karin Cera 1990",price:145000,speed:241,season:"Летний 2025",trunk:60,slots:12},{realName:"Volvo C30 Polestar",gameName:"Vulcar X30 Polestop 2013",price:145000,speed:241,season:"Летний 2025",trunk:90,slots:18},{realName:"Vauxhall Astra",gameName:"Maxwell Astral XVR 2006",price:145000,speed:241,season:"Летний 2025",trunk:90,slots:18},{realName:"Ford Focus RS",gameName:"Vapid Pocus RS 2010",price:145000,speed:241,season:"Летний 2025",trunk:90,slots:18},{realName:"Ford Transit",gameName:"Vapid Cargo 2011",price:223000,speed:241,season:"Летний 2025",trunk:260,slots:60},{realName:"Lamborghini Temerario",gameName:"Pegassi Temario 2025",price:268000,speed:448,season:"Летний 2025",trunk:20,slots:6},{realName:"Ferrari 12Cilindri",gameName:"Crotti 12Cil 2025",price:268000,speed:443,season:"Летний 2025",trunk:20,slots:6},{realName:"Mitsubishi Pajero Evolution",gameName:"Maibatsu Monterjo Revolution 1997",price:145000,speed:246,season:"Зимний 25/26",trunk:120,slots:18},{realName:"Volvo 850 R",gameName:"Vulcar 850R 1997",price:0,speed:0,season:"Зимний 25/26",trunk:0,slots:0},{realName:"Nissan Stagea RS Four V",gameName:"Annis Stage PS 4 V",price:0,speed:0,season:"Зимний 25/26",trunk:0,slots:0},{realName:"Mitsubishi Galant VR-4",gameName:"Maibatsu Garant RV 4 1990",price:0,speed:0,season:"Зимний 25/26",trunk:0,slots:0},{realName:"BMW 323ti Sport",gameName:"Ubermacht 323ti Sport 2000",price:0,speed:0,season:"Зимний 25/26",trunk:0,slots:0},{realName:"Abarth 695 Biposto",gameName:"Grotti 695 Bipost 2016",price:0,speed:0,season:"Зимний 25/26",trunk:0,slots:0},{realName:"Aston Martin Valkyrie",gameName:"Dewbauchee Vanguard Arachna 2022",price:268000,speed:466,season:"Зимний 25/26",trunk:0,slots:0},{realName:"BMW XM",gameName:"Ubermacht YW J09 2023",price:268000,speed:366,season:"Зимний 25/26",trunk:200,slots:42}
             ],
-            ball8: [
-                {q:"Ровные ли сегодня дороги?",a:"Да: Уменьшает расход бензина в 2 раза<br>Нет: Увеличивает расход в 2 раза"},
-                {q:"Уважают ли меня в моем клубе?",a:"Да: Х2 репутация за задания в клубах<br>Нет: Уменьшает репутацию в 2 раза"},
-                {q:"На подработках сегодня хорошо платят?",a:"Да: +25% зарплаты на функц. работах<br>Нет: -25% зарплаты"},
-                {q:"Вкусно ли я сегодня поем?",a:"Да: Отключает голод до рестарта<br>Нет: Опускает сытость до нуля 1 раз"},
-                {q:"Буду ли я сегодня внимателен?",a:"Да: Увеличивает шанс выпадения семян/обезбол<br>Нет: Уменьшает шанс выпадения"},
-                {q:"Крепкое ли сегодня оружие?",a:"Да: Отключает износ оружия до рестарта<br>Нет: Износ оружия в 2 раза больше"},
-                {q:"Пойдет ли сегодня торговля?",a:"Да: Скидка 20% на объявления 5vito<br>Нет: Повышает цену на 20%"},
-                {q:"Сегодня хороший улов?",a:"Да: Облегчает рыбалку (на 1 кружок меньше)<br>Нет: Усложняет (на 1 кружок больше)"},
-                {q:"Смена будет продуктивной?",a:"Да: +25% к пейдею во фракции<br>Нет: -25% от пейдея во фракции"}
+            event: [
+                {realName:"Cadillac ECTO-1 Ghostbusters",gameName:"Albany ECTO-1 Ghostbusters",price:0,speed:280,trunk:200,slots:42},{realName:"Quadra Turbo-R V-Tech",gameName:"Quadra Turbo-R V-Tech",price:0,speed:310,trunk:60,slots:42},{realName:"Hummer H2 Limo",gameName:"Mammoth N2 Limo",price:0,speed:255,trunk:200,slots:42},{realName:"Школьный автобус",gameName:"Школьный автобус",price:0,speed:0,trunk:200,slots:42},{realName:"Tesla Cybertruck",gameName:"Coil Electruck",price:0,speed:320,trunk:240,slots:60},{realName:"Lamborghini Urus 6x6",gameName:"Pegassi Ursus 6x6",price:0,speed:274,trunk:230,slots:60},{realName:"Bugatti Mistral",gameName:"Truffade Wistral 2024",price:0,speed:450,trunk:10,slots:12},{realName:"Karin Technical Aqua",gameName:"Karin Technical Aqua",price:0,speed:163,trunk:200,slots:30},{realName:"Ferrari Roma",gameName:"Grotti Roman",price:0,speed:350,trunk:10,slots:12},{realName:"Toyota Alphard",gameName:"Karin Alfa",price:0,speed:230,trunk:260,slots:60},{realName:"Rolls-Royce Spectre",gameName:"Enus Spectrum",price:0,speed:370,trunk:60,slots:24},{realName:"Rivian R1T",gameName:"Coil R1T",price:0,speed:335,trunk:240,slots:60},{realName:"Lucis Regalia",gameName:"Lucis Regalia",price:0,speed:335,trunk:60,slots:42},{realName:"Morgan Aero GT",gameName:"Truffade Aero GT",price:0,speed:302,trunk:60,slots:42},{realName:"Mercedes-Benz EQG",gameName:"Benefactor IQ G-series",price:0,speed:358,trunk:165,slots:36},{realName:"Mercedes-Benz EQS",gameName:"Benefactor IQ S-series",price:0,speed:378,trunk:100,slots:18},{realName:"Zeekr 001",gameName:"Coil 001",price:0,speed:349,trunk:165,slots:36},{realName:"Lixiang L9",gameName:"Coil L9",price:0,speed:283,trunk:165,slots:36},{realName:"Mercedes-Benz EQS SUV",gameName:"Benefactor IQ S-series SUV 2024",price:0,speed:340,trunk:165,slots:36},{realName:"Aurus Senat",gameName:"Enus Senate 2024",price:0,speed:315,trunk:160,slots:30},{realName:"Hiphi z",gameName:"Coil Z",price:0,speed:345,trunk:165,slots:36},{realName:"Jeep Gladiator Apocalypse 6x6",gameName:"Canis Gladiator Apocalypse 6x6",price:0,speed:280,trunk:240,slots:60},{realName:"Гусеничный квадроцикл",gameName:"Nagasaki Snowquad",price:0,speed:170,trunk:30,slots:18},{realName:"Снегоход",gameName:"Nagasaki Snowmobile",price:0,speed:170,trunk:30,slots:18},{realName:"Bentley Flying Spur",gameName:"Enus Flying Scott 2020",price:0,speed:346,trunk:80,slots:24},{realName:"Jeep Gladiator",gameName:"Canis Glad 2019",price:0,speed:324,trunk:145,slots:30},{realName:"Bugatti La Voiture Noire",gameName:"Truffade Le Voyage Noire 2021",price:0,speed:450,trunk:15,slots:12},{realName:"Rolls-Royce Droptail",gameName:"Enus Sleektail 2024",price:0,speed:450,trunk:15,slots:12},{realName:"Rolls-Royce Boat tail",gameName:"Enus Coattail",price:0,speed:360,trunk:120,slots:36},{realName:"Lamborghini Lanzador",gameName:"Pegassi Lancelot",price:0,speed:362,trunk:165,slots:36},{realName:"Zeekr 009",gameName:"Coil 009",price:0,speed:247,trunk:300,slots:60},{realName:"Cadilac Escalade 2025",gameName:"Albany Excalibur 2025",price:0,speed:251,trunk:145,slots:30},{realName:"Lincoln Continental Mark III 1968",gameName:"Dundreary Kontinental MK3 1968",price:0,speed:313,trunk:60,slots:42},{realName:"Dodge Charger 1968",gameName:"Bravado Changer 1968",price:0,speed:0,trunk:60,slots:42}
             ]
-        };
+        },
+        kitchen: [
+            {name:"Фруктовый салат",icon:"🥗",ing:["Фрукты"],sat:15,mood:40,str:-3,skill:0,tool:"Нож"},{name:"Овощной салат",icon:"🥗",ing:["Овощи"],sat:10,mood:5,str:0,skill:0,tool:"Нож"},{name:"Овощной смузи",icon:"🥤",ing:["Овощи","Вода"],sat:20,mood:35,str:0,skill:2,tool:"Венчик"},{name:"Фруктовый смузи",icon:"🍹",ing:["Фрукты","Вода"],sat:20,mood:50,str:-7,skill:2,tool:"Венчик"},{name:"Фруктовый лёд",icon:"🍧",ing:["Фрукты","Лед","Сахар"],sat:10,mood:65,str:-7,skill:2,tool:"Венчик"},{name:"Масло",icon:"🧈",ing:["Молоко"],sat:5,mood:0,str:-1,skill:2,tool:"Венчик"},{name:"Рыбный фарш",icon:"🥣",ing:["Любая рыба"],sat:0,mood:0,str:0,skill:2,tool:"Нож"},{name:"Сухая рыбная котлета",icon:"🍘",ing:["Рыбный фарш"],sat:10,mood:0,str:-3,skill:2,tool:"Огонь"},{name:"Рыбная котлета",icon:"🧆",ing:["Рыбный фарш","Масло"],sat:25,mood:10,str:-10,skill:2,tool:"Огонь"},{name:"Мясной фарш",icon:"🥩",ing:["Мясо"],sat:0,mood:0,str:0,skill:2,tool:"Нож"},{name:"Мясная котлета",icon:"🥩",ing:["Мясной фарш","Масло"],sat:25,mood:10,str:-10,skill:2,tool:"Огонь"},{name:"Сухая мясная котлета",icon:"🥩",ing:["Мясной фарш"],sat:10,mood:0,str:-3,skill:2,tool:"Огонь"},{name:"Картофельное пюре",icon:"🥣",ing:["Овощи","Масло","Молоко"],sat:10,mood:10,str:-5,skill:2,tool:"Венчик/Огонь"},{name:"Мясная котлета с пюре",icon:"🍛",ing:["Карт. пюре","Мясная котлета"],sat:50,mood:50,str:-20,skill:3,tool:"-"},{name:"Рыбная котлета с пюре",icon:"🍛",ing:["Карт. пюре","Рыбная котлета"],sat:50,mood:50,str:-20,skill:3,tool:"-"},{name:"Вареный рис",icon:"🍚",ing:["Рис","Вода"],sat:10,mood:0,str:-1,skill:2,tool:"Огонь"},{name:"Рыбная котлета с рисом",icon:"🍛",ing:["Рыбная котлета","Вареный рис"],sat:45,mood:40,str:-12,skill:2,tool:"-"},{name:"Котлета с рисом",icon:"🍛",ing:["Мясная котлета","Вареный рис"],sat:45,mood:40,str:-12,skill:2,tool:"-"},{name:"Ролл с лососем",icon:"🍣",ing:["Лосось","Вареный рис"],sat:25,mood:20,str:-3,skill:2,tool:"Нож"},{name:"Ролл с тунцом",icon:"🍣",ing:["Тунец","Вареный рис"],sat:25,mood:20,str:-3,skill:2,tool:"Нож"},{name:"Овощной ролл",icon:"🍣",ing:["Овощи","Вареный рис"],sat:20,mood:10,str:-2,skill:2,tool:"Нож"},{name:"Рыба с рисом",icon:"🍣",ing:["Любая рыба","Вареный рис"],sat:40,mood:10,str:-5,skill:2,tool:"Огонь"},{name:"Рыба с овощами",icon:"🥗",ing:["Любая рыба","Овощи"],sat:35,mood:15,str:-3,skill:2,tool:"Огонь"},{name:"Мясо с овощами",icon:"🍖",ing:["Мясо","Овощи"],sat:40,mood:10,str:-3,skill:2,tool:"Огонь"},{name:"Яичница",icon:"🍳",ing:["Яйцо"],sat:15,mood:5,str:-3,skill:2,tool:"Огонь"},{name:"Яичница с беконом",icon:"🍳",ing:["Яйцо","Мясо","Масло"],sat:25,mood:15,str:-6,skill:3,tool:"Огонь"},{name:"Омлет",icon:"🥚",ing:["Яйцо","Молоко"],sat:20,mood:10,str:-4,skill:2,tool:"Венчик/Огонь"},{name:"Крем-брюле",icon:"🍮",ing:["Молоко","Сахар","Яйцо"],sat:10,mood:80,str:-7,skill:4,tool:"Огонь"},{name:"Суфле",icon:"🧁",ing:["Яйцо","Сахар"],sat:20,mood:80,str:-2,skill:5,tool:"Венчик/Огонь"},{name:"Овощной омлет",icon:"🥚",ing:["Яйцо","Молоко","Овощи"],sat:25,mood:10,str:-4,skill:3,tool:"Венчик/Огонь"},{name:"Компот",icon:"🍹",ing:["Сахар","Вода","Фрукты"],sat:5,mood:50,str:-7,skill:3,tool:"Огонь"},{name:"Карамель",icon:"🍬",ing:["Сахар"],sat:5,mood:10,str:-5,skill:4,tool:"Огонь"},{name:"Оладьи",icon:"🥞",ing:["Яйцо","Молоко","Мука","Сахар"],sat:20,mood:20,str:-10,skill:3,tool:"Венчик/Огонь"},{name:"Оладьи с карамелью",icon:"🥞",ing:["Оладьи","Карамель"],sat:25,mood:40,str:-20,skill:0,tool:"-"},{name:"Тесто",icon:"🍞",ing:["Мука","Вода","Яйцо"],sat:0,mood:0,str:0,skill:0,tool:"Венчик"},{name:"Чизкейк",icon:"🍰",ing:["Тесто","Сыр","Сахар"],sat:30,mood:60,str:-15,skill:4,tool:"Венчик/Огонь"},{name:"Карамельный чизкейк",icon:"🍰",ing:["Чизкейк","Карамель"],sat:35,mood:85,str:-25,skill:5,tool:"-"},{name:"Фруктовый чизкейк",icon:"🍰",ing:["Чизкейк","Фрукты"],sat:35,mood:70,str:-20,skill:5,tool:"-"},{name:"Яблоко в карамели",icon:"🍎",ing:["Карамель","Фрукты"],sat:20,mood:55,str:-7,skill:4,tool:"-"},{name:"Фруктовый салат с карамелью",icon:"🥗",ing:["Карамель","Фруктовый салат"],sat:25,mood:60,str:-11,skill:0,tool:"-"},{name:"Мороженое",icon:"🍦",ing:["Яйцо","Сахар","Молоко","Лёд"],sat:10,mood:70,str:-15,skill:2,tool:"Венчик"},{name:"Карамельное мороженое",icon:"🍦",ing:["Карамель","Мороженое"],sat:15,mood:80,str:-20,skill:0,tool:"-"},{name:"Молочный коктейль",icon:"🥤",ing:["Мороженое","Молоко"],sat:20,mood:70,str:-15,skill:3,tool:"Венчик"},{name:"Карамельный коктейль",icon:"🥤",ing:["Карамель","Молочный коктейль"],sat:25,mood:80,str:-20,skill:0,tool:"-"},{name:"Бульон",icon:"🍲",ing:["Мясо","Вода"],sat:10,mood:0,str:-25,skill:0,tool:"Огонь"},{name:"Стейк с фруктовым соусом и рисом",icon:"🍛",ing:["Стейк с ф.с.","Вареный рис"],sat:80,mood:60,str:-13,skill:5,tool:"-"},{name:"Стейк с фруктовым соусом и пюре",icon:"🍛",ing:["Стейк с ф.с.","Картофельное пюре"],sat:80,mood:80,str:-15,skill:5,tool:"-"},{name:"Рыба с фруктовым соусом",icon:"🍲",ing:["Рыба","Фрукты","Сахар"],sat:60,mood:50,str:-10,skill:5,tool:"Огонь"},{name:"Рыба с фруктовым соусом и рисом",icon:"🍛",ing:["Рыба с ф.с","Вареный рис"],sat:80,mood:60,str:-13,skill:5,tool:"-"},{name:"Рыба с фруктовым соусом и пюре",icon:"🍛",ing:["Рыба с ф.с","Картофельное пюре"],sat:80,mood:80,str:-15,skill:5,tool:"-"},{name:"Лазанья",icon:"🍕",ing:["Молоко","Мука","Сыр","Овощи","Мясной фарш"],sat:65,mood:50,str:-20,skill:5,tool:"Огонь"},{name:"Бургер",icon:"🍔",ing:["Мясная котлета","Овощи","Хлеб"],sat:40,mood:0,str:-10,skill:2,tool:"-"},{name:"Ризотто",icon:"🍚",ing:["Бульон","Рисовая крупа","Сыр"],sat:40,mood:20,str:-20,skill:0,tool:"Огонь"},{name:"Тако с мясом",icon:"🌮",ing:["Хлеб","Мясной фарш","Сыр","Овощи"],sat:30,mood:30,str:-10,skill:3,tool:"Огонь"},{name:"Тако с рыбой",icon:"🌮",ing:["Хлеб","Рыбный фарш","Сыр","Овощи"],sat:30,mood:30,str:-10,skill:3,tool:"Огонь"},{name:"Буррито",icon:"🌯",ing:["Хлеб","Вареный рис","Мясной фарш","Овощи","Сыр"],sat:50,mood:50,str:-15,skill:3,tool:"Огонь"},{name:"Поке",icon:"🍲",ing:["Вареный рис","Сыр","Овощи","Лосось"],sat:70,mood:50,str:-15,skill:4,tool:"-"},{name:"Мальма в сливочном соусе",icon:"🐟",ing:["Мальма","Овощи","Молоко"],sat:75,mood:75,str:-13,skill:5,tool:"Огонь"},{name:"Мясо по-французски",icon:"🥩",ing:["Мясо","Овощи","Сыр"],sat:60,mood:40,str:-15,skill:5,tool:"Огонь"},{name:"Оливье",icon:"🥗",ing:["Мясо","Овощи","Яйца","Вода"],sat:60,mood:50,str:-25,skill:5,tool:"Нож/Огонь"},{name:"Сашими из фугу",icon:"🐡",ing:["Фугу"],sat:20,mood:60,str:0,skill:0,tool:"Нож"},{name:"Сашими из лосося",icon:"🍣",ing:["Лосось"],sat:10,mood:30,str:0,skill:4,tool:"Нож"},{name:"Сашими из тунца",icon:"🍣",ing:["Тунец"],sat:10,mood:30,str:0,skill:4,tool:"Нож"}
+        ],
+        bp: [
+            {t:"Отыграть 3 часа в онлайне",q:1,b:2,v:4},
+            {t:"Выбить 0 или 00 в рулетке",q:1,b:2,v:4},
+            {t:"Выполнить 25 действий на стройке",q:25,b:2,v:4},
+            {t:"Выполнить 25 действий в порту",q:25,b:2,v:4},
+            {t:"Выполнить 25 действий в шахте",q:25,b:2,v:4},
+            {t:"Одержать 3 победы в Дэнс Баттлах",q:3,b:2,v:4},
+            {t:"Сделать заказ материалов",q:1,b:1,v:2},
+            {t:"Сделать 20 подходов в спортзале",q:20,b:1,v:2},
+            {t:"Пройти тренировку в тире",q:1,b:1,v:2},
+            {t:"Развезти 10 посылок на почте",q:10,b:1,v:2},
+            {t:"Арендовать павильон на киностудии",q:1,b:2,v:4},
+            {t:"Купить лотерейный билет",q:1,b:1,v:2},
+            {t:"Выиграть гонку в картинге",q:1,b:1,v:2},
+            {t:"Выполнить 10 действий на ферме",q:10,b:1,v:2},
+            {t:"Потушить 25 \"огоньков\"",q:25,b:1,v:2},
+            {t:"Выкопать 1 сокровище",q:1,b:1,v:2},
+            {t:"Проехать 1 уличную гонку",q:1,b:1,v:2},
+            {t:"Выполнить 3 заказа дальнобойщиком",q:3,b:2,v:4},
+            {t:"Два раза оплатить смену внешности",q:2,b:2,v:4},
+            {t:"Добавить 5 видео в кинотеатре",q:5,b:1,v:2},
+            {t:"Выиграть 5 игр в тренировочном комплексе",q:5,b:1,v:2},
+            {t:"Выиграть 3 любых игры на арене",q:3,b:1,v:2},
+            {t:"2 круга на любом маршруте автобусника",q:2,b:2,v:4},
+            {t:"5 раз снять 100% шкуру с животных",q:5,b:2,v:4},
+            {t:"7 закрашенных граффити",q:7,b:1,v:2},
+            {t:"Сдать 5 контрабанды",q:5,b:2,v:4},
+            {t:"Участие в каптах/бизварах",q:1,b:1,v:2},
+            {t:"Сдать Хаммер с ВЗХ",q:1,b:3,v:6},
+            {t:"5 выданных медкарт в EMS",q:5,b:2,v:4},
+            {t:"Закрыть 15 вызовов в EMS",q:15,b:2,v:4},
+            {t:"Отредактировать 40 объявлений в WN",q:40,b:2,v:4},
+            {t:"Взломать 15 замков",q:15,b:2,v:4},
+            {t:"Закрыть 5 кодов в силовых",q:5,b:2,v:4},
+            {t:"Поставить на учет 2 автомобиля",q:2,b:1,v:2},
+            {t:"Произвести 1 арест в КПЗ",q:1,b:1,v:2},
+            {t:"Выкупить двух человек из КПЗ",q:2,b:2,v:4},
+            {t:"Посетить любой сайт в браузере",q:1,b:1,v:2},
+            {t:"Зайти в любой канал в Brawl",q:1,b:1,v:2},
+            {t:"Поставить лайк любой анкете в Match",q:1,b:1,v:2},
+            {t:"Прокрутить за DP кейс",q:1,b:10,v:20},
+            {t:"Кинуть мяч питомцу 15 раз",q:15,b:2,v:4},
+            {t:"15 выполненных питомцем команд",q:15,b:2,v:4},
+            {t:"Ставка в колесе удачи в казино",q:1,b:3,v:6},
+            {t:"Проехать 1 станцию на метро",q:1,b:2,v:4},
+            {t:"Поймать 20 рыб",q:20,b:4,v:8},
+            {t:"Выполнить 2 квеста любых клубов",q:2,b:4,v:8},
+            {t:"Починить деталь в автосервисе",q:1,b:1,v:2},
+            {t:"Забросить 2 мяча в баскетболе",q:2,b:1,v:2},
+            {t:"Забить 2 гола в футболе",q:2,b:1,v:2},
+            {t:"Победить в армрестлинге",q:1,b:1,v:2},
+            {t:"Победить в дартс",q:1,b:1,v:2},
+            {t:"Поиграть 1 минуту в волейбол",q:1,b:1,v:2},
+            {t:"Поиграть 1 минуту в настольный теннис",q:1,b:1,v:2},
+            {t:"Поиграть 1 минуту в большой теннис",q:1,b:1,v:2},
+            {t:"Сыграть в мафию в казино",q:1,b:3,v:6},
+            {t:"Сделать платеж по лизингу",q:1,b:1,v:2},
+            {t:"Посадить траву в теплице",q:1,b:4,v:8},
+            {t:"Запустить переработку в лаборатории",q:1,b:4,v:8},
+            {t:"Принять участие в двух аирдропах",q:2,b:4,v:8}
+        ],
+        timers: [
+            {id:'t5',l:'5 мин',s:300},{id:'t10',l:'10 мин',s:600},{id:'t15',l:'15 мин',s:900},{id:'t30',l:'30 мин',s:1800},{id:'t60',l:'1 час',s:3600},{id:'t120',l:'2 часа',s:7200},{id:'mail',l:'Почта (10м)',s:600},{id:'tarot',l:'Таро (3ч)',s:10800},{id:'mech',l:'Механик (5м)',s:300},{id:'taxi',l:'Таксист (5м)',s:300},{id:'theft',l:'Автоугон (1.5ч)',s:5400},{id:'club',l:'Клуб (2ч)',s:7200},{id:'shoot',l:'Тир (1.5ч)',s:5400},{id:'train',l:'Дрессировка (15м)',s:900},{id:'pimp',l:'Сутенерка (1.5ч)',s:5400},{id:'casino',l:'Казино (24ч)',s:86400}
+        ],
+        guides: {
+            payment: {
+                animals: { h: ["Зверь","Скупщик","Rednecks"], r: [["Кролик","1.000$","1.160$"],["Кабан","2.500$","2.900$"],["Олень","4.000$","4.640$"],["Койот","7.500$","8.700$"],["Пума","15.000$","17.400$"]] },
+                treasures: { h: ["Название","Скуп 0","Скуп 5","Red 0","Red 5"], r: [["Дублон","1-3к","1.5-4.5к","1.1-3.4к","1.7-5.2к"],["Самородок","2-5к","3-7.5к","2.3-5.8к","3.4-8.7к"],["Инструмент","6-10к","9-15к","6.9-11.6к","10.4-17.4к"],["Медаль","9-15к","13.5-22.5к","10.4-17.4к","15.6-26.1к"],["Украшение","12-18к","18-27к","13.9-20.8к","20.8-31.3к"],["Метеорит","22-28к","33-42к","25.5-32.4к","38.2-48.7к"]] }
+            },
+            pet: { h: ["Питомец","Еда / Лакомство","Навык"], r: [["🐱 Кот","Еда: Нормяу<br>Лак: Лакомкот","1. Восстанавливает настроение (на руках)<br>2. Восстанавливает здоровье (на руках)"],["🐵 Обезьяна","Еда: Овощи и фрукты<br>Лак: Похвалобез","1. Ворует еду и рыбу из инвентаря других игроков.<br>2. Рыбачит вместе с вами и периодически отдает улов."],["🦁 Пума","Еда: Мясо<br>Лак: Лакомкот","1. Режим охоты: бежит к животным в радиусе 100м.<br>2. Режим атаки: нападает на игроков, которые атаковали вы."],["🐀 Крыса","Еда: Хрумкажуй<br>Лак: Лакомгрыз","1. С вероятностью 50% заменяет хлам на сокровище при их поиске.<br>2. Увеличивает шанс найти обезболивающее на стартовых работах."],["🐗 Кабан","Еда: Любые блюда и отходы<br>Лак: Умнисвин","1. С вероятностью 50% заменяет хлам на сокровище при их поиске.<br>2. Режим атаки: нападает на игроков, которых атаковали вы."],["🐰 Заяц","Еда: Хрумкажуй<br>Лак: Лакомгрыз","1. Увеличивает шанс найти семена на ферме, если следует за игроком.<br>2. Восстанавливает здоровье, если взять его на руки."],["🐶 Собака","Еда: Нормалай<br>Лак: Молодог","1. В режиме охоты бежит к животным в радиусе 100 метров.<br>2. В режиме атаки нападает на игроков, которых атаковали вы."]] },
+            med: { h: ["Травма","Лечение"], r: [["🩸⬆️ Артериальное кровотечение","Жгут выше раны"],["🩸⬇️ Венозное кровотечение","Жгут ниже раны"],["🔫 Огнестрел","Повязка антисептическая"],["🩸 Рана","Повязка антисептическая"],["🧪 Ожог кислотой (Ph0-2)","Щелочной раствор"],["🍋 Ожог щелочью (Ph12-14)","Кислый раствор"],["🔥 Ожог термический","Холодный компресс"],["❄️ Обморожение","Тепло"],["💊 Недостаточность","Таблетки"],["🦴 Перелом","Наложить шину"],["🦴 Вывих","Наложить шину"],["🤕 Растяжение","Тугая повязка"],["🧊 Ушиб","Лёд/Холод. компресс"]] },
+            rep: { h: ["Компонент","Пробег 100%","Цена починки"], r: [["Двигатель","100.000 км","30% от гос"],["Тормоза","20.000 км","9% от гос"],["Покрышки","20.000 км","6% от гос (макс 100к)"],["Топливо","20.000 км","6% от гос (макс 100к)"],["Выхлоп","10.000 км","6% от гос (макс 100к)"],["Кузов","100.000 км","19% от гос"],["Аккумулятор","10.000 км","6% от гос (макс 100к)"],["Подвеска","20.000 км","9% от гос"],["Зажигание","20.000 км","6% от гос (макс 100к)"],["Трансмиссия","50.000 км","20% от гос"]] },
+            drop: { h: ["Деятельность","Шанс","5 ранг Red","+Питомец"], r: [["Обезбол (Порт, Стройка, Шахта)","2%","4%","6%"],["Обезбол (Почта разовая)","10%","12%","14%"],["Обезбол (Почта работа)","3%","5%","7%"],["Обезбол (Ограбление домов)","5%","7%","-"],["Семена (Сбор апельсинов/капусты)","6%","8%","10% (с кроликом)"],["Семена (Поиск клада/Контрабанда)","10%","12%","-"]] }
+        },
+        tarot: [
+            {i:"🃏",n:"0. Дурак",d:"Несколько минут будет проигрываться смех 'повара'"},
+            {i:"🎩",n:"1. Маг",d:"Все персонажи вашего пола поблизости копируют вашу внешность и одежду"},
+            {i:"🌙",n:"2. Жрица",d:"У персонажа начинается кровотечение"},
+            {i:"👑",n:"3. Императрица",d:"Включается 'Женская походка'"},
+            {i:"🤴",n:"4. Император",d:"Включается походка 'Раскидывать руками'"},
+            {i:"⛪",n:"5. Иерофант",d:"Восстанавливает здоровье до максимума, но настроение и сытость падают до 0"},
+            {i:"💞",n:"6. Влюбленные",d:"Камера фокусируется на персонажах противоположного пола, пока вы не поцелуетесь"},
+            {i:"🐎",n:"7. Колесница",d:"Ненадолго ускоряет бег персонажа"},
+            {i:"🦁",n:"8. Сила",d:"+50 очков навыка сила"},
+            {i:"🔦",n:"9. Отшельник",d:"X2 зарплата на функциональных работах в течение часа"},
+            {i:"🎡",n:"10. Колесо Фортуны",d:"Сбрасывается счетчик колеса удачи, можно сразу крутить"},
+            {i:"⚖️",n:"11. Справедливость",d:"+1 доллар"},
+            {i:"🧘",n:"12. Повешенный",d:"Тело персонажа станет прозрачным, останется лишь голова в петле"},
+            {i:"💀",n:"13. Смерть",d:"Персонажу становится плохо и он умирает"},
+            {i:"🏺",n:"14. Умеренность",d:"Здоровье падает до минимума, но настроение и сытость становятся 100%"},
+            {i:"😈",n:"15. Дьявол",d:"Персонаж начинает гореть, но не получает урона"},
+            {i:"🏰",n:"16. Башня",d:"Наличные деньги исчезают и возвращаются"},
+            {i:"🌟",n:"17. Звезда",d:"Подкидывает персонажа в воздух"},
+            {i:"🌝",n:"18. Луна",d:"Делает кожу персонажа белой, если был темнокожим"},
+            {i:"🌞",n:"19. Солнце",d:"Делает кожу персонажа чёрной, если был светлокожим"},
+            {i:"🎺",n:"20. Суд",d:"Персонаж получает 2-3 звезды розыска на 2 минуты. В истории не сохр."},
+            {i:"🌍",n:"21. Мир",d:"Персонажа телепортирует в случайные места на карте"}
+        ],
+        ball8: [
+            {q:"Ровные ли сегодня дороги?",a:"Да: Уменьшает расход бензина в 2 раза<br>Нет: Увеличивает расход в 2 раза"},
+            {q:"Уважают ли меня в моем клубе?",a:"Да: Х2 репутация за задания в клубах<br>Нет: Уменьшает репутацию в 2 раза"},
+            {q:"На подработках сегодня хорошо платят?",a:"Да: +25% зарплаты на функц. работах<br>Нет: -25% зарплаты"},
+            {q:"Вкусно ли я сегодня поем?",a:"Да: Отключает голод до рестарта<br>Нет: Опускает сытость до нуля 1 раз"},
+            {q:"Буду ли я сегодня внимателен?",a:"Да: Увеличивает шанс выпадения семян/обезбол<br>Нет: Уменьшает шанс выпадения"},
+            {q:"Крепкое ли сегодня оружие?",a:"Да: Отключает износ оружия до рестарта<br>Нет: Износ оружия в 2 раза больше"},
+            {q:"Пойдет ли сегодня торговля?",a:"Да: Скидка 20% на объявления 5vito<br>Нет: Повышает цену на 20%"},
+            {q:"Сегодня хороший улов?",a:"Да: Облегчает рыбалку (на 1 кружок меньше)<br>Нет: Усложняет (на 1 кружок больше)"},
+            {q:"Смена будет продуктивной?",a:"Да: +25% к пейдею во фракции<br>Нет: -25% от пейдея во фракции"}
+        ]
+    };
 
-        // ================= LOGIC =================
-        let BP = { start:0, done:[], times:{}, hidden:[], counters:{}, vip:false, x2:false, sortOrder:[] };
-        let TIMERS = {}; let EVENTS = []; let TIMER_INT = {};
+    // ================= LOGIC & SYNC =================
+    let BP = { start:0, done:[], times:{}, hidden:[], counters:{}, vip:false, x2:false, sortOrder:[] };
+    let TIMERS = {}; let EVENTS = []; let TIMER_INT = {};
 
-        function init() {
-            if(localStorage.getItem('gta_bp_22')) BP = JSON.parse(localStorage.getItem('gta_bp_22'));
-            if(localStorage.getItem('gta_tm_22')) TIMERS = JSON.parse(localStorage.getItem('gta_tm_22'));
-            if(localStorage.getItem('gta_ev_22')) EVENTS = JSON.parse(localStorage.getItem('gta_ev_22'));
+    const tg = window.Telegram.WebApp;
 
-            // Init sort order if missing
-            if(!BP.sortOrder || BP.sortOrder.length !== DB.bp.length) {
-                BP.sortOrder = DB.bp.map((_, i) => i);
-            }
+    function cloudSave(key, data) {
+        const str = JSON.stringify(data);
+        localStorage.setItem(key, str); 
+        tg.CloudStorage.setItem(key, str, (err, stored) => {
+            if (err) console.error('Cloud Save Error:', err);
+        });
+    }
 
-            document.getElementById('startBp').value = BP.start || '';
-            document.getElementById('btnVip').classList.toggle('active', BP.vip);
-            document.getElementById('btnX2').classList.toggle('active', BP.x2);
-            
-            renderBP(); updateBP();
-            renderTimers(); renderCal(); renderCars(); renderFood(); setGuide('payment', document.querySelector('.seg-btn.active'));
-            setupDragAndDrop();
+    function cloudLoad(key) {
+        return new Promise((resolve) => {
+            tg.CloudStorage.getItem(key, (err, value) => {
+                if (!err && value) {
+                    resolve(JSON.parse(value));
+                } else {
+                    const local = localStorage.getItem(key);
+                    resolve(local ? JSON.parse(local) : null);
+                }
+            });
+        });
+    }
+
+    // ================= INIT =================
+    async function init() {
+        document.body.style.opacity = "0.5"; 
+
+        const cloudBP = await cloudLoad('gta_bp_22');
+        const cloudTimers = await cloudLoad('gta_tm_22');
+        const cloudEvents = await cloudLoad('gta_ev_22');
+
+        if(cloudBP) BP = cloudBP;
+        if(cloudTimers) TIMERS = cloudTimers;
+        if(cloudEvents) EVENTS = cloudEvents;
+
+        document.body.style.opacity = "1";
+
+        if(!BP.sortOrder || BP.sortOrder.length !== DB.bp.length) {
+            BP.sortOrder = DB.bp.map((_, i) => i);
         }
 
-        function go(id, btn) {
-            document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
-            document.getElementById('tab-'+id).classList.add('active');
-            document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active'));
-            btn.classList.add('active');
-        }
-
-        // --- BP LOGIC ---
-        function toggleVip() { BP.vip = !BP.vip; document.getElementById('btnVip').classList.toggle('active'); saveBP(); renderBP(); updateBP(); }
-        function toggleX2() { BP.x2 = !BP.x2; document.getElementById('btnX2').classList.toggle('active'); saveBP(); renderBP(); updateBP(); }
-        function updateBP() {
-            BP.start = parseInt(document.getElementById('startBp').value)||0;
-            let total = BP.start;
-            BP.done.forEach(i => { let r = BP.vip ? DB.bp[i].v : DB.bp[i].b; if(BP.x2) r *= 2; total += r; });
-            document.getElementById('totalBp').innerText = total;
-            saveBP();
-        }
-        function saveBP() { localStorage.setItem('gta_bp_22', JSON.stringify(BP)); }
+        document.getElementById('startBp').value = BP.start || '';
+        document.getElementById('btnVip').classList.toggle('active', BP.vip);
+        document.getElementById('btnX2').classList.toggle('active', BP.x2);
         
-        function toggleTask(i) {
-            if(BP.done.includes(i)) { 
-                BP.done = BP.done.filter(x=>x!==i); 
-                delete BP.times[i]; 
-                if(BP.counters[i]) BP.counters[i] = 0;
-            } else { 
-                BP.done.push(i); 
-                BP.times[i] = new Date().toLocaleTimeString().slice(0,5); 
-                if(DB.bp[i].q > 1) BP.counters[i] = DB.bp[i].q;
-            }
+        renderBP(); updateBP();
+        renderTimers(); renderCal(); renderCars(); renderFood(); 
+        setGuide('payment', document.querySelector('.seg-btn.active'));
+        setupDragAndDrop();
+    }
+
+    function go(id, btn) {
+        document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
+        document.getElementById('tab-'+id).classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
+    // --- BP LOGIC ---
+    function toggleVip() { BP.vip = !BP.vip; document.getElementById('btnVip').classList.toggle('active'); saveBP(); renderBP(); updateBP(); }
+    function toggleX2() { BP.x2 = !BP.x2; document.getElementById('btnX2').classList.toggle('active'); saveBP(); renderBP(); updateBP(); }
+    
+    function updateBP() {
+        BP.start = parseInt(document.getElementById('startBp').value)||0;
+        let total = BP.start;
+        BP.done.forEach(i => { let r = BP.vip ? DB.bp[i].v : DB.bp[i].b; if(BP.x2) r *= 2; total += r; });
+        document.getElementById('totalBp').innerText = total;
+        saveBP();
+    }
+    
+    function saveBP() { cloudSave('gta_bp_22', BP); }
+    
+    function toggleTask(i) {
+        if(BP.done.includes(i)) { 
+            BP.done = BP.done.filter(x=>x!==i); 
+            delete BP.times[i]; 
+            if(BP.counters[i]) BP.counters[i] = 0;
+        } else { 
+            BP.done.push(i); 
+            BP.times[i] = new Date().toLocaleTimeString().slice(0,5); 
+            if(DB.bp[i].q > 1) BP.counters[i] = DB.bp[i].q;
+        }
+        saveBP(); renderBP(); updateBP();
+    }
+
+    function updateCounter(i, delta) {
+        if(!BP.counters) BP.counters = {};
+        if(!BP.counters[i]) BP.counters[i] = 0;
+        const max = DB.bp[i].q;
+        BP.counters[i] += delta;
+        if(BP.counters[i] < 0) BP.counters[i] = 0;
+        if(BP.counters[i] >= max) {
+            BP.counters[i] = max;
+            if(!BP.done.includes(i)) { BP.done.push(i); BP.times[i] = new Date().toLocaleTimeString().slice(0,5); }
+        } else {
+            if(BP.done.includes(i)) { BP.done = BP.done.filter(x=>x!==i); delete BP.times[i]; }
+        }
+        saveBP(); renderBP(); updateBP();
+    }
+
+    function hideBP(i,e) { e.stopPropagation(); BP.hidden.push(i); saveBP(); renderBP(); }
+    function resetHiddenBP() { BP.hidden = []; saveBP(); renderBP(); }
+    
+    function newDay() {
+        if(confirm("Начать новый день? Сбросится прогресс.")) {
+            BP.done = []; BP.times = {}; BP.counters = {}; BP.start = 0;
+            document.getElementById('startBp').value = '';
             saveBP(); renderBP(); updateBP();
         }
-        function updateCounter(i, delta) {
-            if(!BP.counters) BP.counters = {};
-            if(!BP.counters[i]) BP.counters[i] = 0;
-            const max = DB.bp[i].q;
-            BP.counters[i] += delta;
-            if(BP.counters[i] < 0) BP.counters[i] = 0;
-            if(BP.counters[i] >= max) {
-                BP.counters[i] = max;
-                if(!BP.done.includes(i)) { BP.done.push(i); BP.times[i] = new Date().toLocaleTimeString().slice(0,5); }
-            } else {
-                if(BP.done.includes(i)) { BP.done = BP.done.filter(x=>x!==i); delete BP.times[i]; }
-            }
-            saveBP(); renderBP(); updateBP();
-        }
-        function hideBP(i,e) { e.stopPropagation(); BP.hidden.push(i); saveBP(); renderBP(); }
-        function resetHiddenBP() { BP.hidden = []; saveBP(); renderBP(); }
-        function newDay() {
-            if(confirm("Начать новый день? Сбросится прогресс.")) {
-                BP.done = []; BP.times = {}; BP.counters = {}; BP.start = 0;
-                document.getElementById('startBp').value = '';
-                saveBP(); renderBP(); updateBP();
-            }
-        }
+    }
 
-        function renderBP() {
-            const list = document.getElementById('listBP'); 
-            const search = document.getElementById('searchBp').value.toLowerCase();
-            const sortMode = document.getElementById('bpSort').value;
+    function renderBP() {
+        const list = document.getElementById('listBP'); 
+        const search = document.getElementById('searchBp').value.toLowerCase();
+        const sortMode = document.getElementById('bpSort').value;
+        
+        let tasks = BP.sortOrder.map(id => ({...DB.bp[id], id: id}));
+
+        if(sortMode === 'max') tasks.sort((a, b) => b.q - a.q);
+        if(sortMode === 'min') tasks.sort((a, b) => a.q - b.q);
+
+        list.innerHTML = '';
+        tasks.forEach(t => {
+            const i = t.id;
+            if(BP.hidden.includes(i) || (search && !t.t.toLowerCase().includes(search))) return;
             
-            // Prepare tasks with IDs
-            let tasks = BP.sortOrder.map(id => ({...DB.bp[id], id: id}));
-
-            // Override sort if not user mode
-            if(sortMode === 'max') tasks.sort((a, b) => b.q - a.q);
-            if(sortMode === 'min') tasks.sort((a, b) => a.q - b.q);
-
-            // Re-render
-            list.innerHTML = '';
-            tasks.forEach(t => {
-                const i = t.id;
-                if(BP.hidden.includes(i) || (search && !t.t.toLowerCase().includes(search))) return;
-                
-                const done = BP.done.includes(i);
-                let rw = BP.vip ? t.v : t.b; if(BP.x2) rw *= 2;
-                
-                let counterHTML = '';
-                if(t.q > 1) {
-                    const curr = BP.counters && BP.counters[i] ? BP.counters[i] : 0;
-                    counterHTML = `
-                        <div class="counter-wrapper" onclick="event.stopPropagation()">
-                            <button class="icon-btn" onclick="updateCounter(${i}, -1)">-</button>
-                            <span class="counter-val">${curr}/${t.q}</span>
-                            <button class="icon-btn" onclick="updateCounter(${i}, 1)">+</button>
-                        </div>`;
-                }
-
-                const item = document.createElement('div');
-                item.className = `task-item ${done?'completed':''}`;
-                item.setAttribute('data-id', i);
-                item.onclick = () => toggleTask(i);
-                item.innerHTML = `
-                    <div class="drag-handle">⋮⋮</div>
-                    <div class="task-content">
-                        <div class="task-text">${t.t}</div>
-                        <div class="task-sub">Награда: <span style="color:var(--gold)">+${rw}</span> ${done?'| '+BP.times[i]:''}</div>
-                        ${counterHTML}
-                    </div>
-                    <div class="task-actions-right">
-                        <div class="checkbox">${done?'✔':''}</div>
-                        <button class="icon-btn del" onclick="hideBP(${i},event)">✕</button>
-                    </div>`;
-                list.appendChild(item);
-            });
-        }
-
-        // --- DRAG & DROP SETUP ---
-        function setupDragAndDrop() {
-            const list = document.getElementById('listBP');
-            Sortable.create(list, {
-                handle: '.drag-handle',
-                animation: 150,
-                onEnd: function (evt) {
-                    // Update sortOrder based on new DOM order
-                    const newOrder = [];
-                    list.querySelectorAll('.task-item').forEach(el => {
-                        newOrder.push(parseInt(el.getAttribute('data-id')));
-                    });
-                    
-                    // We need to merge this new visible order with hidden items to keep data integrity
-                    // (Simple approach: just update the global sortOrder to match visible + append hidden at end)
-                    const hiddenItems = BP.sortOrder.filter(id => !newOrder.includes(id));
-                    BP.sortOrder = [...newOrder, ...hiddenItems];
-                    
-                    saveBP();
-                }
-            });
-        }
-
-        // --- TIMERS ---
-        function renderTimers() {
-            const list = document.getElementById('activeTimersList'); list.innerHTML = '';
-            let all = []; if(TIMERS.custom) all = [...TIMERS.custom];
+            const done = BP.done.includes(i);
+            let rw = BP.vip ? t.v : t.b; if(BP.x2) rw *= 2;
             
-            all.forEach(t => {
-                if(t.run) {
-                    const now = Date.now(), diff = Math.floor((now - t.ts)/1000);
-                    if(diff > 0) { t.rm -= diff; t.ts = now; }
-                    if(t.rm <= 0) { t.rm = 0; t.run = false; }
-                }
-                list.innerHTML += `
-                    <div class="timer-row ${t.run?'running':''}">
-                        <div style="flex:1;">
-                            <div style="color:var(--text-sub); font-size:13px;">${t.l}</div>
-                            <div class="timer-val" id="disp_${t.id}">${fmtTime(t.rm)}</div>
-                        </div>
-                        <div class="timer-actions">
-                            <button class="t-btn t-play" onclick="togTime('${t.id}')">${t.run?'⏸':'▶'}</button>
-                            <button class="t-btn t-reset" onclick="rstTime('${t.id}')">↺</button>
-                            <button class="t-btn t-reset" style="color:var(--red)" onclick="delTime('${t.id}')">✕</button>
-                        </div>
+            let counterHTML = '';
+            if(t.q > 1) {
+                const curr = BP.counters && BP.counters[i] ? BP.counters[i] : 0;
+                counterHTML = `
+                    <div class="counter-wrapper" onclick="event.stopPropagation()">
+                        <button class="icon-btn" onclick="updateCounter(${i}, -1)">-</button>
+                        <span class="counter-val">${curr}/${t.q}</span>
+                        <button class="icon-btn" onclick="updateCounter(${i}, 1)">+</button>
                     </div>`;
-                if(t.run) runInterval(t.id);
-            });
-            saveTm();
-        }
-
-        function fmtTime(s) { const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60; return (h>0?h+':':'')+pad(m)+':'+pad(sec); }
-        function pad(n) { return n<10?'0'+n:n; }
-
-        function addQuickTimer(min) { addTimerRaw(min, min+' мин'); }
-        function addGameTimer(key) { 
-            const t = DB.timers.find(x => x.id === key);
-            if(t) addTimerRaw(t.s/60, t.l); 
-        }
-        function addCustomTimer() { const m=parseInt(document.getElementById('customMin').value); if(m) addTimerRaw(m, m+' мин'); document.getElementById('customMin').value=''; }
-        function addTimerRaw(min, label) {
-            if(!TIMERS.custom) TIMERS.custom = [];
-            TIMERS.custom.push({id:'t_'+Date.now(), l: label, s: min*60, rm: min*60, run:true, ts: Date.now()});
-            saveTm(); renderTimers();
-        }
-        function togTime(id) { 
-            const t = TIMERS.custom.find(x=>x.id===id);
-            if(t) { t.run = !t.run; t.ts = Date.now(); if(t.run && t.rm===0) t.rm = t.s; saveTm(); renderTimers(); }
-        }
-        function rstTime(id) { 
-            const t = TIMERS.custom.find(x=>x.id===id);
-            if(t) { t.rm = t.s; t.run = false; t.ts = Date.now(); clearInterval(TIMER_INT[id]); saveTm(); renderTimers(); }
-        }
-        function delTime(id) {
-            TIMERS.custom = TIMERS.custom.filter(t=>t.id!==id); clearInterval(TIMER_INT[id]); saveTm(); renderTimers();
-        }
-        function runInterval(id) {
-            if(TIMER_INT[id]) clearInterval(TIMER_INT[id]);
-            TIMER_INT[id] = setInterval(() => {
-                const t = TIMERS.custom.find(x=>x.id===id);
-                if(!t || !t.run) { clearInterval(TIMER_INT[id]); return; }
-                const now = Date.now(), delta = Math.floor((now - t.ts)/1000);
-                if(delta >= 1) {
-                    t.rm -= delta; t.ts = now;
-                    if(t.rm <= 0) { t.rm = 0; t.run = false; clearInterval(TIMER_INT[id]); renderTimers(); }
-                    else { 
-                        const el = document.getElementById('disp_'+id);
-                        if(el) el.innerText = fmtTime(t.rm); 
-                    }
-                    saveTm();
-                }
-            }, 1000);
-        }
-        function saveTm() { localStorage.setItem('gta_tm_22', JSON.stringify(TIMERS)); }
-        function addPay(t) { const d = prompt(`Оплата ${t}. Через сколько дней?`, "10"); if(d) addEvent(parseInt(d), `Оплата: ${t}`); }
-
-        // --- CALENDAR ---
-        let calDate = new Date();
-        function renderCal() {
-            const y = calDate.getFullYear(), m = calDate.getMonth();
-            document.getElementById('calTitle').innerText = calDate.toLocaleDateString('ru',{month:'long',year:'numeric'});
-            const grid = document.getElementById('calGrid'); grid.innerHTML = '';
-            ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].forEach(d => grid.innerHTML+=`<div style="font-size:11px; color:#666; text-align:center;">${d}</div>`);
-            const first = new Date(y, m, 1).getDay() || 7, days = new Date(y, m+1, 0).getDate(), today = new Date().toISOString().split('T')[0];
-            for(let i=1; i<first; i++) grid.innerHTML += `<div></div>`;
-            for(let d=1; d<=days; d++) {
-                const dt = `${y}-${pad(m+1)}-${pad(d)}`;
-                const hasEv = EVENTS.some(e => e.d === dt);
-                const isToday = dt === today;
-                grid.innerHTML += `<div class="cal-day ${isToday?'today':''} ${hasEv?'event':''}">${d}</div>`;
             }
-            const list = document.getElementById('eventList'); list.innerHTML = '';
-            EVENTS.filter(e => e.d >= today).sort((a,b)=>a.d.localeCompare(b.d)).slice(0,5).forEach(e => {
-                list.innerHTML += `<div class="event-item"><span>${e.d.split('-').reverse().slice(0,2).join('.')}</span><span style="font-weight:600;">${e.t}</span></div>`;
-            });
-        }
-        function moveMonth(v) { calDate.setMonth(calDate.getMonth()+v); renderCal(); }
-        function addEvent(d, t) {
-            const date = new Date(); date.setDate(date.getDate() + d);
-            EVENTS.push({d: date.toISOString().split('T')[0], t: t});
-            localStorage.setItem('gta_ev_22', JSON.stringify(EVENTS)); renderCal();
-        }
 
-        // --- CARS ---
-        let carCat = 'platinum';
-        function setCarCat(c, btn) {
-            carCat = c; document.querySelectorAll('#tab-cars .seg-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
-            if(c==='tuning') {
-                document.getElementById('listCars').style.display='none'; document.getElementById('tuningBlock').style.display='block';
-                document.getElementById('tuningBlock').innerHTML = `<div class="table-wrap"><table><thead><tr><th>Деталь</th><th>Эконом</th><th>Стандарт</th><th>Комфорт</th><th>Бизнес</th><th>Элит</th></tr></thead><tbody><tr><td>Двиг 1</td><td>5000</td><td>7000</td><td>13000</td><td>20000</td><td>24000</td></tr><tr><td>Двиг 2</td><td>8750</td><td>12250</td><td>22750</td><td>35000</td><td>42000</td></tr><tr><td>Двиг 3</td><td>10000</td><td>14000</td><td>26000</td><td>40000</td><td>48000</td></tr><tr><td>Двиг 4</td><td>16250</td><td>22750</td><td>42250</td><td>65000</td><td>78000</td></tr><tr><td>Торм 1</td><td>2500</td><td>3500</td><td>6500</td><td>10000</td><td>12000</td></tr><tr><td>Торм 2</td><td>4750</td><td>6650</td><td>12350</td><td>19000</td><td>22800</td></tr><tr><td>Торм 3</td><td>7500</td><td>10500</td><td>19500</td><td>30000</td><td>36000</td></tr><tr><td>Турбо</td><td>15000</td><td>21000</td><td>39000</td><td>60000</td><td>72000</td></tr></tbody></table></div>`;
-            } else {
-                document.getElementById('listCars').style.display='block'; document.getElementById('tuningBlock').style.display='none';
-                renderCars();
-            }
-        }
-        function renderCars() {
-            const list = document.getElementById('listCars'); list.innerHTML = '';
-            const s = document.getElementById('searchCar').value.toLowerCase();
-            const data = DB.cars[carCat];
-            data.forEach(c => {
-                if(s && !c.realName.toLowerCase().includes(s) && !c.gameName.toLowerCase().includes(s)) return;
-                const p = c.price > 0 ? new Intl.NumberFormat().format(c.price)+'$' : (carCat==='container'?'📦':'🎉');
-                const season = c.season ? `<div style="font-size:11px; color:var(--purple); margin-top:2px;">${c.season}</div>` : '';
-                list.innerHTML += `<div class="card"><div class="card-icon">🚗</div><div class="card-body"><div class="card-title">${c.realName}</div><div class="card-sub">${c.gameName}</div>${season}</div><div class="card-end"><div class="price ${c.price===0?'free':''}">${p}</div><div style="color:#666; margin-top:4px;">🚀 ${c.speed}</div><div style="color:#666;">📦 ${c.trunk} | 👤 ${c.st || 2}</div></div></div>`;
-            });
-        }
-
-        // --- FOOD ---
-        function renderFood() {
-            const list = document.getElementById('listFood'); list.innerHTML = '';
-            const s = document.getElementById('searchFood').value.toLowerCase();
-            DB.kitchen.forEach(f => {
-                if(s && !f.name.toLowerCase().includes(s)) return;
-                list.innerHTML += `
-                    <div class="card" onclick='openModal(${JSON.stringify(f)})'>
-                        <div class="card-icon">${f.icon}</div>
-                        <div class="card-body">
-                            <div class="card-title">${f.name}</div>
-                            <div class="food-stats-mini">
-                                <span class="fs-i" style="color:var(--green)">🍖 ${f.sat}</span>
-                                <span class="fs-i" style="color:var(--gold)">😎 ${f.mood}</span>
-                                <span class="fs-i" style="color:var(--red)">💪 ${f.str}</span>
-                            </div>
-                        </div>
-                        <div class="card-end" style="font-size:20px; color:var(--text-sub)">›</div>
-                    </div>`;
-            });
-        }
-        function openModal(f) {
-            document.getElementById('mTitle').innerText = f.name;
-            document.getElementById('mContent').innerHTML = `
-                <div style="text-align:center; font-size:60px; margin-bottom:20px;">${f.icon}</div>
-                <div style="display:flex; justify-content:space-between; margin-bottom:20px; text-align:center; background:rgba(255,255,255,0.05); padding:15px; border-radius:16px;">
-                    <div><div style="color:var(--green); font-size:20px; font-weight:bold;">+${f.sat}</div><div style="font-size:10px; color:#666;">СЫТОСТЬ</div></div>
-                    <div><div style="color:var(--gold); font-size:20px; font-weight:bold;">+${f.mood}</div><div style="font-size:10px; color:#666;">НАСТР</div></div>
-                    <div><div style="color:var(--red); font-size:20px; font-weight:bold;">${f.str}</div><div style="font-size:10px; color:#666;">СИЛА</div></div>
+            const item = document.createElement('div');
+            item.className = `task-item ${done?'completed':''}`;
+            item.setAttribute('data-id', i);
+            item.onclick = () => toggleTask(i);
+            item.innerHTML = `
+                <div class="drag-handle">⋮⋮</div>
+                <div class="task-content">
+                    <div class="task-text">${t.t}</div>
+                    <div class="task-sub">Награда: <span style="color:var(--gold)">+${rw}</span> ${done?'| '+BP.times[i]:''}</div>
+                    ${counterHTML}
                 </div>
-                <div style="margin-bottom:15px;"><div style="font-size:12px; color:#666; margin-bottom:5px;">ИНГРЕДИЕНТЫ</div><div>${f.ing.map(i=>`<span class="tag">${i}</span>`).join('')}</div></div>
-                <div><div style="font-size:12px; color:#666; margin-bottom:5px;">ТРЕБОВАНИЯ</div><span class="tag" style="background:rgba(255,69,58,0.2); color:var(--red)">${f.tool}</span> <span class="tag" style="background:rgba(255,214,10,0.2); color:var(--gold)">Навык: ${f.skill}</span></div>
-            `;
-            document.getElementById('modal').style.display = 'flex';
-        }
-        function closeModal(e) { if(e.target.id === 'modal') document.getElementById('modal').style.display = 'none'; }
+                <div class="task-actions-right">
+                    <div class="checkbox">${done?'✔':''}</div>
+                    <button class="icon-btn del" onclick="hideBP(${i},event)">✕</button>
+                </div>`;
+            list.appendChild(item);
+        });
+    }
 
-        // --- GUIDES ---
-        function setGuide(id, btn) {
-            document.querySelectorAll('#tab-guides .seg-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
-            const c = document.getElementById('guideContent'); c.innerHTML = '';
-            
-            if(id==='payment') {
-                c.innerHTML += `<div class="guide-section-title">Животные</div>` + buildTable(DB.guides.payment.animals.r, DB.guides.payment.animals.h);
-                c.innerHTML += `<div class="guide-section-title" style="margin-top:20px">Сокровища</div>` + buildTable(DB.guides.payment.treasures.r, DB.guides.payment.treasures.h);
-                return;
+    function setupDragAndDrop() {
+        const list = document.getElementById('listBP');
+        Sortable.create(list, {
+            handle: '.drag-handle',
+            animation: 150,
+            onEnd: function (evt) {
+                const newOrder = [];
+                list.querySelectorAll('.task-item').forEach(el => {
+                    newOrder.push(parseInt(el.getAttribute('data-id')));
+                });
+                const hiddenItems = BP.sortOrder.filter(id => !newOrder.includes(id));
+                BP.sortOrder = [...newOrder, ...hiddenItems];
+                saveBP();
             }
-            if(id==='med') {
-                c.innerHTML += `<div class="table-wrap"><table class="med-table"><thead><tr><th>Травма</th><th>Лечение</th></tr></thead><tbody>` + DB.guides.med.r.map((r,i)=>`<tr style="background:${i%2?'rgba(255,255,255,0.02)':'transparent'}"><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('') + `</tbody></table></div>`;
-                return;
-            }
-            if(id==='tarot') {
-                DB.tarot.forEach(t=> c.innerHTML += `<div class="tarot-card"><div class="tarot-id">${t.i}</div><div class="tarot-name">${t.n}</div><div class="tarot-desc">${t.d}</div></div>`);
-            } else if(id==='ball') {
-                DB.ball8.forEach(b=> c.innerHTML += `<div class="card" style="display:block;"><div style="color:var(--purple); font-weight:bold; margin-bottom:6px;">🎱 ${b.q}</div><div style="font-size:13px; color:#ccc;">${b.a}</div></div>`);
-                c.innerHTML += `<div style="padding:15px; font-size:11px; color:#666; text-align:center;">Без эффекта: Сегодня мой день?, Мне повезет?, Ждет ли успех?, Судьба услышит?, Есть ли смысл?, Молчание знак?, Встречу друга?, Доверять интуиции?, Видит ли кто-то?</div>`;
-            } else {
-                const d = DB.guides[id];
-                c.innerHTML += buildTable(d.r, d.h);
-            }
-        }
+        });
+    }
 
-        function buildTable(rows, headers) {
-            let h = `<div class="table-wrap"><table><thead><tr>`;
-            headers.forEach(x=>h+=`<th>${x}</th>`);
-            h+='</tr></thead><tbody>';
-            rows.forEach((r, idx)=>{ h+=`<tr style="background:${idx%2===0?'rgba(255,255,255,0.02)':'transparent'}">`; r.forEach(ce=>h+=`<td>${ce}</td>`); h+='</tr>'; });
-            return h + `</tbody></table></div>`;
-        }
+    // --- TIMERS ---
+    function renderTimers() {
+        const list = document.getElementById('activeTimersList'); list.innerHTML = '';
+        let all = []; if(TIMERS.custom) all = [...TIMERS.custom];
+        
+        all.forEach(t => {
+            if(t.run) {
+                const now = Date.now(), diff = Math.floor((now - t.ts)/1000);
+                if(diff > 0) { t.rm -= diff; t.ts = now; }
+                if(t.rm <= 0) { t.rm = 0; t.run = false; }
+            }
+            list.innerHTML += `
+                <div class="timer-row ${t.run?'running':''}">
+                    <div style="flex:1;">
+                        <div style="color:var(--text-sub); font-size:13px;">${t.l}</div>
+                        <div class="timer-val" id="disp_${t.id}">${fmtTime(t.rm)}</div>
+                    </div>
+                    <div class="timer-actions">
+                        <button class="t-btn t-play" onclick="togTime('${t.id}')">${t.run?'⏸':'▶'}</button>
+                        <button class="t-btn t-reset" onclick="rstTime('${t.id}')">↺</button>
+                        <button class="t-btn t-reset" style="color:var(--red)" onclick="delTime('${t.id}')">✕</button>
+                    </div>
+                </div>`;
+            if(t.run) runInterval(t.id);
+        });
+        saveTm();
+    }
 
-        // INIT
-        if (window.Telegram && window.Telegram.WebApp) { window.Telegram.WebApp.ready(); window.Telegram.WebApp.expand(); }
-        init();
-    </script>
-</body>
+    function fmtTime(s) { const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60; return (h>0?h+':':'')+pad(m)+':'+pad(sec); }
+    function pad(n) { return n<10?'0'+n:n; }
+
+    function addQuickTimer(min) { addTimerRaw(min, min+' мин'); }
+    function addGameTimer(key) { 
+        const t = DB.timers.find(x => x.id === key);
+        if(t) addTimerRaw(t.s/60, t.l); 
+    }
+    function addCustomTimer() { const m=parseInt(document.getElementById('customMin').value); if(m) addTimerRaw(m, m+' мин'); document.getElementById('customMin').value=''; }
+    function addTimerRaw(min, label) {
+        if(!TIMERS.custom) TIMERS.custom = [];
+        TIMERS.custom.push({id:'t_'+Date.now(), l: label, s: min*60, rm: min*60, run:true, ts: Date.now()});
+        saveTm(); renderTimers();
+    }
+    function togTime(id) { 
+        const t = TIMERS.custom.find(x=>x.id===id);
+        if(t) { t.run = !t.run; t.ts = Date.now(); if(t.run && t.rm===0) t.rm = t.s; saveTm(); renderTimers(); }
+    }
+    function rstTime(id) { 
+        const t = TIMERS.custom.find(x=>x.id===id);
+        if(t) { t.rm = t.s; t.run = false; t.ts = Date.now(); clearInterval(TIMER_INT[id]); saveTm(); renderTimers(); }
+    }
+    function delTime(id) {
+        TIMERS.custom = TIMERS.custom.filter(t=>t.id!==id); clearInterval(TIMER_INT[id]); saveTm(); renderTimers();
+    }
+    function runInterval(id) {
+        if(TIMER_INT[id]) clearInterval(TIMER_INT[id]);
+        TIMER_INT[id] = setInterval(() => {
+            const t = TIMERS.custom.find(x=>x.id===id);
+            if(!t || !t.run) { clearInterval(TIMER_INT[id]); return; }
+            const now = Date.now(), delta = Math.floor((now - t.ts)/1000);
+            if(delta >= 1) {
+                t.rm -= delta; t.ts = now;
+                if(t.rm <= 0) { t.rm = 0; t.run = false; clearInterval(TIMER_INT[id]); renderTimers(); }
+                else { 
+                    const el = document.getElementById('disp_'+id);
+                    if(el) el.innerText = fmtTime(t.rm); 
+                }
+                saveTm();
+            }
+        }, 1000);
+    }
+    function saveTm() { cloudSave('gta_tm_22', TIMERS); }
+    function addPay(t) { const d = prompt(`Оплата ${t}. Через сколько дней?`, "10"); if(d) addEvent(parseInt(d), `Оплата: ${t}`); }
+
+    // --- CALENDAR ---
+    let calDate = new Date();
+    function renderCal() {
+        const y = calDate.getFullYear(), m = calDate.getMonth();
+        document.getElementById('calTitle').innerText = calDate.toLocaleDateString('ru',{month:'long',year:'numeric'});
+        const grid = document.getElementById('calGrid'); grid.innerHTML = '';
+        ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].forEach(d => grid.innerHTML+=`<div style="font-size:11px; color:#666; text-align:center;">${d}</div>`);
+        const first = new Date(y, m, 1).getDay() || 7, days = new Date(y, m+1, 0).getDate(), today = new Date().toISOString().split('T')[0];
+        for(let i=1; i<first; i++) grid.innerHTML += `<div></div>`;
+        for(let d=1; d<=days; d++) {
+            const dt = `${y}-${pad(m+1)}-${pad(d)}`;
+            const hasEv = EVENTS.some(e => e.d === dt);
+            const isToday = dt === today;
+            grid.innerHTML += `<div class="cal-day ${isToday?'today':''} ${hasEv?'event':''}">${d}</div>`;
+        }
+        const list = document.getElementById('eventList'); list.innerHTML = '';
+        EVENTS.filter(e => e.d >= today).sort((a,b)=>a.d.localeCompare(b.d)).slice(0,5).forEach(e => {
+            list.innerHTML += `<div class="event-item"><span>${e.d.split('-').reverse().slice(0,2).join('.')}</span><span style="font-weight:600;">${e.t}</span></div>`;
+        });
+    }
+    function moveMonth(v) { calDate.setMonth(calDate.getMonth()+v); renderCal(); }
+    function addEvent(d, t) {
+        const date = new Date(); date.setDate(date.getDate() + d);
+        EVENTS.push({d: date.toISOString().split('T')[0], t: t});
+        cloudSave('gta_ev_22', EVENTS); 
+        renderCal();
+    }
+
+    // --- CARS ---
+    let carCat = 'platinum';
+    function setCarCat(c, btn) {
+        carCat = c; document.querySelectorAll('#tab-cars .seg-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+        if(c==='tuning') {
+            document.getElementById('listCars').style.display='none'; document.getElementById('tuningBlock').style.display='block';
+            document.getElementById('tuningBlock').innerHTML = `<div class="table-wrap"><table><thead><tr><th>Деталь</th><th>Эконом</th><th>Стандарт</th><th>Комфорт</th><th>Бизнес</th><th>Элит</th></tr></thead><tbody><tr><td>Двиг 1</td><td>5000</td><td>7000</td><td>13000</td><td>20000</td><td>24000</td></tr><tr><td>Двиг 2</td><td>8750</td><td>12250</td><td>22750</td><td>35000</td><td>42000</td></tr><tr><td>Двиг 3</td><td>10000</td><td>14000</td><td>26000</td><td>40000</td><td>48000</td></tr><tr><td>Двиг 4</td><td>16250</td><td>22750</td><td>42250</td><td>65000</td><td>78000</td></tr><tr><td>Торм 1</td><td>2500</td><td>3500</td><td>6500</td><td>10000</td><td>12000</td></tr><tr><td>Торм 2</td><td>4750</td><td>6650</td><td>12350</td><td>19000</td><td>22800</td></tr><tr><td>Торм 3</td><td>7500</td><td>10500</td><td>19500</td><td>30000</td><td>36000</td></tr><tr><td>Турбо</td><td>15000</td><td>21000</td><td>39000</td><td>60000</td><td>72000</td></tr></tbody></table></div>`;
+        } else {
+            document.getElementById('listCars').style.display='block'; document.getElementById('tuningBlock').style.display='none';
+            renderCars();
+        }
+    }
+    function renderCars() {
+        const list = document.getElementById('listCars'); list.innerHTML = '';
+        const s = document.getElementById('searchCar').value.toLowerCase();
+        const data = DB.cars[carCat];
+        data.forEach(c => {
+            if(s && !c.realName.toLowerCase().includes(s) && !c.gameName.toLowerCase().includes(s)) return;
+            const p = c.price > 0 ? new Intl.NumberFormat().format(c.price)+'$' : (carCat==='container'?'📦':'🎉');
+            const season = c.season ? `<div style="font-size:11px; color:var(--purple); margin-top:2px;">${c.season}</div>` : '';
+            list.innerHTML += `<div class="card"><div class="card-icon">🚗</div><div class="card-body"><div class="card-title">${c.realName}</div><div class="card-sub">${c.gameName}</div>${season}</div><div class="card-end"><div class="price ${c.price===0?'free':''}">${p}</div><div style="color:#666; margin-top:4px;">🚀 ${c.speed}</div><div style="color:#666;">📦 ${c.trunk} | 👤 ${c.st || 2}</div></div></div>`;
+        });
+    }
+
+    // --- FOOD ---
+    function renderFood() {
+        const list = document.getElementById('listFood'); list.innerHTML = '';
+        const s = document.getElementById('searchFood').value.toLowerCase();
+        DB.kitchen.forEach(f => {
+            if(s && !f.name.toLowerCase().includes(s)) return;
+            list.innerHTML += `
+                <div class="card" onclick='openModal(${JSON.stringify(f)})'>
+                    <div class="card-icon">${f.icon}</div>
+                    <div class="card-body">
+                        <div class="card-title">${f.name}</div>
+                        <div class="food-stats-mini">
+                            <span class="fs-i" style="color:var(--green)">🍖 ${f.sat}</span>
+                            <span class="fs-i" style="color:var(--gold)">😎 ${f.mood}</span>
+                            <span class="fs-i" style="color:var(--red)">💪 ${f.str}</span>
+                        </div>
+                    </div>
+                    <div class="card-end" style="font-size:20px; color:var(--text-sub)">›</div>
+                </div>`;
+        });
+    }
+    function openModal(f) {
+        document.getElementById('mTitle').innerText = f.name;
+        document.getElementById('mContent').innerHTML = `
+            <div style="text-align:center; font-size:60px; margin-bottom:20px;">${f.icon}</div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:20px; text-align:center; background:rgba(255,255,255,0.05); padding:15px; border-radius:16px;">
+                <div><div style="color:var(--green); font-size:20px; font-weight:bold;">+${f.sat}</div><div style="font-size:10px; color:#666;">СЫТОСТЬ</div></div>
+                <div><div style="color:var(--gold); font-size:20px; font-weight:bold;">+${f.mood}</div><div style="font-size:10px; color:#666;">НАСТР</div></div>
+                <div><div style="color:var(--red); font-size:20px; font-weight:bold;">${f.str}</div><div style="font-size:10px; color:#666;">СИЛА</div></div>
+            </div>
+            <div style="margin-bottom:15px;"><div style="font-size:12px; color:#666; margin-bottom:5px;">ИНГРЕДИЕНТЫ</div><div>${f.ing.map(i=>`<span class="tag">${i}</span>`).join('')}</div></div>
+            <div><div style="font-size:12px; color:#666; margin-bottom:5px;">ТРЕБОВАНИЯ</div><span class="tag" style="background:rgba(255,69,58,0.2); color:var(--red)">${f.tool}</span> <span class="tag" style="background:rgba(255,214,10,0.2); color:var(--gold)">Навык: ${f.skill}</span></div>
+        `;
+        document.getElementById('modal').style.display = 'flex';
+    }
+    function closeModal(e) { if(e.target.id === 'modal') document.getElementById('modal').style.display = 'none'; }
+
+    // --- GUIDES ---
+    function setGuide(id, btn) {
+        document.querySelectorAll('#tab-guides .seg-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+        const c = document.getElementById('guideContent'); c.innerHTML = '';
+        
+        if(id==='payment') {
+            c.innerHTML += `<div class="guide-section-title">Животные</div>` + buildTable(DB.guides.payment.animals.r, DB.guides.payment.animals.h);
+            c.innerHTML += `<div class="guide-section-title" style="margin-top:20px">Сокровища</div>` + buildTable(DB.guides.payment.treasures.r, DB.guides.payment.treasures.h);
+            return;
+        }
+        if(id==='med') {
+            c.innerHTML += `<div class="table-wrap"><table class="med-table"><thead><tr><th>Травма</th><th>Лечение</th></tr></thead><tbody>` + DB.guides.med.r.map((r,i)=>`<tr style="background:${i%2?'rgba(255,255,255,0.02)':'transparent'}"><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('') + `</tbody></table></div>`;
+            return;
+        }
+        if(id==='tarot') {
+            DB.tarot.forEach(t=> c.innerHTML += `<div class="tarot-card"><div class="tarot-id">${t.i}</div><div class="tarot-name">${t.n}</div><div class="tarot-desc">${t.d}</div></div>`);
+        } else if(id==='ball') {
+            DB.ball8.forEach(b=> c.innerHTML += `<div class="card" style="display:block;"><div style="color:var(--purple); font-weight:bold; margin-bottom:6px;">🎱 ${b.q}</div><div style="font-size:13px; color:#ccc;">${b.a}</div></div>`);
+            c.innerHTML += `<div style="padding:15px; font-size:11px; color:#666; text-align:center;">Без эффекта: Сегодня мой день?, Мне повезет?, Ждет ли успех?, Судьба услышит?, Есть ли смысл?, Молчание знак?, Встречу друга?, Доверять интуиции?, Видит ли кто-то?</div>`;
+        } else {
+            const d = DB.guides[id];
+            c.innerHTML += buildTable(d.r, d.h);
+        }
+    }
+
+    function buildTable(rows, headers) {
+        let h = `<div class="table-wrap"><table><thead><tr>`;
+        headers.forEach(x=>h+=`<th>${x}</th>`);
+        h+='</tr></thead><tbody>';
+        rows.forEach((r, idx)=>{ h+=`<tr style="background:${idx%2===0?'rgba(255,255,255,0.02)':'transparent'}">`; r.forEach(ce=>h+=`<td>${ce}</td>`); h+='</tr>'; });
+        return h + `</tbody></table></div>`;
+    }
+
+    // INIT
+    if (window.Telegram && window.Telegram.WebApp) { 
+        window.Telegram.WebApp.ready(); 
+        window.Telegram.WebApp.expand(); 
+    }
+
+    init();
+</script>
+  </body>
 </html>
