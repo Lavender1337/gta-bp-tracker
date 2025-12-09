@@ -214,7 +214,7 @@
             </div>
         </div>
 
-        <div class="bp-actions-top">
+<div class="bp-actions-top">
             <button class="action-btn new-day" onclick="newDay()">🌅 Новый день</button>
             <button class="action-btn" onclick="resetHiddenBP()">👁 Вернуть скрытые</button>
             <button class="action-btn" onclick="forceSync()" style="border-color:var(--accent); color:var(--accent);">🔄 Синхронизация</button>
@@ -497,8 +497,7 @@
         let EVENTS = []; 
         let TIMER_INT = {};
 // Обёртка для удобной работы с CloudStorage
-// Обёртка с оптимизацией (Debounce)
-        let saveTimers = {}; // Хранилище таймеров для каждого ключа
+let saveTimers = {}; // Хранилище таймеров для каждого ключа
         
         const Cloud = {
             isAvailable: () => window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.CloudStorage,
@@ -540,25 +539,7 @@
                 }
             }
         };
-            setItem: (key, value) => {
-                localStorage.setItem(key, value);
-                if (Cloud.isAvailable()) {
-                    window.Telegram.WebApp.CloudStorage.setItem(key, value, (err, stored) => {
-                        if (err) console.error('Cloud save error:', err);
-                    });
-                }
-            }
-        };
-        async function forceSync() {
-            const loader = document.createElement('div');
-            loader.id = 'loader';
-            loader.innerHTML = '<div class="spinner"></div><div style="margin-top:10px;font-size:12px;">Обновление...</div>';
-            document.body.appendChild(loader);
 
-            await init(); // Перезапускает загрузку из облака
-
-            // Лоадер сам исчезнет, так как init() содержит логику его удаления
-        }
         async function init() {
             // Загружаем данные из облака (или локально)
             try {
@@ -929,7 +910,16 @@
             rows.forEach((r, idx)=>{ h+=`<tr style="background:${idx%2===0?'rgba(255,255,255,0.02)':'transparent'}">`; r.forEach(ce=>h+=`<td>${ce}</td>`); h+='</tr>'; });
             return h + `</tbody></table></div>`;
         }
+async function forceSync() {
+            const loader = document.createElement('div');
+            loader.id = 'loader';
+            loader.innerHTML = '<div class="spinner"></div><div style="margin-top:10px;font-size:12px;">Обновление...</div>';
+            document.body.appendChild(loader);
 
+            await init(); // Перезапускает загрузку из облака
+
+            // Лоадер сам исчезнет, так как init() содержит логику его удаления
+        }
         // INIT
         if (window.Telegram && window.Telegram.WebApp) { 
             window.Telegram.WebApp.ready(); 
@@ -941,3 +931,4 @@
     </script>
 </body>
 </html>
+
