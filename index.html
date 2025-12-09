@@ -217,6 +217,7 @@
         <div class="bp-actions-top">
             <button class="action-btn new-day" onclick="newDay()">🌅 Новый день</button>
             <button class="action-btn" onclick="resetHiddenBP()">👁 Вернуть скрытые</button>
+            <button class="action-btn" onclick="forceSync()" style="border-color:var(--accent); color:var(--accent);">🔄 Синхронизация</button>
         </div>
         
         <div class="sort-container" style="padding: 0 15px 10px; display: flex; justify-content: space-between; color:#666; font-size: 12px; align-items: center;">
@@ -496,6 +497,9 @@
         let EVENTS = []; 
         let TIMER_INT = {};
 // Обёртка для удобной работы с CloudStorage
+// Обёртка с оптимизацией (Debounce)
+        let saveTimers = {}; // Хранилище таймеров для каждого ключа
+        
         const Cloud = {
             isAvailable: () => window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.CloudStorage,
             
@@ -508,12 +512,34 @@
                         if (err || !val) {
                             resolve(localStorage.getItem(key));
                         } else {
+                            // Обновляем и локальную копию, чтобы они были равны
+                            localStorage.setItem(key, val);
                             resolve(val);
                         }
                     });
                 });
             },
 
+            setItem: (key, value) => {
+                // 1. МГНОВЕННО сохраняем в localStorage (чтобы при перезагрузке данные были тут)
+                localStorage.setItem(key, value);
+                
+                if (Cloud.isAvailable()) {
+                    // 2. Если уже был запланирован запрос для этого ключа — отменяем его
+                    if (saveTimers[key]) clearTimeout(saveTimers[key]);
+
+                    // 3. Ждем 500мс тишины перед отправкой в сеть
+                    saveTimers[key] = setTimeout(() => {
+                        // Показываем индикатор (опционально, можно убрать console.log)
+                        console.log('Sending to Cloud:', key); 
+                        
+                        window.Telegram.WebApp.CloudStorage.setItem(key, value, (err, stored) => {
+                            if (err) console.error('Cloud save error:', err);
+                        });
+                    }, 500);
+                }
+            }
+        };
             setItem: (key, value) => {
                 localStorage.setItem(key, value);
                 if (Cloud.isAvailable()) {
@@ -523,7 +549,16 @@
                 }
             }
         };
+        async function forceSync() {
+            const loader = document.createElement('div');
+            loader.id = 'loader';
+            loader.innerHTML = '<div class="spinner"></div><div style="margin-top:10px;font-size:12px;">Обновление...</div>';
+            document.body.appendChild(loader);
 
+            await init(); // Перезапускает загрузку из облака
+
+            // Лоадер сам исчезнет, так как init() содержит логику его удаления
+        }
         async function init() {
             // Загружаем данные из облака (или локально)
             try {
