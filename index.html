@@ -786,13 +786,21 @@ let saveTimers = {}; // Хранилище таймеров для каждог�
         
         function addPay(t) { const d = prompt(`Оплата ${t}. Через сколько дней?`, "10"); if(d) addEvent(parseInt(d), `Оплата: ${t}`); }
 
-        // --- CALENDAR ---
+// --- CALENDAR ---
         let calDate = new Date();
+
+        // Функция сохранения событий (вынесли отдельно)
+        function saveEv() {
+            Cloud.setItem('gta_ev_22', JSON.stringify(EVENTS));
+        }
+
         function renderCal() {
             const y = calDate.getFullYear(), m = calDate.getMonth();
             document.getElementById('calTitle').innerText = calDate.toLocaleDateString('ru',{month:'long',year:'numeric'});
+            
             const grid = document.getElementById('calGrid'); grid.innerHTML = '';
             ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].forEach(d => grid.innerHTML+=`<div style="font-size:11px; color:#666; text-align:center;">${d}</div>`);
+            
             const first = new Date(y, m, 1).getDay() || 7, days = new Date(y, m+1, 0).getDate(), today = new Date().toISOString().split('T')[0];
             for(let i=1; i<first; i++) grid.innerHTML += `<div></div>`;
             for(let d=1; d<=days; d++) {
@@ -801,22 +809,49 @@ let saveTimers = {}; // Хранилище таймеров для каждог�
                 const isToday = dt === today;
                 grid.innerHTML += `<div class="cal-day ${isToday?'today':''} ${hasEv?'event':''}">${d}</div>`;
             }
+            
+            // Отрисовка списка событий с кнопкой удаления
             const list = document.getElementById('eventList'); list.innerHTML = '';
+            
+            // Фильтруем, сортируем и рисуем
             EVENTS.filter(e => e.d >= today).sort((a,b)=>a.d.localeCompare(b.d)).slice(0,5).forEach(e => {
-                list.innerHTML += `<div class="event-item"><span>${e.d.split('-').reverse().slice(0,2).join('.')}</span><span style="font-weight:600;">${e.t}</span></div>`;
+                // Миграция старых событий: если нет id, создаем его "на лету" и сохраняем
+                if(!e.id) { e.id = Date.now() + Math.floor(Math.random()*1000); saveEv(); }
+                
+                const dateStr = e.d.split('-').reverse().slice(0,2).join('.');
+                list.innerHTML += `
+                    <div class="event-item" style="align-items:center;">
+                        <div style="flex:1; padding-right:10px;">
+                            <span style="color:var(--accent); font-weight:bold; margin-right:6px;">${dateStr}</span>
+                            <span>${e.t}</span>
+                        </div>
+                        <button class="icon-btn" style="width:28px; height:28px; min-width:28px; color:var(--red);" onclick="delEvent(${e.id})">✕</button>
+                    </div>`;
             });
         }
+
         function moveMonth(v) { calDate.setMonth(calDate.getMonth()+v); renderCal(); }
+
         function addEvent(d, t) {
             const date = new Date(); date.setDate(date.getDate() + d);
-            EVENTS.push({d: date.toISOString().split('T')[0], t: t});
-            
-            const json = JSON.stringify(EVENTS);
-            Cloud.setItem('gta_ev_22', json);
-            
+            // Теперь добавляем событие с уникальным ID
+            EVENTS.push({
+                id: Date.now(), 
+                d: date.toISOString().split('T')[0], 
+                t: t
+            });
+            saveEv();
             renderCal();
         }
 
+        // Новая функция удаления
+        function delEvent(id) {
+            if(confirm('Удалить это событие?')) {
+                EVENTS = EVENTS.filter(e => e.id !== id);
+                saveEv();
+                renderCal();
+            }
+        }
         // --- CARS ---
         let carCat = 'platinum';
         function setCarCat(c, btn) {
