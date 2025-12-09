@@ -543,7 +543,7 @@
                 {t:"Принять участие в двух аирдропах",q:2,b:4,v:8}
             ],
             timers: [
-                {id:'t5',l:'5 мин',s:300},{id:'t10',l:'10 мин',s:600},{id:'t15',l:'15 мин',s:900},{id:'t30',l:'30 мин',s:1800},{id:'t60',l:'1 час',s:3600},{id:'t120',l:'2 часа',s:7200},{id:'mail',l:'Почта (10м)',s:600, i:'img/poshta.png'},{id:'tarot',l:'Таро (3ч)',s:10800},{id:'mech',l:'Механик (5м)',s:300},{id:'taxi',l:'Таксист (5м)',s:300},{id:'theft',l:'Автоугон (1.5ч)',s:5400},{id:'club',l:'Клуб (2ч)',s:7200},{id:'shoot',l:'Тир (1.5ч)',s:5400},{id:'train',l:'Дрессировка (15м)',s:900},{id:'pimp',l:'Сутенерка (1.5ч)',s:5400},{id:'casino',l:'Казино (24ч)',s:86400}
+                {id:'t5',l:'5 мин',s:300},{id:'t10',l:'10 мин',s:600},{id:'t15',l:'15 мин',s:900},{id:'t30',l:'30 мин',s:1800},{id:'t60',l:'1 час',s:3600},{id:'t120',l:'2 часа',s:7200},{id:'mail',l:'Почта (10м)',s:600, i: 'img/poshta.png'},{id:'tarot',l:'Таро (3ч)',s:10800},{id:'mech',l:'Механик (5м)',s:300},{id:'taxi',l:'Таксист (5м)',s:300},{id:'theft',l:'Автоугон (1.5ч)',s:5400},{id:'club',l:'Клуб (2ч)',s:7200},{id:'shoot',l:'Тир (1.5ч)',s:5400},{id:'train',l:'Дрессировка (15м)',s:900},{id:'pimp',l:'Сутенерка (1.5ч)',s:5400},{id:'casino',l:'Казино (24ч)',s:86400}
             ],
             guides: {
                 payment: {
@@ -689,24 +689,34 @@ let saveTimers = {}; // Хранилище таймеров для каждог�
             btn.classList.add('active');
         }
 function renderTimerPresets() {
-    // 1. Находим контейнер. 
-    // ВАЖНО: В HTML замени <div class="timer-presets"> на <div class="timer-grid" id="timerGrid">
-    const container = document.getElementById('timerGrid'); 
-    if(!container) return;
-    
+    const container = document.getElementById('timerGrid');
+    if (!container) return; // Если блока нет, выходим
+
     container.innerHTML = '';
 
-    // 2. Проходимся по всем таймерам из базы
     DB.timers.forEach(t => {
-        // Форматируем время (секунды -> Ч:ММ:СС или ММ:СС)
+        // Форматируем время
         const timeStr = fmtTimeSimple(t.s);
+
+        // --- ГЛАВНОЕ ИЗМЕНЕНИЕ ЗДЕСЬ ---
+        let iconHtml = '';
         
-        // Рисуем карточку
+        // Проверяем: если в i написано "img/" или есть точка ".", значит это картинка
+        if (t.i && (t.i.includes('img/') || t.i.includes('.'))) {
+             // Создаем КАРТИНКУ
+             iconHtml = `<img src="${t.i}" style="width:24px; height:24px; object-fit:contain; margin-right:8px;">`;
+        } else {
+             // Создаем ЭМОДЗИ (или пустой текст)
+             iconHtml = `<span style="font-size:20px; margin-right:8px;">${t.i || '⏱'}</span>`;
+        }
+        // -------------------------------
+
         container.innerHTML += `
             <div class="timer-card-btn" onclick="addGameTimer('${t.id}')">
                 <div class="t-card-info">
                     <div class="t-card-head">
-                        <span>${t.i}</span> <span>${t.l}</span> </div>
+                        ${iconHtml} <span>${t.l}</span>
+                    </div>
                     <div class="t-card-time">${timeStr}</div>
                 </div>
                 <div class="t-card-play">▶</div>
@@ -1175,5 +1185,6 @@ async function forceSync() {
     </script>
 </body>
 </html>
+
 
 
