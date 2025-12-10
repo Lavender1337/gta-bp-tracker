@@ -298,6 +298,95 @@
     opacity: 0.8;
 }
 
+/* --- Стили для карточек Таро --- */
+.tarot-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 столбца */
+    gap: 8px;
+    padding: 10px 15px;
+}
+
+.tarot-card {
+    background-color: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 80px; /* Чтобы карточки были одинаковой высоты */
+    transition: background-color 0.1s;
+    cursor: pointer;
+}
+
+.tarot-card:active {
+    background-color: var(--bg-card-active);
+}
+
+.tarot-q {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-main);
+    line-height: 1.3;
+}
+
+.tarot-a {
+    font-size: 12px;
+    color: var(--gold); /* Золотистый акцент для ответа */
+    margin-top: 6px;
+    font-weight: 500;
+}
+/* Пример CSS для иконки BP */
+.bp-icon-img {
+    width: 32px;
+    height: 32px;
+    margin-right: 12px;
+    border-radius: 6px; 
+    object-fit: cover;
+}
+/* --- НОВЫЕ СТИЛИ (Добавить в конец <style>) --- */
+
+/* 1. Стили для иконки в задачах BP */
+.bp-icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+}
+.bp-img {
+    width: 32px; height: 32px; border-radius: 6px; object-fit: cover;
+}
+.bp-emoji {
+    font-size: 24px; min-width: 32px; text-align: center;
+}
+
+/* 2. Сетка для Таро (Карточки) */
+.tarot-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px 15px;
+}
+.tarot-card {
+    background: #1c1c1e; border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 14px; overflow: hidden; display: flex; flex-direction: column;
+}
+.tarot-img-box {
+    width: 100%; height: 140px; background: #111; position: relative;
+    display: flex; align-items: center; justify-content: center; font-size: 40px;
+}
+.tarot-img-box img {
+    width: 100%; height: 100%; object-fit: cover;
+}
+.tarot-info { padding: 12px; }
+.tarot-title { color: var(--gold); font-weight: 800; font-size: 13px; margin-bottom: 4px; text-transform: uppercase; }
+.tarot-desc { font-size: 11px; color: #98989f; line-height: 1.3; }
+
+/* 3. Модальное окно "Вернуть скрытые" */
+.unhide-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.unhide-btn {
+    background: rgba(48, 209, 88, 0.15); color: var(--green);
+    border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; cursor: pointer;
+}
     </style>
 </head>
 <body>
@@ -327,7 +416,7 @@
 
         <div class="bp-actions-top">
             <button class="action-btn new-day" onclick="newDay()">🌅 Новый день</button>
-            <button class="action-btn" onclick="resetHiddenBP()">👁 Вернуть скрытые</button>
+            <button class="action-btn" onclick="openUnhideModal()">👁 Вернуть скрытые</button>
             <button class="action-btn" onclick="forceSync()" style="border-color:var(--accent); color:var(--accent);">🔄 Обновить</button>
             
             <div class="action-btn" style="cursor:default; border-color:rgba(255,255,255,0.05); background: rgba(255,255,255,0.03);">
@@ -358,30 +447,28 @@
     </div>
 
     <div id="tab-timers" class="tab-content">
-        <div class="header">Таймеры</div>
-        
-        <div class="section-title">Быстрый запуск</div>
-        <div class="section-title">Игровые таймеры</div>
-<div class="timer-grid" id="timerGrid"></div>
+    <div class="header">Таймеры</div>
+    
+    <div class="timer-grid" id="timerGrid" style="margin-top: 20px;"></div>
 
-        <div class="custom-timer">
-            <input type="number" id="customMin" placeholder="Свои минуты...">
-            <button onclick="addCustomTimer()">+</button>
-        </div>
-
-        <div class="section-title">Активные таймеры</div>
-        <div class="active-timers" id="activeTimersList"></div>
-
-        <div class="section-title">Напоминания (Оплата)</div>
-        <div class="reminders-grid">
-            <button class="remind-btn" onclick="addPay('Квартира')">🏢 Квартира</button>
-            <button class="remind-btn" onclick="addPay('Дом')">🏠 Дом</button>
-            <button class="remind-btn" onclick="addPay('Склад')">📦 Склад</button>
-            <button class="remind-btn" onclick="addPay('Лаба')">🧪 Лаба</button>
-            <button class="remind-btn" onclick="addPay('Теплица')">🌿 Теплица</button>
-            <button class="remind-btn" onclick="addEvent(7, 'Покормить питомца')">🐾 Питомец</button>
-        </div>
+    <div class="custom-timer">
+        <input type="number" id="customMin" placeholder="Свои минуты...">
+        <button onclick="addCustomTimer()">+</button>
     </div>
+
+    <div class="section-title">Активные таймеры</div>
+    <div class="active-timers" id="activeTimersList"></div>
+
+    <div class="section-title">Напоминания (Оплата)</div>
+    <div class="reminders-grid">
+        <button class="remind-btn" onclick="addPay('Квартира')">🏢 Квартира</button>
+        <button class="remind-btn" onclick="addPay('Дом')">🏠 Дом</button>
+        <button class="remind-btn" onclick="addPay('Склад')">📦 Склад</button>
+        <button class="remind-btn" onclick="addPay('Лаба')">🧪 Лаба</button>
+        <button class="remind-btn" onclick="addPay('Теплица')">🌿 Теплица</button>
+        <button class="remind-btn" onclick="addEvent(7, 'Покормить питомца')">🐾 Питомец</button>
+    </div>
+</div>
 
     <div id="tab-calendar" class="tab-content">
         <div class="header">Календарь</div>
@@ -458,6 +545,16 @@
             <div id="mContent"></div>
         </div>
     </div>
+<div id="modalUnhide" class="modal-wrap" onclick="closeUnhideModal(event)">
+    <div class="modal">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <div style="font-size:20px; font-weight:800;">Скрытые задачи</div>
+            <div style="font-size:26px; cursor:pointer; color:#888;" onclick="document.getElementById('modalUnhide').style.display='none'">✕</div>
+        </div>
+        <div id="unhideList" style="max-height: 300px; overflow-y: auto;">
+            </div>
+    </div>
+</div>
 <script>
         // ================= FULL DATA =================
         const DB = {
@@ -542,9 +639,22 @@
                 {t:"Запустить переработку в лаборатории",q:1,b:4,v:8},
                 {t:"Принять участие в двух аирдропах",q:2,b:4,v:8}
             ],
-            timers: [
-                {id:'t5',l:'5 мин',s:300},{id:'t10',l:'10 мин',s:600},{id:'t15',l:'15 мин',s:900},{id:'t30',l:'30 мин',s:1800},{id:'t60',l:'1 час',s:3600},{id:'t120',l:'2 часа',s:7200},{id:'mail',l:'Почта (10м)',s:600, i: 'img/poshta.png'},{id:'tarot',l:'Таро (3ч)',s:10800},{id:'mech',l:'Механик (5м)',s:300},{id:'taxi',l:'Таксист (5м)',s:300},{id:'theft',l:'Автоугон (1.5ч)',s:5400},{id:'club',l:'Клуб (2ч)',s:7200},{id:'shoot',l:'Тир (1.5ч)',s:5400},{id:'train',l:'Дрессировка (15м)',s:900},{id:'pimp',l:'Сутенерка (1.5ч)',s:5400},{id:'casino',l:'Казино (24ч)',s:86400}
-            ],
+timers: [
+    // Новый таймер на 1 минуту (60 секунд)
+    {id:'q1', l:'Для 1-мин квестов', s:60, i:'⏱'}, 
+
+    // Твои основные игровые таймеры (пути к иконкам проверь, если менял)
+    {id:'mail', l:'Почта (10м)', s:600, i:'img/poshta.png'},
+    {id:'mech', l:'Механик (5м)', s:300, i:'🔧'}, // Или путь к картинке
+    {id:'taxi', l:'Таксист (5м)', s:300, i:'🚕'},
+    {id:'train', l:'Дрессировка (15м)', s:900, i:'🐾'},
+    {id:'theft', l:'Автоугон (1.5ч)', s:5400, i:'🚘'},
+    {id:'shoot', l:'Тир (1.5ч)', s:5400, i:'🎯'},
+    {id:'pimp', l:'Сутенерка (1.5ч)', s:5400, i:'💘'},
+    {id:'club', l:'Клуб (2ч)', s:7200, i:'👥'},
+    {id:'tarot', l:'Таро (3ч)', s:10800, i:'🃏'},
+    {id:'casino', l:'Казино (24ч)', s:86400, i:'🎰'}
+],
             guides: {
                 payment: {
                     animals: { h: ["Зверь","Скупщик","Rednecks"], r: [["Кролик","1.000$","1.160$"],["Кабан","2.500$","2.900$"],["Олень","4.000$","4.640$"],["Койот","7.500$","8.700$"],["Пума","15.000$","17.400$"]] },
@@ -555,30 +665,30 @@
                 rep: { h: ["Компонент","Пробег 100%","Цена починки"], r: [["Двигатель","100.000 км","30% от гос"],["Тормоза","20.000 км","9% от гос"],["Покрышки","20.000 км","6% от гос (макс 100к)"],["Топливо","20.000 км","6% от гос (макс 100к)"],["Выхлоп","10.000 км","6% от гос (макс 100к)"],["Кузов","100.000 км","19% от гос"],["Аккумулятор","10.000 км","6% от гос (макс 100к)"],["Подвеска","20.000 км","9% от гос"],["Зажигание","20.000 км","6% от гос (макс 100к)"],["Трансмиссия","50.000 км","20% от гос"]] },
                 drop: { h: ["Деятельность","Шанс","5 ранг Red","+Питомец"], r: [["Обезбол (Порт, Стройка, Шахта)","2%","4%","6%"],["Обезбол (Почта разовая)","10%","12%","14%"],["Обезбол (Почта работа)","3%","5%","7%"],["Обезбол (Ограбление домов)","5%","7%","-"],["Семена (Сбор апельсинов/капусты)","6%","8%","10% (с кроликом)"],["Семена (Поиск клада/Контрабанда)","10%","12%","-"]] }
             },
-            tarot: [
-                {i:"🃏",n:"0. Дурак",d:"Несколько минут будет проигрываться смех 'повара'"},
-                {i:"🎩",n:"1. Маг",d:"Все персонажи вашего пола поблизости копируют вашу внешность и одежду"},
-                {i:"🌙",n:"2. Жрица",d:"У персонажа начинается кровотечение"},
-                {i:"👑",n:"3. Императрица",d:"Включается 'Женская походка'"},
-                {i:"🤴",n:"4. Император",d:"Включается походка 'Раскидывать руками'"},
-                {i:"⛪",n:"5. Иерофант",d:"Восстанавливает здоровье до максимума, но настроение и сытость падают до 0"},
-                {i:"💞",n:"6. Влюбленные",d:"Камера фокусируется на персонажах противоположного пола, пока вы не поцелуетесь"},
-                {i:"🐎",n:"7. Колесница",d:"Ненадолго ускоряет бег персонажа"},
-                {i:"🦁",n:"8. Сила",d:"+50 очков навыка сила"},
-                {i:"🔦",n:"9. Отшельник",d:"X2 зарплата на функциональных работах в течение часа"},
-                {i:"🎡",n:"10. Колесо Фортуны",d:"Сбрасывается счетчик колеса удачи, можно сразу крутить"},
-                {i:"⚖️",n:"11. Справедливость",d:"+1 доллар"},
-                {i:"🧘",n:"12. Повешенный",d:"Тело персонажа станет прозрачным, останется лишь голова в петле"},
-                {i:"💀",n:"13. Смерть",d:"Персонажу становится плохо и он умирает"},
-                {i:"🏺",n:"14. Умеренность",d:"Здоровье падает до минимума, но настроение и сытость становятся 100%"},
-                {i:"😈",n:"15. Дьявол",d:"Персонаж начинает гореть, но не получает урона"},
-                {i:"🏰",n:"16. Башня",d:"Наличные деньги исчезают и возвращаются"},
-                {i:"🌟",n:"17. Звезда",d:"Подкидывает персонажа в воздух"},
-                {i:"🌝",n:"18. Луна",d:"Делает кожу персонажа белой, если был темнокожим"},
-                {i:"🌞",n:"19. Солнце",d:"Делает кожу персонажа чёрной, если был светлокожим"},
-                {i:"🎺",n:"20. Суд",d:"Персонаж получает 2-3 звезды розыска на 2 минуты. В истории не сохр."},
-                {i:"🌍",n:"21. Мир",d:"Персонажа телепортирует в случайные места на карте"}
-            ],
+tarot: [
+    {n:"0. Дурак", i:"🃏", img:"img/1.png", d:"Несколько минут будет проигрываться смех 'повара'"},
+    {n:"1. Маг", i:"🎩", img:"img/2.png", d:"Все персонажи вашего пола поблизости копируют вашу внешность"},
+    {n:"2. Жрица", i:"🌙", img:"img/3.png", d:"У персонажа начинается кровотечение"},
+    {n:"3. Императрица", i:"👑", img:"img/4.png", d:"Включается 'Женская походка'"},
+    {n:"4. Император", i:"🤴", img:"img/5.png", d:"Включается походка 'Раскидывать руками'"},
+    {n:"5. Иерофант", i:"⛪", img:"img/6.png", d:"Восстанавливает здоровье до макс, но настроение/сытость в 0"},
+    {n:"6. Влюбленные", i:"💞", img:"img/7.png", d:"Камера фокусируется на персонажах противоположного пола"},
+    {n:"7. Колесница", i:"🐎", img:"img/8.png", d:"Ненадолго ускоряет бег персонажа"},
+    {n:"8. Сила", i:"🦁", img:"img/9.png", d:"+50 очков навыка сила"},
+    {n:"9. Отшельник", i:"🔦", img:"img/10.png", d:"X2 зарплата на функциональных работах (час)"},
+    {n:"10. Колесо Фортуны", i:"🎡", img:"img/11.png", d:"Сбрасывается счетчик колеса удачи"},
+    {n:"11. Справедливость", i:"⚖️", img:"img/12.png", d:"+1 доллар"},
+    {n:"12. Повешенный", i:"🧘", img:"img/13.png", d:"Тело прозрачное, остается лишь голова в петле"},
+    {n:"13. Смерть", i:"💀", img:"img/14.png", d:"Персонажу становится плохо и он умирает"},
+    {n:"14. Умеренность", i:"🏺", img:"img/15.png", d:"Здоровье минимум, но настроение и сытость 100%"},
+    {n:"15. Дьявол", i:"😈", img:"img/16.png", d:"Персонаж горит, но не получает урона"},
+    {n:"16. Башня", i:"🏰", img:"img/17.png", d:"Наличные деньги исчезают и возвращаются"},
+    {n:"17. Звезда", i:"🌟", img:"img/18.png", d:"Подкидывает персонажа в воздух"},
+    {n:"18. Луна", i:"🌝", img:"img/19.png", d:"Делает кожу белой (если был темный)"},
+    {n:"19. Солнце", i:"🌞", img:"img/20.png", d:"Делает кожу чёрной (если был светлый)"},
+    {n:"20. Суд", i:"🎺", img:"img/21.png", d:"Персонаж получает розыск на 2 минуты"},
+    {n:"21. Мир", i:"🌍", img:"img/22.png", d:"Телепортирует в случайные места"}
+],
             ball8: [
                 {q:"Ровные ли сегодня дороги?",a:"Да: Уменьшает расход бензина в 2 раза<br>Нет: Увеличивает расход в 2 раза"},
                 {q:"Уважают ли меня в моем клубе?",a:"Да: Х2 репутация за задания в клубах<br>Нет: Уменьшает репутацию в 2 раза"},
@@ -698,17 +808,34 @@ function renderTimerPresets() {
         // Форматируем время
         const timeStr = fmtTimeSimple(t.s);
 
-        // --- ГЛАВНОЕ ИЗМЕНЕНИЕ ЗДЕСЬ ---
-        let iconHtml = '';
-        
-        // Проверяем: если в i написано "img/" или есть точка ".", значит это картинка
-        if (t.i && (t.i.includes('img/') || t.i.includes('.'))) {
-             // Создаем КАРТИНКУ
-             iconHtml = `<img src="${t.i}" style="width:24px; height:24px; object-fit:contain; margin-right:8px;">`;
-        } else {
-             // Создаем ЭМОДЗИ (или пустой текст)
-             iconHtml = `<span style="font-size:20px; margin-right:8px;">${t.i || '⏱'}</span>`;
-        }
+let iconHtml = '';
+    
+    // Если это наш спец. таймер "q1" (1 минута)
+    if (t.id === 'q1') {
+        // Рисуем красивую цифру 1 через CSS
+        iconHtml = `<span style="
+            display:inline-flex; 
+            align-items:center; 
+            justify-content:center; 
+            width:24px; 
+            height:24px; 
+            background:white; 
+            color:black; 
+            border-radius:6px; 
+            font-weight:900; 
+            font-size:16px; 
+            margin-right:8px;
+            font-family: sans-serif;
+        ">1</span>`;
+    } 
+    // Если это картинка
+    else if (t.i && (t.i.includes('img/') || t.i.includes('.'))) {
+         iconHtml = `<img src="${t.i}" style="width:24px; height:24px; object-fit:contain; margin-right:8px;">`;
+    } 
+    // Если эмодзи
+    else {
+         iconHtml = `<span style="font-size:20px; margin-right:8px;">${t.i || '⏱'}</span>`;
+    }
         // -------------------------------
 
         container.innerHTML += `
@@ -859,17 +986,14 @@ function renderBP() {
         const i = t.id;
         if(BP.hidden.includes(i) || (search && !t.t.toLowerCase().includes(search))) return;
         
-        // Проверяем: выполнено ли (только для обычных задач)
         const done = BP.done.includes(i);
         let rw = BP.vip ? t.v : t.b; if(BP.x2) rw *= 2;
         
-        // Логика счетчика: показываем если q > 1 ИЛИ если это многоразовая задача (t.r)
+        // --- Логика счетчика ---
         let counterHTML = '';
         if(t.q > 1 || t.r) {
             const curr = BP.counters && BP.counters[i] ? BP.counters[i] : 0;
-            // Для многоразовых пишем просто "x5", для обычных "5/25"
             const countDisplay = t.r ? `x${curr}` : `${curr}/${t.q}`;
-            
             counterHTML = `
                 <div class="counter-wrapper" onclick="event.stopPropagation()">
                     <button class="icon-btn" onclick="updateCounter(${i}, -1)">-</button>
@@ -878,25 +1002,28 @@ function renderBP() {
                 </div>`;
         }
 
+        // --- Логика Иконки (Картинка или Эмодзи) ---
+        let iconHTML = '';
+        if(t.img) {
+            iconHTML = `<div class="bp-icon-container"><img src="${t.img}" class="bp-img"></div>`;
+        } else if (t.i) { // Если в базе есть поле 'i' (эмодзи)
+             iconHTML = `<div class="bp-icon-container"><span class="bp-emoji">${t.i}</span></div>`;
+        }
+        // --------------------------------------------
+
         const item = document.createElement('div');
-        // Если многоразовая, мы НЕ добавляем класс 'completed', чтобы она не зеленела
         item.className = `task-item ${(done && !t.r) ?'completed':''}`;
         item.setAttribute('data-id', i);
         
-        // Если задача обычная — клик переключает галочку. Если многоразовая — клик ничего не делает (работаем кнопками)
-        if(!t.r) {
-            item.onclick = () => toggleTask(i);
-        }
+        if(!t.r) item.onclick = () => toggleTask(i);
 
-        // Правая часть: галочка (только если не многоразовая) или пустота
-        let rightAction = '';
-        if(!t.r) {
-            rightAction = `<div class="checkbox">${done?'✔':''}</div>`;
-        }
+        let rightAction = !t.r ? `<div class="checkbox">${done?'✔':''}</div>` : '';
 
+        // ВЕРСТКА: Handle -> Icon -> Content
         item.innerHTML = `
-            <div class="drag-handle">⋮⋮</div>
-            <div class="task-content">
+            <div class="drag-handle" style="margin-right:8px;">⋮⋮</div>
+            
+            ${iconHTML} <div class="task-content">
                 <div class="task-text">${t.t} ${t.r ? '<span style="font-size:10px; background:rgba(255,255,255,0.1); padding:2px 5px; border-radius:4px;">∞</span>' : ''}</div>
                 <div class="task-sub">Награда: <span style="color:var(--gold)">+${rw}</span> ${done?'| '+BP.times[i]:''}</div>
                 ${counterHTML}
@@ -1146,17 +1273,40 @@ function renderBP() {
                 c.innerHTML += `<div class="table-wrap"><table class="med-table"><thead><tr><th>Травма</th><th>Лечение</th></tr></thead><tbody>` + DB.guides.med.r.map((r,i)=>`<tr style="background:${i%2?'rgba(255,255,255,0.02)':'transparent'}"><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('') + `</tbody></table></div>`;
                 return;
             }
-            if(id==='tarot') {
-                DB.tarot.forEach(t=> c.innerHTML += `<div class="tarot-card"><div class="tarot-id">${t.i}</div><div class="tarot-name">${t.n}</div><div class="tarot-desc">${t.d}</div></div>`);
-            } else if(id==='ball') {
-                DB.ball8.forEach(b=> c.innerHTML += `<div class="card" style="display:block;"><div style="color:var(--purple); font-weight:bold; margin-bottom:6px;">🎱 ${b.q}</div><div style="font-size:13px; color:#ccc;">${b.a}</div></div>`);
-                c.innerHTML += `<div style="padding:15px; font-size:11px; color:#666; text-align:center;">Без эффекта: Сегодня мой день?, Мне повезет?, Ждет ли успех?, Судьба услышит?, Есть ли смысл?, Молчание знак?, Встречу друга?, Доверять интуиции?, Видит ли кто-то?</div>`;
-            } else {
-                const d = DB.guides[id];
-                c.innerHTML += buildTable(d.r, d.h);
-            }
+// Внутри function setGuide(id, btn)
+// Внутри функции setGuide(id, btn) найди блок if(id==='tarot') и замени его:
+
+if(id==='tarot') {
+    c.innerHTML = '<div class="tarot-grid">';
+    
+    DB.tarot.forEach(t => {
+        // Проверяем, есть ли картинка (t.img) или эмодзи (t.i)
+        let visual = '';
+        if(t.img) {
+            // Если есть картинка
+            visual = `<img src="${t.img}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                      <div class="tarot-img-box" style="display:none;">${t.i || '🃏'}</div>`;
+        } else {
+            // Если только эмодзи
+            visual = t.i || '🃏';
         }
 
+        c.innerHTML += `
+            <div class="tarot-card">
+                <div class="tarot-img-box">
+                    ${visual}
+                </div>
+                <div class="tarot-info">
+                    <div class="tarot-title">${t.n}</div>
+                    <div class="tarot-desc">${t.d}</div>
+                </div>
+            </div>`;
+    });
+    
+    c.innerHTML += '</div>';
+    return;
+}
+// ... дальше идет else { const d = DB.guides[id]; c.innerHTML += buildTable(d.r, d.h); }
         function buildTable(rows, headers) {
             let h = `<div class="table-wrap"><table><thead><tr>`;
             headers.forEach(x=>h+=`<th>${x}</th>`);
@@ -1182,9 +1332,48 @@ async function forceSync() {
         }
         
         init();
+// --- ЛОГИКА ВОЗВРАТА СКРЫТЫХ ---
+function openUnhideModal() {
+    const modal = document.getElementById('modalUnhide');
+    const list = document.getElementById('unhideList');
+    list.innerHTML = '';
+
+    if(BP.hidden.length === 0) {
+        list.innerHTML = '<div style="padding:20px; text-align:center; color:#666;">Нет скрытых задач</div>';
+    } else {
+        BP.hidden.forEach(id => {
+            // Находим задачу в базе по ID (индексу)
+            let task = DB.bp[id]; 
+            if(!task) return;
+
+            list.innerHTML += `
+                <div class="unhide-item">
+                    <span>${task.t}</span>
+                    <button class="unhide-btn" onclick="restoreTask(${id})">Вернуть</button>
+                </div>
+            `;
+        });
+    }
+    modal.style.display = 'flex';
+}
+
+function restoreTask(id) {
+    // Удаляем id из списка hidden
+    BP.hidden = BP.hidden.filter(h => h !== id);
+    saveBP();      // Сохраняем
+    renderBP();    // Перерисовываем главный список
+    openUnhideModal(); // Обновляем список в модалке (задача исчезнет)
+}
+
+function closeUnhideModal(e) {
+    if(e.target.id === 'modalUnhide') {
+        document.getElementById('modalUnhide').style.display = 'none';
+    }
+}
     </script>
 </body>
 </html>
+
 
 
 
