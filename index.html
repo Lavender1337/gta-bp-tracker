@@ -870,10 +870,12 @@ let saveTimers = {}; // Хранилище таймеров для каждог�
             
             renderBP(); updateBP();
             renderTimers(); renderTimerPresets(); renderCal(); renderCars(); renderFood(); 
-            const activeGuideBtn = document.querySelector('#tab-guides .seg-btn.active');
+const activeGuideBtn = document.querySelector('#tab-guides .seg-btn.active');
             if(activeGuideBtn) setGuide('payment', activeGuideBtn);
             
             setupDragAndDrop();
+        } // <--- ВОТ ЭТА СКОБКА ОЧЕНЬ ВАЖНА! ОНА ЗАКРЫВАЕТ INIT()
+
 // Объект для хранения позиций скролла: { 'tab-bp': 500, 'tab-cars': 0, ... }
 let SCROLL_POS = {};
 
