@@ -1687,71 +1687,7 @@ function closeUnhideModal(e) {
         document.getElementById('modalUnhide').style.display = 'none';
     }
 }
-let bpActiveTimers = [];
-let bpTimerIndex = 0;
 
-function updateBpTimerDisplay() {
-    const box = document.getElementById("bpActiveTimerBox");
-    const text = document.getElementById("bpTimerText");
-    const icon = document.getElementById("bpTimerIcon");
-
-    if (!bpActiveTimers.length) {
-        text.innerText = "нет таймеров";
-        box.style.border = "1px solid rgba(255,255,255,0.1)";
-        icon.innerText = "⏱";
-        return;
-    }
-
-    const t = bpActiveTimers[bpTimerIndex];
-    const now = Date.now();
-    const left = t.end - now;
-
-    let sec = Math.max(0, Math.floor(left / 1000));
-    let m = Math.floor(sec / 60);
-    let s = sec % 60;
-
-    text.innerText = `${t.title} ${m}:${s.toString().padStart(2,"0")}`;
-
-    // Цвета
-    if (sec > 300) box.style.border = "1px solid var(--green)";
-    else if (sec > 60) box.style.border = "1px solid var(--gold)";
-    else box.style.border = "1px solid var(--red)";
-}
-
-// переключение стрелками
-document.getElementById("bpPrevTimer").onclick = () => {
-    if (!bpActiveTimers.length) return;
-    bpTimerIndex = (bpTimerIndex - 1 + bpActiveTimers.length) % bpActiveTimers.length;
-    updateBpTimerDisplay();
-};
-
-document.getElementById("bpNextTimer").onclick = () => {
-    if (!bpActiveTimers.length) return;
-    bpTimerIndex = (bpTimerIndex + 1) % bpActiveTimers.length;
-    updateBpTimerDisplay();
-};
-
-// функция синхронизации с блоком Таймеров
-function syncBpTimers() {
-    const nodes = document.querySelectorAll(".timer-row.running");
-
-    bpActiveTimers = [];
-
-    nodes.forEach(n => {
-        const title = n.querySelector(".timer-title")?.innerText || "Таймер";
-        const end = Number(n.dataset.endtime);
-        bpActiveTimers.push({ title, end });
-    });
-
-    if (bpTimerIndex >= bpActiveTimers.length) bpTimerIndex = 0;
-
-    updateBpTimerDisplay();
-}
-
-// обновление каждую секунду
-setInterval(() => {
-    syncBpTimers();
-}, 1000);
 // ================= HEADER TIMER LOGIC (FINAL) =================
 let headerTimerIdx = 0;
 
@@ -1794,11 +1730,9 @@ function updateHeaderTimer() {
     // 6. Расчет времени (с защитой от NaN)
     let timeLeft = 0;
     
-    // Если есть EndTime (t.et), считаем по нему
     if (t.et) {
         timeLeft = Math.ceil((t.et - now) / 1000);
     } else {
-        // Если et нет (старый баг), берем остаток t.rm и чиним таймер на лету
         timeLeft = t.rm || 0;
         t.et = now + (timeLeft * 1000);
     }
@@ -1806,19 +1740,18 @@ function updateHeaderTimer() {
     if (timeLeft < 0) timeLeft = 0;
 
     // 7. Вывод на экран
-    // Обрезаем имя, если оно длиннее 12 символов
     let name = t.l || "Таймер";
     if (name.length > 12) name = name.slice(0, 11) + "..";
     
     elLabel.innerText = name;
-    elTime.innerText = fmtTime(timeLeft); // Используем твою функцию fmtTime
-    elTime.style.color = "#fff"; // Возвращаем белый цвет
+    elTime.innerText = fmtTime(timeLeft); 
+    elTime.style.color = "#fff"; 
 }
 
 // Запускаем обновление каждую секунду
 setInterval(updateHeaderTimer, 1000);
 
-// Запускаем один раз сразу, чтобы не ждать 1 секунду
+// Запускаем один раз сразу
 updateHeaderTimer();
     </script>
 </body>
