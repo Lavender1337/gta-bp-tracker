@@ -75,6 +75,35 @@
     font-size: 13px;
     color: #888;
 }
+/* --- Стили для таймеров в шапке --- */
+.mini-timers-wrapper {
+    flex: 1; /* Занимает всё свободное место в центре */
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    gap: 6px; 
+    overflow: hidden;
+    padding: 0 5px;
+}
+
+.mini-timer-pill {
+    display: flex; 
+    align-items: center; 
+    gap: 4px;
+    background: rgba(10, 132, 255, 0.15); /* Синий фон */
+    border: 1px solid rgba(10, 132, 255, 0.3);
+    border-radius: 6px; 
+    padding: 2px 6px; 
+    font-size: 11px; 
+    color: #fff; 
+    font-weight: 700;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+.mini-timer-pill img { 
+    width: 14px; height: 14px; object-fit: contain; 
+}
 
 .mini-stat-val {
     font-size: 16px;
@@ -446,46 +475,6 @@
     object-fit: contain;
     display: block;
 }
-/* --- Стили для таймеров в шапке (с прокруткой) --- */
-.mini-timers-wrapper {
-    flex: 1;                  /* Занимаем всё место в центре */
-    display: flex; 
-    align-items: center;      /* Центровка по вертикали */
-    gap: 6px;                 /* Отступ между плашками */
-    overflow-x: auto;         /* Включаем гориз. скролл */
-    padding: 0 8px;           /* Отступы по бокам */
-    
-    /* Скрываем полосу прокрутки, чтобы было красиво */
-    scrollbar-width: none;          /* Firefox */
-    -ms-overflow-style: none;       /* IE/Edge */
-    mask-image: linear-gradient(90deg, transparent 0%, #000 5%, #000 95%, transparent 100%); /* Красивое размытие краев */
-    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 5%, #000 95%, transparent 100%);
-}
-
-/* Скрываем скроллбар для Chrome/Safari/Webkit */
-.mini-timers-wrapper::-webkit-scrollbar { 
-    display: none; 
-}
-
-/* Стиль самой плашки таймера */
-.mini-timer-pill {
-    flex-shrink: 0;           /* Запрещаем сжимать таймеры */
-    display: flex; 
-    align-items: center; 
-    gap: 4px;
-    background: rgba(10, 132, 255, 0.15);
-    border: 1px solid rgba(10, 132, 255, 0.3);
-    border-radius: 6px; 
-    padding: 3px 8px;         /* Чуть больше отступы внутри */
-    font-size: 11px; 
-    color: #fff; 
-    font-weight: 700;
-    white-space: nowrap;
-}
-
-.mini-timer-pill img { 
-    width: 14px; height: 14px; object-fit: contain; 
-}
     </style>
 </head>
 <body>
@@ -534,6 +523,8 @@
             </select>
         </div>
 
+        <div class="sticky-search">
+            <div class="mini-stats-row">
 <div class="mini-stats-row">
     <div>Итого: <span class="mini-stat-val" style="color:var(--gold)" id="stickyTotal">0</span></div>
     
@@ -541,6 +532,8 @@
     
     <div>Нафармлено: <span class="mini-stat-val" style="color:var(--green)" id="stickyFarmed">+0</span></div>
 </div>
+            <input type="text" class="search-input" id="searchBp" placeholder="🔍 Найти задание..." oninput="renderBP()">
+        </div>
 
         <div class="list-container" id="listBP"></div>
     </div>
@@ -830,7 +823,8 @@ tarot: [
         let BP = { start:0, done:[], times:{}, hidden:[], counters:{}, vip:false, x2:false, sortOrder:[] };
         let TIMERS = {}; 
         let EVENTS = []; 
-        // Обёртка для удобной работы с CloudStorage
+        let TIMER_INT = {};
+// Обёртка для удобной работы с CloudStorage
 let saveTimers = {}; // Хранилище таймеров для каждого ключа
         
         const Cloud = {
@@ -913,7 +907,7 @@ const activeGuideBtn = document.querySelector('#tab-guides .seg-btn.active');
             if(activeGuideBtn) setGuide('payment', activeGuideBtn);
             
             setupDragAndDrop();
-            startGlobalTicker();
+startGlobalTicker();
         } // <--- ВОТ ЭТА СКОБКА ОЧЕНЬ ВАЖНА! ОНА ЗАКРЫВАЕТ INIT()
 
 // Объект для хранения позиций скролла: { 'tab-bp': 500, 'tab-cars': 0, ... }
@@ -1191,16 +1185,76 @@ function renderBP() {
             Cloud.setItem('gta_tm_22', json);
         }
 
-        
+        function renderTimers() {
+            const list = document.getElementById('activeTimersList'); list.innerHTML = '';
+            let all = []; if(TIMERS.custom) all = [...TIMERS.custom];
+            
+            all.forEach(t => {
+                if(t.run) {
+                    const now = Date.now(), diff = Math.floor((now - t.ts)/1000);
+                    if(diff > 0) { t.rm -= diff; t.ts = now; }
+                    if(t.rm <= 0) { t.rm = 0; t.run = false; }
+                }
+                list.innerHTML += `
+                    <div class="timer-row ${t.run?'running':''}">
+                        <div style="flex:1;">
+                            <div style="color:var(--text-sub); font-size:13px;">${t.l}</div>
+                            <div class="timer-val" id="disp_${t.id}">${fmtTime(t.rm)}</div>
+                        </div>
+                        <div class="timer-actions">
+                            <button class="t-btn t-play" onclick="togTime('${t.id}')">${t.run?'⏸':'▶'}</button>
+                            <button class="t-btn t-reset" onclick="rstTime('${t.id}')">↺</button>
+                            <button class="t-btn t-reset" style="color:var(--red)" onclick="delTime('${t.id}')">✕</button>
+                        </div>
+                    </div>`;
+                if(t.run) runInterval(t.id);
+            });
+            saveTm();
+        }
+
         function fmtTime(s) { const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60; return (h>0?h+':':'')+pad(m)+':'+pad(sec); }
         function pad(n) { return n<10?'0'+n:n; }
 
+        function addQuickTimer(min) { addTimerRaw(min, min+' мин'); }
+        function addGameTimer(key) { 
+            const t = DB.timers.find(x => x.id === key);
+            if(t) addTimerRaw(t.s/60, t.l); 
+        }
         function addCustomTimer() { const m=parseInt(document.getElementById('customMin').value); if(m) addTimerRaw(m, m+' мин'); document.getElementById('customMin').value=''; }
         function addTimerRaw(min, label) {
             if(!TIMERS.custom) TIMERS.custom = [];
             TIMERS.custom.push({id:'t_'+Date.now(), l: label, s: min*60, rm: min*60, run:true, ts: Date.now()});
             saveTm(); renderTimers();
-        }        
+        }
+        function togTime(id) { 
+            const t = TIMERS.custom.find(x=>x.id===id);
+            if(t) { t.run = !t.run; t.ts = Date.now(); if(t.run && t.rm===0) t.rm = t.s; saveTm(); renderTimers(); }
+        }
+        function rstTime(id) { 
+            const t = TIMERS.custom.find(x=>x.id===id);
+            if(t) { t.rm = t.s; t.run = false; t.ts = Date.now(); clearInterval(TIMER_INT[id]); saveTm(); renderTimers(); }
+        }
+        function delTime(id) {
+            TIMERS.custom = TIMERS.custom.filter(t=>t.id!==id); clearInterval(TIMER_INT[id]); saveTm(); renderTimers();
+        }
+        function runInterval(id) {
+            if(TIMER_INT[id]) clearInterval(TIMER_INT[id]);
+            TIMER_INT[id] = setInterval(() => {
+                const t = TIMERS.custom.find(x=>x.id===id);
+                if(!t || !t.run) { clearInterval(TIMER_INT[id]); return; }
+                const now = Date.now(), delta = Math.floor((now - t.ts)/1000);
+                if(delta >= 1) {
+                    t.rm -= delta; t.ts = now;
+                    if(t.rm <= 0) { t.rm = 0; t.run = false; clearInterval(TIMER_INT[id]); renderTimers(); }
+                    else { 
+                        const el = document.getElementById('disp_'+id);
+                        if(el) el.innerText = fmtTime(t.rm); 
+                    }
+                    saveTm();
+                }
+            }, 1000);
+        }
+        
         function addPay(t) { const d = prompt(`Оплата ${t}. Через сколько дней?`, "10"); if(d) addEvent(parseInt(d), `Оплата: ${t}`); }
 
 // --- CALENDAR ---
@@ -1500,190 +1554,6 @@ function closeUnhideModal(e) {
         document.getElementById('modalUnhide').style.display = 'none';
     }
 }
-// ================= НОВАЯ ЛОГИКА ТАЙМЕРОВ =================
-
-// Запускаем ОДИН общий интервал на всю игру
-let GLOBAL_TICKER = null;
-
-function startGlobalTicker() {
-    if (GLOBAL_TICKER) clearInterval(GLOBAL_TICKER);
-    
-    GLOBAL_TICKER = setInterval(() => {
-        const now = Date.now();
-        let needSave = false;
-        
-        // 1. Проходимся по всем таймерам
-        if(TIMERS.custom) {
-            TIMERS.custom.forEach(t => {
-                if(t.run) {
-                    // Вычисляем, сколько прошло времени
-                    const delta = Math.floor((now - t.ts) / 1000);
-                    
-                    if(delta >= 1) {
-                        t.rm -= delta; // Отнимаем прошедшие секунды
-                        t.ts = now;    // Обновляем метку времени
-                        
-                        // Если время вышло
-                        if(t.rm <= 0) { 
-                            t.rm = 0; 
-                            t.run = false; 
-                            needSave = true; // Сохраним, чтобы запомнить остановку
-                            
-                            // Можно добавить вибрацию или звук здесь
-                            if(window.navigator && window.navigator.vibrate) window.navigator.vibrate(200);
-                        }
-
-                        // ОБНОВЛЕНИЕ ТЕКСТА В СПИСКЕ (Вкладка Таймеры)
-                        const el = document.getElementById('disp_' + t.id);
-                        if(el) el.innerText = fmtTime(t.rm);
-                    }
-                }
-            });
-        }
-        
-        // 2. Обновляем шапку (Sticky Header) каждую секунду
-        renderStickyTimers();
-        
-        // 3. Сохраняем в облако только если таймер завершился (чтобы не спамить запросами каждую секунду)
-        // А в localStorage сохраняем всегда для надежности (это быстро)
-        localStorage.setItem('gta_tm_22', JSON.stringify(TIMERS));
-        if(needSave) Cloud.setItem('gta_tm_22', JSON.stringify(TIMERS));
-        
-    }, 1000);
-}
-
-// Рендер списка таймеров во вкладке "Таймеры"
-function renderTimers() {
-    const list = document.getElementById('activeTimersList'); 
-    list.innerHTML = '';
-    
-    let all = []; 
-    if(TIMERS.custom) all = [...TIMERS.custom];
-    
-    // Сортируем: запущенные сверху
-    all.sort((a,b) => (b.run ? 1 : 0) - (a.run ? 1 : 0));
-
-    all.forEach(t => {
-        // Проверка времени при загрузке страницы (оффлайн прогресс)
-        if(t.run) {
-            const now = Date.now(), diff = Math.floor((now - t.ts)/1000);
-            if(diff > 0) { t.rm -= diff; t.ts = now; }
-            if(t.rm <= 0) { t.rm = 0; t.run = false; }
-        }
-
-        list.innerHTML += `
-            <div class="timer-row ${t.run?'running':''}">
-                <div style="flex:1;">
-                    <div style="color:var(--text-sub); font-size:13px;">${t.l}</div>
-                    <div class="timer-val" id="disp_${t.id}">${fmtTime(t.rm)}</div>
-                </div>
-                <div class="timer-actions">
-                    <button class="t-btn t-play" onclick="togTime('${t.id}')">${t.run?'⏸':'▶'}</button>
-                    <button class="t-btn t-reset" onclick="rstTime('${t.id}')">↺</button>
-                    <button class="t-btn t-reset" style="color:var(--red)" onclick="delTime('${t.id}')">✕</button>
-                </div>
-            </div>`;
-    });
-    // Сразу обновим шапку тоже
-    renderStickyTimers();
-}
-
-// Функция отрисовки в шапке (BP вкладка)
-function renderStickyTimers() {
-    const container = document.getElementById('stickyTimers');
-    if(!container) return;
-    
-    // Берем только активные
-    const active = (TIMERS.custom || []).filter(t => t.run && t.rm > 0);
-    
-    if(active.length === 0) {
-        container.innerHTML = '';
-        return;
-    }
-
-    let html = '';
-    
-    // УБРАЛИ .slice(0, 2) — теперь выводятся ВСЕ активные таймеры
-    active.forEach(t => {
-        // Логика поиска иконки
-        let icon = '⏱';
-        
-        if (t.i && t.i.includes('.')) {
-             icon = `<img src="${t.i}">`;
-        } else if (t.i) {
-             icon = t.i;
-        } else {
-            const dbT = DB.timers.find(x => x.l === t.l);
-            if(dbT && dbT.i.includes('.')) icon = `<img src="${dbT.i}">`;
-        }
-
-        html += `<div class="mini-timer-pill">${icon} ${fmtTime(t.rm)}</div>`;
-    });
-    
-    container.innerHTML = html;
-}
-// Этой функции не хватало, чтобы работали кнопки из меню
-function addGameTimer(id) {
-    const t = DB.timers.find(x => x.id === id);
-    if(t) {
-        // Делим секунды на 60, так как addTimerRaw принимает минуты
-        addTimerRaw(t.s / 60, t.l); 
-    }
-}
-// Добавление таймера
-function addTimerRaw(min, label) {
-    if(!TIMERS.custom) TIMERS.custom = [];
-    
-    // Ищем иконку для этого лейбла в базе DB, чтобы сохранить её внутрь таймера
-    let icon = '⏱';
-    const preset = DB.timers.find(x => x.l === label || (min*60 === x.s));
-    if(preset) icon = preset.i;
-
-    TIMERS.custom.push({
-        id: 't_' + Date.now(), 
-        l: label, 
-        s: min*60, 
-        rm: min*60, 
-        run: true, 
-        ts: Date.now(),
-        i: icon // Сохраняем иконку сразу!
-    });
-    
-    saveTm(); 
-    renderTimers();
-}
-
-function togTime(id) { 
-    const t = TIMERS.custom.find(x=>x.id===id);
-    if(t) { 
-        t.run = !t.run; 
-        t.ts = Date.now(); 
-        if(t.run && t.rm===0) t.rm = t.s; 
-        saveTm(); 
-        renderTimers(); 
-    }
-}
-
-function rstTime(id) { 
-    const t = TIMERS.custom.find(x=>x.id===id);
-    if(t) { 
-        t.rm = t.s; 
-        t.run = false; 
-        t.ts = Date.now(); 
-        saveTm(); 
-        renderTimers(); 
-    }
-}
-
-function delTime(id) {
-    TIMERS.custom = TIMERS.custom.filter(t=>t.id!==id); 
-    saveTm(); 
-    renderTimers();
-}
     </script>
 </body>
 </html>
-
-
-
-
