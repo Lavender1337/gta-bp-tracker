@@ -1508,6 +1508,97 @@ async function forceSync() {
 
             // Лоадер сам исчезнет, так как init() содержит логику его удаления
         }
+// --- ГЛОБАЛЬНЫЙ ТИКЕР (ОБНОВЛЕНИЕ ШАПКИ И СОХРАНЕНИЕ) ---
+function startGlobalTicker() {
+    // Запускаем интервал раз в 1 секунду
+    setInterval(() => {
+        const now = Date.now();
+        let changed = false;
+
+        // Проходимся по всем кастомным таймерам
+        if (TIMERS.custom) {
+            TIMERS.custom.forEach(t => {
+                if (t.run) {
+                    // Вычисляем, сколько прошло времени с последнего обновления
+                    // (Используем разницу дат, чтобы таймер работал даже если вкладка была неактивна)
+                    const diff = Math.floor((now - t.ts) / 1000);
+                    
+                    if (diff >= 1) {
+                        t.rm -= diff;
+                        t.ts = now; // Обновляем метку времени
+                        
+                        if (t.rm <= 0) {
+                            t.rm = 0;
+                            t.run = false;
+                            // Если таймер кончился, можно вызвать alert или вибрацию здесь
+                        }
+                        changed = true;
+                    }
+                }
+            });
+        }
+
+        // Обновляем мини-таймеры в шапке (Sticky Header)
+        updateStickyHeaderTimers();
+
+        // Если что-то поменялось, сохраняем в облако (но не чаще раза в секунду)
+        if (changed) {
+            saveTm();
+            
+            // Если мы находимся на вкладке таймеров, обновляем и основной список
+            if(document.getElementById('tab-timers').classList.contains('active')) {
+                // Обновляем только цифры, чтобы не перерисовывать весь DOM (мерцание)
+                TIMERS.custom.forEach(t => {
+                    const el = document.getElementById('disp_' + t.id);
+                    if (el) el.innerText = fmtTime(t.rm);
+                });
+            }
+        }
+        
+    }, 1000);
+}
+
+// Функция отрисовки таймеров в шапке (между Итого и Нафармлено)
+function updateStickyHeaderTimers() {
+    const container = document.getElementById('stickyTimers');
+    if (!container) return;
+
+    // Берем только активные таймеры
+    const active = (TIMERS.custom || []).filter(t => t.run && t.rm > 0);
+
+    if (active.length === 0) {
+        container.innerHTML = '';
+        return;
+    }
+
+    // Сортируем: сначала те, что скоро закончатся
+    active.sort((a, b) => a.rm - b.rm);
+
+    // Берем первые 2-3 таймера, чтобы влезали
+    const show = active.slice(0, 3); 
+
+    let html = '';
+    show.forEach(t => {
+        // Форматируем время (м:сс или ч:мм:сс)
+        const timeStr = fmtTimeSimple(t.rm);
+        
+        // Пытаемся найти иконку (картинка или эмодзи)
+        let iconHtml = '';
+        if (t.i && (t.i.includes('img/') || t.i.includes('.'))) {
+            iconHtml = `<img src="${t.i}">`;
+        } else {
+            iconHtml = `<span>${t.i || '⏱'}</span>`;
+        }
+
+        html += `
+        <div class="mini-timer-pill" onclick="go('timers', document.querySelectorAll('.nav-btn')[1])">
+            ${iconHtml}
+            <span>${timeStr}</span>
+        </div>`;
+    });
+
+    container.innerHTML = html;
+}
         // INIT
         if (window.Telegram && window.Telegram.WebApp) { 
             window.Telegram.WebApp.ready(); 
