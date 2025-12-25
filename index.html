@@ -446,6 +446,47 @@
     object-fit: contain;
     display: block;
 }
+/* --- ВИДЖЕТ ТАЙМЕРА В ШАПКЕ --- */
+.header-timer-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #151517;
+    border: 1px solid rgba(255, 69, 58, 0.3); /* Красная обводка как на скрине */
+    border-radius: 12px;
+    padding: 4px 8px;
+    width: 160px; /* Фиксированная ширина */
+    height: 44px;
+    margin: 0 10px;
+}
+
+.ht-btn {
+    background: #2c2c2e; /* Синий цвет кнопок как на скрине можно заменить на var(--accent) */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    cursor: pointer;
+}
+.ht-btn:active { background: var(--accent); }
+
+.ht-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-align: left;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.ht-icon {
+    font-size: 16px;
+}
     </style>
 </head>
 <body>
@@ -494,34 +535,34 @@
             </select>
         </div>
 
-        <div class="sticky-search">
-<div class="mini-stats-row">
-    <div>Итого: <span class="mini-stat-val" style="color:var(--gold)" id="stickyTotal">0</span></div>
-
-    <div id="bpActiveTimerBox" style="
-        display:flex;
-        align-items:center;
-        gap:8px;
-        background: rgba(255,255,255,0.08);
-        padding:6px 10px;
-        border-radius:10px;
-        font-weight:700;
-        min-width:120px;
-        justify-content:center;">
-        
-        <span id="bpPrevTimer" style="cursor:pointer;">⬅️</span>
-
-        <span id="bpTimerIcon">⏱</span>
-        <span id="bpTimerText">нет таймеров</span>
-
-        <span id="bpNextTimer" style="cursor:pointer;">➡️</span>
-    </div>
-
-    <div>Нафармлено: <span class="mini-stat-val" style="color:var(--green)" id="stickyFarmed">+0</span></div>
-</div>
-
-            <input type="text" class="search-input" id="searchBp" placeholder="🔍 Найти задание..." oninput="renderBP()">
+<div class="sticky-search">
+    <div class="mini-stats-row">
+        <div style="flex:1">
+            <div style="font-size:10px; color:#888">Итого:</div>
+            <div class="mini-stat-val" style="color:var(--gold)" id="stickyTotal">0</div>
         </div>
+
+        <div id="headerTimerWidget" class="header-timer-box">
+            <button class="ht-btn" onclick="switchHeaderTimer(-1)">◀</button>
+            
+            <div class="ht-info" onclick="go('timers', document.querySelectorAll('.nav-btn')[1])">
+                <div class="ht-icon" id="htIcon">⏱</div>
+                <div style="display:flex; flex-direction:column;">
+                    <span id="htName" style="font-size:10px; color:#888; line-height:1;">Нет активных</span>
+                    <span id="htVal" style="font-size:15px; font-weight:700; color:#fff; line-height:1;">--:--</span>
+                </div>
+            </div>
+
+            <button class="ht-btn" onclick="switchHeaderTimer(1)">▶</button>
+        </div>
+        <div style="flex:1; text-align:right;">
+            <div style="font-size:10px; color:#888">Нафармлено:</div>
+            <div class="mini-stat-val" style="color:var(--green)" id="stickyFarmed">+0</div>
+        </div>
+    </div>
+    
+    <input type="text" class="search-input" id="searchBp" placeholder="🔍 Найти задание..." oninput="renderBP()">
+</div>
 
         <div class="list-container" id="listBP"></div>
     </div>
@@ -1654,18 +1695,15 @@ document.getElementById("bpNextTimer").onclick = () => {
 
 // функция синхронизации с блоком Таймеров
 function syncBpTimers() {
+    const nodes = document.querySelectorAll(".timer-row.running");
+
     bpActiveTimers = [];
 
-    if (window.TIMERS && TIMERS.custom) {
-        TIMERS.custom.forEach(t => {
-            if (t.run && t.rm > 0) {
-                bpActiveTimers.push({
-                    title: t.l,
-                    end: t.et
-                });
-            }
-        });
-    }
+    nodes.forEach(n => {
+        const title = n.querySelector(".timer-title")?.innerText || "Таймер";
+        const end = Number(n.dataset.endtime);
+        bpActiveTimers.push({ title, end });
+    });
 
     if (bpTimerIndex >= bpActiveTimers.length) bpTimerIndex = 0;
 
@@ -1676,7 +1714,68 @@ function syncBpTimers() {
 setInterval(() => {
     syncBpTimers();
 }, 1000);
+// ================= HEADER TIMER LOGIC =================
+let headerTimerIdx = 0; // Какой по счету таймер показываем
 
+// Функция переключения (стрелочки)
+function switchHeaderTimer(dir) {
+    headerTimerIdx += dir;
+    updateStickyTimerUI(); // Сразу обновляем
+}
+
+// Основная функция обновления (запускается каждую секунду)
+function updateStickyTimerUI() {
+    // 1. Ищем все активные таймеры (у которых run = true)
+    // Добавляем проверку, существует ли вообще массив
+    if (!TIMERS.custom) return;
+    
+    const running = TIMERS.custom.filter(t => t.run);
+    
+    const elName = document.getElementById('htName');
+    const elVal = document.getElementById('htVal');
+    const elIcon = document.getElementById('htIcon');
+
+    // Если нет запущенных таймеров
+    if (running.length === 0) {
+        elName.innerText = "Нет активных";
+        elVal.innerText = "--:--";
+        elIcon.innerHTML = "💤";
+        return;
+    }
+
+    // 2. Обработка круговой прокрутки (если нажали вправо на последнем - идем к первому)
+    if (headerTimerIdx >= running.length) headerTimerIdx = 0;
+    if (headerTimerIdx < 0) headerTimerIdx = running.length - 1;
+
+    // 3. Берем текущий таймер
+    const t = running[headerTimerIdx];
+
+    // 4. Считаем время (дублируем логику расчета, чтобы было точно)
+    let timeLeft = 0;
+    if (t.et) {
+        timeLeft = Math.ceil((t.et - Date.now()) / 1000);
+    } else {
+        timeLeft = t.rm;
+    }
+    if (timeLeft < 0) timeLeft = 0;
+
+    // 5. Выводим в HTML
+    elName.innerText = t.l.length > 12 ? t.l.slice(0,12)+'...' : t.l; // Обрезаем длинные имена
+    elVal.innerText = fmtTime(timeLeft);
+    
+    // Пытаемся показать красивую иконку, если она есть
+    if (t.i && t.i.includes('img/')) {
+        elIcon.innerHTML = `<img src="${t.i}" style="width:16px; height:16px; object-fit:contain;">`;
+    } else {
+        elIcon.innerHTML = "⏱";
+    }
+}
+
+// Запускаем глобальный интервал обновления шапки (раз в 1 сек)
+setInterval(updateStickyTimerUI, 1000);
+
+// Также вызовем один раз при старте (внутри init, или просто в конце скрипта)
+setTimeout(updateStickyTimerUI, 500);
     </script>
 </body>
 </html>
