@@ -1328,43 +1328,6 @@ function runInterval(id) {
         saveTm(); // Сохраняем прогресс
     }, 1000);
 }
-
-        // --- FIX: Миграция для старых таймеров ---
-        // Если таймер был создан до обновления кода, у него нет 'et'. Создадим его.
-        if(!t.et) {
-            t.et = Date.now() + (t.rm * 1000);
-        }
-        // -----------------------------------------
-
-        const now = Date.now();
-        // Считаем разницу между Финишем и Сейчас
-        const diff = Math.ceil((t.et - now) / 1000);
-
-        if (diff <= 0) {
-            // Таймер кончился
-            t.rm = 0; 
-            t.run = false; 
-            clearInterval(TIMER_INT[id]); 
-            renderTimers();
-            
-            // Воспроизводим звук или вибрацию (если нужно)
-            if(window.navigator && window.navigator.vibrate) window.navigator.vibrate([200, 100, 200]);
-        } else {
-            // Таймер идет
-            // Обновляем значение остатка только для отображения
-            if (t.rm !== diff) {
-                t.rm = diff;
-                const el = document.getElementById('disp_' + id);
-                if(el) el.innerText = fmtTime(t.rm);
-            }
-        }
-        
-        // Сохраняем не каждый тик, а реже (опционально), чтобы не спамить в Cloud,
-        // но здесь оставим для надежности, так как у тебя там debounce стоит.
-        saveTm();
-
-    }, 1000);
-}
         
         function addPay(t) { const d = prompt(`Оплата ${t}. Через сколько дней?`, "10"); if(d) addEvent(parseInt(d), `Оплата: ${t}`); }
 
