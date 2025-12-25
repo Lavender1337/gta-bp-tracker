@@ -457,22 +457,11 @@
 
 <div id="tab-bp" class="tab-content active">
         <div class="bp-hero">
-<div class="bp-row">
-    <div style="display:flex; flex-direction:column; gap:5px;">
-        <span style="font-size:12px; color:#888; text-transform:uppercase;">Старт сегодня</span>
-        <input type="number" id="startBp" class="bp-input" placeholder="0" oninput="updateBP()">
-    </div>
-
-    <div id="miniTimerBox" style="display:none; flex-direction:column; align-items:center; justify-content:center; flex:1;">
-        <div id="miniTimerIcon" style="font-size:14px; margin-bottom:2px;">⏱</div>
-        <div id="miniTimerVal" style="font-size:22px; font-weight:800; color:var(--accent); line-height:1; font-variant-numeric: tabular-nums;">00:00</div>
-        <div id="miniTimerName" style="font-size:10px; color:#666; max-width:80px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">...</div>
-    </div>
-
-    <div style="text-align:right;">
-        <div style="font-size:12px; color:#888; text-transform:uppercase;">Итого BP</div>
-        <div class="bp-total-val" id="totalBp">0</div>
-</div>
+            <div class="bp-row">
+                <div style="display:flex; flex-direction:column; gap:5px;">
+                    <span style="font-size:12px; color:#888; text-transform:uppercase;">Старт сегодня</span>
+                    <input type="number" id="startBp" class="bp-input" placeholder="0" oninput="updateBP()">
+                </div>
                 <div style="text-align:right;">
                     <div style="font-size:12px; color:#888; text-transform:uppercase;">Итого BP</div>
                     <div class="bp-total-val" id="totalBp">0</div>
@@ -482,6 +471,7 @@
                 <button class="toggle-btn vip" id="btnVip" onclick="toggleVip()">👑 VIP</button>
                 <button class="toggle-btn x2" id="btnX2" onclick="toggleX2()">⚡ X2</button>
             </div>
+        </div>
 
         <div class="bp-actions-top">
             <button class="action-btn new-day" onclick="newDay()">🌅 Новый день</button>
@@ -1198,7 +1188,6 @@ if(t.run) {
                 if(t.run) runInterval(t.id);
             });
             saveTm();
-updateMiniTimerDisplay();
         }
 
         function fmtTime(s) { const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60; return (h>0?h+':':'')+pad(m)+':'+pad(sec); }
@@ -1249,81 +1238,53 @@ function togTime(id) {
         function delTime(id) {
             TIMERS.custom = TIMERS.custom.filter(t=>t.id!==id); clearInterval(TIMER_INT[id]); saveTm(); renderTimers();
         }
-// Функция ищет первый активный таймер и показывает его на главной
-function updateMiniTimerDisplay() {
-    // Берем таймеры, если массив существует
-    if (!TIMERS.custom) return;
-
-    // Ищем первый, который запущен (run: true)
-    const active = TIMERS.custom.find(t => t.run);
-    
-    const box = document.getElementById('miniTimerBox');
-    
-    if (active) {
-        // Если нашли — показываем блок
-        box.style.display = 'flex';
-        
-        // Обновляем цифры
-        document.getElementById('miniTimerVal').innerText = fmtTime(active.rm);
-        document.getElementById('miniTimerName').innerText = active.l;
-        
-        // Меняем цвет, если осталось мало времени (меньше 5 мин) - опционально
-        const valEl = document.getElementById('miniTimerVal');
-        if(active.rm < 300) valEl.style.color = 'var(--red)';
-        else valEl.style.color = 'var(--accent)';
-        
-    } else {
-        // Если активных нет — скрываем блок, чтобы не мешал
-        box.style.display = 'none';
-    }
-}
 function runInterval(id) {
-    // Очищаем старый интервал, если был
     if(TIMER_INT[id]) clearInterval(TIMER_INT[id]);
     
-    // Запускаем новый
+    // Запускаем интервал
     TIMER_INT[id] = setInterval(() => {
         const t = TIMERS.custom.find(x => x.id === id);
         
-        // 1. Если таймер удален или на паузе — останавливаем
+        // Если таймер удален или на паузе — останавливаем
         if(!t || !t.run) { 
             clearInterval(TIMER_INT[id]); 
-            updateMiniTimerDisplay(); // Обновим, чтобы убрать мини-таймер, если он остановился
             return; 
         }
 
-        // 2. FIX: Если это старый таймер без времени финиша (et) — создаем его
+        // --- FIX: Миграция для старых таймеров ---
+        // Если таймер был создан до обновления кода, у него нет 'et'. Создадим его.
         if(!t.et) {
             t.et = Date.now() + (t.rm * 1000);
         }
+        // -----------------------------------------
 
-        // 3. Считаем время (Финиш минус Сейчас)
         const now = Date.now();
+        // Считаем разницу между Финишем и Сейчас
         const diff = Math.ceil((t.et - now) / 1000);
 
-        // 4. Проверяем, кончилось ли время
         if (diff <= 0) {
+            // Таймер кончился
             t.rm = 0; 
             t.run = false; 
             clearInterval(TIMER_INT[id]); 
-            renderTimers(); // Перерисовываем список
+            renderTimers();
             
-            // Вибрация (если поддерживается)
+            // Воспроизводим звук или вибрацию (если нужно)
             if(window.navigator && window.navigator.vibrate) window.navigator.vibrate([200, 100, 200]);
         } else {
             // Таймер идет
+            // Обновляем значение остатка только для отображения
             if (t.rm !== diff) {
                 t.rm = diff;
-                // Обновляем цифры в списке таймеров
                 const el = document.getElementById('disp_' + id);
                 if(el) el.innerText = fmtTime(t.rm);
             }
         }
         
-        // 5. [ВАЖНО] Обновляем мини-таймер на главной каждую секунду
-        updateMiniTimerDisplay(); 
+        // Сохраняем не каждый тик, а реже (опционально), чтобы не спамить в Cloud,
+        // но здесь оставим для надежности, так как у тебя там debounce стоит.
+        saveTm();
 
-        saveTm(); // Сохраняем прогресс
     }, 1000);
 }
         
