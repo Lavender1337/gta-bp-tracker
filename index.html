@@ -1654,15 +1654,18 @@ document.getElementById("bpNextTimer").onclick = () => {
 
 // функция синхронизации с блоком Таймеров
 function syncBpTimers() {
-    const nodes = document.querySelectorAll(".timer-row.running");
-
     bpActiveTimers = [];
 
-    nodes.forEach(n => {
-        const title = n.querySelector(".timer-title")?.innerText || "Таймер";
-        const end = Number(n.dataset.endtime);
-        bpActiveTimers.push({ title, end });
-    });
+    if (window.TIMERS && TIMERS.custom) {
+        TIMERS.custom.forEach(t => {
+            if (t.run && t.rm > 0) {
+                bpActiveTimers.push({
+                    title: t.l,
+                    end: t.et
+                });
+            }
+        });
+    }
 
     if (bpTimerIndex >= bpActiveTimers.length) bpTimerIndex = 0;
 
