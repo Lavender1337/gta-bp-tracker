@@ -495,10 +495,31 @@
         </div>
 
         <div class="sticky-search">
-            <div class="mini-stats-row">
-                <div>Итого: <span class="mini-stat-val" style="color:var(--gold)" id="stickyTotal">0</span></div>
-                <div>Нафармлено: <span class="mini-stat-val" style="color:var(--green)" id="stickyFarmed">+0</span></div>
-            </div>
+<div class="mini-stats-row">
+    <div>Итого: <span class="mini-stat-val" style="color:var(--gold)" id="stickyTotal">0</span></div>
+
+    <div id="bpActiveTimerBox" style="
+        display:flex;
+        align-items:center;
+        gap:8px;
+        background: rgba(255,255,255,0.08);
+        padding:6px 10px;
+        border-radius:10px;
+        font-weight:700;
+        min-width:120px;
+        justify-content:center;">
+        
+        <span id="bpPrevTimer" style="cursor:pointer;">⬅️</span>
+
+        <span id="bpTimerIcon">⏱</span>
+        <span id="bpTimerText">нет таймеров</span>
+
+        <span id="bpNextTimer" style="cursor:pointer;">➡️</span>
+    </div>
+
+    <div>Нафармлено: <span class="mini-stat-val" style="color:var(--green)" id="stickyFarmed">+0</span></div>
+</div>
+
             <input type="text" class="search-input" id="searchBp" placeholder="🔍 Найти задание..." oninput="renderBP()">
         </div>
 
@@ -1587,6 +1608,72 @@ function closeUnhideModal(e) {
         document.getElementById('modalUnhide').style.display = 'none';
     }
 }
+let bpActiveTimers = [];
+let bpTimerIndex = 0;
+
+function updateBpTimerDisplay() {
+    const box = document.getElementById("bpActiveTimerBox");
+    const text = document.getElementById("bpTimerText");
+    const icon = document.getElementById("bpTimerIcon");
+
+    if (!bpActiveTimers.length) {
+        text.innerText = "нет таймеров";
+        box.style.border = "1px solid rgba(255,255,255,0.1)";
+        icon.innerText = "⏱";
+        return;
+    }
+
+    const t = bpActiveTimers[bpTimerIndex];
+    const now = Date.now();
+    const left = t.end - now;
+
+    let sec = Math.max(0, Math.floor(left / 1000));
+    let m = Math.floor(sec / 60);
+    let s = sec % 60;
+
+    text.innerText = `${t.title} ${m}:${s.toString().padStart(2,"0")}`;
+
+    // Цвета
+    if (sec > 300) box.style.border = "1px solid var(--green)";
+    else if (sec > 60) box.style.border = "1px solid var(--gold)";
+    else box.style.border = "1px solid var(--red)";
+}
+
+// переключение стрелками
+document.getElementById("bpPrevTimer").onclick = () => {
+    if (!bpActiveTimers.length) return;
+    bpTimerIndex = (bpTimerIndex - 1 + bpActiveTimers.length) % bpActiveTimers.length;
+    updateBpTimerDisplay();
+};
+
+document.getElementById("bpNextTimer").onclick = () => {
+    if (!bpActiveTimers.length) return;
+    bpTimerIndex = (bpTimerIndex + 1) % bpActiveTimers.length;
+    updateBpTimerDisplay();
+};
+
+// функция синхронизации с блоком Таймеров
+function syncBpTimers() {
+    const nodes = document.querySelectorAll(".timer-row.running");
+
+    bpActiveTimers = [];
+
+    nodes.forEach(n => {
+        const title = n.querySelector(".timer-title")?.innerText || "Таймер";
+        const end = Number(n.dataset.endtime);
+        bpActiveTimers.push({ title, end });
+    });
+
+    if (bpTimerIndex >= bpActiveTimers.length) bpTimerIndex = 0;
+
+    updateBpTimerDisplay();
+}
+
+// обновление каждую секунду
+setInterval(() => {
+    syncBpTimers();
+}, 1000);
+
     </script>
 </body>
 </html>
