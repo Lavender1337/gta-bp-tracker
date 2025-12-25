@@ -75,35 +75,6 @@
     font-size: 13px;
     color: #888;
 }
-/* --- Стили для таймеров в шапке --- */
-.mini-timers-wrapper {
-    flex: 1; /* Занимает всё свободное место в центре */
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    gap: 6px; 
-    overflow: hidden;
-    padding: 0 5px;
-}
-
-.mini-timer-pill {
-    display: flex; 
-    align-items: center; 
-    gap: 4px;
-    background: rgba(10, 132, 255, 0.15); /* Синий фон */
-    border: 1px solid rgba(10, 132, 255, 0.3);
-    border-radius: 6px; 
-    padding: 2px 6px; 
-    font-size: 11px; 
-    color: #fff; 
-    font-weight: 700;
-    white-space: nowrap;
-    min-width: 0;
-}
-
-.mini-timer-pill img { 
-    width: 14px; height: 14px; object-fit: contain; 
-}
 
 .mini-stat-val {
     font-size: 16px;
@@ -525,13 +496,9 @@
 
         <div class="sticky-search">
             <div class="mini-stats-row">
-<div class="mini-stats-row">
-    <div>Итого: <span class="mini-stat-val" style="color:var(--gold)" id="stickyTotal">0</span></div>
-    
-    <div id="stickyTimers" class="mini-timers-wrapper"></div>
-    
-    <div>Нафармлено: <span class="mini-stat-val" style="color:var(--green)" id="stickyFarmed">+0</span></div>
-</div>
+                <div>Итого: <span class="mini-stat-val" style="color:var(--gold)" id="stickyTotal">0</span></div>
+                <div>Нафармлено: <span class="mini-stat-val" style="color:var(--green)" id="stickyFarmed">+0</span></div>
+            </div>
             <input type="text" class="search-input" id="searchBp" placeholder="🔍 Найти задание..." oninput="renderBP()">
         </div>
 
@@ -907,7 +874,6 @@ const activeGuideBtn = document.querySelector('#tab-guides .seg-btn.active');
             if(activeGuideBtn) setGuide('payment', activeGuideBtn);
             
             setupDragAndDrop();
-startGlobalTicker();
         } // <--- ВОТ ЭТА СКОБКА ОЧЕНЬ ВАЖНА! ОНА ЗАКРЫВАЕТ INIT()
 
 // Объект для хранения позиций скролла: { 'tab-bp': 500, 'tab-cars': 0, ... }
@@ -1190,11 +1156,23 @@ function renderBP() {
             let all = []; if(TIMERS.custom) all = [...TIMERS.custom];
             
             all.forEach(t => {
-                if(t.run) {
-                    const now = Date.now(), diff = Math.floor((now - t.ts)/1000);
-                    if(diff > 0) { t.rm -= diff; t.ts = now; }
-                    if(t.rm <= 0) { t.rm = 0; t.run = false; }
-                }
+if(t.run) {
+    const now = Date.now();
+    // Если есть EndTime, считаем по нему
+    if (t.et) {
+        const diff = Math.ceil((t.et - now) / 1000);
+        t.rm = diff;
+    } else {
+        // Если это старый таймер без ET, считаем по-старому один раз и задаем ET
+        const passed = Math.floor((now - t.ts)/1000);
+        if(passed > 0) t.rm -= passed;
+        t.et = now + (t.rm * 1000);
+    }
+    
+    if(t.rm <= 0) { t.rm = 0; t.run = false; }
+    // Обновляем timestamp на всякий случай
+    t.ts = now;
+}
                 list.innerHTML += `
                     <div class="timer-row ${t.run?'running':''}">
                         <div style="flex:1;">
@@ -1221,15 +1199,38 @@ function renderBP() {
             if(t) addTimerRaw(t.s/60, t.l); 
         }
         function addCustomTimer() { const m=parseInt(document.getElementById('customMin').value); if(m) addTimerRaw(m, m+' мин'); document.getElementById('customMin').value=''; }
-        function addTimerRaw(min, label) {
-            if(!TIMERS.custom) TIMERS.custom = [];
-            TIMERS.custom.push({id:'t_'+Date.now(), l: label, s: min*60, rm: min*60, run:true, ts: Date.now()});
-            saveTm(); renderTimers();
+function addTimerRaw(min, label) {
+    if(!TIMERS.custom) TIMERS.custom = [];
+    const now = Date.now();
+    const durationSec = min * 60;
+    
+    TIMERS.custom.push({
+        id: 't_' + now, 
+        l: label, 
+        s: durationSec, 
+        rm: durationSec, 
+        run: true, 
+        ts: now,
+        et: now + (durationSec * 1000) // et = End Time (время финиша)
+    });
+    saveTm(); 
+    renderTimers();
+}
+function togTime(id) { 
+    const t = TIMERS.custom.find(x => x.id === id);
+    if(t) { 
+        t.run = !t.run; 
+        if(t.run) {
+            // Если включили: устанавливаем новое время финиша исходя из остатка
+            if(t.rm <= 0) t.rm = t.s;
+            t.et = Date.now() + (t.rm * 1000);
+        } else {
+            // Если поставили на паузу: ничего не делаем, t.rm уже сохранен
         }
-        function togTime(id) { 
-            const t = TIMERS.custom.find(x=>x.id===id);
-            if(t) { t.run = !t.run; t.ts = Date.now(); if(t.run && t.rm===0) t.rm = t.s; saveTm(); renderTimers(); }
-        }
+        saveTm(); 
+        renderTimers(); 
+    }
+}
         function rstTime(id) { 
             const t = TIMERS.custom.find(x=>x.id===id);
             if(t) { t.rm = t.s; t.run = false; t.ts = Date.now(); clearInterval(TIMER_INT[id]); saveTm(); renderTimers(); }
@@ -1237,23 +1238,55 @@ function renderBP() {
         function delTime(id) {
             TIMERS.custom = TIMERS.custom.filter(t=>t.id!==id); clearInterval(TIMER_INT[id]); saveTm(); renderTimers();
         }
-        function runInterval(id) {
-            if(TIMER_INT[id]) clearInterval(TIMER_INT[id]);
-            TIMER_INT[id] = setInterval(() => {
-                const t = TIMERS.custom.find(x=>x.id===id);
-                if(!t || !t.run) { clearInterval(TIMER_INT[id]); return; }
-                const now = Date.now(), delta = Math.floor((now - t.ts)/1000);
-                if(delta >= 1) {
-                    t.rm -= delta; t.ts = now;
-                    if(t.rm <= 0) { t.rm = 0; t.run = false; clearInterval(TIMER_INT[id]); renderTimers(); }
-                    else { 
-                        const el = document.getElementById('disp_'+id);
-                        if(el) el.innerText = fmtTime(t.rm); 
-                    }
-                    saveTm();
-                }
-            }, 1000);
+function runInterval(id) {
+    if(TIMER_INT[id]) clearInterval(TIMER_INT[id]);
+    
+    // Запускаем интервал
+    TIMER_INT[id] = setInterval(() => {
+        const t = TIMERS.custom.find(x => x.id === id);
+        
+        // Если таймер удален или на паузе — останавливаем
+        if(!t || !t.run) { 
+            clearInterval(TIMER_INT[id]); 
+            return; 
         }
+
+        // --- FIX: Миграция для старых таймеров ---
+        // Если таймер был создан до обновления кода, у него нет 'et'. Создадим его.
+        if(!t.et) {
+            t.et = Date.now() + (t.rm * 1000);
+        }
+        // -----------------------------------------
+
+        const now = Date.now();
+        // Считаем разницу между Финишем и Сейчас
+        const diff = Math.ceil((t.et - now) / 1000);
+
+        if (diff <= 0) {
+            // Таймер кончился
+            t.rm = 0; 
+            t.run = false; 
+            clearInterval(TIMER_INT[id]); 
+            renderTimers();
+            
+            // Воспроизводим звук или вибрацию (если нужно)
+            if(window.navigator && window.navigator.vibrate) window.navigator.vibrate([200, 100, 200]);
+        } else {
+            // Таймер идет
+            // Обновляем значение остатка только для отображения
+            if (t.rm !== diff) {
+                t.rm = diff;
+                const el = document.getElementById('disp_' + id);
+                if(el) el.innerText = fmtTime(t.rm);
+            }
+        }
+        
+        // Сохраняем не каждый тик, а реже (опционально), чтобы не спамить в Cloud,
+        // но здесь оставим для надежности, так как у тебя там debounce стоит.
+        saveTm();
+
+    }, 1000);
+}
         
         function addPay(t) { const d = prompt(`Оплата ${t}. Через сколько дней?`, "10"); if(d) addEvent(parseInt(d), `Оплата: ${t}`); }
 
@@ -1508,97 +1541,6 @@ async function forceSync() {
 
             // Лоадер сам исчезнет, так как init() содержит логику его удаления
         }
-// --- ГЛОБАЛЬНЫЙ ТИКЕР (ОБНОВЛЕНИЕ ШАПКИ И СОХРАНЕНИЕ) ---
-function startGlobalTicker() {
-    // Запускаем интервал раз в 1 секунду
-    setInterval(() => {
-        const now = Date.now();
-        let changed = false;
-
-        // Проходимся по всем кастомным таймерам
-        if (TIMERS.custom) {
-            TIMERS.custom.forEach(t => {
-                if (t.run) {
-                    // Вычисляем, сколько прошло времени с последнего обновления
-                    // (Используем разницу дат, чтобы таймер работал даже если вкладка была неактивна)
-                    const diff = Math.floor((now - t.ts) / 1000);
-                    
-                    if (diff >= 1) {
-                        t.rm -= diff;
-                        t.ts = now; // Обновляем метку времени
-                        
-                        if (t.rm <= 0) {
-                            t.rm = 0;
-                            t.run = false;
-                            // Если таймер кончился, можно вызвать alert или вибрацию здесь
-                        }
-                        changed = true;
-                    }
-                }
-            });
-        }
-
-        // Обновляем мини-таймеры в шапке (Sticky Header)
-        updateStickyHeaderTimers();
-
-        // Если что-то поменялось, сохраняем в облако (но не чаще раза в секунду)
-        if (changed) {
-            saveTm();
-            
-            // Если мы находимся на вкладке таймеров, обновляем и основной список
-            if(document.getElementById('tab-timers').classList.contains('active')) {
-                // Обновляем только цифры, чтобы не перерисовывать весь DOM (мерцание)
-                TIMERS.custom.forEach(t => {
-                    const el = document.getElementById('disp_' + t.id);
-                    if (el) el.innerText = fmtTime(t.rm);
-                });
-            }
-        }
-        
-    }, 1000);
-}
-
-// Функция отрисовки таймеров в шапке (между Итого и Нафармлено)
-function updateStickyHeaderTimers() {
-    const container = document.getElementById('stickyTimers');
-    if (!container) return;
-
-    // Берем только активные таймеры
-    const active = (TIMERS.custom || []).filter(t => t.run && t.rm > 0);
-
-    if (active.length === 0) {
-        container.innerHTML = '';
-        return;
-    }
-
-    // Сортируем: сначала те, что скоро закончатся
-    active.sort((a, b) => a.rm - b.rm);
-
-    // Берем первые 2-3 таймера, чтобы влезали
-    const show = active.slice(0, 3); 
-
-    let html = '';
-    show.forEach(t => {
-        // Форматируем время (м:сс или ч:мм:сс)
-        const timeStr = fmtTimeSimple(t.rm);
-        
-        // Пытаемся найти иконку (картинка или эмодзи)
-        let iconHtml = '';
-        if (t.i && (t.i.includes('img/') || t.i.includes('.'))) {
-            iconHtml = `<img src="${t.i}">`;
-        } else {
-            iconHtml = `<span>${t.i || '⏱'}</span>`;
-        }
-
-        html += `
-        <div class="mini-timer-pill" onclick="go('timers', document.querySelectorAll('.nav-btn')[1])">
-            ${iconHtml}
-            <span>${timeStr}</span>
-        </div>`;
-    });
-
-    container.innerHTML = html;
-}
         // INIT
         if (window.Telegram && window.Telegram.WebApp) { 
             window.Telegram.WebApp.ready(); 
