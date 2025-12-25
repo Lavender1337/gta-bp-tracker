@@ -459,6 +459,69 @@
     margin-right: 4px;
     line-height: 1;
 }
+/* --- КРАСИВЫЕ АКТИВНЫЕ ТАЙМЕРЫ --- */
+.timer-row {
+    background: #1c1c1e; /* Темный фон карточки */
+    padding: 12px 16px;
+    border-radius: 16px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Текст слева, кнопки справа */
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: all 0.2s;
+}
+
+/* Если таймер запущен - подсвечиваем синим */
+.timer-row.running {
+    background: rgba(10, 132, 255, 0.1);
+    border-color: rgba(10, 132, 255, 0.3);
+}
+
+.timer-left {
+    display: flex;
+    flex-direction: column;
+}
+
+.timer-label {
+    font-size: 13px;
+    color: #98989f; /* Серый текст названия */
+    margin-bottom: 2px;
+    font-weight: 500;
+}
+
+.timer-val {
+    font-size: 24px;
+    font-weight: 700;
+    color: white;
+    font-variant-numeric: tabular-nums; /* Чтобы цифры не скакали */
+    letter-spacing: 0.5px;
+}
+
+.timer-actions {
+    display: flex;
+    gap: 8px; /* Расстояние между кнопками */
+}
+
+/* Кнопки управления */
+.t-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+.t-btn:active { transform: scale(0.9); }
+
+.t-play { background: #0a84ff; color: white; }        /* Синяя Play */
+.t-pause { background: rgba(255, 255, 255, 0.1); color: #0a84ff; } /* Прозрачная Пауза */
+.t-reset { background: rgba(255,255,255,0.1); color: white; } /* Серый сброс */
+.t-del   { background: rgba(255, 69, 58, 0.15); color: #ff453a; } /* Красная корзина */
     </style>
 </head>
 <body>
@@ -1174,32 +1237,43 @@ function saveTm() {
 // Рендер списка таймеров во вкладке "Таймеры"
 function renderTimers() {
     const list = document.getElementById('activeTimersList'); 
-    if(!list) return;
-    
     list.innerHTML = '';
+    
     let all = []; 
     if(TIMERS.custom) all = [...TIMERS.custom];
     
-    if(all.length === 0) {
-        list.innerHTML = '<div style="text-align:center; color:#666; font-size:13px; padding:10px;">Нет активных таймеров</div>';
-        return;
-    }
+    // Сортируем: сначала запущенные, потом пауза
+    all.sort((a,b) => (b.run === a.run) ? 0 : b.run ? 1 : -1);
 
     all.forEach(t => {
-        // Просто рисуем HTML, время обновит глобальный цикл
+        // Логика пересчета времени (оставляем как было)
+        if(t.run) {
+            const now = Date.now(), diff = Math.floor((now - t.ts)/1000);
+            if(diff > 0) { t.rm -= diff; t.ts = now; }
+            if(t.rm <= 0) { t.rm = 0; t.run = false; }
+        }
+
+        // --- НОВАЯ ВЕРСТКА КАРТОЧКИ ---
         list.innerHTML += `
-            <div class="timer-row ${t.run?'running':''}">
-                <div style="flex:1;">
-                    <div style="color:var(--text-sub); font-size:13px;">${t.l}</div>
+            <div class="timer-row ${t.run ? 'running' : ''}">
+                <div class="timer-left">
+                    <div class="timer-label">${t.l}</div>
                     <div class="timer-val" id="disp_${t.id}">${fmtTime(t.rm)}</div>
                 </div>
                 <div class="timer-actions">
-                    <button class="t-btn t-play" onclick="togTime('${t.id}')">${t.run?'⏸':'▶'}</button>
+                    <button class="t-btn ${t.run ? 't-pause' : 't-play'}" onclick="togTime('${t.id}')">
+                        ${t.run ? '⏸' : '▶'}
+                    </button>
+                    
                     <button class="t-btn t-reset" onclick="rstTime('${t.id}')">↺</button>
-                    <button class="t-btn t-reset" style="color:var(--red)" onclick="delTime('${t.id}')">✕</button>
+                    
+                    <button class="t-btn t-del" onclick="delTime('${t.id}')">✕</button>
                 </div>
             </div>`;
+            
+        if(t.run) runInterval(t.id);
     });
+    saveTm();
 }
 
 // ГЛОБАЛЬНЫЙ ЦИКЛ (Решает проблему лагов)
@@ -1625,7 +1699,6 @@ function closeUnhideModal(e) {
     </script>
 </body>
 </html>
-
 
 
 
