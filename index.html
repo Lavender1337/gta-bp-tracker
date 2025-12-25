@@ -487,6 +487,48 @@
 .ht-icon {
     font-size: 16px;
 }
+/* --- НОВЫЙ СТИЛЬ ВИДЖЕТА ТАЙМЕРА --- */
+.header-timer-wrap {
+    background: #151517;
+    border: 1px solid rgba(255, 69, 58, 0.3); /* Красная обводка */
+    border-radius: 12px;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 150px; /* Фиксированная ширина */
+    height: 42px;
+    margin: 0 8px;
+}
+
+.ht-btn {
+    background: #2c2c2e;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    width: 28px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 10px;
+}
+.ht-btn:active { background: var(--accent); }
+
+.ht-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    cursor: pointer;
+    flex: 1;
+    overflow: hidden;
+}
+
+.ht-label { font-size: 9px; color: #888; white-space: nowrap; margin-bottom: 2px; }
+.ht-time { font-size: 15px; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; }
     </style>
 </head>
 <body>
@@ -542,19 +584,15 @@
             <div class="mini-stat-val" style="color:var(--gold)" id="stickyTotal">0</div>
         </div>
 
-        <div id="headerTimerWidget" class="header-timer-box">
-            <button class="ht-btn" onclick="switchHeaderTimer(-1)">◀</button>
-            
-            <div class="ht-info" onclick="go('timers', document.querySelectorAll('.nav-btn')[1])">
-                <div class="ht-icon" id="htIcon">⏱</div>
-                <div style="display:flex; flex-direction:column;">
-                    <span id="htName" style="font-size:10px; color:#888; line-height:1;">Нет активных</span>
-                    <span id="htVal" style="font-size:15px; font-weight:700; color:#fff; line-height:1;">--:--</span>
-                </div>
+        <div class="header-timer-wrap" id="headerTimerWidget">
+            <button class="ht-btn" onclick="changeHeaderTimer(-1)">◀</button>
+            <div class="ht-content" onclick="go('timers', document.querySelectorAll('.nav-btn')[1])">
+                <span id="htLabel" class="ht-label">Нет активных</span>
+                <span id="htTime" class="ht-time">--:--</span>
             </div>
-
-            <button class="ht-btn" onclick="switchHeaderTimer(1)">▶</button>
+            <button class="ht-btn" onclick="changeHeaderTimer(1)">▶</button>
         </div>
+
         <div style="flex:1; text-align:right;">
             <div style="font-size:10px; color:#888">Нафармлено:</div>
             <div class="mini-stat-val" style="color:var(--green)" id="stickyFarmed">+0</div>
@@ -1714,90 +1752,74 @@ function syncBpTimers() {
 setInterval(() => {
     syncBpTimers();
 }, 1000);
-// ================= HEADER TIMER LOGIC =================
-let headerTimerIdx = 0; // Какой по счету таймер показываем
+// ================= HEADER TIMER LOGIC (FINAL) =================
+let headerTimerIdx = 0;
 
-// Функция переключения (стрелочки)
-function switchHeaderTimer(dir) {
+// Функция переключения стрелками
+function changeHeaderTimer(dir) {
     headerTimerIdx += dir;
-    updateStickyTimerUI(); // Сразу обновляем
+    updateHeaderTimer(); // Сразу обновляем интерфейс
 }
 
-// Основная функция обновления (запускается каждую секунду)
-function updateStickyTimerUI() {
-    // 1. Проверяем, загрузилась ли база
+// Главная функция обновления виджета
+function updateHeaderTimer() {
+    // 1. Проверяем, есть ли база таймеров
     if (!TIMERS || !TIMERS.custom) return;
-    
-    // Ищем только запущенные таймеры
-    const running = TIMERS.custom.filter(t => t.run);
-    
-    const elName = document.getElementById('htName');
-    const elVal = document.getElementById('htVal');
-    const elIcon = document.getElementById('htIcon');
 
-    // Если элементов нет на странице (защита от ошибок)
-    if (!elName || !elVal) return;
+    // 2. Берем только ЗАПУЩЕННЫЕ таймеры (run == true)
+    const active = TIMERS.custom.filter(t => t.run);
 
-    // 2. Если нет активных таймеров
-    if (running.length === 0) {
-        elName.innerText = "Нет активных";
-        elVal.innerText = "--:--";
-        elIcon.innerHTML = "⏱";
+    const elLabel = document.getElementById('htLabel');
+    const elTime = document.getElementById('htTime');
+
+    // Если элементов HTML нет (мы на другой странице или ошибка), выходим
+    if (!elLabel || !elTime) return;
+
+    // 3. Если нет активных таймеров
+    if (active.length === 0) {
+        elLabel.innerText = "Нет активных";
+        elTime.innerText = "--:--";
+        elTime.style.color = "#555"; // Делаем серым
         return;
     }
 
-    // 3. Управление индексом (чтобы переключать стрелочками)
-    if (headerTimerIdx >= running.length) headerTimerIdx = 0;
-    if (headerTimerIdx < 0) headerTimerIdx = running.length - 1;
+    // 4. Логика карусели (если индекс ушел за пределы)
+    if (headerTimerIdx >= active.length) headerTimerIdx = 0;
+    if (headerTimerIdx < 0) headerTimerIdx = active.length - 1;
 
-    // Берем текущий таймер
-    const t = running[headerTimerIdx];
-
-    // 4. --- ИСПРАВЛЕНИЕ NaN ---
-    let timeLeft = 0;
+    // 5. Берем текущий таймер
+    const t = active[headerTimerIdx];
     const now = Date.now();
 
-    // Если у таймера есть 'et' (время финиша) и оно валидное число
-    if (t.et && !isNaN(t.et)) {
+    // 6. Расчет времени (с защитой от NaN)
+    let timeLeft = 0;
+    
+    // Если есть EndTime (t.et), считаем по нему
+    if (t.et) {
         timeLeft = Math.ceil((t.et - now) / 1000);
-    } 
-    // Если 'et' нет (старый формат), используем оставшееся время 'rm'
-    else {
+    } else {
+        // Если et нет (старый баг), берем остаток t.rm и чиним таймер на лету
         timeLeft = t.rm || 0;
-        // Автоматически чиним таймер, добавляя ему et для будущих расчетов
         t.et = now + (timeLeft * 1000);
     }
-    // --------------------------
 
     if (timeLeft < 0) timeLeft = 0;
 
-    // 5. Выводим данные
-    // Название (обрезаем, если длинное)
-    elName.innerText = (t.l || 'Таймер').slice(0, 13);
+    // 7. Вывод на экран
+    // Обрезаем имя, если оно длиннее 12 символов
+    let name = t.l || "Таймер";
+    if (name.length > 12) name = name.slice(0, 11) + "..";
     
-    // Время (используем твою функцию fmtTime)
-    // Добавляем проверку, чтобы fmtTime точно существовала
-    if (typeof fmtTime === 'function') {
-        elVal.innerText = fmtTime(timeLeft);
-    } else {
-        // Запасной вариант форматирования, если fmtTime недоступна
-        const m = Math.floor(timeLeft / 60);
-        const s = timeLeft % 60;
-        elVal.innerText = m + ':' + (s < 10 ? '0' : '') + s;
-    }
-    
-    // Иконка
-    if (t.i && t.i.includes('img/')) {
-        elIcon.innerHTML = `<img src="${t.i}" style="width:16px; height:16px; object-fit:contain;">`;
-    } else {
-        elIcon.innerHTML = "⏱";
-    }
+    elLabel.innerText = name;
+    elTime.innerText = fmtTime(timeLeft); // Используем твою функцию fmtTime
+    elTime.style.color = "#fff"; // Возвращаем белый цвет
 }
-// Запускаем глобальный интервал обновления шапки (раз в 1 сек)
-setInterval(updateStickyTimerUI, 1000);
 
-// Также вызовем один раз при старте (внутри init, или просто в конце скрипта)
-setTimeout(updateStickyTimerUI, 500);
+// Запускаем обновление каждую секунду
+setInterval(updateHeaderTimer, 1000);
+
+// Запускаем один раз сразу, чтобы не ждать 1 секунду
+updateHeaderTimer();
     </script>
 </body>
 </html>
