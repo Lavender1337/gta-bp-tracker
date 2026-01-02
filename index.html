@@ -7,29 +7,39 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <style>
-        :root {
-            --bg-body: #050505;
-            --bg-card: #1c1c1e;
-            --bg-card-active: #2c2c2e;
-            --text-main: #ffffff;
-            --text-sub: #98989f;
-            --accent: #0a84ff;
-            --green: #30d158;
-            --red: #ff453a;
-            --gold: #ffd60a;
-            --purple: #bf5af2;
-            --radius: 14px;
-            --nav-height: 80px;
-        }
+:root {
+    /* --- НОВАЯ ЦВЕТОВАЯ ГАММА --- */
+    --bg-body: #0f1115;          /* Очень темный сине-серый (вместо черного) */
+    --bg-gradient: radial-gradient(circle at top center, #1f2333 0%, #0f1115 100%); /* Градиент фона */
+    
+    --bg-card: rgba(35, 38, 48, 0.7);    /* Полупрозрачный серо-синий */
+    --bg-card-active: rgba(50, 55, 70, 0.8);
+    
+    --text-main: #eef1f5;        /* Чуть мягкий белый */
+    --text-sub: #94a3b8;         /* Холодный серый */
+    
+    --accent: #3b82f6;           /* Яркий синий (Royal Blue) */
+    --accent-glow: rgba(59, 130, 246, 0.5);
+    
+    --green: #10b981;            /* Изумрудный (более современный, чем лайм) */
+    --red: #ef4444;              /* Мягкий красный */
+    --gold: #fbbf24;             /* Теплый золотой */
+    --purple: #8b5cf6;           /* Фиолетовый неон */
+    
+    --radius: 16px;              /* Чуть больше скругления */
+    --nav-height: 80px;
+}
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-
-        body {
-            background-color: var(--bg-body); color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            margin: 0; padding: 0; padding-bottom: calc(var(--nav-height) + 30px);
-            overflow-x: hidden; font-size: 15px; touch-action: pan-y;
-        }
+/* Добавляем красивый фон для body */
+body {
+    background: var(--bg-body);
+    background-image: var(--bg-gradient); 
+    background-attachment: fixed; /* Чтобы фон стоял на месте при скролле */
+    color: var(--text-main);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    margin: 0; padding: 0; padding-bottom: calc(var(--nav-height) + 30px);
+    overflow-x: hidden; font-size: 15px; touch-action: pan-y;
+}
 
         /* --- LOADER --- */
         #loader {
@@ -588,44 +598,76 @@
     text-shadow: 0 0 10px rgba(255,255,255,0.1);
 }
 /* --- ВСТРОЕННЫЕ ТАЙМЕРЫ (НОВОЕ) --- */
+/* --- СТИЛЬНЫЕ ТАЙМЕРЫ (DEEP MIDNIGHT) --- */
 .inline-timer-box {
     display: flex;
     align-items: center;
-    background: rgba(0, 0, 0, 0.4);
-    border-radius: 8px;
+    /* Эффект стекла */
+    background: rgba(20, 20, 25, 0.6); 
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px; /* Чуть больше скругление */
     padding: 4px 8px;
-    margin-right: 8px;
+    margin-right: 10px;
     gap: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2); /* Тень для объема */
+    transition: 0.2s;
 }
 
+/* При наведении чуть подсвечиваем */
+.inline-timer-box:active {
+    background: rgba(40, 40, 50, 0.8);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Цифры таймера */
 .it-val {
-    font-family: monospace;
+    font-family: 'SF Mono', 'Roboto Mono', monospace; /* Моноширинный шрифт */
     font-size: 14px;
     font-weight: 700;
-    color: var(--gold);
-    min-width: 45px;
+    color: var(--text-main);
+    min-width: 42px;
     text-align: center;
+    font-variant-numeric: tabular-nums; /* Чтобы цифры не скакали */
+    letter-spacing: -0.5px;
+    text-shadow: 0 0 10px rgba(255,255,255,0.1); /* Легкое свечение */
 }
 
+/* Когда таймер готов (зеленый неон) */
 .it-val.done {
     color: var(--green);
+    text-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
 }
 
+/* Кнопки управления */
 .it-btn {
-    background: none;
+    background: transparent;
     border: none;
-    color: white;
+    color: var(--accent); /* Синий цвет по умолчанию */
     cursor: pointer;
     font-size: 14px;
-    padding: 0;
+    padding: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    height: 20px;
+    border-radius: 6px;
+    transition: 0.2s;
 }
-.it-btn:active { transform: scale(0.9); }
+
+/* Эффект нажатия на кнопку */
+.it-btn:active {
+    transform: scale(0.9);
+    background: rgba(255,255,255,0.1);
+    color: white;
+}
+
+/* Разделитель (вертикальная черта) */
+.it-sep {
+    width: 1px;
+    height: 16px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 0 2px;
+}
     </style>
 </head>
 <body>
@@ -1303,35 +1345,39 @@ function renderBP() {
         }
 
         // --- ЛОГИКА ВСТРОЕННОГО ТАЙМЕРА (НОВОЕ) ---
+        // --- ОБНОВЛЕННЫЙ БЛОК ТАЙМЕРА ---
         let timerHTML = '';
         if (t.timer) {
-            // Берем состояние из BP.localTimers или создаем дефолтное
             let lt = BP.localTimers[i];
             if(!lt) {
-                // Если таймера нет в памяти, показываем полное время
                 lt = { rm: t.timer, run: false }; 
             } else {
-                // Если таймер есть, проверяем актуальность времени (если он был запущен)
                 if(lt.run) {
                      const now = Date.now();
-                     // Пересчитываем остаток
                      if(lt.et) {
                         const diff = Math.ceil((lt.et - now) / 1000);
                         lt.rm = diff > 0 ? diff : 0;
-                        if(lt.rm === 0) lt.run = false; // Останавливаем, если 0
+                        if(lt.rm === 0) lt.run = false;
                      }
                 }
             }
             
             const isFinished = lt.rm <= 0;
             const displayTime = isFinished ? "ГОТОВО" : fmtTime(lt.rm);
-            const playIcon = lt.run ? '⏸' : '▶';
+            const playIcon = lt.run ? '⏸' : '▶'; // Иконка плей/пауза
             const colorClass = isFinished ? 'done' : '';
 
+            // Мы добавили кнопку сброса (↺) отдельно справа
             timerHTML = `
             <div class="inline-timer-box" onclick="event.stopPropagation()">
-                <button class="it-btn" onclick="toggleLocalTimer(${i}, ${t.timer})">${isFinished ? '↺' : playIcon}</button>
+                
+                <button class="it-btn" onclick="toggleLocalTimer(${i}, ${t.timer})">${playIcon}</button>
+                
                 <div class="it-val ${colorClass}" id="loc_timer_${i}">${displayTime}</div>
+                
+                <div class="it-sep"></div>
+
+                <button class="it-btn" style="color:var(--text-sub);" onclick="resetLocalTimer(${i}, ${t.timer})">↺</button>
             </div>`;
         }
         // -------------------------------------
@@ -1931,7 +1977,24 @@ function toggleLocalTimer(id, defaultSeconds) {
     saveBP();
     renderBP(); // Перерисовываем, чтобы сменилась иконка
 }
-
+// Функция полного сброса локального таймера
+function resetLocalTimer(id, defaultSeconds) {
+    if(!BP.localTimers) return;
+    const t = BP.localTimers[id];
+    if(t) {
+        t.rm = defaultSeconds; // Возвращаем полное время
+        t.run = false;         // Ставим на паузу
+        delete t.et;           // Удаляем время финиша
+        
+        // Вибрация для тактильного отклика
+        if(window.Telegram.WebApp.HapticFeedback) {
+            window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+        }
+        
+        saveBP();
+        renderBP();
+    }
+}
 // Глобальный интервал для обновления циферок (тикает каждую секунду)
 setInterval(() => {
     if(!BP.localTimers) return;
