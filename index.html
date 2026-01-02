@@ -8,667 +8,389 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <style>
 :root {
-    /* --- НОВАЯ ЦВЕТОВАЯ ГАММА --- */
-    --bg-body: #0f1115;          /* Очень темный сине-серый (вместо черного) */
-    --bg-gradient: radial-gradient(circle at top center, #1f2333 0%, #0f1115 100%); /* Градиент фона */
+    /* --- NEON GLASS PALETTE (PREMIUM) --- */
+    --bg-deep: #020207;          /* Глубокий черный фон */
     
-    --bg-card: rgba(35, 38, 48, 0.7);    /* Полупрозрачный серо-синий */
-    --bg-card-active: rgba(50, 55, 70, 0.8);
+    /* Орбы (цветные пятна фона) */
+    --orb-1: rgba(88, 28, 245, 0.45);  /* Фиолетовый */
+    --orb-2: rgba(245, 56, 156, 0.35); /* Розовый */
+    --orb-3: rgba(14, 165, 233, 0.30); /* Голубой */
+
+    /* Параметры Стекла */
+    --glass-bg: rgba(255, 255, 255, 0.03); 
+    --glass-surface: linear-gradient(160deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.01) 100%);
+    --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+    --glass-blur: blur(20px) saturate(180%);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
     
-    --text-main: #eef1f5;        /* Чуть мягкий белый */
-    --text-sub: #94a3b8;         /* Холодный серый */
+    --text-main: #ffffff;
+    --text-sub: rgba(255, 255, 255, 0.55);
     
-    --accent: #3b82f6;           /* Яркий синий (Royal Blue) */
+    /* Акцентные цвета (яркий неон) */
+    --accent: #3b82f6; 
     --accent-glow: rgba(59, 130, 246, 0.5);
+    --green: #10b981;
+    --red: #ef4444;
+    --gold: #fbbf24;
+    --purple: #a855f7;
     
-    --green: #10b981;            /* Изумрудный (более современный, чем лайм) */
-    --red: #ef4444;              /* Мягкий красный */
-    --gold: #fbbf24;             /* Теплый золотой */
-    --purple: #8b5cf6;           /* Фиолетовый неон */
-    
-    --radius: 16px;              /* Чуть больше скругления */
-    --nav-height: 80px;
+    --radius: 20px;
+    --nav-height: 85px;
 }
 
-/* Добавляем красивый фон для body */
+/* --- АНИМИРОВАННЫЙ ФОН --- */
 body {
-    background: var(--bg-body);
-    background-image: var(--bg-gradient); 
-    background-attachment: fixed; /* Чтобы фон стоял на месте при скролле */
+    background-color: var(--bg-deep);
     color: var(--text-main);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     margin: 0; padding: 0; padding-bottom: calc(var(--nav-height) + 30px);
-    overflow-x: hidden; font-size: 15px; touch-action: pan-y;
-}
-
-        /* --- LOADER --- */
-        #loader {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-body); z-index: 9999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.3s;
-        }
-        .spinner {
-            width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.1);
-            border-left-color: var(--accent); border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-
-        /* --- TABS --- */
-        .tab-content { display: none; animation: fadeIn 0.3s ease; }
-        .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* --- HEADER & SEARCH --- */
-        .header { padding: 20px 15px 10px; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
-        /* --- ОБНОВЛЕННЫЙ STICKY SEARCH И МИНИ-СТАТЫ --- */
-.sticky-search { 
-    position: sticky; 
-    top: 0; 
-    z-index: 100; 
-    background: rgba(0,0,0,0.95); /* Чуть темнее фон для читаемости */
-    backdrop-filter: blur(20px); 
-    padding: 10px 15px 15px; 
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-/* Мини-панель с цифрами внутри липкой шапки */
-.mini-stats-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 5px;
-    font-size: 13px;
-    color: #888;
-}
-
-.mini-stat-val {
-    font-size: 16px;
-    font-weight: 800;
-    color: white;
-    margin-left: 5px;
-}
-
-/* Блок "Нафармлено" для основной панели кнопок */
-.farmed-box {
-    grid-column: span 2; /* Растянуть на всю ширину под кнопками */
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px;
-    padding: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-weight: 600;
-    font-size: 14px;
-}
-.farmed-val-big {
-    font-size: 18px;
-    color: var(--green);
-    font-weight: 800;
-}
-        .search-input { width: 100%; padding: 12px 16px; border-radius: 12px; border: none; background: rgba(255,255,255,0.12); color: white; font-size: 16px; transition: 0.2s; }
-        .search-input:focus { background: rgba(255,255,255,0.18); box-shadow: 0 0 0 2px var(--accent); }
-
-        /* --- BP HERO --- */
-        .bp-hero { margin: 15px; padding: 20px; border-radius: 20px; background: linear-gradient(135deg, #1c1c1e 0%, #0a0a0a 100%); border: 1px solid rgba(255,255,255,0.08); }
-        .bp-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; }
-        .bp-input { background: rgba(255,255,255,0.1); border: none; color: white; padding: 10px; border-radius: 10px; width: 80px; text-align: center; font-weight: 700; font-size: 18px; }
-        .bp-total-val { font-size: 44px; font-weight: 900; line-height: 1; background: linear-gradient(45deg, #ffd60a, #ff9f0a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 25px rgba(255, 214, 10, 0.3); }
-        .bp-toggles { display: flex; gap: 10px; }
-        .toggle-btn { flex: 1; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.05); color: var(--text-sub); font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); transition: 0.2s; }
-        .toggle-btn.active { color: #000; transform: translateY(-2px); border-color: transparent; }
-        .toggle-btn.vip.active { background: var(--gold); box-shadow: 0 4px 15px rgba(255, 214, 10, 0.4); }
-        .toggle-btn.x2.active { background: var(--accent); color: white; box-shadow: 0 4px 15px rgba(10, 132, 255, 0.4); }
-
-        .bp-actions-top { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 15px 15px; }
-        .action-btn { padding: 12px; border-radius: 12px; font-weight: 600; font-size: 13px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: var(--text-main); display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .action-btn.new-day { border-color: var(--green); color: var(--green); background: rgba(48, 209, 88, 0.1); }
-        .action-btn:active { transform: scale(0.98); }
-        
-        .sort-container { padding: 0 15px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #666; }
-        .sort-select { background: #2c2c2e; color: white; border: 1px solid #444; padding: 8px 12px; border-radius: 10px; font-size: 13px; outline: none; }
-
-        /* --- LIST ITEMS --- */
-        .list-container { padding: 0 15px; }
-        
-        .task-item { 
-            background: var(--bg-card); padding: 14px 10px 14px 8px; border-radius: 16px; margin-bottom: 8px; 
-            display: flex; align-items: flex-start; gap: 10px; 
-            border: 1px solid rgba(255,255,255,0.05); transition: background 0.2s, border 0.2s;
-            position: relative;
-        }
-        .task-item.completed { border-color: var(--green); background: rgba(48,209,88,0.08); }
-        
-        .drag-handle {
-            color: #444; font-size: 22px; cursor: grab; 
-            display: flex; align-items: center; justify-content: center; 
-            width: 24px; padding-top: 2px;
-        }
-        .drag-handle:active { color: var(--accent); cursor: grabbing; }
-
-        .task-content { flex: 1; min-width: 0; }
-        .task-text { font-size: 14px; font-weight: 600; line-height: 1.4; margin-bottom: 6px; }
-        .task-sub { font-size: 12px; color: var(--text-sub); }
-        
-        .task-actions-right { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-        .checkbox { min-width: 24px; height: 24px; border-radius: 7px; border: 2px solid var(--text-sub); display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .task-item.completed .checkbox { background: var(--green); border-color: var(--green); color: black; font-weight: bold; }
-        
-        .icon-btn { 
-            background: rgba(255,255,255,0.08); border: none; 
-            color: #888; width: 28px; height: 28px; border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 16px; cursor: pointer; transition: 0.2s; font-weight: 500;
-        }
-        .icon-btn:active { background: rgba(255,255,255,0.2); color: white; }
-        
-        .counter-wrapper { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
-        .counter-val { font-size: 13px; font-weight: 600; min-width: 30px; text-align: center; color: var(--text-main); }
-
-        /* --- CARDS --- */
-        .card { background: var(--bg-card); border-radius: var(--radius); padding: 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(255,255,255,0.05); }
-        .card:active { transform: scale(0.98); background: var(--bg-card-active); }
-        .card-icon { font-size: 28px; min-width: 40px; text-align: center; }
-        .card-body { flex: 1; min-width: 0; }
-        .card-title { font-weight: 700; font-size: 15px; margin-bottom: 3px; color: #fff; line-height: 1.2; }
-        .card-sub { font-size: 12px; color: var(--text-sub); }
-        .card-end { text-align: right; min-width: 70px; font-size: 13px; font-weight: 600; }
-        .price-text { color: var(--green); }
-        .price-text.free { color: var(--accent); }
-
-        /* --- TIMERS --- */
-        .section-title { font-size: 16px; font-weight: 700; color: var(--text-main); margin: 25px 15px 10px; text-transform: uppercase; letter-spacing: 1px; }
-        .timer-presets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 15px; }
-        .preset-btn { padding: 12px; background: rgba(255,255,255,0.08); border-radius: 12px; text-align: center; font-weight: 600; font-size: 13px; color: white; border: none; }
-        .preset-btn:active { background: var(--accent); }
-        /* --- ВСТАВИТЬ ВМЕСТО СТАРЫХ СТРОК .custom-timer --- */
-.custom-timer {
-    display: flex;
-    gap: 8px;
-    padding: 0 15px;
-    margin-top: 10px;
-}
-
-/* Поле для названия (пошире) */
-.custom-timer input[type="text"] {
-    flex: 2; 
-    padding: 12px;
-    border-radius: 12px;
-    border: none;
-    background: rgba(255,255,255,0.1);
-    color: white;
-    font-size: 15px;
-}
-
-/* Поле для минут (поуже и текст по центру) */
-.custom-timer input[type="number"] {
-    flex: 1; 
-    padding: 12px;
-    border-radius: 12px;
-    border: none;
-    background: rgba(255,255,255,0.1);
-    color: white;
-    font-size: 15px;
-    text-align: center;
-}
-
-/* Кнопка плюса */
-.custom-timer button {
-    background: var(--green);
-    color: black;
-    border: none;
-    border-radius: 12px;
-    width: 50px;
-    font-size: 24px;
-}
-        .active-timers { padding: 0 15px; margin-top: 15px; }
-        .timer-row { background: var(--bg-card); padding: 15px; border-radius: 14px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(255,255,255,0.05); }
-        .timer-row.running { border-color: var(--accent); background: rgba(10,132,255,0.08); }
-        .timer-val { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
-        .timer-actions { display: flex; gap: 8px; }
-        .t-btn { width: 36px; height: 36px; border-radius: 10px; border: none; display: flex; align-items: center; justify-content: center; font-size: 16px; }
-        .t-play { background: var(--accent); color: white; }
-        .t-reset { background: rgba(255,255,255,0.1); color: var(--text-sub); }
-        .reminders-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 15px; }
-        .remind-btn { padding: 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; color: var(--text-main); font-weight: 600; font-size: 13px; text-align: left; }
-
-        /* --- CALENDAR --- */
-        .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: var(--bg-card); padding: 15px; border-radius: 16px; }
-        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
-        .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 10px; background: rgba(255,255,255,0.03); font-size: 14px; }
-        .cal-day.today { border: 1px solid var(--accent); color: var(--accent); font-weight: 800; }
-        .cal-day.event { background: rgba(10,132,255,0.3); color: white; font-weight: bold; }
-        .event-item { background: var(--bg-card); padding: 14px; border-radius: 14px; margin-bottom: 6px; display: flex; justify-content: space-between; border-left: 4px solid var(--accent); font-size: 13px; }
-
-        /* --- GUIDES & TABLES --- */
-        .segment-wrapper { overflow-x: auto; white-space: nowrap; padding: 0 15px 15px; -webkit-overflow-scrolling: touch; }
-        .segment { display: inline-flex; background: rgba(255,255,255,0.08); padding: 4px; border-radius: 12px; }
-        .seg-btn { border: none; background: none; color: var(--text-sub); padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; transition: 0.2s; }
-        .seg-btn.active { background: #3a3a3c; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .table-wrap { overflow-x: auto; margin: 0 15px; background: var(--bg-card); border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 500px; }
-        th { background: rgba(255,255,255,0.05); padding: 12px; color: var(--text-sub); font-size: 11px; text-transform: uppercase; font-weight: 700; }
-        td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: middle; text-align: center; }
-        td:first-child { text-align: left; position: sticky; left: 0; background: var(--bg-card); font-weight: 700; border-right: 1px solid rgba(255,255,255,0.1); z-index: 10; box-shadow: 2px 0 5px rgba(0,0,0,0.2); }
-        tr:last-child td { border-bottom: none; }
-        tbody tr:nth-child(even) { background: rgba(255,255,255,0.02); }
-        .med-table td { text-align: left; padding: 10px 15px; }
-        .med-table td:first-child { min-width: 140px; color: var(--text-sub); }
-        .med-table td:nth-child(2) { color: var(--text-main); font-weight: 500; }
-        .tarot-card { background: linear-gradient(145deg, #2a2a2d, #1c1c1e); border: 1px solid rgba(255,214,10,0.2); border-radius: 16px; padding: 18px; margin-bottom: 12px; position: relative; overflow: hidden; }
-        .tarot-name { color: var(--gold); font-weight: 800; font-size: 17px; margin-bottom: 6px; text-transform: uppercase; }
-        .guide-section-title { padding: 15px 15px 10px; font-size: 18px; font-weight: 700; color: var(--accent); }
-
-        /* --- BOTTOM NAV --- */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: var(--nav-height); background: rgba(18, 18, 20, 0.95); backdrop-filter: blur(25px); border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-around; align-items: flex-start; padding-top: 12px; z-index: 1000; }
-        .nav-btn { background: none; border: none; color: #636366; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%; transition: 0.2s; }
-        .nav-icon { font-size: 26px; transition: 0.2s; }
-        .nav-label { font-size: 10px; font-weight: 600; }
-        .nav-btn.active { color: var(--accent); }
-        .nav-btn.active .nav-icon { transform: translateY(-3px); text-shadow: 0 0 15px var(--accent-glow); }
-
-        /* --- MODAL --- */
-        .modal-wrap { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 2000; display: none; align-items: center; justify-content: center; }
-        .modal { background: #1c1c1e; width: 90%; max-width: 400px; border-radius: 24px; padding: 24px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 60px rgba(0,0,0,0.6); }
-        .food-stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 20px 0; }
-        .fs-box { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 10px; text-align: center; }
-        .fs-val { font-size: 18px; font-weight: 800; display: block; }
-        .fs-lbl { font-size: 10px; color: var(--text-sub); text-transform: uppercase; }
-        .tag { display: inline-block; background: rgba(255,255,255,0.1); padding: 6px 10px; border-radius: 8px; font-size: 13px; margin: 3px; font-weight: 600; }
-        .food-stats-mini { display: flex; gap: 8px; margin-top: 4px; font-size: 11px; font-weight: 600; }
-        .fs-i { display: flex; align-items: center; gap: 2px; background: rgba(255,255,255,0.05); padding: 2px 5px; border-radius: 4px; }
-/* --- Сетка таймеров --- */
-.timer-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* Две колонки */
-    gap: 8px; /* Отступ между карточками */
-    padding: 0 15px;
-    margin-bottom: 20px;
-}
-
-/* Карточка таймера */
-.timer-card-btn {
-    background: #1c1c1e; /* Темный фон */
-    border: 1px solid rgba(255,255,255,0.05);
-    border-radius: 14px;
-    padding: 12px 14px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    overflow-x: hidden; font-size: 15px; min-height: 100vh;
     position: relative;
-    overflow: hidden;
-    transition: transform 0.1s, background 0.2s;
 }
 
-.timer-card-btn:active {
-    transform: scale(0.98);
-    background: #2c2c2e;
+/* Цветные пятна (Орбы) */
+body::before, body::after {
+    content: ''; position: fixed; z-index: -1;
+    filter: blur(80px); opacity: 0.6;
+}
+body::before {
+    width: 70vw; height: 70vw; top: -20%; left: -20%;
+    background: radial-gradient(circle, var(--orb-1), transparent 70%);
+    animation: drift 20s infinite alternate ease-in-out;
+}
+body::after {
+    width: 60vw; height: 60vw; bottom: -10%; right: -10%;
+    background: radial-gradient(circle, var(--orb-2), var(--orb-3), transparent 70%);
+    animation: drift 25s infinite alternate-reverse ease-in-out;
+}
+@keyframes drift { from {transform: translate(0,0);} to {transform: translate(30px, 50px);} }
+
+/* --- LOADER --- */
+#loader {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: var(--bg-deep); z-index: 9999;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    backdrop-filter: blur(20px);
+}
+.spinner {
+    width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1);
+    border-left-color: var(--accent); border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+/* --- TABS --- */
+.tab-content { display: none; animation: fadeIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.tab-content.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+/* --- HEADER & STICKY SEARCH (GLASS) --- */
+.header { padding: 25px 20px 10px; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; text-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+
+.sticky-search { 
+    position: sticky; top: 0; z-index: 100; 
+    background: rgba(2, 2, 7, 0.65); /* Полупрозрачная подложка */
+    backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+    border-bottom: var(--glass-border);
+    padding: 10px 15px 15px; 
+    display: flex; flex-direction: column; gap: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
 
-/* Левая часть (Инфо) */
-.t-card-info {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+.mini-stats-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0 5px; font-size: 13px; color: var(--text-sub);
+}
+.mini-stat-val { font-size: 16px; font-weight: 800; color: white; margin-left: 5px; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
+
+.search-input { 
+    width: 100%; padding: 12px 16px; 
+    border-radius: 16px; 
+    border: var(--glass-border); 
+    background: rgba(0,0,0,0.25); /* Вдавленный эффект */
+    color: white; font-size: 16px; transition: 0.3s; 
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.3);
+    box-sizing: border-box;
+}
+.search-input:focus { 
+    background: rgba(0,0,0,0.4); 
+    border-color: var(--accent); outline: none; 
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.3), 0 0 15px rgba(59, 130, 246, 0.3);
 }
 
-/* Заголовок с иконкой */
-.t-card-head {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 11px;
-    font-weight: 600;
-    color: #888; /* Серый цвет текста */
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-/* Время (крупно) */
-.t-card-time {
-    font-size: 22px;
-    font-weight: 500; /* Чуть тоньше, как на Apple */
-    color: #fff;
-    font-variant-numeric: tabular-nums; /* Чтобы цифры не скакали */
-    letter-spacing: -0.5px;
-}
-
-/* Правая часть (Треугольник Play) */
-.t-card-play {
-    color: #fff;
-    font-size: 14px;
-    opacity: 0.8;
-}
-
-/* --- Стили для карточек Таро --- */
-.tarot-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* 2 столбца */
-    gap: 8px;
-    padding: 10px 15px;
-}
-
-.tarot-card {
-    background-color: var(--bg-card);
-    border-radius: var(--radius);
-    padding: 12px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    min-height: 80px; /* Чтобы карточки были одинаковой высоты */
-    transition: background-color 0.1s;
-    cursor: pointer;
-}
-
-.tarot-card:active {
-    background-color: var(--bg-card-active);
-}
-
-.tarot-q {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-main);
-    line-height: 1.3;
-}
-
-.tarot-a {
-    font-size: 12px;
-    color: var(--gold); /* Золотистый акцент для ответа */
-    margin-top: 6px;
-    font-weight: 500;
-}
-/* Пример CSS для иконки BP */
-.bp-icon-img {
-    width: 32px;
-    height: 32px;
-    margin-right: 12px;
-    border-radius: 6px; 
-    object-fit: cover;
-}
-/* --- НОВЫЕ СТИЛИ (Добавить в конец <style>) --- */
-
-/* 1. Стили для иконки в задачах BP */
-.bp-icon-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 12px;
-}
-.bp-img {
-    width: 32px; height: 32px; border-radius: 6px; object-fit: cover;
-}
-.bp-emoji {
-    font-size: 24px; min-width: 32px; text-align: center;
-}
-
-/* 2. Сетка для Таро (Карточки) */
-/* --- НОВЫЙ СТИЛЬ ДЛЯ ТАРО (как у таймеров) --- */
-.tarot-grid-new {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    padding: 10px 15px;
-}
-
-.tarot-card-new {
-    background: #1c1c1e;
-    border: 1px solid rgba(255,255,255,0.05);
-    border-radius: 14px;
-    padding: 12px;
-    display: flex;
-    align-items: center; /* Центрируем по вертикали */
-    gap: 12px; /* Отступ между иконкой и текстом */
-    min-height: 80px; /* Минимальная высота для аккуратности */
-}
-
-/* Контейнер для иконки/картинки */
-.tarot-icon-box {
-    flex-shrink: 0;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 32px; /* Размер для эмодзи */
-}
-
-/* Стиль для картинки, чтобы она вписывалась в квадрат */
-.tarot-icon-img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    border-radius: 4px;
-}
-
-/* Контейнер для текста */
-.tarot-text-box {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    flex: 1;
-    min-width: 0;
-}
-
-/* Название карты */
-.tarot-card-title {
-    color: var(--gold);
-    font-weight: 800;
-    font-size: 13px;
-    text-transform: uppercase;
-    white-space: nowrap;       /* Текст в одну строку */
-    overflow: hidden;          /* Обрезаем лишнее */
-    text-overflow: ellipsis;   /* Добавляем многоточие */
-}
-
-/* Описание карты */
-.tarot-card-desc {
-    font-size: 11px;
-    color: #98989f;
-    line-height: 1.3;
-    /* Ограничиваем описание тремя строками */
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-/* 3. Модальное окно "Вернуть скрытые" */
-.unhide-item {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05);
-}
-.unhide-btn {
-    background: rgba(48, 209, 88, 0.15); color: var(--green);
-    border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; cursor: pointer;
-}
-/* Добавь это в конец <style> */
-.med-img {
-    width: 28px;       /* Размер картинки */
-    height: 28px;
-    object-fit: contain;
-    display: block;
-}
-/* --- ВИДЖЕТ ТАЙМЕРА В ШАПКЕ --- */
-.header-timer-box {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: #151517;
-    border: 1px solid rgba(255, 69, 58, 0.3); /* Красная обводка как на скрине */
-    border-radius: 12px;
-    padding: 4px 8px;
-    width: 160px; /* Фиксированная ширина */
-    height: 44px;
-    margin: 0 10px;
-}
-
-.ht-btn {
-    background: #2c2c2e; /* Синий цвет кнопок как на скрине можно заменить на var(--accent) */
-    color: white;
-    border: none;
-    border-radius: 6px;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    cursor: pointer;
-}
-.ht-btn:active { background: var(--accent); }
-
-.ht-info {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    text-align: left;
-    cursor: pointer;
-    overflow: hidden;
-}
-
-.ht-icon {
-    font-size: 16px;
-}
-/* --- НОВЫЙ СТИЛЬ ВИДЖЕТА ТАЙМЕРА --- */
-/* --- НОВЫЙ ДИЗАЙН ВИДЖЕТА --- */
+/* Виджет таймера в шапке */
 .header-timer-wrap {
-    background: rgba(30, 30, 32, 0.7); /* Полупрозрачный фон */
-    backdrop-filter: blur(10px);        /* Размытие фона под ним */
-    border: 1px solid rgba(255, 255, 255, 0.08); /* Тонкая светлая рамка */
-    border-radius: 20px;                /* Сильное скругление (пилюля) */
-    padding: 2px 4px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 150px;
-    height: 38px;                       /* Чуть компактнее */
-    margin: 0 8px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2); /* Тень для объема */
-    transition: 0.3s;
+    background: rgba(255, 255, 255, 0.05);
+    border: var(--glass-border); border-radius: 30px;
+    padding: 2px 4px; display: flex; align-items: center; justify-content: space-between;
+    width: 150px; height: 38px; margin: 0 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
+.ht-btn { background: transparent; color: var(--text-sub); border: none; width: 24px; height: 24px; font-size: 10px; cursor: pointer; }
+.ht-content { display: flex; flex-direction: column; align-items: center; line-height: 1; cursor: pointer; flex: 1; }
+.ht-label { font-size: 8px; color: var(--text-sub); text-transform: uppercase; margin-bottom: 2px; font-weight: 700; }
+.ht-time { font-size: 14px; font-weight: 700; color: #fff; text-shadow: 0 0 8px rgba(255,255,255,0.3); }
 
-/* Кнопки стрелок */
-.ht-btn {
-    background: transparent;
-    color: #666;
-    border: none;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 10px;
-    transition: 0.2s;
+/* --- BP HERO (GLASS) --- */
+.bp-hero { 
+    margin: 15px; padding: 20px; 
+    border-radius: 24px; 
+    background: var(--glass-bg);
+    background-image: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
+    backdrop-filter: blur(10px);
+    border: var(--glass-border); 
+    box-shadow: var(--glass-shadow);
 }
-.ht-btn:active { color: white; background: rgba(255,255,255,0.1); }
+.bp-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; }
+.bp-input { 
+    background: rgba(0,0,0,0.3); border: var(--glass-border); 
+    color: white; padding: 10px; border-radius: 12px; width: 80px; 
+    text-align: center; font-weight: 700; font-size: 18px; 
+}
+.bp-total-val { 
+    font-size: 44px; font-weight: 900; line-height: 1; 
+    background: linear-gradient(45deg, #ffd60a, #ff9f0a); 
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+    filter: drop-shadow(0 0 15px rgba(255, 214, 10, 0.4));
+}
+.bp-toggles { display: flex; gap: 10px; }
+.toggle-btn { 
+    flex: 1; padding: 12px; border-radius: 14px; 
+    background: rgba(255,255,255,0.05); color: var(--text-sub); 
+    font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid transparent; 
+    transition: 0.2s; 
+}
+.toggle-btn.active { color: #000; transform: translateY(-2px); }
+.toggle-btn.vip.active { background: var(--gold); box-shadow: 0 5px 20px rgba(251, 191, 36, 0.4); }
+.toggle-btn.x2.active { background: var(--accent); color: white; box-shadow: 0 5px 20px rgba(59, 130, 246, 0.4); }
 
-/* Контент внутри */
-.ht-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
-    cursor: pointer;
-    flex: 1;
-    overflow: hidden;
+.bp-actions-top { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 15px 15px; }
+.action-btn { 
+    padding: 12px; border-radius: 14px; font-weight: 600; font-size: 13px; cursor: pointer; 
+    border: var(--glass-border); background: rgba(255,255,255,0.03); color: var(--text-main); 
+    display: flex; align-items: center; justify-content: center; gap: 6px; 
 }
+.action-btn.new-day { border-color: rgba(16, 185, 129, 0.3); color: var(--green); background: rgba(16, 185, 129, 0.1); }
+.action-btn:active { transform: scale(0.98); }
 
-.ht-label { 
-    font-size: 8px; 
-    color: #98989f; 
-    text-transform: uppercase; 
-    letter-spacing: 0.5px; 
-    margin-bottom: 2px; 
-    font-weight: 700;
-}
+.sort-container { padding: 0 15px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-sub); }
+.sort-select { background: rgba(0,0,0,0.3); color: white; border: var(--glass-border); padding: 8px 12px; border-radius: 10px; font-size: 13px; outline: none; }
 
-.ht-time { 
-    font-size: 14px; 
-    font-weight: 700; 
-    color: #fff; 
-    font-variant-numeric: tabular-nums; 
-    text-shadow: 0 0 10px rgba(255,255,255,0.1);
+/* --- LIST ITEMS (GLASS CARDS) --- */
+.list-container { padding: 0 15px; }
+
+.task-item { 
+    /* ГЛАВНЫЙ СТИЛЬ КАРТОЧЕК */
+    background: var(--glass-bg);
+    background-image: var(--glass-surface);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border: var(--glass-border);
+    border-radius: 20px; 
+    padding: 14px 10px 14px 8px; 
+    margin-bottom: 10px; 
+    display: flex; align-items: flex-start; gap: 12px; 
+    position: relative; overflow: hidden;
+    transition: transform 0.2s;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
-/* --- ВСТРОЕННЫЕ ТАЙМЕРЫ (НОВОЕ) --- */
-/* --- СТИЛЬНЫЕ ТАЙМЕРЫ (DEEP MIDNIGHT) --- */
+.task-item:active { transform: scale(0.98); background: rgba(255,255,255,0.06); }
+.task-item.completed { border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.05); }
+.task-item.completed .task-text { opacity: 0.6; text-decoration: line-through; }
+
+.drag-handle { color: var(--text-sub); font-size: 20px; cursor: grab; display: flex; align-items: center; padding-top: 2px; }
+.task-content { flex: 1; min-width: 0; }
+.task-text { font-size: 15px; font-weight: 600; line-height: 1.4; margin-bottom: 4px; color: #fff; }
+.task-sub { font-size: 12px; color: var(--text-sub); }
+
+.task-actions-right { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.checkbox { 
+    min-width: 24px; height: 24px; border-radius: 8px; 
+    border: 2px solid var(--text-sub); 
+    display: flex; align-items: center; justify-content: center; cursor: pointer; 
+}
+.task-item.completed .checkbox { background: var(--green); border-color: var(--green); color: black; font-weight: bold; box-shadow: 0 0 10px var(--green); }
+
+.icon-btn { background: rgba(255,255,255,0.05); border: none; color: var(--text-sub); width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; }
+.icon-btn.del { color: var(--red); background: transparent; }
+
+.bp-icon-container { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: rgba(255,255,255,0.05); border-radius: 12px; border: var(--glass-border); }
+.bp-img { width: 32px; height: 32px; object-fit: cover; }
+.bp-emoji { font-size: 24px; }
+
+/* Counter */
+.counter-wrapper { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.counter-val { font-size: 13px; font-weight: 600; min-width: 30px; text-align: center; color: white; }
+
+/* Таймеры внутри задач (Стекло) */
 .inline-timer-box {
-    display: flex;
-    align-items: center;
-    /* Эффект стекла */
-    background: rgba(20, 20, 25, 0.6); 
-    backdrop-filter: blur(4px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 10px; /* Чуть больше скругление */
-    padding: 4px 8px;
-    margin-right: 10px;
-    gap: 8px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2); /* Тень для объема */
+    display: flex; align-items: center;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(5px);
+    border: var(--glass-border);
+    border-radius: 10px;
+    padding: 4px 6px; margin-right: 8px; gap: 6px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+}
+.it-val { font-family: monospace; font-size: 14px; font-weight: 700; color: white; min-width: 42px; text-align: center; text-shadow: 0 0 5px rgba(255,255,255,0.3); }
+.it-val.done { color: var(--green); text-shadow: 0 0 10px var(--green); }
+.it-btn { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 14px; padding: 2px; display: flex; align-items: center; }
+.it-sep { width: 1px; height: 14px; background: rgba(255,255,255,0.1); }
+
+/* --- CARDS (Garage, Food) --- */
+.card { 
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border: var(--glass-border);
+    border-radius: var(--radius); 
+    padding: 14px; margin-bottom: 8px; 
+    display: flex; align-items: center; gap: 12px; 
     transition: 0.2s;
 }
+.card:active { transform: scale(0.98); background: rgba(255,255,255,0.05); }
+.card-icon { font-size: 28px; min-width: 40px; text-align: center; }
+.card-body { flex: 1; min-width: 0; }
+.card-title { font-weight: 700; font-size: 15px; margin-bottom: 3px; color: #fff; line-height: 1.2; }
+.card-sub { font-size: 12px; color: var(--text-sub); }
+.card-end { text-align: right; min-width: 70px; font-size: 13px; font-weight: 600; }
+.price-text { color: var(--green); }
+.price-text.free { color: var(--accent); }
 
-/* При наведении чуть подсвечиваем */
-.inline-timer-box:active {
-    background: rgba(40, 40, 50, 0.8);
-    border-color: rgba(255, 255, 255, 0.2);
+/* --- TIMERS & PRESETS --- */
+.section-title { font-size: 14px; font-weight: 700; color: var(--text-sub); margin: 25px 15px 10px; text-transform: uppercase; letter-spacing: 1px; }
+
+.timer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 15px; margin-bottom: 20px; }
+.timer-card-btn {
+    background: var(--glass-bg); backdrop-filter: blur(10px);
+    border: var(--glass-border); border-radius: 18px;
+    padding: 14px; display: flex; align-items: center; justify-content: space-between;
+    transition: 0.2s; position: relative; overflow: hidden;
+}
+.timer-card-btn:active { background: rgba(255,255,255,0.1); transform: scale(0.98); }
+.t-card-info { display: flex; flex-direction: column; gap: 4px; }
+.t-card-head { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: var(--text-sub); text-transform: uppercase; }
+.t-card-time { font-size: 20px; font-weight: 600; color: #fff; font-variant-numeric: tabular-nums; }
+.t-card-play { color: var(--accent); font-size: 16px; opacity: 0.8; }
+
+/* Custom Timer Grid Fix */
+.custom-timer {
+    display: grid;
+    grid-template-columns: 1fr 70px 50px; /* Имя | Время | Кнопка */
+    gap: 8px; padding: 0 15px; margin-top: 15px; width: 100%; box-sizing: border-box;
+}
+.custom-timer input {
+    width: 100%; padding: 12px; border-radius: 14px;
+    border: var(--glass-border); background: rgba(0,0,0,0.3);
+    color: white; font-size: 15px; box-sizing: border-box;
+}
+.custom-timer button {
+    background: var(--green); color: black; border: none;
+    border-radius: 14px; width: 100%; font-size: 24px; cursor: pointer;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
 }
 
-/* Цифры таймера */
-.it-val {
-    font-family: 'SF Mono', 'Roboto Mono', monospace; /* Моноширинный шрифт */
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--text-main);
-    min-width: 42px;
-    text-align: center;
-    font-variant-numeric: tabular-nums; /* Чтобы цифры не скакали */
-    letter-spacing: -0.5px;
-    text-shadow: 0 0 10px rgba(255,255,255,0.1); /* Легкое свечение */
+.active-timers { padding: 0 15px; margin-top: 15px; }
+.timer-row { 
+    background: var(--glass-bg); border: var(--glass-border); backdrop-filter: blur(10px);
+    padding: 15px; border-radius: 18px; margin-bottom: 8px; 
+    display: flex; align-items: center; justify-content: space-between; 
+}
+.timer-row.running { border-color: rgba(59, 130, 246, 0.4); background: rgba(59, 130, 246, 0.05); }
+.timer-val { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; text-shadow: 0 0 15px rgba(255,255,255,0.2); }
+.timer-actions { display: flex; gap: 8px; }
+.t-btn { width: 36px; height: 36px; border-radius: 10px; border: none; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; }
+.t-play { background: var(--accent); color: white; box-shadow: 0 0 10px var(--accent-glow); }
+.t-reset { background: rgba(255,255,255,0.1); color: var(--text-sub); }
+
+.reminders-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 15px; }
+.remind-btn { 
+    padding: 14px; background: rgba(255,255,255,0.05); 
+    border: var(--glass-border); border-radius: 14px; 
+    color: var(--text-main); font-weight: 600; font-size: 13px; text-align: left; 
 }
 
-/* Когда таймер готов (зеленый неон) */
-.it-val.done {
-    color: var(--green);
-    text-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+/* --- CALENDAR --- */
+.cal-header { 
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; 
+    background: var(--glass-bg); backdrop-filter: blur(10px);
+    padding: 15px; border-radius: 20px; border: var(--glass-border);
+}
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.cal-day { 
+    aspect-ratio: 1; display: flex; align-items: center; justify-content: center; 
+    border-radius: 12px; background: rgba(255,255,255,0.03); font-size: 14px; border: 1px solid transparent;
+}
+.cal-day.today { border-color: var(--accent); color: var(--accent); font-weight: 800; box-shadow: 0 0 10px var(--accent-glow); }
+.cal-day.event { background: rgba(59, 130, 246, 0.2); color: white; font-weight: bold; }
+.event-item { 
+    background: var(--glass-bg); padding: 14px; border-radius: 14px; margin-bottom: 6px; 
+    display: flex; justify-content: space-between; border-left: 4px solid var(--accent); font-size: 13px; 
 }
 
-/* Кнопки управления */
-.it-btn {
-    background: transparent;
-    border: none;
-    color: var(--accent); /* Синий цвет по умолчанию */
-    cursor: pointer;
-    font-size: 14px;
-    padding: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 6px;
-    transition: 0.2s;
-}
+/* --- GUIDES & SEGMENTS --- */
+.segment-wrapper { overflow-x: auto; white-space: nowrap; padding: 0 15px 15px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.segment { display: inline-flex; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 14px; border: var(--glass-border); }
+.seg-btn { border: none; background: none; color: var(--text-sub); padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; transition: 0.2s; }
+.seg-btn.active { background: rgba(255,255,255,0.15); color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
 
-/* Эффект нажатия на кнопку */
-.it-btn:active {
-    transform: scale(0.9);
-    background: rgba(255,255,255,0.1);
-    color: white;
-}
+/* Tables */
+.table-wrap { overflow-x: auto; margin: 0 15px; background: var(--glass-bg); border-radius: 16px; border: var(--glass-border); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 500px; }
+th { background: rgba(255,255,255,0.05); padding: 12px; color: var(--text-sub); font-size: 11px; text-transform: uppercase; font-weight: 700; }
+td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: middle; text-align: center; }
+td:first-child { text-align: left; position: sticky; left: 0; background: #0f0f13; font-weight: 700; border-right: 1px solid rgba(255,255,255,0.1); z-index: 10; }
 
-/* Разделитель (вертикальная черта) */
-.it-sep {
-    width: 1px;
-    height: 16px;
-    background: rgba(255, 255, 255, 0.1);
-    margin: 0 2px;
+/* Tarot Cards New */
+.tarot-grid-new { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px 15px; }
+.tarot-card-new {
+    background: var(--glass-bg); border: var(--glass-border); backdrop-filter: blur(5px);
+    border-radius: 16px; padding: 12px; display: flex; align-items: center; gap: 10px; min-height: 80px;
 }
-    </style>
+.tarot-icon-box { flex-shrink: 0; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 30px; }
+.tarot-icon-img { width: 100%; height: 100%; object-fit: contain; border-radius: 6px; }
+.tarot-text-box { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.tarot-card-title { color: var(--gold); font-weight: 800; font-size: 13px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 0 10px rgba(251, 191, 36, 0.3); }
+.tarot-card-desc { font-size: 11px; color: var(--text-sub); line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* --- BOTTOM NAV --- */
+.bottom-nav { 
+    position: fixed; bottom: 0; left: 0; right: 0; 
+    height: var(--nav-height); 
+    background: rgba(2, 2, 7, 0.75); /* Сильно прозрачный низ */
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border-top: var(--glass-border); 
+    display: flex; justify-content: space-around; align-items: flex-start; 
+    padding-top: 12px; z-index: 1000; 
+}
+.nav-btn { background: none; border: none; color: #636366; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%; transition: 0.2s; }
+.nav-icon { font-size: 26px; transition: 0.2s; }
+.nav-label { font-size: 10px; font-weight: 600; }
+.nav-btn.active { color: var(--accent); }
+.nav-btn.active .nav-icon { transform: translateY(-3px); text-shadow: 0 0 15px var(--accent-glow); }
+
+/* --- MODALS --- */
+.modal-wrap { 
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+    background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); 
+    z-index: 2000; display: none; align-items: center; justify-content: center; 
+}
+.modal { 
+    background: #15151a; width: 90%; max-width: 400px; 
+    border-radius: 24px; padding: 24px; 
+    border: 1px solid rgba(255,255,255,0.1); 
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6); 
+}
+.food-stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 20px 0; }
+.fs-box { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 10px; text-align: center; }
+.fs-val { font-size: 18px; font-weight: 800; display: block; }
+.fs-lbl { font-size: 10px; color: var(--text-sub); text-transform: uppercase; }
+.tag { display: inline-block; background: rgba(255,255,255,0.1); padding: 6px 10px; border-radius: 8px; font-size: 13px; margin: 3px; font-weight: 600; }
+.food-stats-mini { display: flex; gap: 8px; margin-top: 4px; font-size: 11px; font-weight: 600; }
+.fs-i { display: flex; align-items: center; gap: 2px; background: rgba(255,255,255,0.05); padding: 2px 5px; border-radius: 4px; }
+.unhide-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.unhide-btn { background: rgba(16, 185, 129, 0.15); color: var(--green); border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+.med-img { width: 28px; height: 28px; object-fit: contain; display: block; }
+.guide-section-title { padding: 15px 15px 10px; font-size: 18px; font-weight: 700; color: var(--accent); }
+</style>
 </head>
 <body>
 
