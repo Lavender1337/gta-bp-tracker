@@ -398,6 +398,15 @@ td:first-child { text-align: left; position: sticky; left: 0; background: #0f0f1
 .unhide-btn { background: rgba(16, 185, 129, 0.15); color: var(--green); border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; }
 .med-img { width: 28px; height: 28px; object-fit: contain; display: block; }
 .guide-section-title { padding: 15px 15px 10px; font-size: 18px; font-weight: 700; color: var(--accent); }
+/* Добавь это в <style> */
+.task-item.twink-done {
+    border-color: rgba(192, 132, 252, 0.3); 
+    background: rgba(192, 132, 252, 0.05);
+}
+.task-item.twink-done .task-text {
+    opacity: 0.6; 
+    text-decoration: line-through;
+}
 </style>
 </head>
 <body>
@@ -815,6 +824,7 @@ let saveTimers = {}; // Хранилище таймеров для каждог�
                 ]);
 
                 if(bpData) BP = JSON.parse(bpData);
+if(!BP.doneTwink) BP.doneTwink = [];
                 if(tmData) TIMERS = JSON.parse(tmData);
                 if(evData) EVENTS = JSON.parse(evData);
 
@@ -978,18 +988,42 @@ function fmtTimeSimple(s) {
     saveBP();
 }
         
-        function toggleTask(i) {
-            if(BP.done.includes(i)) { 
-                BP.done = BP.done.filter(x=>x!==i); 
-                delete BP.times[i]; 
-                if(BP.counters[i]) BP.counters[i] = 0;
-            } else { 
-                BP.done.push(i); 
-                BP.times[i] = new Date().toLocaleTimeString().slice(0,5); 
-                if(DB.bp[i].q > 1) BP.counters[i] = DB.bp[i].q;
-            }
-            saveBP(); renderBP(); updateBP();
-        }
+function toggleTask(i) {
+    if(BP.done.includes(i)) { 
+        BP.done = BP.done.filter(x=>x!==i); 
+        delete BP.times[i]; 
+        if(BP.counters && BP.counters[i]) BP.counters[i] = 0;
+    } else { 
+        BP.done.push(i);
+        // --- ДОБАВЛЕНО: Если нажали на основу, убираем из твинков ---
+        if(BP.doneTwink) BP.doneTwink = BP.doneTwink.filter(x => x !== i);
+        // -----------------------------------------------------------
+        BP.times[i] = new Date().toLocaleTimeString().slice(0,5); 
+        if(DB.bp[i].q > 1) BP.counters[i] = DB.bp[i].q;
+    }
+    saveBP(); renderBP(); updateBP();
+}
+
+function toggleTwink(i, e) {
+    e.stopPropagation(); // Чтобы не срабатывал клик по самой карточке
+
+    if(!BP.doneTwink) BP.doneTwink = [];
+
+    // Если уже отмечено как твинк — снимаем отметку
+    if(BP.doneTwink.includes(i)) {
+        BP.doneTwink = BP.doneTwink.filter(x => x !== i);
+    } else {
+        // Если отмечаем как твинк:
+        BP.doneTwink.push(i);
+        // Убираем из "Основы", если оно там было (чтобы не считались очки)
+        BP.done = BP.done.filter(x => x !== i);
+        
+        // Можем сохранить время выполнения
+        BP.times[i] = new Date().toLocaleTimeString().slice(0,5);
+    }
+    saveBP(); renderBP(); updateBP();
+}
+
 function updateCounter(i, delta) {
     if(!BP.counters) BP.counters = {};
     if(!BP.counters[i]) BP.counters[i] = 0;
@@ -1024,21 +1058,23 @@ function updateCounter(i, delta) {
 }
         function hideBP(i,e) { e.stopPropagation(); BP.hidden.push(i); saveBP(); renderBP(); }
         function resetHiddenBP() { BP.hidden = []; saveBP(); renderBP(); }
-        function newDay() {
-            if(confirm("Начать новый день? Сбросится прогресс.")) {
-                BP.done = []; BP.times = {}; BP.counters = {}; BP.start = 0;
-                document.getElementById('startBp').value = '';
-                saveBP(); renderBP(); updateBP();
-            }
-        }
+function newDay() {
+    if(confirm("Начать новый день? Сбросится прогресс.")) {
+        // --- ЗАМЕНИТЬ СТРОКУ СБРОСА НА ЭТУ: ---
+        BP.done = []; BP.doneTwink = []; BP.times = {}; BP.counters = {}; BP.start = 0;
+        // --------------------------------------
+        document.getElementById('startBp').value = '';
+        saveBP(); renderBP(); updateBP();
+    }
+}
 
 function renderBP() {
     const list = document.getElementById('listBP'); 
     const search = document.getElementById('searchBp').value.toLowerCase();
     const sortMode = document.getElementById('bpSort').value;
     
-    // Инициализация хранилища локальных таймеров, если его нет
     if(!BP.localTimers) BP.localTimers = {};
+    if(!BP.doneTwink) BP.doneTwink = []; // Защита
 
     let tasks = BP.sortOrder.map(id => ({...DB.bp[id], id: id}));
 
@@ -1051,9 +1087,11 @@ function renderBP() {
         if(BP.hidden.includes(i) || (search && !t.t.toLowerCase().includes(search))) return;
         
         const done = BP.done.includes(i);
+        const isTwink = BP.doneTwink.includes(i); // Проверка на твинка
+        
         let rw = BP.vip ? t.v : t.b; if(BP.x2) rw *= 2;
         
-        // --- Логика счетчика ---
+        // Счетчик
         let counterHTML = '';
         if(t.q > 1 || t.r) {
             const curr = BP.counters && BP.counters[i] ? BP.counters[i] : 0;
@@ -1066,7 +1104,7 @@ function renderBP() {
                 </div>`;
         }
 
-        // --- Логика Иконки ---
+        // Иконка
         let iconHTML = '';
         if(t.img) {
             iconHTML = `<div class="bp-icon-container"><img src="${t.img}" class="bp-img"></div>`;
@@ -1074,64 +1112,70 @@ function renderBP() {
              iconHTML = `<div class="bp-icon-container"><span class="bp-emoji">${t.i}</span></div>`;
         }
 
-        // --- ЛОГИКА ВСТРОЕННОГО ТАЙМЕРА (НОВОЕ) ---
-        // --- ОБНОВЛЕННЫЙ БЛОК ТАЙМЕРА ---
+        // Таймер
         let timerHTML = '';
         if (t.timer) {
             let lt = BP.localTimers[i];
-            if(!lt) {
-                lt = { rm: t.timer, run: false }; 
-            } else {
-                if(lt.run) {
-                     const now = Date.now();
-                     if(lt.et) {
-                        const diff = Math.ceil((lt.et - now) / 1000);
-                        lt.rm = diff > 0 ? diff : 0;
-                        if(lt.rm === 0) lt.run = false;
-                     }
+            if(!lt) { lt = { rm: t.timer, run: false }; } else {
+                if(lt.run && lt.et) {
+                     const diff = Math.ceil((lt.et - Date.now()) / 1000);
+                     lt.rm = diff > 0 ? diff : 0; if(lt.rm === 0) lt.run = false;
                 }
             }
-            
             const isFinished = lt.rm <= 0;
             const displayTime = isFinished ? "ГОТОВО" : fmtTime(lt.rm);
-            const playIcon = lt.run ? '⏸' : '▶'; // Иконка плей/пауза
+            const playIcon = lt.run ? '⏸' : '▶'; 
             const colorClass = isFinished ? 'done' : '';
 
-            // Мы добавили кнопку сброса (↺) отдельно справа
             timerHTML = `
             <div class="inline-timer-box" onclick="event.stopPropagation()">
-                
                 <button class="it-btn" onclick="toggleLocalTimer(${i}, ${t.timer})">${playIcon}</button>
-                
                 <div class="it-val ${colorClass}" id="loc_timer_${i}">${displayTime}</div>
-                
                 <div class="it-sep"></div>
-
                 <button class="it-btn" style="color:var(--text-sub);" onclick="resetLocalTimer(${i}, ${t.timer})">↺</button>
             </div>`;
         }
-        // -------------------------------------
 
         const item = document.createElement('div');
-        item.className = `task-item ${(done && !t.r) ?'completed':''}`;
+        // Добавляем класс completed, если выполнено на Основе ИЛИ на Твинке
+        // Если твинк - добавляем доп стиль (прозрачность или цвет рамки)
+        let doneClass = (done && !t.r) ? 'completed' : '';
+        if (isTwink) doneClass = 'completed twink-done'; // Новый класс для твинка
+
+        item.className = `task-item ${doneClass}`;
         item.setAttribute('data-id', i);
         
+        // Клик по карточке ставит "Основу"
         if(!t.r) item.onclick = () => toggleTask(i);
 
         let rightAction = !t.r ? `<div class="checkbox">${done?'✔':''}</div>` : '';
+
+        // --- КНОПКА ТВИНКА ---
+        // Если задача выполнена на твинке, красим кнопку в фиолетовый или делаем активной
+        let twinkBtnStyle = isTwink ? 'color: #c084fc; background: rgba(192, 132, 252, 0.15); border: 1px solid rgba(192, 132, 252, 0.3);' : '';
+        
+        const twinkBtn = !t.r ? `
+            <button class="icon-btn" style="width:28px; height:28px; margin-left:4px; ${twinkBtnStyle}" onclick="toggleTwink(${i}, event)">
+                👻
+            </button>
+        ` : '';
+        // ---------------------
 
         item.innerHTML = `
             <div class="drag-handle" style="margin-right:8px;">⋮⋮</div>
             ${iconHTML} 
             <div class="task-content">
                 <div class="task-text">${t.t} ${t.r ? '<span style="font-size:10px; background:rgba(255,255,255,0.1); padding:2px 5px; border-radius:4px;">∞</span>' : ''}</div>
-                <div class="task-sub">Награда: <span style="color:var(--gold)">+${rw}</span> ${done?'| '+BP.times[i]:''}</div>
+                <div class="task-sub">
+                    Награда: <span style="color:var(--gold)">+${rw}</span> 
+                    ${done ? '| '+BP.times[i] : (isTwink ? '| <span style="color:#c084fc">Твинк</span>' : '')}
+                </div>
                 ${counterHTML}
             </div>
             <div class="task-actions-right">
                 <div style="display:flex; align-items:center;">
-                    ${timerHTML} 
-                    ${rightAction}
+                    ${timerHTML}
+                    ${twinkBtn} <div style="width:6px"></div> ${rightAction}
                 </div>
                 <button class="icon-btn del" onclick="hideBP(${i},event)">✕</button>
             </div>`;
