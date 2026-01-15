@@ -8,34 +8,124 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 <style>
 :root {
-    /* --- ORANGE NEON PALETTE --- */
+    /* Базовые значения (по умолчанию - Оранжевая Тёмная) */
     --bg-deep: #050505;
     --bg-card: #0f0f11;
     --border: #222;
-    
-    /* Text */
     --text-main: #ffffff;
-    --text-sub: #888;
+    --text-sub: rgba(255, 255, 255, 0.55);
     
-    /* Accents */
-    --accent: #f97316;       
+    --accent: #f97316;       /* Оранжевый */
     --accent-glow: rgba(249, 115, 22, 0.4);
-    --green: #10b981;        
-    --red: #ef4444;          
-    --gold: #fbbf24;
-    --purple: #c084fc;
     
+    --green: #10b981;
+    --red: #ef4444;
+    --gold: #fbbf24;
+    
+    /* Цвет метки ТВИНК (по умолчанию фиолетовый) */
+    --twink-bg: rgba(192, 132, 252, 0.15);
+    --twink-border: rgba(192, 132, 252, 0.3);
+    --twink-text: #c084fc;
+
     --radius: 12px;
     --nav-height: 85px;
 }
 
-/* --- BASE & ANIMATION --- */
+/* ТЕМА 1: Бело-Оранжевая */
+body.theme-white-orange {
+    --bg-deep: #f2f2f7;
+    --bg-card: #ffffff;
+    --border: #e5e5ea;
+    --text-main: #000000;
+    --text-sub: #666666;
+    --accent: #ff9500;
+    --accent-glow: rgba(255, 149, 0, 0.3);
+    /* Твинк фиолетовый (для контраста) */
+    --twink-bg: rgba(175, 82, 222, 0.1);
+    --twink-border: rgba(175, 82, 222, 0.3);
+    --twink-text: #af52de;
+}
+
+/* ТЕМА 2: Черно-Лиловая */
+body.theme-black-purple {
+    --bg-deep: #050505;
+    --bg-card: #121016;
+    --border: #2a2036;
+    --accent: #c084fc; /* Лиловый акцент */
+    --accent-glow: rgba(192, 132, 252, 0.4);
+    --twink-text: #c084fc;
+}
+
+/* ТЕМА 3: Черно-Красная */
+body.theme-black-red {
+    --bg-deep: #080202;
+    --bg-card: #140a0a;
+    --border: #361010;
+    --accent: #ef4444; /* Красный акцент */
+    --accent-glow: rgba(239, 68, 68, 0.4);
+    --twink-text: #c084fc;
+}
+
+/* ТЕМА 4: Бело-Фиолетовая (Твинк Красный) */
+body.theme-white-purple {
+    --bg-deep: #f5f3ff;
+    --bg-card: #ffffff;
+    --border: #e9d5ff;
+    --text-main: #1e1b4b;
+    --text-sub: #6b7280;
+    --accent: #9333ea;
+    --accent-glow: rgba(147, 51, 234, 0.3);
+    /* Твинк КРАСНЫЙ */
+    --twink-bg: rgba(239, 68, 68, 0.1);
+    --twink-border: rgba(239, 68, 68, 0.3);
+    --twink-text: #ef4444;
+}
+
+/* --- БАЗОВЫЕ СТИЛИ BODY --- */
 body {
     background-color: var(--bg-deep);
     color: var(--text-main);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     margin: 0; padding: 0; padding-bottom: calc(var(--nav-height) + 40px);
     overflow-x: hidden; font-size: 14px; min-height: 100vh;
+    transition: background-color 0.3s, color 0.3s; /* Плавная смена темы */
+}
+
+/* --- СТИЛИ АНИМАЦИИ ТАЙМЕРОВ (НОВОЕ) --- */
+/* Полоска в карточке таймера */
+.timer-progress-bg {
+    position: absolute; bottom: 0; left: 0; height: 4px; width: 100%;
+    background: rgba(255,255,255,0.05); border-radius: 0 0 12px 12px; overflow: hidden;
+}
+.timer-progress-bar {
+    height: 100%; background: var(--gold);
+    width: 0%; transition: width 1s linear;
+    box-shadow: 0 0 10px var(--gold);
+}
+
+/* Полоска в верхнем виджете */
+.ht-progress-bg {
+    position: absolute; bottom: 0; left: 0; width: 100%; height: 2px;
+    background: rgba(255,255,255,0.1);
+}
+.ht-progress-bar {
+    height: 100%; background: var(--green);
+    width: 0%; transition: width 1s linear;
+}
+.header-timer-wrap { position: relative; overflow: hidden; } 
+
+/* Кнопки выбора темы */
+.theme-btn {
+    width: 30px; height: 30px; border-radius: 50%; border: 2px solid #333; cursor: pointer;
+    margin: 5px; display: inline-block; transition: transform 0.2s;
+}
+.theme-btn:active { transform: scale(0.9); }
+
+/* Исправление цветов для Твинка (поддержка тем) */
+.status-badge.twink, .btn-twink-custom {
+    color: var(--twink-text) !important;
+    background: var(--twink-bg) !important;
+    border: 1px solid var(--twink-border) !important;
 }
 
 /* --- ГЛОБАЛЬНЫЕ СТИЛИ ФОРМ (ИСПРАВЛЕНИЕ БЕЛЫХ ПОЛЕЙ) --- */
@@ -566,7 +656,8 @@ input[type=range]::-moz-range-thumb { height: 18px; width: 18px; border: none; b
             <div class="stat-label">BP</div>
         </div>
         <div class="stat-box">
-            <div class="stat-val" id="totalTime">0</div> <div class="stat-label">Часы</div>
+            <div class="stat-val" id="totalTime">0</div>
+            <div class="stat-label">Часы</div>
         </div>
         <div class="stat-box">
             <div class="stat-val" id="multiplierDisp">x1</div>
@@ -578,16 +669,19 @@ input[type=range]::-moz-range-thumb { height: 18px; width: 18px; border: none; b
         </div>
     </div>
 
-    <div class="hero-toggles">
-        <button class="hero-btn" id="btnVip" onclick="toggleVip()">VIP Gold/Plat</button>
-        <button class="hero-btn" id="btnX2" onclick="toggleX2()">⚡ Сервер X2</button>
+    <div class="hero-toggles" style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
+        <div style="display:flex; gap:10px; flex:1;">
+            <button class="hero-btn" id="btnVip" onclick="toggleVip()">👑 VIP</button>
+            <button class="hero-btn" id="btnX2" onclick="toggleX2()">⚡ X2</button>
+        </div>
+        <button class="hero-btn" onclick="openThemeModal()" style="width:40px; padding:0; display:flex; align-items:center; justify-content:center; flex:none;">🎨</button>
     </div>
     
     <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
-        <span style="font-size:11px; color:#555;">Коррекция старта:</span>
-        <input type="number" id="startBp" value="0" oninput="updateBP()" style="width:60px; padding:4px; font-size:12px; text-align:center; background:#111; border:1px solid #333;">
+        <span style="font-size:11px; color:var(--text-sub);">Коррекция старта:</span>
+        <input type="number" id="startBp" value="0" oninput="updateBP()" style="width:60px; padding:4px; font-size:12px; text-align:center;">
     </div>
-</div>
+</div>   
         <div class="bp-actions-top">
             <button class="action-btn new-day" onclick="newDay()">🌅 Новый день</button>
             <button class="action-btn" onclick="openUnhideModal()">👁 Вернуть скрытые</button>
@@ -616,14 +710,18 @@ input[type=range]::-moz-range-thumb { height: 18px; width: 18px; border: none; b
             <div class="mini-stat-val" style="color:var(--gold)" id="stickyTotal">0</div>
         </div>
 
-        <div class="header-timer-wrap" id="headerTimerWidget">
-            <button class="ht-btn" onclick="changeHeaderTimer(-1)">◀</button>
-            <div class="ht-content" onclick="go('timers', document.querySelectorAll('.nav-btn')[1])">
-                <span id="htLabel" class="ht-label">Нет активных</span>
-                <span id="htTime" class="ht-time">--:--</span>
-            </div>
-            <button class="ht-btn" onclick="changeHeaderTimer(1)">▶</button>
-        </div>
+<div class="header-timer-wrap" id="headerTimerWidget">
+    <button class="ht-btn" onclick="changeHeaderTimer(-1)">◀</button>
+    <div class="ht-content" onclick="go('timers', document.querySelectorAll('.nav-btn')[1])">
+        <span id="htLabel" class="ht-label">Нет активных</span>
+        <span id="htTime" class="ht-time">--:--</span>
+    </div>
+    <button class="ht-btn" onclick="changeHeaderTimer(1)">▶</button>
+    
+    <div class="ht-progress-bg">
+        <div id="htProgressBar" class="ht-progress-bar"></div>
+    </div>
+</div>
 
         <div style="flex:1; text-align:right;">
             <div style="font-size:10px; color:#888">Нафармлено:</div>
@@ -726,7 +824,21 @@ input[type=range]::-moz-range-thumb { height: 18px; width: 18px; border: none; b
         <button class="nav-btn" onclick="go('kitchen', this)"><div class="nav-icon">🍔</div><span class="nav-label">Еда</span></button>
         <button class="nav-btn" onclick="go('guides', this)"><div class="nav-icon">📚</div><span class="nav-label">Гайды</span></button>
     </nav>
-
+<div id="modalTheme" class="modal-wrap" onclick="closeThemeModal(event)">
+    <div class="modal">
+        <div style="font-size:20px; font-weight:800; margin-bottom:15px; text-align:center;">Выберите тему</div>
+        <div style="display:flex; justify-content:center; gap:15px; flex-wrap:wrap;">
+            <div class="theme-btn" style="background:#050505; border-color:#f97316;" onclick="setTheme('default')"></div>
+            <div class="theme-btn" style="background:#f2f2f7; border-color:#ff9500;" onclick="setTheme('theme-white-orange')"></div>
+            <div class="theme-btn" style="background:#050505; border-color:#c084fc;" onclick="setTheme('theme-black-purple')"></div>
+            <div class="theme-btn" style="background:#080202; border-color:#ef4444;" onclick="setTheme('theme-black-red')"></div>
+            <div class="theme-btn" style="background:#f5f3ff; border-color:#9333ea;" onclick="setTheme('theme-white-purple')"></div>
+        </div>
+        <div style="text-align:center; margin-top:20px; font-size:12px; color:var(--text-sub);">
+            Метка "Твинк" меняет цвет автоматически.
+        </div>
+    </div>
+</div>
     <div id="modal" class="modal-wrap" onclick="closeModal(event)">
         <div class="modal">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
@@ -1003,7 +1115,8 @@ if(!BP.doneTwink) BP.doneTwink = [];
                 loader.style.opacity = '0';
                 setTimeout(() => loader.remove(), 300);
             }
-
+const savedTheme = localStorage.getItem('gta_theme_22');
+    if(savedTheme) setTheme(savedTheme);
             document.getElementById('startBp').value = BP.start || '';
             document.getElementById('btnVip').classList.toggle('active', BP.vip);
             document.getElementById('btnX2').classList.toggle('active', BP.x2);
@@ -1482,6 +1595,7 @@ function renderTimers() {
     }
 
     all.forEach(t => {
+        // --- ЛОГИКА ТАЙМЕРА (как и была) ---
         if(t.run) {
             const now = Date.now();
             if (t.et) {
@@ -1500,7 +1614,15 @@ function renderTimers() {
         const statusText = isRunning ? 'Активен' : 'Пауза';
         const displayTime = fmtTime(t.rm);
         
-        // Visual for active (Gold border, Stop button)
+        // --- РАСЧЕТ ПРОГРЕССА ДЛЯ ПОЛОСКИ ---
+        // t.s - исходная длительность в секундах
+        // t.rm - осталось
+        // Прогресс (убывающий): (t.rm / t.s) * 100
+        let pct = 0;
+        if(t.s > 0) pct = (t.rm / t.s) * 100;
+        if(pct > 100) pct = 100; if(pct < 0) pct = 0;
+        
+        // --- HTML ---
         list.innerHTML += `
             <div class="timer-card ${isRunning ? 'running' : ''}">
                 <div class="tc-header">
@@ -1510,7 +1632,12 @@ function renderTimers() {
                     <div class="tc-status">${statusText}</div>
                 </div>
                 <div class="tc-time" id="disp_${t.id}">${displayTime}</div>
-                <div class="tc-footer">
+                
+                <div class="timer-progress-bg">
+                    <div id="prog_bar_${t.id}" class="timer-progress-bar" style="width: ${pct}%"></div>
+                </div>
+
+                <div class="tc-footer" style="margin-top:10px;">
                     <button class="tc-btn ${isRunning ? 'stop' : 'start'}" onclick="togTime('${t.id}')">
                         ${isRunning ? '|| Стоп' : '▶ Старт'}
                     </button>
@@ -1607,6 +1734,7 @@ function runInterval(id) {
         // Считаем разницу между Финишем и Сейчас
         const diff = Math.ceil((t.et - now) / 1000);
 
+// Внутри runInterval...
         if (diff <= 0) {
             // Таймер кончился
             t.rm = 0; 
@@ -1614,15 +1742,17 @@ function runInterval(id) {
             clearInterval(TIMER_INT[id]); 
             renderTimers();
             
-            // Воспроизводим звук или вибрацию (если нужно)
-            if(window.navigator && window.navigator.vibrate) window.navigator.vibrate([200, 100, 200]);
-        } else {
-            // Таймер идет
-            // Обновляем значение остатка только для отображения
-            if (t.rm !== diff) {
-                t.rm = diff;
-                const el = document.getElementById('disp_' + id);
-                if(el) el.innerText = fmtTime(t.rm);
+            // --- УВЕДОМЛЕНИЕ ---
+            if(window.Telegram.WebApp) {
+                // 1. Вибрация
+                window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                
+                // 2. Системный алерт Телеграма (Красивое окно)
+                window.Telegram.WebApp.showPopup({
+                    title: '⏰ Таймер завершен!',
+                    message: `Время вышло: ${t.l}`,
+                    buttons: [{type: 'ok', text: 'Понял'}]
+                });
             }
         }
         
@@ -1944,53 +2074,48 @@ function changeHeaderTimer(dir) {
 
 // Главная функция обновления виджета
 function updateHeaderTimer() {
-    // 1. Проверяем, есть ли база таймеров
     if (!TIMERS || !TIMERS.custom) return;
 
-    // 2. Берем только ЗАПУЩЕННЫЕ таймеры (run == true)
     const active = TIMERS.custom.filter(t => t.run);
-
     const elLabel = document.getElementById('htLabel');
     const elTime = document.getElementById('htTime');
+    const elBar = document.getElementById('htProgressBar'); // Наша новая полоска
 
-    // Если элементов HTML нет (мы на другой странице или ошибка), выходим
     if (!elLabel || !elTime) return;
 
-    // 3. Если нет активных таймеров
     if (active.length === 0) {
         elLabel.innerText = "Нет активных";
         elTime.innerText = "--:--";
-        elTime.style.color = "#555"; // Делаем серым
+        elTime.style.color = "#555";
+        if(elBar) elBar.style.width = '0%';
         return;
     }
 
-    // 4. Логика карусели (если индекс ушел за пределы)
     if (headerTimerIdx >= active.length) headerTimerIdx = 0;
     if (headerTimerIdx < 0) headerTimerIdx = active.length - 1;
 
-    // 5. Берем текущий таймер
     const t = active[headerTimerIdx];
     const now = Date.now();
 
-    // 6. Расчет времени (с защитой от NaN)
     let timeLeft = 0;
-    
     if (t.et) {
         timeLeft = Math.ceil((t.et - now) / 1000);
     } else {
         timeLeft = t.rm || 0;
-        t.et = now + (timeLeft * 1000);
     }
-
     if (timeLeft < 0) timeLeft = 0;
 
-    // 7. Вывод на экран
+    // --- РАСЧЕТ ДЛЯ ХЕДЕРА ---
+    let pct = 0;
+    if(t.s > 0) pct = (timeLeft / t.s) * 100;
+    if(elBar) elBar.style.width = pct + '%';
+
     let name = t.l || "Таймер";
     if (name.length > 12) name = name.slice(0, 11) + "..";
     
     elLabel.innerText = name;
     elTime.innerText = fmtTime(timeLeft); 
-    elTime.style.color = "#fff"; 
+    elTime.style.color = "var(--text-main)"; 
 }
 
 // Запускаем обновление каждую секунду
@@ -2084,6 +2209,24 @@ setInterval(() => {
         saveBP();
     }
 }, 1000);
+// --- THEMES LOGIC ---
+function openThemeModal() { document.getElementById('modalTheme').style.display = 'flex'; }
+function closeThemeModal(e) { if(e.target.id === 'modalTheme') document.getElementById('modalTheme').style.display = 'none'; }
+
+function setTheme(themeName) {
+    document.body.className = ''; // Сброс
+    if(themeName !== 'default') {
+        document.body.classList.add(themeName);
+    }
+    localStorage.setItem('gta_theme_22', themeName);
+    // Вибрация для подтверждения
+    if(window.Telegram.WebApp.HapticFeedback) window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+    closeThemeModal({target:{id:'modalTheme'}}); // Закрыть модалку (эмуляция)
+}
+
+// Вставь это в функцию init(), чтобы тема загружалась при старте:
+// const savedTheme = localStorage.getItem('gta_theme_22');
+// if(savedTheme) setTheme(savedTheme);
     </script>
 </body>
 </html>
