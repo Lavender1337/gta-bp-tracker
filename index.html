@@ -5,26 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>GTA 5 RP Helper Ultimate</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <style>
         :root {
             --bg-main: #121212;
             --bg-card: #1e1e1e;
             --bg-header: #000000;
             
-            /* Цвета разделов */
+            /* Цвета */
             --c-gold: #ffb300;
+            --c-green: #00c853; 
+            --c-red: #d32f2f;
             --c-blue: #29b6f6;
             --c-orange: #ff7043;
-            --c-green: #66bb6a;
             --c-purple: #ab47bc;
-            --c-red: #ef5350;
             --c-cyan: #26c6da;
+            --c-grey-btn: #2c2c2c;
 
             --text-main: #ffffff;
             --text-sub: #888888;
             --border: 1px solid #333;
-            --radius: 12px;
             --nav-height: 70px;
         }
 
@@ -38,161 +37,93 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* --- UI ELEMENTS --- */
-        .header {
-            padding: 15px; background: var(--bg-header);
-            font-size: 18px; font-weight: 800; text-transform: uppercase;
-            letter-spacing: 1px; color: var(--c-gold);
-            display: flex; justify-content: space-between; align-items: center;
-        }
-
-        .sticky-search {
-            position: sticky; top: 0; z-index: 100;
-            background: rgba(18, 18, 18, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 10px 15px;
-            border-bottom: var(--border);
-        }
-        .search-input {
-            width: 100%; background: #252525; border: none; outline: none;
-            padding: 12px; border-radius: 10px; color: white; font-size: 14px;
-            box-sizing: border-box;
-        }
+        /* --- HEADER & UI --- */
+        .header { padding: 15px; background: var(--bg-header); font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--c-gold); display: flex; justify-content: space-between; align-items: center; }
+        .sticky-search { position: sticky; top: 0; z-index: 100; background: rgba(18, 18, 18, 0.95); backdrop-filter: blur(10px); padding: 10px 15px; border-bottom: var(--border); }
+        .search-input { width: 100%; background: #252525; border: none; outline: none; padding: 12px; border-radius: 10px; color: white; font-size: 14px; box-sizing: border-box; }
 
         /* --- BP HERO --- */
-        .bp-hero {
-            margin: 15px; padding: 20px;
-            background: linear-gradient(135deg, #1e1e1e 0%, #101010 100%);
-            border: 1px solid #333; border-radius: 16px;
-            display: flex; flex-direction: column; gap: 15px;
-        }
+        .bp-hero { margin: 15px; padding: 20px; background: linear-gradient(135deg, #1e1e1e 0%, #101010 100%); border: 1px solid #333; border-radius: 16px; display: flex; flex-direction: column; gap: 15px; }
         .bp-row { display: flex; justify-content: space-between; align-items: flex-end; }
         .bp-big-num { font-size: 42px; font-weight: 900; line-height: 1; color: var(--c-gold); text-shadow: 0 0 15px rgba(255, 179, 0, 0.2); }
-        .bp-input { background: #333; border: none; color: white; padding: 8px; border-radius: 8px; width: 80px; text-align: center; font-weight: bold; }
+        .bp-input { background: #333; border: none; color: white; padding: 8px; border-radius: 8px; width: 80px; text-align: center; font-weight: bold; font-size: 16px; }
         .bp-toggles { display: flex; gap: 10px; }
-        .toggle-btn {
-            flex: 1; padding: 10px; background: #2a2a2a; border: 1px solid #333;
-            color: #888; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s;
-        }
+        .toggle-btn { flex: 1; padding: 10px; background: #2a2a2a; border: 1px solid #333; color: #888; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; }
         .toggle-btn.active { background: var(--c-gold); color: black; border-color: var(--c-gold); box-shadow: 0 0 10px rgba(255, 179, 0, 0.3); }
-
-        /* --- BP ACCORDION --- */
+        
+        /* --- BP LIST --- */
         .category-group { margin-bottom: 2px; }
-        .cat-header {
-            background: #1a1a1a; padding: 14px 15px;
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid #252525; cursor: pointer;
-        }
-        .cat-title { font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; text-transform: uppercase; color: #ddd; }
+        .cat-header { background: #1a1a1a; padding: 14px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #252525; cursor: pointer; }
+        .cat-title { font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 8px; text-transform: uppercase; color: #ddd; }
         .cat-arrow { transition: 0.3s; font-size: 10px; color: #666; }
         .category-group.open .cat-arrow { transform: rotate(180deg); color: var(--c-gold); }
         .cat-content { display: none; background: #121212; }
         .category-group.open .cat-content { display: block; animation: slideDown 0.2s ease; }
-
         @keyframes slideDown { from {opacity:0; transform:translateY(-10px);} to {opacity:1; transform:translateY(0);} }
-
-        .task-item {
-            padding: 12px 15px; border-bottom: 1px solid #222;
-            display: flex; align-items: center; justify-content: space-between;
-        }
+        
+        .task-item { padding: 12px 15px; border-bottom: 1px solid #222; display: flex; align-items: center; justify-content: space-between; }
         .task-item.completed .task-name { text-decoration: line-through; color: #555; }
-        .task-item.twink-done { background: rgba(171, 71, 188, 0.05); } /* Подсветка твинка */
-
+        .task-item.twink-done { background: rgba(171, 71, 188, 0.05); }
         .task-left { display: flex; align-items: center; gap: 12px; flex: 1; }
         .task-icon { width: 24px; text-align: center; font-size: 18px; }
         .task-name { font-size: 13px; font-weight: 500; line-height: 1.3; }
         .task-sub { font-size: 10px; color: #666; }
-
         .task-right { display: flex; align-items: center; gap: 8px; }
-        .badge { font-size: 11px; font-weight: 700; padding: 3px 6px; border-radius: 6px; min-width: 18px; text-align: center; }
-        .badge.gold { color: var(--c-gold); border: 1px solid rgba(255,179,0,0.3); background: rgba(255,179,0,0.1); }
         
         .btn-act { width: 32px; height: 32px; border-radius: 8px; border: 1px solid #333; background: transparent; color: #666; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; }
-        .btn-act.twink.active { color: var(--c-purple); border-color: var(--c-purple); background: rgba(171, 71, 188, 0.1); }
+        .btn-act.twink.active { color: #ab47bc; border-color: #ab47bc; background: rgba(171, 71, 188, 0.1); }
         .btn-act.check.active { background: var(--c-gold); color: black; border-color: var(--c-gold); }
 
-        /* --- TIMERS --- */
+        /* --- TIMERS (GRID CARD STYLE) --- */
         .timer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; }
-        .timer-preset {
-            background: #1e1e1e; border: 1px solid #333; padding: 12px; border-radius: 12px;
-            display: flex; align-items: center; justify-content: space-between;
+        .timer-card {
+            background: var(--bg-card); border: 1px solid #333; border-radius: 12px; padding: 12px;
+            display: flex; flex-direction: column; justify-content: space-between; min-height: 110px;
+            position: relative; transition: 0.2s;
         }
-        .timer-preset:active { transform: scale(0.98); background: #252525; }
-        .tp-info { display: flex; flex-direction: column; gap: 2px; }
-        .tp-name { font-size: 12px; color: #aaa; }
-        .tp-time { font-size: 16px; font-weight: 700; color: white; font-family: monospace; }
-        .tp-play { color: var(--c-green); font-size: 18px; }
+        .timer-card.running { border: 1px solid var(--c-gold); box-shadow: 0 0 10px rgba(255, 179, 0, 0.1); }
+        .tc-header { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #ddd; font-weight: 600; margin-bottom: 4px; }
+        .tc-status { font-size: 10px; color: var(--c-gold); margin-left: 20px; margin-bottom: 5px; display: none; }
+        .timer-card.running .tc-status { display: block; }
+        .tc-time { font-size: 24px; font-weight: 700; font-family: monospace; color: #666; margin-bottom: 10px; letter-spacing: 1px; }
+        .timer-card.running .tc-time { color: var(--c-gold); }
+        .tc-footer { display: flex; gap: 8px; }
+        .btn-main { flex: 1; border: none; border-radius: 6px; padding: 8px 0; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; color: white; }
+        .btn-start { background: var(--c-green); color: #000; }
+        .btn-stop { background: var(--c-red); color: #fff; border: 1px solid #ff5252; }
+        .btn-reset-mini { width: 36px; background: var(--c-grey-btn); border: 1px solid #444; border-radius: 6px; color: #aaa; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; }
 
-        .active-timer-card {
-            margin: 0 15px 10px; padding: 15px;
-            background: linear-gradient(45deg, #2b1111, #1a0505);
-            border: 1px solid var(--c-red); border-radius: 16px;
-            position: relative; overflow: hidden;
-        }
-        .at-head { display: flex; justify-content: space-between; font-size: 12px; color: #ff8a80; font-weight: 700; text-transform: uppercase; margin-bottom: 5px; }
-        .at-val { font-size: 32px; font-weight: 900; color: white; font-family: monospace; text-shadow: 0 0 10px rgba(239, 83, 80, 0.5); }
-        .at-controls { display: flex; gap: 10px; margin-top: 10px; }
-        .btn-ctrl { flex: 1; padding: 10px; border-radius: 8px; border: none; font-weight: 700; font-size: 13px; cursor: pointer; }
-        .btn-stop { background: var(--c-red); color: white; }
-        .btn-reset { background: rgba(255,255,255,0.1); color: #ccc; max-width: 50px; }
-
-        /* --- GUIDES (TABLES) --- */
-        .guide-nav {
-            display: flex; overflow-x: auto; gap: 8px; padding: 10px 15px;
-            scrollbar-width: none; border-bottom: 1px solid #222;
-        }
-        .g-tab {
-            padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; white-space: nowrap;
-            background: #1e1e1e; border: 1px solid #333; color: #888; transition: 0.2s;
-        }
-        /* Цвета активных табов */
-        .g-tab.active[data-type="fishing"] { background: rgba(41, 182, 246, 0.15); border-color: var(--c-blue); color: var(--c-blue); }
-        .g-tab.active[data-type="hunting"] { background: rgba(255, 112, 67, 0.15); border-color: var(--c-orange); color: var(--c-orange); }
-        .g-tab.active[data-type="treasures"] { background: rgba(255, 179, 0, 0.15); border-color: var(--c-gold); color: var(--c-gold); }
-        .g-tab.active[data-type="skills"] { background: rgba(38, 198, 218, 0.15); border-color: var(--c-cyan); color: var(--c-cyan); }
-        .g-tab.active[data-type="seeds"] { background: rgba(102, 187, 106, 0.15); border-color: var(--c-green); color: var(--c-green); }
-        .g-tab.active[data-type="garage"] { background: rgba(171, 71, 188, 0.15); border-color: var(--c-purple); color: var(--c-purple); }
-        .g-tab.active[data-type="repair"] { background: rgba(239, 83, 80, 0.15); border-color: var(--c-red); color: var(--c-red); }
-
+        /* --- GUIDES --- */
+        .guide-nav { display: flex; overflow-x: auto; gap: 8px; padding: 10px 15px; scrollbar-width: none; border-bottom: 1px solid #222; }
+        .g-tab { padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; white-space: nowrap; background: #1e1e1e; border: 1px solid #333; color: #888; transition: 0.2s; }
+        .g-tab.active { background: rgba(255,255,255,0.1); color: white; border-color: #666; }
+        
         .table-container { padding: 15px; overflow-x: auto; }
         .custom-table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 100%; }
-        .custom-table th { padding: 10px; text-align: left; font-weight: 700; text-transform: uppercase; font-size: 11px; }
+        .custom-table th { padding: 10px; text-align: left; font-weight: 700; text-transform: uppercase; font-size: 11px; background: rgba(255,255,255,0.05); color: #aaa; }
         .custom-table td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #ddd; }
-        .custom-table tr:last-child td { border-bottom: none; }
         
-        /* Стилизация под конкретные таблицы */
-        .t-fishing th { color: var(--c-blue); background: rgba(41, 182, 246, 0.05); }
-        .t-fishing td:first-child { color: var(--c-blue); font-weight: 600; }
-        .t-fishing .price-high { color: var(--c-orange); font-weight: bold; }
+        /* Tab Colors */
+        .g-tab.active[data-type="fishing"] { border-color: var(--c-blue); color: var(--c-blue); background: rgba(41, 182, 246, 0.1); }
+        .g-tab.active[data-type="hunting"] { border-color: var(--c-orange); color: var(--c-orange); background: rgba(255, 112, 67, 0.1); }
+        .g-tab.active[data-type="treasures"] { border-color: var(--c-gold); color: var(--c-gold); background: rgba(255, 179, 0, 0.1); }
+        .g-tab.active[data-type="garage"] { border-color: var(--c-purple); color: var(--c-purple); background: rgba(171, 71, 188, 0.1); }
+        .g-tab.active[data-type="seeds"] { border-color: var(--c-green); color: var(--c-green); background: rgba(0, 200, 83, 0.1); }
+        .g-tab.active[data-type="repair"] { border-color: var(--c-red); color: var(--c-red); background: rgba(211, 47, 47, 0.1); }
         
-        .t-hunting th { color: var(--c-orange); background: rgba(255, 112, 67, 0.05); }
-        .t-hunting td:first-child { color: var(--c-orange); font-weight: 600; }
-
-        .t-treasures th { color: var(--c-gold); background: rgba(255, 179, 0, 0.05); }
-        .t-treasures td:first-child { color: var(--c-gold); font-weight: 600; }
-
-        .t-skills th { color: var(--c-cyan); background: rgba(38, 198, 218, 0.05); }
-        .t-skills td:first-child { color: var(--c-cyan); font-weight: 600; }
-
-        .t-seeds th { color: var(--c-green); background: rgba(102, 187, 106, 0.05); }
-        .t-seeds td:first-child { color: var(--c-green); font-weight: 600; }
-
-        .t-garage th { color: var(--c-purple); background: rgba(171, 71, 188, 0.05); }
-        .t-garage td:first-child { color: var(--c-gold); font-weight: 600; } /* Класс гаража золотой */
-
-        .t-repair th { color: var(--c-red); background: rgba(239, 83, 80, 0.05); }
-        .t-repair td:first-child { color: var(--c-gold); font-weight: 600; }
+        /* Table Colors */
+        .t-fishing td:first-child { color: var(--c-blue); font-weight: bold; }
+        .t-hunting td:first-child { color: var(--c-orange); font-weight: bold; }
+        .t-treasures td:first-child { color: var(--c-gold); font-weight: bold; }
+        .t-garage td:first-child { color: var(--c-purple); font-weight: bold; }
+        .t-repair td:first-child { color: var(--c-gold); font-weight: bold; }
+        .t-seeds td:first-child { color: var(--c-green); font-weight: bold; }
 
         /* --- NAV --- */
-        .bottom-nav {
-            position: fixed; bottom: 0; width: 100%; height: var(--nav-height);
-            background: #000; border-top: 1px solid #333;
-            display: flex; justify-content: space-around; padding-top: 10px; z-index: 999;
-        }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: var(--nav-height); background: #000; border-top: 1px solid #333; display: flex; justify-content: space-around; padding-top: 10px; z-index: 999; }
         .nav-btn { background: none; border: none; color: #555; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; width: 100%; }
         .nav-icon { font-size: 22px; margin-bottom: 2px; }
         .nav-btn.active { color: var(--c-gold); }
-        
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from{opacity:0} to{opacity:1} }
@@ -236,16 +167,13 @@
         
         <div class="timer-grid" id="timerGrid"></div>
 
-        <div style="padding: 0 15px; margin-bottom:15px;">
+        <div style="padding: 0 15px; margin-bottom:20px;">
             <div style="display:flex; gap:10px;">
                 <input type="text" id="custTmName" class="search-input" placeholder="Название">
                 <input type="number" id="custTmMin" class="search-input" placeholder="Мин" style="width:70px;">
                 <button onclick="addCustomTimer()" style="background:var(--c-gold); color:black; border:none; border-radius:10px; padding:0 15px; font-weight:bold;">+</button>
             </div>
         </div>
-
-        <div class="header" style="font-size:14px; color:#666; padding-top:0;">Активные</div>
-        <div id="activeTimers"></div>
     </div>
 
     <div id="tab-guides" class="tab-content">
@@ -271,7 +199,7 @@
     </nav>
 
 <script>
-// --- ДАННЫЕ (ИЗ ТВОИХ СКРИНОВ) ---
+// --- DB DATA ---
 const DB = {
     bp: [
         // Easy
@@ -325,33 +253,40 @@ const DB = {
         {t:"WN объявления (40)", q:40, b:2, v:4, i:"📰", cat:"faction"}
     ],
     timers: [
-        {id:'casino', l:'Казино', s:86400, i:'🎰'},
-        {id:'wheel', l:'Колесо', s:86400, i:'🎡'},
+        {id:'org', l:'Организация', s:7200, i:'🏢'},
         {id:'mail', l:'Почта', s:600, i:'✉️'},
-        {id:'mech', l:'Механик', s:300, i:'🔧'},
-        {id:'train', l:'Питомцы', s:900, i:'🐕'},
-        {id:'steal', l:'Автоугон', s:5400, i:'🚗'},
+        {id:'avtogon', l:'Автоугон', s:5400, i:'🚗'},
         {id:'pimp', l:'Сутенерка', s:5400, i:'👠'},
-        {id:'club', l:'Клуб', s:7200, i:'🏍'},
-        {id:'tarot', l:'Таро', s:10800, i:'🔮'}
+        {id:'contra', l:'Контрабанда', s:300, i:'💼'},
+        {id:'bus', l:'Автобус', s:300, i:'🚌'},
+        {id:'club', l:'Задание клуба', s:7200, i:'🏍'},
+        {id:'tir', l:'Тир', s:5400, i:'🎯'},
+        {id:'sew', l:'Швейка', s:5400, i:'🧵'},
+        {id:'box', l:'Коробки', s:5400, i:'📦'},
+        {id:'biker', l:'Байкерка', s:7200, i:'🏍'},
+        {id:'redneck', l:'Реднеки', s:7200, i:'🚜'},
+        {id:'carmit', l:'Кармит', s:7200, i:'🏎'},
+        {id:'merry', l:'Меривезер', s:7200, i:'⚔️'},
+        {id:'epsi', l:'Эпсилон', s:7200, i:'🌀'},
+        {id:'pet', l:'Дрессировка', s:900, i:'🐕'}
     ],
     guides: {
         fishing: {
-            h: ["Рыба", "Шанс", "Цены (скуп)", "Rednecks", "Вес"],
+            h: ["Рыба", "Шанс", "Цены", "Red", "Вес"],
             d: [
-                ["Стерлядь", "33%", "54 - 71", "81", "0.3"],
-                ["Лосось", "17%", "73 - 96", "110", "0.3"],
-                ["Осетр", "29%", "132 - 173", "198", "0.3"],
-                ["Черный Амур", "6.3%", "264 - 346", "396", "0.4"],
-                ["Скат", "7%", "300 - 393", "450", "0.4"],
-                ["Тунец", "1%", "840 - 1103", "1260", "0.4"],
-                ["Мальма", "1%", "1260 - 1654", "1890", "0.4"],
-                ["Фугу", "5%", "3000 - 3950", "4500", "0.5"],
+                ["Стерлядь", "33.3%", "54-71", "81", "0.3"],
+                ["Лосось", "17.4%", "73-96", "110", "0.3"],
+                ["Осетр", "29.0%", "132-173", "198", "0.3"],
+                ["Черный Амур", "6.3%", "264-346", "396", "0.4"],
+                ["Скат", "7.0%", "300-393", "450", "0.4"],
+                ["Тунец", "1.0%", "840-1103", "1260", "0.4"],
+                ["Мальма", "1.0%", "1260-1654", "1890", "0.4"],
+                ["Фугу", "5.0%", "3000-3950", "4500", "0.5"],
                 ["---", "На червя", "---", "---", "---"],
-                ["Корюшка", "-", "30 - 39", "45", "0.2"],
-                ["Окунь", "-", "31 - 40", "46", "0.2"],
-                ["Угорь", "-", "32 - 43", "49", "0.2"],
-                ["Щука", "-", "35 - 46", "52", "0.3"]
+                ["Корюшка", "-", "30-39", "45", "0.2"],
+                ["Окунь", "-", "31-40", "46", "0.2"],
+                ["Угорь", "-", "32-43", "49", "0.2"],
+                ["Щука", "-", "35-46", "52", "0.3"]
             ]
         },
         hunting: {
@@ -365,7 +300,7 @@ const DB = {
             ]
         },
         treasures: {
-            h: ["Сокровище", "Обычный (Lv0 - Lv5)", "Rednecks (Lv0 - Lv5)"],
+            h: ["Сокровище", "Lv0 - Lv5", "Red Lv0 - Lv5"],
             d: [
                 ["Дублон", "1k-3k | 1.5k-4.5k", "1.1k-3.4k | 1.7k-5.2k"],
                 ["Самородок", "2k-5k | 3k-7.5k", "2.3k-5.8k | 3.4k-8.7k"],
@@ -378,28 +313,28 @@ const DB = {
         skills: {
             h: ["Навык", "Действий", "До 60%", "До 5 лвл", "Бонус"],
             d: [
-                ["Сила", "100-500", "12/6 ч", "30/15 ч", "Скорость бега +4%"],
+                ["Сила", "100-500", "12/6 ч", "30/15 ч", "+4% скорость"],
                 ["Стрельба", "5-20", "60/30 ч", "160/80 ч", "Меньше разброс"],
                 ["Кулинария", "50-250", "1/0.5 ч", "2/1 ч", "Новые блюда"],
                 ["Рыболовство", "25-1000", "6/3 ч", "16/8 ч", "Новые рыбы"],
                 ["Охота", "100-300", "60/30 ч", "150/75 ч", "Качество шкур"],
-                ["Сокровища", "100-500", "130/65 ч", "350/170 ч", "+10% к цене"],
-                ["Фермерство", "500-1500", "28/14 ч", "64/32 ч", "Новая техника"],
+                ["Сокровища", "100-500", "130/65 ч", "350/170 ч", "+10% цена"],
+                ["Фермерство", "500-1500", "28/14 ч", "64/32 ч", "Техника"],
                 ["Строитель", "1500-4500", "26/13 ч", "56/28 ч", "Погрузчик"],
                 ["Шахтер", "1000-3000", "32/16 ч", "68/34 ч", "Бульдозер"],
                 ["Таксист", "100-500", "80/40 ч", "200/100 ч", "Новые авто"]
             ]
         },
         seeds: {
-            h: ["Деятельность", "Базовый", "5 Rednecks", "+ Питомец"],
+            h: ["Деятельность", "Базовый", "5 Red", "+Крыса/Кролик"],
             d: [
-                ["--- Слабое обезбол ---", "", "", ""],
-                ["Порт/Стройка/Шахта", "2%", "4%", "6% (Крыса)"],
-                ["Почта (разовая)", "10%", "12%", "14% (Крыса)"],
-                ["Почта (работа)", "3%", "5%", "7% (Крыса)"],
+                ["--- Обезбол ---", "", "", ""],
+                ["Порт/Стройка", "2%", "4%", "6%"],
+                ["Почта (разовая)", "10%", "12%", "14%"],
+                ["Почта (работа)", "3%", "5%", "7%"],
                 ["Ограбление", "5%", "7%", "-"],
-                ["--- Ароматные ---", "", "", ""],
-                ["Апельсины/Капуста", "6%", "8%", "10% (Кролик)"],
+                ["--- Семена ---", "", "", ""],
+                ["Апельсины/Капуста", "6%", "8%", "10%"],
                 ["Поиск клада", "10%", "12%", "-"],
                 ["Контрабанда", "10%", "12%", "-"]
             ]
@@ -427,13 +362,13 @@ const DB = {
             d: [
                 ["Двигатель", "100к", "30%"],
                 ["Тормоза", "20к", "9%"],
-                ["Покрышки", "20к", "6% (max 100k)"],
-                ["Топливо", "20к", "6% (max 100k)"],
-                ["Выхлоп", "10к", "6% (max 100k)"],
+                ["Покрышки", "20к", "6%"],
+                ["Топливо", "20к", "6%"],
+                ["Выхлоп", "10к", "6%"],
                 ["Кузов", "100к", "19%"],
-                ["Аккумулятор", "10к", "6% (max 100k)"],
+                ["Аккумулятор", "10к", "6%"],
                 ["Подвеска", "20к", "9%"],
-                ["Зажигание", "20к", "6% (max 100k)"],
+                ["Зажигание", "20к", "6%"],
                 ["Трансмиссия", "50к", "20%"]
             ]
         }
@@ -442,17 +377,17 @@ const DB = {
 
 // --- LOGIC ---
 let BP = { start:0, done:[], doneTwink:[], counters:{}, vip:false, x2:false };
-let TIMERS = [];
+let ACTIVE_TIMERS = {}; 
 let CAT_STATE = { easy:true, medium:false, hard:false, pair:false, faction:false };
 
 // Init
 function init() {
-    // Load from local storage (Cloud can be added)
-    const saved = localStorage.getItem('gta_bp_26');
-    if(saved) BP = JSON.parse(saved);
+    // Load data
+    const savedBP = localStorage.getItem('gta_bp_final');
+    if(savedBP) BP = JSON.parse(savedBP);
 
-    const savedTm = localStorage.getItem('gta_tm_26');
-    if(savedTm) TIMERS = JSON.parse(savedTm);
+    const savedActive = localStorage.getItem('gta_timers_active_final');
+    if(savedActive) ACTIVE_TIMERS = JSON.parse(savedActive);
 
     document.getElementById('startBp').value = BP.start || '';
     document.getElementById('btnVip').classList.toggle('active', BP.vip);
@@ -460,7 +395,7 @@ function init() {
     
     renderBP(); updateBP(); renderTimers(); setGuide('fishing', document.querySelector('.g-tab'));
     
-    // Timer interval
+    // Timer Tick Loop
     setInterval(tickTimers, 1000);
 }
 
@@ -481,7 +416,6 @@ function updateBP() {
     };
 
     BP.done.forEach(id => total += processTask(id));
-    // Твинки не считаем в общий тотал для отображения, но можем (по желанию)
     
     // Счетчики
     Object.keys(BP.counters).forEach(id => {
@@ -586,84 +520,115 @@ function updCount(i, d, e) {
 function newDay() {
     if(confirm('Сбросить прогресс?')) {
         BP.done=[]; BP.doneTwink=[]; BP.counters={}; BP.start=0;
-        localStorage.setItem('gta_bp_26', JSON.stringify(BP));
+        saveBP();
         location.reload();
     }
 }
-function saveBP() { localStorage.setItem('gta_bp_26', JSON.stringify(BP)); }
+function saveBP() { localStorage.setItem('gta_bp_final', JSON.stringify(BP)); }
 
-// --- TIMERS ---
+// --- TIMERS (NEW GRID LOGIC) ---
 function renderTimers() {
-    const grid = document.getElementById('timerGrid'); grid.innerHTML = '';
+    const grid = document.getElementById('timerGrid'); 
+    grid.innerHTML = '';
+    
     DB.timers.forEach(t => {
-        grid.innerHTML += `
-            <div class="timer-preset" onclick="addTimer('${t.l}', ${t.s})">
-                <div class="tp-info">
-                    <div style="font-size:20px;">${t.i}</div>
-                    <div class="tp-name">${t.l}</div>
-                    <div class="tp-time">${fmt(t.s)}</div>
-                </div>
-                <div class="tp-play">▶</div>
-            </div>`;
-    });
+        const active = ACTIVE_TIMERS[t.id];
+        let displayTime = fmt(t.s); // По дефолту время старта (напр 10:00)
+        let isRunning = false;
 
-    const list = document.getElementById('activeTimers'); list.innerHTML = '';
-    TIMERS.forEach((t, idx) => {
-        let left = Math.ceil((t.e - Date.now())/1000);
-        if(left < 0) left = 0;
-        
-        list.innerHTML += `
-            <div class="active-timer-card">
-                <div class="at-head"><span>${t.n}</span> <span>${left>0?'АКТИВЕН':'ГОТОВ'}</span></div>
-                <div class="at-val">${fmt(left)}</div>
-                <div class="at-controls">
-                    <button class="btn-ctrl btn-stop" onclick="delTimer(${idx})">СТОП</button>
-                    <button class="btn-ctrl btn-reset" onclick="rstTimer(${idx})">↻</button>
+        if (active) {
+            const left = Math.ceil((active.end - Date.now()) / 1000);
+            if (left > 0) {
+                displayTime = fmt(left);
+                isRunning = true;
+            } else {
+                displayTime = "ГОТОВО";
+                isRunning = true; 
+            }
+        }
+
+        grid.innerHTML += `
+            <div class="timer-card ${isRunning ? 'running' : ''}" id="card_${t.id}">
+                <div>
+                    <div class="tc-header">
+                        <span>::</span> ${t.i} ${t.l}
+                    </div>
+                    <div class="tc-status">● Активен</div>
+                    <div class="tc-time" id="time_${t.id}">${displayTime}</div>
+                </div>
+                
+                <div class="tc-footer">
+                    ${isRunning 
+                        ? `<button class="btn-main btn-stop" onclick="stopTimer('${t.id}')">❚❚ Стоп</button>` 
+                        : `<button class="btn-main btn-start" onclick="startTimer('${t.id}', ${t.s})">▷ Старт</button>`
+                    }
+                    <button class="btn-reset-mini" onclick="resetTimer('${t.id}', ${t.s})">↻</button>
                 </div>
             </div>`;
     });
 }
 
-function addTimer(n, s) {
-    TIMERS.push({ n:n, s:s, e: Date.now() + s*1000 });
-    saveTm(); renderTimers();
+function startTimer(id, seconds) {
+    ACTIVE_TIMERS[id] = { end: Date.now() + (seconds * 1000), total: seconds };
+    saveActiveTimers();
+    renderTimers();
+}
+function stopTimer(id) {
+    delete ACTIVE_TIMERS[id];
+    saveActiveTimers();
+    renderTimers();
+}
+function resetTimer(id, seconds) {
+    ACTIVE_TIMERS[id] = { end: Date.now() + (seconds * 1000), total: seconds };
+    saveActiveTimers();
+    renderTimers();
 }
 function addCustomTimer() {
-    let n = document.getElementById('custTmName').value || 'Таймер';
-    let m = parseInt(document.getElementById('custTmMin').value);
-    if(m) addTimer(n, m*60);
+    const name = document.getElementById('custTmName').value || 'Таймер';
+    const min = parseInt(document.getElementById('custTmMin').value);
+    if(min) {
+        // Создаем уникальный ID
+        const id = 'cust_' + Date.now();
+        // Добавляем в базу временно
+        DB.timers.push({id: id, l: name, s: min * 60, i: '⏱'});
+        startTimer(id, min * 60);
+        document.getElementById('custTmName').value = '';
+        document.getElementById('custTmMin').value = '';
+    }
 }
-function delTimer(i) { TIMERS.splice(i, 1); saveTm(); renderTimers(); }
-function rstTimer(i) { TIMERS[i].e = Date.now() + TIMERS[i].s*1000; saveTm(); renderTimers(); }
+function saveActiveTimers() { localStorage.setItem('gta_timers_active_final', JSON.stringify(ACTIVE_TIMERS)); }
+
 function tickTimers() {
-    let change = false;
-    TIMERS.forEach(t => {
-        let left = Math.ceil((t.e - Date.now())/1000);
-        if(left <= 0 && !t.notified) {
-            t.notified = true;
-            if(window.Telegram.WebApp.showPopup) {
-                 window.Telegram.WebApp.showPopup({title:'Таймер!', message:`${t.n} завершен!`});
-            }
-            if(navigator.vibrate) navigator.vibrate([500, 200, 500]);
-        }
-        change = true;
-    });
-    // Обновляем заголовок с ближайшим таймером
-    let min = Infinity;
-    TIMERS.forEach(t => {
-        let l = Math.ceil((t.e - Date.now())/1000);
-        if(l>0 && l<min) min = l;
-    });
-    document.getElementById('headerTimer').innerText = min!==Infinity ? `⏳ ${fmt(min)}` : '';
+    let hasChanges = false;
     
-    if(change) renderTimers();
+    DB.timers.forEach(t => {
+        const active = ACTIVE_TIMERS[t.id];
+        if (active) {
+            const left = Math.ceil((active.end - Date.now()) / 1000);
+            const el = document.getElementById(`time_${t.id}`);
+            
+            if (left <= 0) {
+                 if(el) el.innerText = "ГОТОВО";
+                 if(!active.notified) {
+                     active.notified = true;
+                     if(window.Telegram.WebApp.showPopup) window.Telegram.WebApp.showPopup({title:'Таймер', message:`${t.l} завершен!`});
+                     if(navigator.vibrate) navigator.vibrate([200,100,200]);
+                     saveActiveTimers();
+                 }
+            } else {
+                 if(el) el.innerText = fmt(left);
+            }
+            hasChanges = true;
+        }
+    });
+
+    let min = Infinity;
+    Object.values(ACTIVE_TIMERS).forEach(a => {
+        let l = Math.ceil((a.end - Date.now())/1000);
+        if(l > 0 && l < min) min = l;
+    });
+    document.getElementById('headerTimer').innerText = min !== Infinity ? `⏳ ${fmt(min)}` : '';
 }
-function saveTm() { localStorage.setItem('gta_tm_26', JSON.stringify(TIMERS)); }
-function fmt(s) {
-    let h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
-    return `${pad(h)}:${pad(m)}:${pad(sec)}`;
-}
-function pad(n) { return n<10?'0'+n:n; }
 
 // --- GUIDES ---
 function setGuide(type, btn) {
@@ -679,12 +644,7 @@ function setGuide(type, btn) {
     
     data.d.forEach(row => {
         html += `<tr>`;
-        row.forEach((cell, i) => {
-            // Подсветка цен для рыбалки
-            let cls = '';
-            if(type === 'fishing' && i === 3 && parseInt(cell) > 100) cls = 'price-high';
-            html += `<td class="${cls}">${cell}</td>`;
-        });
+        row.forEach(cell => html += `<td>${cell}</td>`);
         html += `</tr>`;
     });
     html += `</tbody></table>`;
@@ -698,13 +658,19 @@ function go(id, btn) {
     document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
     btn.classList.add('active');
 }
+function fmt(s) {
+    let h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
+    if(h>0) return `${pad(h)}:${pad(m)}:${pad(sec)}`;
+    return `${pad(m)}:${pad(sec)}`;
+}
+function pad(n) { return n<10?'0'+n:n; }
 
 // Start
 init();
 if(window.Telegram.WebApp) {
     window.Telegram.WebApp.ready();
     window.Telegram.WebApp.expand();
-    window.Telegram.WebApp.setHeaderColor('#000000');
+    try { window.Telegram.WebApp.setHeaderColor('#000000'); } catch(e){}
 }
 </script>
 </body>
