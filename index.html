@@ -67,12 +67,110 @@ select {
     padding-right: 30px;
 }
 
-/* --- BP HERO (ВЕРХНЯЯ ПАНЕЛЬ) --- */
+/* --- НОВЫЙ ДИЗАЙН HERO (ВЕРХНЯЯ ПАНЕЛЬ) --- */
 .bp-hero {
-    background: linear-gradient(180deg, rgba(20,20,20,1) 0%, rgba(5,5,5,0) 100%);
-    border-bottom: 1px solid #222;
-    padding: 15px; margin-bottom: 10px;
-    display: flex; justify-content: space-between; align-items: center;
+    background: #0f0f11;
+    border: 1px solid #222;
+    border-radius: 16px;
+    padding: 15px;
+    margin: 15px 15px 20px; /* Отступы по бокам */
+}
+
+/* Сетка 4 столбика */
+.hero-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    text-align: center;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.stat-box { display: flex; flex-direction: column; align-items: center; }
+.stat-val { font-size: 20px; font-weight: 800; color: var(--gold); line-height: 1.2; }
+.stat-label { font-size: 10px; color: #666; text-transform: uppercase; margin-top: 4px; font-weight: 600; }
+
+/* Кнопки переключения (VIP / X2) */
+.hero-toggles { display: flex; gap: 10px; }
+.hero-btn {
+    flex: 1;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #666;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.hero-btn.active {
+    background: rgba(251, 191, 36, 0.1); /* Gold tint */
+    border-color: var(--gold);
+    color: var(--gold);
+    box-shadow: 0 4px 15px rgba(251, 191, 36, 0.15);
+}
+.hero-btn.active.x2 {
+    background: rgba(192, 132, 252, 0.1); /* Purple tint */
+    border-color: var(--purple);
+    color: var(--purple);
+}
+
+/* --- НОВЫЙ ДИЗАЙН ЗАДАЧ С ПРОГРЕССОМ --- */
+.task-item {
+    display: flex; flex-direction: column; gap: 8px; /* Меняем на колонку для мобилок */
+}
+
+.task-top-row {
+    display: flex; align-items: center; gap: 12px; width: 100%;
+}
+
+/* Прогресс бар (тонкая линия) */
+.progress-track {
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    width: 100%;
+    margin-top: 6px;
+    overflow: hidden;
+    position: relative;
+}
+.progress-fill {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    border-radius: 2px;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 10px var(--accent-glow);
+}
+
+/* Контроллеры (+ / -) */
+.controls-new {
+    display: flex; align-items: center; gap: 8px;
+    background: #000; padding: 4px; border-radius: 10px; border: 1px solid #222;
+}
+
+.btn-mini {
+    width: 32px; height: 32px;
+    border-radius: 8px; border: none;
+    font-size: 18px; font-weight: bold;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: 0.1s;
+}
+.btn-mini.minus { background: #1a1a1a; color: #888; }
+.btn-mini.minus:active { background: #222; }
+
+.btn-mini.plus { background: var(--accent); color: #000; box-shadow: 0 2px 8px var(--accent-glow); }
+.btn-mini.plus:active { transform: scale(0.95); }
+
+.counter-val-new {
+    min-width: 20px; text-align: center;
+    font-size: 14px; font-weight: 800; color: #fff;
+}
+.reward-badge {
+    background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3);
+    color: var(--green); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 800;
 }
 .bp-total-val { font-size: 32px; font-weight: 800; color: var(--gold); line-height: 1; text-shadow: 0 0 15px rgba(251, 191, 36, 0.3); }
 /* Исправление поля ввода BP */
@@ -369,23 +467,35 @@ input[type=range]::-moz-range-thumb { height: 18px; width: 18px; border: none; b
     </div>
 
 <div id="tab-bp" class="tab-content active">
-        <div class="bp-hero">
-            <div class="bp-row">
-                <div style="display:flex; flex-direction:column; gap:5px;">
-                    <span style="font-size:12px; color:#888; text-transform:uppercase;">Старт сегодня</span>
-                    <input type="number" id="startBp" class="bp-input" placeholder="0" oninput="updateBP()">
-                </div>
-                <div style="text-align:right;">
-                    <div style="font-size:12px; color:#888; text-transform:uppercase;">Итого BP</div>
-                    <div class="bp-total-val" id="totalBp">0</div>
-                </div>
-            </div>
-            <div class="bp-toggles">
-                <button class="toggle-btn vip" id="btnVip" onclick="toggleVip()">👑 VIP</button>
-                <button class="toggle-btn x2" id="btnX2" onclick="toggleX2()">⚡ X2</button>
-            </div>
+<div class="bp-hero">
+    <div class="hero-stats-grid">
+        <div class="stat-box">
+            <div class="stat-val" id="totalBp">0</div>
+            <div class="stat-label">BP</div>
         </div>
+        <div class="stat-box">
+            <div class="stat-val" id="totalTime">0</div> <div class="stat-label">Часы</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-val" id="multiplierDisp">x1</div>
+            <div class="stat-label">Множ.</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-val" id="doneCount">0</div>
+            <div class="stat-label">Готово</div>
+        </div>
+    </div>
 
+    <div class="hero-toggles">
+        <button class="hero-btn" id="btnVip" onclick="toggleVip()">VIP Gold/Plat</button>
+        <button class="hero-btn" id="btnX2" onclick="toggleX2()">⚡ Сервер X2</button>
+    </div>
+    
+    <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:11px; color:#555;">Коррекция старта:</span>
+        <input type="number" id="startBp" value="0" oninput="updateBP()" style="width:60px; padding:4px; font-size:12px; text-align:center; background:#111; border:1px solid #333;">
+    </div>
+</div>
         <div class="bp-actions-top">
             <button class="action-btn new-day" onclick="newDay()">🌅 Новый день</button>
             <button class="action-btn" onclick="openUnhideModal()">👁 Вернуть скрытые</button>
@@ -887,15 +997,15 @@ function fmtTimeSimple(s) {
         }
         function toggleVip() { BP.vip = !BP.vip; document.getElementById('btnVip').classList.toggle('active'); saveBP(); renderBP(); updateBP(); }
         function toggleX2() { BP.x2 = !BP.x2; document.getElementById('btnX2').classList.toggle('active'); saveBP(); renderBP(); updateBP(); }
- function updateBP() {
+function updateBP() {
     BP.start = parseInt(document.getElementById('startBp').value) || 0;
     
     let total = BP.start;
+    let doneCount = BP.done.length + (BP.doneTwink ? BP.doneTwink.length : 0); // Считаем готовые задачи
     
-    // 1. Считаем обычные выполненные задачи (одноразовые)
+    // 1. Считаем одноразовые
     BP.done.forEach(i => { 
         let task = DB.bp[i]; 
-        // Если задача многоразовая (r:1), мы ее тут НЕ считаем (посчитаем ниже по счетчику)
         if(task && !task.r) {
             let rw = BP.vip ? task.v : task.b; 
             if(BP.x2) rw *= 2; 
@@ -903,11 +1013,10 @@ function fmtTimeSimple(s) {
         }
     });
 
-    // 2. Считаем многоразовые задачи по счетчику
+    // 2. Считаем многоразовые
     if(BP.counters) {
         Object.keys(BP.counters).forEach(i => {
             let task = DB.bp[i];
-            // Если задача существует и у нее есть флаг r:1
             if(task && task.r) {
                 let count = BP.counters[i];
                 let rw = BP.vip ? task.v : task.b; 
@@ -917,21 +1026,34 @@ function fmtTimeSimple(s) {
         });
     }
 
-    // Считаем "Нафармлено"
-    let farmed = total - BP.start;
+    // Обновляем НОВУЮ шапку
+    const elTotal = document.getElementById('totalBp');
+    const elDone = document.getElementById('doneCount');
+    const elMult = document.getElementById('multiplierDisp');
+    const elTime = document.getElementById('totalTime'); // Пока ставим 0 или расчет из таймеров
 
-    // Обновляем HTML
-    document.getElementById('totalBp').innerText = total;
-    document.getElementById('farmedBpMain').innerText = '+' + farmed;
+    if(elTotal) elTotal.innerText = total;
+    if(elDone) elDone.innerText = doneCount;
+    
+    // Расчет множителя для отображения
+    let mult = 1;
+    if(BP.vip) mult *= 2; // Условно, если VIP дает x2 к базе
+    if(BP.x2) mult *= 2;
+    if(elMult) elMult.innerText = 'x' + mult;
 
-    const stickyTotal = document.getElementById('stickyTotal');
-    const stickyFarmed = document.getElementById('stickyFarmed');
-    if(stickyTotal) stickyTotal.innerText = total;
-    if(stickyFarmed) stickyFarmed.innerText = '+' + farmed;
+    // (Опционально) Расчет времени, если хочешь:
+    // пока просто ставим 0, или можешь выводить реальное время
+    if(elTime) {
+        const now = new Date();
+        elTime.innerText = now.getHours() + ':' + (now.getMinutes()<10?'0':'') + now.getMinutes();
+    }
+    
+    // Обновляем кнопки
+    document.getElementById('btnVip').classList.toggle('active', BP.vip);
+    document.getElementById('btnX2').classList.toggle('active', BP.x2);
 
     saveBP();
-}
-        
+}    
 function toggleTask(i) {
     if(BP.done.includes(i)) { 
         BP.done = BP.done.filter(x=>x!==i); 
@@ -1034,32 +1156,43 @@ function renderBP() {
         const isTwink = BP.doneTwink.includes(i);
         let rw = BP.vip ? t.v : t.b; if(BP.x2) rw *= 2;
         
-        // --- УЛУЧШЕННАЯ ЛОГИКА СЧЕТЧИКОВ ---
-        let counterHTML = '';
+        // --- ЛОГИКА ПРОГРЕСС БАРА И КНОПОК ---
+        let controlHTML = '';
+        let progressBarHTML = '';
+        
         if(t.q > 1 || t.r) {
             const curr = BP.counters && BP.counters[i] ? BP.counters[i] : 0;
             const max = t.q;
+            
+            // Вычисляем процент для полоски
+            let pct = (curr / max) * 100;
+            if(pct > 100) pct = 100;
 
-            // Если действий МНОГО (> 10) и задача не бесконечная -> ПОЛЗУНОК
-            if (max > 10 && !t.r) {
-                counterHTML = `
-                <div class="slider-container" onclick="event.stopPropagation()">
-                    <span style="font-size:11px; color:#666; width:30px;">${curr}</span>
-                    <input type="range" min="0" max="${max}" value="${curr}" 
-                           oninput="updateCounterSlider(${i}, this.value)">
-                    <span style="font-size:11px; color:var(--accent); width:30px; text-align:right;">${max}</span>
-                </div>`;
-            } 
-            // Если действий МАЛО или бесконечная -> КНОПКИ
-            else {
-                const countDisplay = t.r ? `x${curr}` : `${curr}/${max}`;
-                counterHTML = `
-                <div class="counter-wrapper" onclick="event.stopPropagation()">
-                    <button class="icon-btn" onclick="updateCounter(${i}, -1)">−</button>
-                    <span class="counter-val" style="${t.r ? 'color:var(--accent);' : ''}">${countDisplay}</span>
-                    <button class="icon-btn" onclick="updateCounter(${i}, 1)">+</button>
-                </div>`;
+            // Если задача не бесконечная (обычная) - рисуем прогресс бар
+            if(!t.r) {
+                progressBarHTML = `
+                    <div class="progress-track">
+                        <div class="progress-fill" style="width: ${pct}%"></div>
+                    </div>
+                `;
             }
+
+            // Кнопки управления (как на скрине: Минус | Цифра | Плюс Оранжевый | Награда)
+            controlHTML = `
+            <div class="controls-new" onclick="event.stopPropagation()">
+                <button class="btn-mini minus" onclick="updateCounter(${i}, -1)">−</button>
+                <span class="counter-val-new">${curr}</span>
+                <button class="btn-mini plus" onclick="updateCounter(${i}, 1)">+</button>
+            </div>
+            <div class="reward-badge">+${rw}</div>
+            `;
+        } else {
+             // Для обычных задач (галочка)
+             let chkClass = done ? 'completed' : '';
+             controlHTML = `
+                <div class="checkbox" style="margin-left:auto;">${done?'✔':''}</div>
+                <div class="reward-badge" style="margin-left:8px;">+${rw}</div>
+             `;
         }
 
         // Иконка
@@ -1070,27 +1203,21 @@ function renderBP() {
              iconHTML = `<div class="bp-icon-container"><span class="bp-emoji">${t.i}</span></div>`;
         }
 
-        // Таймер
+        // Таймер (если есть)
         let timerHTML = '';
         if (t.timer) {
-            let lt = BP.localTimers[i];
-            if(!lt) { lt = { rm: t.timer, run: false }; } else {
-                if(lt.run && lt.et) {
-                     const diff = Math.ceil((lt.et - Date.now()) / 1000);
-                     lt.rm = diff > 0 ? diff : 0; if(lt.rm === 0) lt.run = false;
-                }
+             // ... (код таймера оставляем тот же, он у тебя рабочий, скопируй старый если надо, или вот сокращенный)
+            let lt = BP.localTimers[i] || { rm: t.timer, run: false };
+            if(lt.run && lt.et) {
+                 const diff = Math.ceil((lt.et - Date.now()) / 1000);
+                 lt.rm = diff > 0 ? diff : 0; if(lt.rm === 0) lt.run = false;
             }
-            const isFinished = lt.rm <= 0;
-            const displayTime = isFinished ? "ГОТОВО" : fmtTime(lt.rm);
-            const playIcon = lt.run ? '⏸' : '▶'; 
-            const colorClass = isFinished ? 'done' : '';
-
+            const displayTime = lt.rm <= 0 ? "ГОТОВО" : fmtTime(lt.rm);
             timerHTML = `
             <div class="inline-timer-box" onclick="event.stopPropagation()">
-                <button class="it-btn" onclick="toggleLocalTimer(${i}, ${t.timer})">${playIcon}</button>
-                <div class="it-val ${colorClass}" id="loc_timer_${i}">${displayTime}</div>
-                <div class="it-sep"></div>
-                <button class="it-btn" style="color:var(--text-sub);" onclick="resetLocalTimer(${i}, ${t.timer})">↺</button>
+                <button class="it-btn" onclick="toggleLocalTimer(${i}, ${t.timer})">${lt.run?'⏸':'▶'}</button>
+                <div class="it-val ${lt.rm<=0?'done':''}" id="loc_timer_${i}">${displayTime}</div>
+                <button class="it-btn" onclick="resetLocalTimer(${i}, ${t.timer})">↺</button>
             </div>`;
         }
 
@@ -1102,37 +1229,36 @@ function renderBP() {
         item.setAttribute('data-id', i);
         if(!t.r) item.onclick = () => toggleTask(i);
 
-        let rightAction = !t.r ? `<div class="checkbox">${done?'✔':''}</div>` : '';
-        let twinkBtnStyle = isTwink ? 'color: #c084fc; background: rgba(192, 132, 252, 0.15); border: 1px solid rgba(192, 132, 252, 0.3);' : '';
+        // --- СБОРКА HTML ---
+        // Верхний ряд: Драг | Иконка | Текст+Прогресс
+        // Нижний/Правый ряд: Таймер | Контроллеры | Кнопки твинка/удаления
         
-        const twinkBtn = !t.r ? `
-            <button class="icon-btn" style="width:28px; height:28px; margin-left:4px; border-radius:6px; ${twinkBtnStyle}" onclick="toggleTwink(${i}, event)">
-                👻
-            </button>
-        ` : '';
+        // Кнопка Твинка
+        let twinkBtnStyle = isTwink ? 'color: #c084fc; background: rgba(192, 132, 252, 0.15); border: 1px solid rgba(192, 132, 252, 0.3);' : '';
+        const twinkBtn = !t.r ? `<button class="icon-btn" style="width:28px; height:28px; margin-left:4px; border-radius:6px; ${twinkBtnStyle}" onclick="toggleTwink(${i}, event)">👻</button>` : '';
 
         item.innerHTML = `
-            <div class="drag-handle" style="margin-right:8px; color:#444;">⋮⋮</div>
-            ${iconHTML} 
-            <div class="task-content">
-                <div class="task-text">${t.t} ${t.r ? '<span class="tag">∞</span>' : ''}</div>
-                <div class="task-sub">
-                    Награда: <span style="color:var(--gold)">+${rw}</span> 
-                    ${done ? '| '+BP.times[i] : (isTwink ? '| <span style="color:#c084fc">Твинк</span>' : '')}
+            <div class="task-top-row">
+                <div class="drag-handle" style="margin-right:4px; color:#444;">⋮⋮</div>
+                ${iconHTML}
+                <div class="task-content">
+                    <div class="task-text">${t.t} ${t.r ? '<span class="tag">∞</span>' : ''}</div>
+                    ${progressBarHTML} 
                 </div>
-                ${counterHTML}
             </div>
-            <div class="task-actions-right">
-                <div style="display:flex; align-items:center; flex-wrap:wrap; gap:4px; justify-content:flex-end;">
-                    ${timerHTML}
-                    ${twinkBtn} ${rightAction}
-                </div>
-                <button class="icon-btn del" style="margin-top:4px; margin-left:auto;" onclick="hideBP(${i},event)">✕</button>
-            </div>`;
+            
+            <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-top:4px; padding-left:50px; box-sizing:border-box;">
+                 <div style="display:flex;">${timerHTML}</div>
+                 <div style="display:flex; align-items:center; gap:6px;">
+                    ${controlHTML}
+                    ${twinkBtn}
+                    <button class="icon-btn del" style="width:24px;" onclick="hideBP(${i},event)">✕</button>
+                 </div>
+            </div>
+        `;
         list.appendChild(item);
     });
 }
-
 // --- НОВАЯ ФУНКЦИЯ ДЛЯ ПОЛЗУНКА ---
 function updateCounterSlider(i, val) {
     if(!BP.counters) BP.counters = {};
