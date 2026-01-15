@@ -8,131 +8,238 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 <style>
 :root {
-    --bg-deep: #050505; --bg-card: #0f0f11; --border: #222;
-    --text-main: #ffffff; --text-sub: rgba(255, 255, 255, 0.55);
-    --accent: #f97316; --accent-glow: rgba(249, 115, 22, 0.4);
-    --green: #10b981; --red: #ef4444; --gold: #fbbf24;
-    --twink-bg: rgba(192, 132, 252, 0.15); --twink-border: rgba(192, 132, 252, 0.3); --twink-text: #c084fc;
-    --radius: 12px; --nav-height: 85px;
-    --input-bg: #111; --input-border: #333; --input-text: #fff;
-    --icon-bg: #151515; --bar-bg: #000;
+    /* --- ТЕМНАЯ ТЕМА (Базовая) --- */
+    --bg-deep: #050505;
+    --bg-card: #0f0f11;
+    --border: #222;
+    --text-main: #ffffff;
+    --text-sub: rgba(255, 255, 255, 0.55);
+    
+    --accent: #f97316;
+    --accent-glow: rgba(249, 115, 22, 0.4);
+    
+    --green: #10b981;
+    --red: #ef4444;
+    --gold: #fbbf24;
+    
+    /* Элементы управления (по умолчанию темные) */
+    --input-bg: #111;
+    --input-border: #333;
+    --input-text: #fff;
+    --icon-bg: #151515;
+    --bar-bg: #000;
+    --btn-sec-bg: #1a1a1a; /* Фон второстепенных кнопок */
+    
+    --radius: 12px;
+    --nav-height: 85px;
 }
+
+/* --- ТЕМА 1: НЕЖНАЯ БЕЛО-ОРАНЖЕВАЯ --- */
 body.theme-white-orange {
-    --bg-deep: #f2f2f7; --bg-card: #ffffff; --border: #e5e5ea;
-    --text-main: #000000; --text-sub: #666666;
-    --accent: #ff9500; --accent-glow: rgba(255, 149, 0, 0.3);
-    --twink-bg: rgba(175, 82, 222, 0.1); --twink-border: rgba(175, 82, 222, 0.3); --twink-text: #af52de;
-    --input-bg: #e5e5ea; --input-border: #d1d1d6; --input-text: #000;
-    --icon-bg: #f2f2f7; --bar-bg: #e5e5ea;
+    --bg-deep: #F2F4F8; /* Очень светлый серо-голубой, приятный глазу */
+    --bg-card: #FFFFFF;
+    --border: #E1E3E8;
+    --text-main: #2C2C2E; /* Мягкий черный */
+    --text-sub: #8E8E93;
+    
+    --accent: #FF9F0A;
+    --accent-glow: rgba(255, 159, 10, 0.25);
+    
+    --input-bg: #F0F1F5; /* Светло-серый для полей */
+    --input-border: #D1D1D6;
+    --input-text: #000;
+    
+    --icon-bg: #F2F4F8; /* Светлая подложка под иконки */
+    --bar-bg: #F2F4F8;
+    --btn-sec-bg: #F2F4F8;
+    
+    /* Твинк фиолетовый */
+    --twink-bg: rgba(175, 82, 222, 0.1);
+    --twink-border: rgba(175, 82, 222, 0.2);
+    --twink-text: #af52de;
 }
+
+/* --- ТЕМА 2: ЧЕРНО-ЛИЛОВАЯ (Без изменений) --- */
 body.theme-black-purple {
     --bg-deep: #050505; --bg-card: #121016; --border: #2a2036;
-    --accent: #c084fc; --accent-glow: rgba(192, 132, 252, 0.4); --twink-text: #c084fc;
+    --accent: #c084fc; --accent-glow: rgba(192, 132, 252, 0.4);
+    --twink-text: #c084fc;
 }
+
+/* --- ТЕМА 3: ЧЕРНО-КРАСНАЯ (Без изменений) --- */
 body.theme-black-red {
     --bg-deep: #080202; --bg-card: #140a0a; --border: #361010;
-    --accent: #ef4444; --accent-glow: rgba(239, 68, 68, 0.4); --twink-text: #c084fc;
+    --accent: #ef4444; --accent-glow: rgba(239, 68, 68, 0.4);
+    --twink-text: #c084fc;
 }
+
+/* --- ТЕМА 4: НЕЖНАЯ БЕЛО-ФИОЛЕТОВАЯ --- */
 body.theme-white-purple {
-    --bg-deep: #f5f3ff; --bg-card: #ffffff; --border: #e9d5ff;
-    --text-main: #1e1b4b; --text-sub: #6b7280;
-    --accent: #9333ea; --accent-glow: rgba(147, 51, 234, 0.3);
-    --twink-bg: rgba(239, 68, 68, 0.1); --twink-border: rgba(239, 68, 68, 0.3); --twink-text: #ef4444;
-    --input-bg: #e5e5ea; --input-border: #d1d1d6; --input-text: #000;
-    --icon-bg: #f2f2f7; --bar-bg: #e5e5ea;
+    --bg-deep: #F5F3FF; /* Очень светлый фиолетовый оттенок */
+    --bg-card: #FFFFFF;
+    --border: #E9D5FF;
+    --text-main: #1e1b4b;
+    --text-sub: #8b8b9e;
+    
+    --accent: #9333ea;
+    --accent-glow: rgba(147, 51, 234, 0.2);
+    
+    --input-bg: #F3F4F6;
+    --input-border: #E5E7EB;
+    --input-text: #1f2937;
+    
+    --icon-bg: #F3F4F6;
+    --bar-bg: #F3F4F6;
+    --btn-sec-bg: #F3F4F6;
+
+    --twink-bg: rgba(239, 68, 68, 0.1);
+    --twink-border: rgba(239, 68, 68, 0.2);
+    --twink-text: #ef4444;
 }
-body { background-color: var(--bg-deep); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 0; padding-bottom: calc(var(--nav-height) + 40px); overflow-x: hidden; font-size: 14px; min-height: 100vh; transition: 0.3s; }
 
-/* UI ELEMENTS */
-.bp-hero { background: #0f0f11; border: 1px solid #222; border-radius: 16px; padding: 15px; margin: 15px 15px 20px; }
-.hero-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+/* --- ОСНОВНЫЕ СТИЛИ --- */
+body {
+    background-color: var(--bg-deep);
+    color: var(--text-main);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif;
+    margin: 0; padding: 0; padding-bottom: calc(var(--nav-height) + 40px);
+    overflow-x: hidden; font-size: 14px; min-height: 100vh;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Inputs & Forms (Адаптируются под тему) */
+input, select, textarea {
+    background: var(--input-bg) !important;
+    border: 1px solid var(--input-border) !important;
+    color: var(--input-text) !important;
+    padding: 10px 12px; border-radius: 10px; font-size: 14px; outline: none; transition: 0.2s;
+    font-family: inherit; -webkit-appearance: none; appearance: none;
+}
+input:focus, select:focus { border-color: var(--accent) !important; }
+
+/* Карточки */
+.task-item, .card, .bp-hero, .timer-card, .cal-grid {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px; /* Чуть круглее */
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03); /* Мягкая тень для светлых тем */
+}
+
+/* Иконки задач (Квадратики слева) */
+.bp-icon-container {
+    width: 42px; height: 42px;
+    background: var(--icon-bg); /* Теперь меняется в теме */
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.bp-img { width: 32px; height: 32px; object-fit: contain; }
+
+/* Управление (+ / -) */
+.controls-new, .counter-wrapper {
+    background: var(--bar-bg);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; gap: 6px; padding: 4px; border-radius: 10px;
+}
+.btn-mini {
+    width: 32px; height: 32px; border-radius: 8px; border: none; font-size: 18px; font-weight: bold;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.btn-mini.minus { background: transparent; color: var(--text-sub); }
+.btn-mini.plus { background: var(--accent); color: #fff; box-shadow: 0 2px 8px var(--accent-glow); }
+.counter-val-new { min-width: 20px; text-align: center; font-size: 14px; font-weight: 800; color: var(--text-main); }
+
+/* Кнопки действий (Верхние) */
+.hero-btn, .action-btn, .seg-btn {
+    background: var(--btn-sec-bg);
+    border: 1px solid var(--border);
+    color: var(--text-sub);
+    font-weight: 600; border-radius: 10px;
+    transition: 0.2s;
+}
+.hero-btn.active, .seg-btn.active {
+    background: var(--accent);
+    color: #fff; border-color: var(--accent);
+    box-shadow: 0 4px 12px var(--accent-glow);
+}
+
+/* Прогресс бары */
+.progress-track {
+    height: 6px; background: var(--icon-bg); border-radius: 3px; width: 100%; margin-top: 8px; overflow: hidden;
+}
+.progress-fill {
+    height: 100%; background: var(--accent); width: 0%; transition: width 0.5s;
+}
+
+/* Таймеры */
+.timer-card.running { border-color: var(--gold); background: rgba(251, 191, 36, 0.05); }
+.tc-time { font-size: 28px; font-weight: 800; font-family: monospace; color: var(--text-main); margin: 5px 0; }
+.tc-btn {
+    flex: 1; height: 36px; border: none; border-radius: 8px; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; color: #fff;
+}
+.tc-btn.start { background: var(--green); color: #fff; }
+.tc-btn.stop { background: var(--red); color: #fff; }
+.tc-btn-icon {
+    width: 36px; height: 36px; background: var(--btn-sec-bg); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text-sub); cursor: pointer;
+}
+
+/* Header Widget */
+.sticky-search {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--bg-deep); /* Фон хедера под цвет темы */
+    padding: 10px 15px; border-bottom: 1px solid var(--border);
+}
+.header-timer-wrap {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+}
+.ht-label { color: var(--text-main); }
+.ht-time { color: var(--text-main); }
+.ht-btn { color: var(--text-sub); }
+
+/* Grid Layouts */
+.hero-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
 .stat-val { font-size: 20px; font-weight: 800; color: var(--gold); }
-.stat-label { font-size: 10px; color: var(--text-sub); text-transform: uppercase; margin-top: 4px; font-weight: 600; }
-.hero-btn { flex: 1; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: #666; padding: 12px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.2s; }
-.hero-btn.active { background: rgba(251, 191, 36, 0.1); border-color: var(--gold); color: var(--gold); }
-input, select { background: var(--input-bg) !important; border: 1px solid var(--input-border) !important; color: var(--input-text) !important; padding: 10px; border-radius: 8px; outline: none; }
+.stat-label { font-size: 10px; color: var(--text-sub); text-transform: uppercase; font-weight: 600; margin-top: 4px;}
 
-/* TASK LIST */
+.timer-grid-new { display: grid; grid-template-columns: 1fr; gap: 10px; padding: 0 15px; }
+@media(min-width: 600px) { .timer-grid-new { grid-template-columns: 1fr 1fr; } }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; padding: 15px; }
+.cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 12px; color: var(--text-sub); background: var(--icon-bg); }
+.cal-day.today { background: var(--accent); color: #fff; font-weight: bold; }
+.cal-day.event { border: 1px solid var(--accent); color: var(--accent); }
+
+/* Nav */
+.bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0; height: var(--nav-height);
+    background: var(--bg-card); border-top: 1px solid var(--border);
+    display: flex; justify-content: space-around; padding-top: 12px; z-index: 999;
+}
+.nav-btn { background: none; border: none; color: var(--text-sub); display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 10px; font-weight: 600; }
+.nav-btn.active { color: var(--accent); }
+
+/* Modals */
+.modal-wrap { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+.modal { background: var(--bg-card); width: 90%; max-width: 350px; border-radius: 20px; padding: 20px; border: 1px solid var(--border); color: var(--text-main); box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+.theme-btn { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--border); cursor: pointer; margin: 5px; transition: 0.2s; }
+.theme-btn:active { transform: scale(0.9); }
+
+/* Helpers */
 .list-container { padding: 0 15px; display: flex; flex-direction: column; gap: 8px; }
-.task-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; transition: background 0.2s; position: relative; }
-.task-item.completed { border-color: #333; opacity: 0.6; background: #080808; }
-.task-item.twink-done { border-color: var(--purple); opacity: 0.8; background: rgba(192, 132, 252, 0.05); }
 .task-top-row { display: flex; align-items: center; gap: 12px; width: 100%; }
 .task-bottom-row { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 8px; flex-wrap: wrap; gap: 8px; }
-.task-actions-group { display: flex; align-items: center; gap: 6px; margin-left: auto; justify-content: flex-end; }
-.progress-track { height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; width: 100%; margin-top: 8px; overflow: hidden; }
-.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #fbbf24); width: 0%; transition: width 0.5s; box-shadow: 0 0 10px var(--accent-glow); }
-
-/* CONTROLS */
-.controls-new { display: flex; align-items: center; gap: 8px; background: var(--bar-bg); padding: 4px; border-radius: 10px; border: 1px solid var(--border); }
-.btn-mini { width: 32px; height: 32px; border-radius: 8px; border: none; font-size: 18px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-.btn-mini.minus { background: var(--icon-bg); color: var(--text-sub); }
-.btn-mini.plus { background: var(--accent); color: #000; }
-.counter-val-new { min-width: 20px; text-align: center; font-size: 14px; font-weight: 800; color: var(--text-main); }
-.checkbox { width: 22px; height: 22px; border-radius: 6px; border: 2px solid #444; display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 14px; background: #000; cursor: pointer; }
-.btn-instant-done { height: 32px; padding: 0 10px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: var(--green); border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: 800; display:flex; align-items:center; }
-.bp-icon-container { width: 42px; height: 42px; background: var(--icon-bg); border-radius: 10px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.bp-img { width: 32px; height: 32px; object-fit: contain; } .bp-emoji { font-size: 22px; }
+.task-text { font-size: 14px; font-weight: 700; color: var(--text-main); line-height: 1.2; }
 .status-badge { font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px; margin-left: 8px; }
 .status-badge.time { color: var(--text-sub); background: var(--icon-bg); border: 1px solid var(--border); }
 .status-badge.twink { color: var(--twink-text); background: var(--twink-bg); border: 1px solid var(--twink-border); }
+.checkbox { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--text-sub); display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 14px; background: var(--input-bg); cursor: pointer; }
+.task-item.completed { opacity: 0.6; }
 
-/* TIMERS & OTHER */
-.inline-timer-box { display: flex; align-items: center; gap: 4px; background: #000; padding: 3px 8px; border-radius: 6px; border: 1px solid #333; height: 24px; }
-.it-btn { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 12px; padding: 0; }
-.it-val { font-size: 11px; font-family: monospace; color: #fff; min-width: 40px; text-align: center; font-weight: bold; }
-.timer-grid-new { display: grid; grid-template-columns: 1fr; gap: 10px; padding: 0 15px; } @media(min-width:600px){.timer-grid-new{grid-template-columns:1fr 1fr;}}
-.timer-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 10px; position: relative; }
-.timer-card.running { border-color: var(--gold); background: rgba(251, 191, 36, 0.05); }
-.tc-time { font-size: 28px; font-weight: 800; font-family: monospace; color: var(--text-sub); }
-.timer-progress-bg { position: absolute; bottom: 0; left: 0; height: 4px; width: 100%; background: rgba(255,255,255,0.05); border-radius: 0 0 12px 12px; overflow: hidden; }
-.timer-progress-bar { height: 100%; background: var(--gold); width: 0%; transition: width 1s linear; }
-
-/* HEADER WIDGET (FIXED) */
-.sticky-search { position: sticky; top: 0; z-index: 100; background: rgba(5,5,5,0.95); padding: 10px 15px; border-bottom: 1px solid #222; backdrop-filter: blur(10px); }
-.mini-stats-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-.stat-side { flex: 0 0 70px; font-size: 10px; color: #888; text-align: center; }
-.mini-stat-val { font-size: 14px; font-weight: 800; display: block; margin-top: 2px; }
-
-.header-timer-wrap { flex: 1; display: flex; align-items: center; justify-content: center; background: #111; padding: 4px; border-radius: 20px; border: 1px solid #333; position: relative; overflow: hidden; height: 32px; margin: 0 8px; }
-.ht-progress-bg { position: absolute; bottom: 0; left: 0; width: 100%; height: 2px; background: rgba(255,255,255,0.1); }
-.ht-progress-bar { height: 100%; background: var(--green); width: 0%; transition: width 1s linear; }
-.ht-btn { background: none; border: none; color: #555; font-size: 10px; cursor: pointer; padding: 0 8px; z-index: 2; height: 100%; display: flex; align-items: center; }
-.ht-content { text-align: center; width: 100%; z-index: 2; overflow: hidden; }
-.ht-label { font-size: 9px; color: var(--text-main); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ht-time { font-size: 13px; font-weight: bold; color: var(--text-main); font-family: monospace; }
-
-/* NAV & TABS */
-.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: var(--nav-height); background: rgba(5,5,5,0.95); border-top: 1px solid #222; display: flex; justify-content: space-around; padding-top: 12px; z-index: 999; }
-.nav-btn { background: none; border: none; color: var(--text-sub); display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 10px; font-weight: 600; }
-.nav-btn.active { color: var(--accent) !important; transform: translateY(-2px); }
-.nav-icon { font-size: 22px; }
-.tab-content { display: none; animation: fadeIn 0.2s ease-out; } .tab-content.active { display: block; } @keyframes fadeIn { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
-
-/* GUIDES & CARDS */
-.segment-wrapper { overflow-x: auto; padding: 0 15px 10px; margin-bottom: 5px; }
-.segment { display: flex; gap: 8px; }
-.seg-btn { background: #111; color: #888; border: 1px solid #333; padding: 8px 16px; border-radius: 20px; font-size: 12px; white-space: nowrap; cursor: pointer; font-weight: 600; }
-.seg-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
-.table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid #333; margin-top: 15px; background: #0f0f11; }
-table { width: 100%; border-collapse: collapse; min-width: 320px; font-size: 12px; }
-th { background: #1a1a1a; color: var(--accent); text-align: left; padding: 12px 10px; } td { padding: 12px 10px; border-bottom: 1px solid #222; color: #ddd; }
-.tarot-grid-new { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.tarot-card-new { background: #111; border: 1px solid #333; padding: 10px; border-radius: 8px; display: flex; gap: 10px; align-items:center; }
-.tarot-icon-box { font-size: 24px; min-width: 30px; display:flex; justify-content:center;}
-.tarot-card-title { font-weight: bold; font-size: 12px; color: var(--purple); }
-.tarot-card-desc { font-size: 10px; color: #777; margin-top: 2px; line-height: 1.2; }
-.tarot-icon-img { width: 30px; height: 30px; object-fit: contain; }
-.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 12px; cursor: pointer; margin-bottom: 8px; }
-.card-icon { font-size: 24px; width: 40px; text-align: center; background: var(--icon-bg); border-radius: 8px; padding: 4px; border: 1px solid var(--border); }
-.card-title { font-weight: 700; color: var(--text-main); font-size: 14px; }
+/* Text Utils */
 .header { padding: 20px 15px 10px; font-size: 28px; font-weight: 800; color: var(--accent); }
-
-/* MODALS */
-.modal-wrap { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-.modal { background: #151515; width: 90%; max-width: 350px; border-radius: 20px; padding: 20px; border: 1px solid #333; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
-.theme-btn { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #333; cursor: pointer; margin: 5px; display: inline-block; transition: transform 0.2s; position: relative; }
-.theme-btn:active { transform: scale(0.9); }
+.section-title { font-size: 11px; font-weight: 700; color: var(--text-sub); margin: 25px 15px 8px; text-transform: uppercase; border-bottom: 2px solid var(--accent); display: inline-block; padding-bottom: 4px; }
 </style>
 </head>
 <body>
@@ -781,7 +888,37 @@ function addTimerRaw(min, label) {
 }
 function addCustomTimer() { const m=parseInt(document.getElementById('customMin').value), n=document.getElementById('customName').value; if(m) { addTimerRaw(m, n||(m+' мин')); document.getElementById('customMin').value=''; } }
 function addGameTimer(id) { const t=DB.timers.find(x=>x.id===id); if(t) addTimerRaw(t.s/60, t.l); }
-function togTime(id) { const t=TIMERS.custom.find(x=>x.id===id); if(t) { t.run=!t.run; if(t.run) t.et=Date.now()+(t.rm*1000); saveTm(); renderTimers(); } }
+function togTime(id) { 
+    const t = TIMERS.custom.find(x => x.id === id);
+    if(t) { 
+        // Если таймер закончился (время <= 0), сначала сбрасываем его
+        if(t.rm <= 0) {
+            t.rm = t.s; // Возвращаем полное время
+            t.run = false; // Формально ставим на стоп перед запуском
+        }
+
+        t.run = !t.run; 
+        
+        if(t.run) {
+            // Если включили: устанавливаем новое время финиша
+            t.et = Date.now() + (t.rm * 1000);
+            
+            // Сразу запускаем интервал, не дожидаясь renderTimers
+            runInterval(id);
+        } else {
+            // Если поставили на паузу
+            delete t.et;
+        }
+        
+        // Вибрация при нажатии
+        if(window.Telegram && window.Telegram.WebApp.HapticFeedback) {
+            window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+        }
+
+        saveTm(); 
+        renderTimers(); 
+    }
+}
 function rstTime(id) { const t=TIMERS.custom.find(x=>x.id===id); if(t) { t.rm=t.s; t.run=false; delete t.et; saveTm(); renderTimers(); } }
 function delTime(id) { TIMERS.custom=TIMERS.custom.filter(t=>t.id!==id); saveTm(); renderTimers(); }
 
@@ -941,3 +1078,4 @@ init();
 </script>
 </body>
 </html>
+
