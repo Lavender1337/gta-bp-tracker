@@ -8,21 +8,25 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 <style>
 :root {
-    /* Базовые значения (по умолчанию - Оранжевая Тёмная) */
-    --bg-deep: #050505;
-    --bg-card: #0f0f11;
+    /* --- БАЗОВЫЕ (ТЕМНАЯ ТЕМА) --- */
+    --bg-deep: #050505;       /* Глубокий фон */
+    --bg-card: #0f0f11;       /* Фон карточек */
+    --bg-element: #111;       /* Фон кнопок/инпутов */
+    --bg-sticky: rgba(5,5,5,0.95); /* Фон липкого поиска */
+    --bg-nav: rgba(5,5,5,0.9);     /* Фон нижнего меню */
+    
     --border: #222;
     --text-main: #ffffff;
     --text-sub: rgba(255, 255, 255, 0.55);
     
-    --accent: #f97316;       /* Оранжевый */
+    --accent: #f97316;
     --accent-glow: rgba(249, 115, 22, 0.4);
-    
     --green: #10b981;
     --red: #ef4444;
     --gold: #fbbf24;
-    
-    /* Цвет метки ТВИНК (по умолчанию фиолетовый) */
+    --purple: #c084fc;
+
+    /* Твинк */
     --twink-bg: rgba(192, 132, 252, 0.15);
     --twink-border: rgba(192, 132, 252, 0.3);
     --twink-text: #c084fc;
@@ -30,708 +34,183 @@
     --radius: 12px;
     --nav-height: 85px;
 
-    /* --- НОВЫЕ ПЕРЕМЕННЫЕ ДЛЯ ФОРМ (ПО УМОЛЧАНИЮ ТЕМНЫЕ) --- */
+    /* Цвета для форм */
     --input-bg: #111;
     --input-border: #333;
     --input-text: #ffffff;
-    --task-text-color: #eee;
-    --timer-text-color: #555;
 }
 
-/* ТЕМА 1: Бело-Оранжевая */
+/* --- СВЕТЛАЯ ТЕМА (Оранжевая) --- */
 body.theme-white-orange {
-    --bg-deep: #f2f2f7;
-    --bg-card: #ffffff;
-    --border: #e5e5ea;
+    --bg-deep: #f2f2f7;       /* Светло-серый фон iOS */
+    --bg-card: #ffffff;       /* Белые карточки */
+    --bg-element: #e5e5ea;    /* Светлые элементы */
+    --bg-sticky: rgba(242, 242, 247, 0.95);
+    --bg-nav: rgba(255, 255, 255, 0.9);
+
+    --border: #d1d1d6;
     --text-main: #000000;
-    --text-sub: #666666;
+    --text-sub: #8e8e93;
+    
     --accent: #ff9500;
-    --accent-glow: rgba(255, 149, 0, 0.3);
-    /* Твинк фиолетовый (для контраста) */
+    --accent-glow: rgba(255, 149, 0, 0.2);
+    --purple: #af52de;
+
     --twink-bg: rgba(175, 82, 222, 0.1);
     --twink-border: rgba(175, 82, 222, 0.3);
     --twink-text: #af52de;
 
-    /* --- ПЕРЕОПРЕДЕЛЕНИЕ ДЛЯ СВЕТЛОЙ ТЕМЫ --- */
     --input-bg: #ffffff;
-    --input-border: #d1d1d6;
+    --input-border: #c7c7cc;
     --input-text: #000000;
-    --task-text-color: #000000;
-    --timer-text-color: #333;
 }
 
-/* ТЕМА 2: Черно-Лиловая */
-body.theme-black-purple {
-    --bg-deep: #050505;
-    --bg-card: #121016;
-    --border: #2a2036;
-    --accent: #c084fc; /* Лиловый акцент */
-    --accent-glow: rgba(192, 132, 252, 0.4);
-    --twink-text: #c084fc;
-}
-
-/* ТЕМА 3: Черно-Красная */
-body.theme-black-red {
-    --bg-deep: #080202;
-    --bg-card: #140a0a;
-    --border: #361010;
-    --accent: #ef4444; /* Красный акцент */
-    --accent-glow: rgba(239, 68, 68, 0.4);
-    --twink-text: #c084fc;
-}
-
-/* ТЕМА 4: Бело-Фиолетовая (Твинк Красный) */
+/* --- СВЕТЛАЯ ТЕМА (Фиолетовая) --- */
 body.theme-white-purple {
     --bg-deep: #f5f3ff;
     --bg-card: #ffffff;
+    --bg-element: #ede9fe;
+    --bg-sticky: rgba(245, 243, 255, 0.95);
+    --bg-nav: rgba(255, 255, 255, 0.9);
+
     --border: #e9d5ff;
     --text-main: #1e1b4b;
     --text-sub: #6b7280;
+    
     --accent: #9333ea;
-    --accent-glow: rgba(147, 51, 234, 0.3);
-    /* Твинк КРАСНЫЙ */
+    --accent-glow: rgba(147, 51, 234, 0.2);
+    --purple: #9333ea;
+
     --twink-bg: rgba(239, 68, 68, 0.1);
     --twink-border: rgba(239, 68, 68, 0.3);
     --twink-text: #ef4444;
 
-    /* --- ПЕРЕОПРЕДЕЛЕНИЕ ДЛЯ СВЕТЛОЙ ТЕМЫ --- */
     --input-bg: #ffffff;
-    --input-border: #d1d1d6;
+    --input-border: #ddd6fe;
     --input-text: #000000;
-    --task-text-color: #000000;
-    --timer-text-color: #333;
 }
 
-/* --- БАЗОВЫЕ СТИЛИ BODY --- */
+/* Остальные темные темы (без изменений логики) */
+body.theme-black-purple { --bg-deep:#050505; --bg-card:#121016; --border:#2a2036; --accent:#c084fc; --accent-glow:rgba(192,132,252,0.4); }
+body.theme-black-red { --bg-deep:#080202; --bg-card:#140a0a; --border:#361010; --accent:#ef4444; --accent-glow:rgba(239,68,68,0.4); }
+
+/* --- ОБЩИЕ СТИЛИ --- */
 body {
     background-color: var(--bg-deep);
     color: var(--text-main);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     margin: 0; padding: 0; padding-bottom: calc(var(--nav-height) + 40px);
     overflow-x: hidden; font-size: 14px; min-height: 100vh;
-    transition: background-color 0.3s, color 0.3s; /* Плавная смена темы */
+    transition: background-color 0.3s, color 0.3s;
 }
 
-/* --- СТИЛИ АНИМАЦИИ ТАЙМЕРОВ (НОВОЕ) --- */
-/* Полоска в карточке таймера */
-.timer-progress-bg {
-    position: absolute; bottom: 0; left: 0; height: 4px; width: 100%;
-    background: rgba(255,255,255,0.05); border-radius: 0 0 12px 12px; overflow: hidden;
-}
-.timer-progress-bar {
-    height: 100%; background: var(--gold);
-    width: 0%; transition: width 1s linear;
-    box-shadow: 0 0 10px var(--gold);
-}
-
-/* Полоска в верхнем виджете */
-.ht-progress-bg {
-    position: absolute; bottom: 0; left: 0; width: 100%; height: 2px;
-    background: rgba(255,255,255,0.1);
-}
-.ht-progress-bar {
-    height: 100%; background: var(--green);
-    width: 0%; transition: width 1s linear;
-}
-.header-timer-wrap { position: relative; overflow: hidden; } 
-
-/* Кнопки выбора темы */
-.theme-btn {
-    width: 30px; height: 30px; border-radius: 50%; border: 2px solid #333; cursor: pointer;
-    margin: 5px; display: inline-block; transition: transform 0.2s;
-}
-.theme-btn:active { transform: scale(0.9); }
-
-/* Исправление цветов для Твинка (поддержка тем) */
-.status-badge.twink, .btn-twink-custom {
-    color: var(--twink-text) !important;
-    background: var(--twink-bg) !important;
-    border: 1px solid var(--twink-border) !important;
-}
-
-/* --- ГЛОБАЛЬНЫЕ СТИЛИ ФОРМ (ИСПРАВЛЕНИЕ БЕЛЫХ ПОЛЕЙ) --- */
-/* Здесь мы используем переменные вместо жестких цветов */
-input, select, textarea {
-    background: var(--input-bg) !important;       /* БЫЛО #111 */
-    border: 1px solid var(--input-border) !important; /* БЫЛО #333 */
-    color: var(--input-text) !important;          /* БЫЛО white */
-    
-    padding: 10px 12px;
-    border-radius: 8px;
-    font-size: 14px;
-    outline: none;
-    transition: 0.2s;
-    font-family: inherit;
-    -webkit-appearance: none;
-    appearance: none;
-}
-
-input:focus, select:focus {
-    border-color: var(--accent) !important;
-    box-shadow: 0 0 10px rgba(249, 115, 22, 0.2);
-}
-
-/* Специфично для выпадающего списка сортировки, чтобы добавить стрелочку */
-select {
-    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23f97316%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-    background-repeat: no-repeat;
-    background-position: right 10px top 50%;
-    background-size: 10px auto;
-    padding-right: 30px;
-}
-
-/* --- НОВЫЙ ДИЗАЙН HERO (ВЕРХНЯЯ ПАНЕЛЬ) --- */
-.bp-hero {
-    background: #0f0f11;
-    border: 1px solid #222;
-    border-radius: 16px;
-    padding: 15px;
-    margin: 15px 15px 20px; /* Отступы по бокам */
-}
-
-/* Сетка 4 столбика */
-.hero-stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    text-align: center;
-    margin-bottom: 15px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-}
-
-.stat-box { display: flex; flex-direction: column; align-items: center; }
-.stat-val { font-size: 20px; font-weight: 800; color: var(--gold); line-height: 1.2; }
-.stat-label { font-size: 10px; color: #666; text-transform: uppercase; margin-top: 4px; font-weight: 600; }
-
-/* Кнопки переключения (VIP / X2) */
-.hero-toggles { display: flex; gap: 10px; }
-.hero-btn {
-    flex: 1;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.1);
-    color: #666;
-    padding: 12px;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: 0.2s;
-}
-.hero-btn.active {
-    background: rgba(251, 191, 36, 0.1); /* Gold tint */
-    border-color: var(--gold);
-    color: var(--gold);
-    box-shadow: 0 4px 15px rgba(251, 191, 36, 0.15);
-}
-.hero-btn.active.x2 {
-    background: rgba(192, 132, 252, 0.1); /* Purple tint */
-    border-color: var(--purple);
-    color: var(--purple);
-}
-
-/* --- НОВЫЙ ДИЗАЙН ЗАДАЧ С ПРОГРЕССОМ --- */
-.task-item {
-    display: flex; flex-direction: column; gap: 8px; /* Меняем на колонку для мобилок */
-}
-
-.task-top-row {
-    display: flex; align-items: center; gap: 12px; width: 100%;
-}
-
-/* Прогресс бар (тонкая линия) */
-.progress-track {
-    height: 6px; /* Чуть толще для красоты */
-    background: rgba(255,255,255,0.05);
-    border-radius: 3px;
-    width: 100%;
-    margin-top: 8px;
-    overflow: hidden;
-    position: relative;
-}
-
-.progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), #fbbf24);
-    width: 0%;
-    border-radius: 3px;
-    /* Это свойство отвечает за плавность */
-    transition: width 0.5s cubic-bezier(0.25, 1, 0.5, 1); 
-    will-change: width; /* Оптимизация для браузера */
-    box-shadow: 0 0 10px var(--accent-glow);
-}
-.task-header-row {
-    display: flex; justify-content: space-between; align-items: center; width: 100%;
-}
-
-.task-text {
-    font-size: 14px; font-weight: 700; color: #eee;
-    line-height: 1.2;
-}
-
-/* Стиль для метки времени или Твинка */
-.status-badge {
-    font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px;
-    text-transform: uppercase; letter-spacing: 0.5px; margin-left: 8px; white-space: nowrap;
-}
-.status-badge.time { color: #888; background: rgba(255,255,255,0.1); }
-.status-badge.twink { color: #c084fc; background: rgba(192, 132, 252, 0.15); border: 1px solid rgba(192, 132, 252, 0.3); }
-
-/* Исправим выравнивание в карточке */
-.task-content { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
-
-/* Контроллеры (+ / -) */
-.controls-new {
-    display: flex; align-items: center; gap: 8px;
-    background: #000; padding: 4px; border-radius: 10px; border: 1px solid #222;
-}
-
-.btn-mini {
-    width: 32px; height: 32px;
-    border-radius: 8px; border: none;
-    font-size: 18px; font-weight: bold;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: 0.1s;
-}
-.btn-mini.minus { background: #1a1a1a; color: #888; }
-.btn-mini.minus:active { background: #222; }
-
-.btn-mini.plus { background: var(--accent); color: #000; box-shadow: 0 2px 8px var(--accent-glow); }
-.btn-mini.plus:active { transform: scale(0.95); }
-
-.counter-val-new {
-    min-width: 20px; text-align: center;
-    font-size: 14px; font-weight: 800; color: #fff;
-}
-.reward-badge {
-    background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3);
-    color: var(--green); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 800;
-}
-.bp-total-val { font-size: 32px; font-weight: 800; color: var(--gold); line-height: 1; text-shadow: 0 0 15px rgba(251, 191, 36, 0.3); }
-/* Исправление поля ввода BP */
-#startBp { 
-    width: 60px; text-align: center; font-weight: bold; font-size: 18px; 
-    padding: 5px; height: 30px; 
-}
-
-/* BUTTONS (BP ACTIONS) */
-.bp-actions-top { display: flex; gap: 8px; padding: 0 15px; margin-bottom: 15px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-.action-btn {
-    background: #1a1a1a; border: 1px solid #333; color: #ccc;
-    padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;
-    white-space: nowrap; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s;
-}
-.action-btn:active { transform: scale(0.96); }
-.toggle-btn { 
-    background: #111; border: 1px solid #333; color: #555; 
-    padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; transition: 0.2s;
-}
-.toggle-btn.active { background: var(--gold); color: black; border-color: var(--gold); box-shadow: 0 0 10px rgba(251, 191, 36, 0.4); }
-.toggle-btn.active.x2 { background: var(--purple); color: white; border-color: var(--purple); box-shadow: 0 0 10px rgba(192, 132, 252, 0.4); }
-
-/* --- СПИСОК ЗАДАЧ --- */
-.list-container { padding: 0 15px; display: flex; flex-direction: column; gap: 8px; }
-.task-item {
-    background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
-    padding: 12px; display: flex; align-items: center; gap: 12px; position: relative;
-    transition: background 0.2s;
-}
-.task-item:active { background: #151515; }
-.task-item.completed { border-color: #333; opacity: 0.6; background: #080808; }
-.task-item.twink-done { border-color: var(--purple); opacity: 0.8; background: rgba(192, 132, 252, 0.05); }
-
-.bp-icon-container { 
-    width: 42px; height: 42px; background: #151515; border-radius: 10px; border: 1px solid #222;
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0; 
-}
-.bp-img { width: 32px; height: 32px; object-fit: contain; }
-.bp-emoji { font-size: 22px; }
-
-.task-content { flex: 1; min-width: 0; }
-.task-text { font-size: 14px; font-weight: 600; color: #eee; margin-bottom: 3px; line-height: 1.3; }
-.task-sub { font-size: 11px; color: #666; font-weight: 500; }
-
-/* --- ИСПРАВЛЕНИЕ СЧЕТЧИКОВ (- 0/5 +) --- */
-.counter-wrapper {
-    display: inline-flex; align-items: center; 
-    background: #000; border: 1px solid #333; 
-    border-radius: 8px; margin-top: 6px; height: 26px;
-    overflow: hidden; /* Чтобы кнопки не вылезали */
-}
-.icon-btn { 
-    background: transparent; border: none; color: #888; cursor: pointer; 
-    width: 30px; height: 100%; display: flex; align-items: center; justify-content: center; 
-    font-size: 16px; transition: 0.2s;
-}
-.icon-btn:active { background: #222; color: #fff; }
-.icon-btn.del { width: 20px; height: 20px; border-radius: 4px; border: 1px solid #333; margin-left: 8px; }
-
-.counter-val { 
-    font-size: 12px; font-weight: bold; padding: 0 8px; color: #fff; 
-    min-width: 20px; text-align: center; border-left: 1px solid #222; border-right: 1px solid #222;
-}
-
-/* --- ИСПРАВЛЕНИЕ МИНИ-ТАЙМЕРОВ (ГОТОВО) --- */
-.inline-timer-box { 
-    display: flex; align-items: center; gap: 4px; 
-    background: #000; padding: 3px 4px 3px 8px; 
-    border-radius: 6px; border: 1px solid #333; margin-right: 5px; height: 24px;
-}
-.it-btn { 
-    background: none; border: none; color: var(--accent); cursor: pointer; 
-    font-size: 12px; padding: 0; display: flex; align-items: center; 
-}
-.it-val { font-size: 11px; font-family: monospace; color: #fff; min-width: 40px; text-align: center; font-weight: bold; }
-.it-val.done { color: var(--green); text-shadow: 0 0 5px rgba(16, 185, 129, 0.5); }
-.it-sep { width: 1px; height: 12px; background: #333; margin: 0 4px; }
-
-.checkbox {
-    width: 22px; height: 22px; border-radius: 6px; border: 2px solid #444; 
-    display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 14px; background: #000;
-}
-.completed .checkbox { border-color: var(--green); background: rgba(16, 185, 129, 0.2); color: var(--green); }
-
-/* --- ТАЙМЕРЫ (КАРТОЧКИ) --- */
-.timer-grid-new { display: grid; grid-template-columns: 1fr; gap: 10px; padding: 0 15px; }
-@media(min-width: 600px) { .timer-grid-new { grid-template-columns: 1fr 1fr; } }
-
-.timer-card {
-    background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
-    padding: 15px; display: flex; flex-direction: column; gap: 10px;
-    position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-}
-.timer-card.running { border-color: var(--gold); background: rgba(251, 191, 36, 0.05); }
-
-.tc-header { display: flex; justify-content: space-between; align-items: center; }
-.tc-title { font-weight: 700; color: #ccc; font-size: 14px; display: flex; gap: 6px; align-items: center; }
-.tc-status { font-size: 10px; text-transform: uppercase; color: var(--gold); opacity: 0; }
-.timer-card.running .tc-status { opacity: 1; }
-.tc-time { font-size: 28px; font-weight: 800; font-family: monospace; color: #555; margin: 5px 0; letter-spacing: 1px; }
-.timer-card.running .tc-time { color: var(--gold); text-shadow: 0 0 15px rgba(251, 191, 36, 0.3); }
-
-.tc-footer { display: flex; gap: 8px; }
-.tc-btn {
-    flex: 1; height: 36px; border: none; border-radius: 8px; font-weight: 700;
-    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
-    font-size: 12px; text-transform: uppercase; color: #000;
-}
-.tc-btn.start { background: var(--green); box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2); }
-.tc-btn.stop { background: var(--red); color: white; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2); }
-.tc-btn-icon {
-    width: 36px; height: 36px; background: #111; border: 1px solid #333; 
-    border-radius: 8px; color: #888; cursor: pointer; display: flex; align-items: center; justify-content: center;
-}
-
-.custom-timer { display: flex; gap: 8px; padding: 0 15px; margin-top: 10px; margin-bottom: 20px;}
-.custom-timer button { background: var(--accent); color: white; border: none; border-radius: 8px; font-weight: bold; flex: 1; box-shadow: 0 0 15px var(--accent-glow); }
-
-/* --- КАЛЕНДАРЬ (ИСПРАВЛЕНО) --- */
-.cal-header { display: flex; justify-content: space-between; align-items: center; padding: 0 15px 15px; }
-.cal-grid {
-    display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; 
-    background: #0f0f11; padding: 15px; border-radius: 16px; border: 1px solid #222; margin-bottom: 15px;
-}
-.cal-day {
-    aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
-    border-radius: 8px; font-size: 13px; font-weight: 500; color: #666;
-    background: rgba(255,255,255,0.02);
-}
-.cal-day.today { background: var(--accent); color: white; font-weight: bold; box-shadow: 0 0 15px var(--accent-glow); }
-.cal-day.event { border: 1px solid var(--accent); color: var(--accent); background: rgba(249, 115, 22, 0.1); }
-
-.event-item {
-    background: #111; padding: 12px; border-radius: 10px; margin-bottom: 8px; 
-    border-left: 3px solid var(--accent); display: flex; font-size: 13px; align-items: center;
-}
-
-/* --- ТАБЛИЦЫ (ГАЙДЫ) --- */
-.table-wrap { 
-    overflow-x: auto; border-radius: 12px; border: 1px solid #333; margin-top: 15px; 
-    background: #0f0f11;
-}
-table { width: 100%; border-collapse: collapse; min-width: 320px; font-size: 12px; }
-th { 
-    background: #1a1a1a; color: var(--accent); text-align: left; 
-    padding: 12px 10px; font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px;
-}
-td { padding: 12px 10px; border-bottom: 1px solid #222; color: #ddd; }
-tr:last-child td { border-bottom: none; }
-tr:nth-child(even) { background: rgba(255,255,255,0.02); }
-
-/* --- UI COMPONENTS --- */
-.header { padding: 20px 15px 10px; font-size: 28px; font-weight: 800; color: var(--accent); letter-spacing: -1px; }
-.section-title { font-size: 11px; font-weight: 700; color: var(--text-sub); margin: 25px 15px 8px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid var(--accent); display: inline-block; padding-bottom: 4px;}
-
-.sticky-search {
-    position: sticky; top: 0; z-index: 100; background: rgba(5,5,5,0.95);
-    padding: 10px 15px; border-bottom: 1px solid #222; backdrop-filter: blur(10px);
-}
-.mini-stats-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-.mini-stat-val { font-weight:800; font-size: 13px; }
-
-/* КНОПКИ ГАРАЖА И ГАЙДОВ */
-.segment-wrapper { overflow-x: auto; padding: 0 15px 10px; margin-bottom: 5px; -webkit-overflow-scrolling: touch; }
-.segment { display: flex; gap: 8px; }
-.seg-btn {
-    background: #111; color: #888; border: 1px solid #333; padding: 8px 16px;
-    border-radius: 20px; font-size: 12px; white-space: nowrap; cursor: pointer; transition: 0.2s; font-weight: 600;
-}
-.seg-btn.active { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 4px 15px var(--accent-glow); }
-
-/* КАРТОЧКИ ГАРАЖА */
-.card {
-    background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
-    padding: 12px; display: flex; align-items: center; gap: 12px; cursor: pointer; margin-bottom: 8px;
-}
-.card-icon { font-size: 24px; width: 40px; text-align: center; }
-.card-body { flex: 1; }
-.card-title { font-weight: 700; color: #eee; font-size: 14px; }
-.card-sub { font-size: 11px; color: #777; margin-top: 2px; }
-.card-end { text-align: right; font-size: 12px; }
-.price { color: var(--green); font-weight: bold; font-size: 13px; }
-
-/* TAROT GRID */
-.tarot-grid-new { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.tarot-card-new { background: #111; border: 1px solid #333; padding: 10px; border-radius: 8px; display: flex; gap: 10px; align-items:center; }
-.tarot-icon-box { font-size: 24px; min-width: 30px; display:flex; justify-content:center;}
-.tarot-card-title { font-weight: bold; font-size: 12px; color: var(--purple); }
-.tarot-card-desc { font-size: 10px; color: #777; margin-top: 2px; line-height: 1.2; }
-.tarot-icon-img { width: 30px; height: 30px; object-fit: contain; }
-
-/* HEADER TIMER WIDGET */
-.header-timer-wrap { display: flex; align-items: center; background: #111; padding: 4px; border-radius: 20px; border: 1px solid #333; }
-.ht-btn { background: none; border: none; color: #555; font-size: 10px; cursor: pointer; padding: 0 8px; }
-.ht-content { text-align: center; width: 80px; }
-.ht-label { font-size: 9px; color: #666; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ht-time { font-size: 13px; font-weight: bold; color: #fff; font-family: monospace; }
-
-/* FOOTER */
-.bottom-nav {
-    position: fixed; bottom: 0; left: 0; right: 0; height: var(--nav-height);
-    background: rgba(5,5,5,0.9); backdrop-filter: blur(10px); border-top: 1px solid #222;
-    display: flex; justify-content: space-around; padding-top: 12px; z-index: 999;
-}
-.nav-btn { background: none; border: none; color: #444; display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 10px; font-weight: 600; transition: 0.2s; }
-.nav-btn.active { color: var(--accent); transform: translateY(-2px); }
-.nav-icon { font-size: 22px; }
-
-/* MODALS */
-.modal-wrap {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
-    z-index: 2000; display: none; align-items: center; justify-content: center;
-}
-.modal { background: #151515; width: 90%; max-width: 350px; border-radius: 20px; padding: 20px; border: 1px solid #333; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
-.tag { background: #222; padding: 4px 8px; border-radius: 4px; font-size: 11px; color: #ccc; margin-right: 4px; display: inline-block; margin-bottom: 4px; }
-.unhide-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #222; color: #ccc; align-items: center; }
-.unhide-btn { background: var(--accent); border: none; color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: bold; }
-
-/* PAY REMINDERS */
-.reminders-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 15px; }
-.remind-btn {
-    background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); color: #888;
-    padding: 12px; border-radius: 12px; font-size: 13px; font-weight: 600; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s;
-}
-.remind-btn:active { background: rgba(255,255,255,0.1); }
-
-/* TABS ANIMATION */
-.tab-content { display: none; animation: fadeIn 0.2s ease-out; }
-.tab-content.active { display: block; }
-@keyframes fadeIn { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
-/* --- НОВЫЕ СТИЛИ ДЛЯ КНОПОК И ПОЛЗУНКОВ --- */
-
-/* 1. Красивые кнопки +/- (Стеклянный эффект) */
-.counter-wrapper {
-    display: inline-flex; align-items: center; 
-    background: rgba(255,255,255,0.03); 
-    border: 1px solid rgba(255,255,255,0.1); 
-    border-radius: 20px; height: 32px;
-    padding: 0 4px; overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-}
-.icon-btn {
-    width: 32px; height: 32px; border-radius: 50%; border: none; background: transparent;
-    color: #888; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-    transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.icon-btn:active { background: rgba(255,255,255,0.1); color: #fff; transform: scale(0.9); }
-.counter-val { 
-    min-width: 30px; text-align: center; font-weight: 800; font-size: 14px; 
-    color: var(--text-main); font-family: monospace;
-}
-
-/* 2. НЕОНОВЫЙ ПОЛЗУНОК (RANGE SLIDER) */
-.slider-container {
-    width: 100%; display: flex; align-items: center; gap: 10px; margin-top: 8px;
-    background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 12px; border: 1px solid #222;
-}
-
-input[type=range] {
-    -webkit-appearance: none; width: 100%; background: transparent; cursor: pointer; height: 20px; margin: 0;
-}
-input[type=range]:focus { outline: none; }
-
-/* Дорожка ползунка */
-input[type=range]::-webkit-slider-runnable-track {
-    width: 100%; height: 6px; cursor: pointer;
-    background: #333; border-radius: 4px;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
-}
-
-/* Сам кружок (Thumb) */
-input[type=range]::-webkit-slider-thumb {
-    height: 18px; width: 18px; border-radius: 50%;
-    background: var(--accent); cursor: pointer;
-    -webkit-appearance: none; margin-top: -6px; /* центровка */
-    box-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent-glow);
-    border: 2px solid #fff; transition: transform 0.1s;
-}
-input[type=range]::-webkit-slider-thumb:active { transform: scale(1.2); background: #fff; }
-
-/* Firefox фиксы (если нужно) */
-input[type=range]::-moz-range-track { width: 100%; height: 6px; background: #333; border-radius: 4px; }
-input[type=range]::-moz-range-thumb { height: 18px; width: 18px; border: none; border-radius: 50%; background: var(--accent); }
-/* --- ИСПРАВЛЕНИЕ ЗАЕЗЖАЮЩИХ КНОПОК И АНИМАЦИИ --- */
-
-/* Контейнер нижней строки (Таймер слева, кнопки справа) */
-.task-bottom-row {
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    width: 100%; 
-    margin-top: 8px; 
-    box-sizing: border-box;
-    flex-wrap: wrap; /* ВАЖНО: Разрешаем перенос на новую строку */
-    gap: 8px; /* Отступ между таймером и кнопками при переносе */
-}
-
-/* Группа кнопок справа */
-.task-actions-group {
-    display: flex; 
-    align-items: center; 
-    gap: 6px; 
-    margin-left: auto; /* Прижимает вправо */
-    flex-wrap: wrap; /* Кнопки тоже могут переноситься, если совсем узко */
-    justify-content: flex-end;
-}
-
-/* Кнопка мгновенного выполнения (Галочка) */
-/* Кнопка мгновенного выполнения (MAX) */
-.btn-instant-done {
-    height: 32px; /* Высота как у +/- */
-    padding: 0 10px;
-    background: rgba(16, 185, 129, 0.1); 
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    color: var(--green);
-    border-radius: 8px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px; font-weight: 800; letter-spacing: 0.5px;
-    transition: 0.2s;
-    margin-left: 4px;
-}
-.btn-instant-done:active { background: var(--green); color: black; }
-
-/* Обновленный стиль полоски для плавности */
-.progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), #fbbf24);
-    width: 0%;
-    border-radius: 3px;
-    /* КРИТИЧЕСКИ ВАЖНО ДЛЯ ПЛАВНОСТИ: */
-    transition: width 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-    box-shadow: 0 0 10px var(--accent-glow);
-}
-.checkbox {
-    width: 22px; height: 22px; border-radius: 6px; border: 2px solid #444; 
-    display: flex; align-items: center; justify-content: center; 
-    color: var(--accent); font-size: 14px; background: #000;
-    cursor: pointer; /* Делаем курсор "рукой" */
-    position: relative; z-index: 5; /* Поднимаем над карточкой */
-    transition: 0.1s;
-}
-.checkbox:active { transform: scale(0.9); border-color: var(--accent); }
-
-/* И стили для кнопки MAX (если еще не добавил) */
-.btn-instant-done {
-    height: 32px; padding: 0 10px;
-    background: rgba(16, 185, 129, 0.1); 
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    color: var(--green); border-radius: 8px; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px; font-weight: 800; margin-left: 4px;
-}
-/* ==============================================
-   ИСПРАВЛЕНИЕ СВЕТЛЫХ ТЕМ (ВСТАВИТЬ В КОНЕЦ STYLE)
-   ============================================== */
-
-/* 1. Добавляем переменные для полей ввода и иконок */
-:root {
-    --input-bg: #111;
-    --input-border: #333;
-    --input-text: #fff;
-    --icon-bg: #151515;
-    --bar-bg: #000; /* Фон под кнопками +/- */
-}
-
-/* Настройки для светлых тем */
-body.theme-white-orange, body.theme-white-purple {
-    --input-bg: #e5e5ea;       /* Светло-серый для полей */
-    --input-border: #d1d1d6;
-    --input-text: #000;        /* Черный текст в полях */
-    --icon-bg: #f2f2f7;        /* Светлый фон под иконками */
-    --bar-bg: #e5e5ea;         /* Светлый фон под кнопками +/- */
-    --text-sub: #666;          /* Чтобы доп. текст был виден */
-}
-
-/* 2. Применяем переменные к тексту (чтобы он был темным на белом) */
-.task-text, .card-title, .ht-label { 
-    color: var(--text-main) !important; 
-}
-
-.task-sub, .card-sub, .tc-title, .ht-time, .stat-label { 
-    color: var(--text-sub) !important; 
-}
-
-/* 3. Исправляем поля ввода (делаем их светлыми в светлой теме) */
+/* ИНПУТЫ И ФОРМЫ */
 input, select, textarea {
     background: var(--input-bg) !important;
     border: 1px solid var(--input-border) !important;
     color: var(--input-text) !important;
+    padding: 10px 12px; border-radius: 8px; font-size: 14px; outline: none;
+    -webkit-appearance: none; appearance: none;
 }
+input:focus, select:focus { border-color: var(--accent) !important; }
 
-/* 4. Исправляем фоны иконок и кнопок */
-.bp-icon-container, .card-icon {
-    background: var(--icon-bg) !important;
-    border: 1px solid var(--border) !important;
-}
-
-/* Панель управления (+ 0 -) */
-.controls-new, .counter-wrapper {
-    background: var(--bar-bg) !important;
-    border-color: var(--border) !important;
-}
-.counter-val, .counter-val-new {
-    color: var(--text-main) !important;
-}
-
-/* Кнопка "Минус" в светлой теме должна быть видна */
-.btn-mini.minus {
-    background: var(--icon-bg) !important;
-    color: var(--text-sub) !important;
-}
-
-/* Метки времени (сделаем их темнее на светлом фоне) */
-.status-badge.time {
-    background: var(--icon-bg) !important;
-    color: var(--text-sub) !important;
+/* HERO БЛОК */
+.bp-hero {
+    background: var(--bg-card); /* Был хардкод #0f0f11 */
     border: 1px solid var(--border);
+    border-radius: 16px; padding: 15px; margin: 15px 15px 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
 }
 
-/* Исправляем цвет иконок в нижнем меню */
-.nav-btn { color: var(--text-sub) !important; }
-.nav-btn.active { color: var(--accent) !important; }
+.stat-val { font-size: 20px; font-weight: 800; color: var(--gold); }
+.stat-label { font-size: 10px; color: var(--text-sub); text-transform: uppercase; margin-top: 4px; font-weight: 600; }
+
+.hero-btn {
+    background: var(--bg-element); /* Был хардкод rgba(255,255,255,0.03) */
+    border: 1px solid var(--border);
+    color: var(--text-sub);
+    padding: 12px; border-radius: 10px; font-size: 13px; font-weight: 700; flex: 1;
+}
+.hero-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(251, 191, 36, 0.1); }
+
+/* ПОИСК И ЛИПКАЯ ШАПКА */
+.sticky-search {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--bg-sticky); /* Был хардкод */
+    padding: 10px 15px; border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+}
+.search-input { width: 100%; box-sizing: border-box; }
+
+/* КАРТОЧКИ ЗАДАЧ */
+.task-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px;
+    margin-bottom: 8px;
+}
+.task-item.completed { opacity: 0.6; background: var(--bg-element); border-color: transparent; }
+.task-text { color: var(--text-main); font-weight: 600; font-size: 14px; }
+
+/* КНОПКИ УПРАВЛЕНИЯ (+ -) */
+.controls-new, .counter-wrapper {
+    background: var(--bg-element) !important;
+    border: 1px solid var(--border) !important;
+    display: flex; align-items: center; gap: 8px; padding: 4px; border-radius: 10px;
+}
+.btn-mini {
+    width: 32px; height: 32px; border-radius: 8px; border: none;
+    display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px;
+}
+.btn-mini.minus { background: transparent; color: var(--text-sub); }
+.btn-mini.plus { background: var(--accent); color: #fff; box-shadow: 0 2px 8px var(--accent-glow); }
+.counter-val-new { color: var(--text-main); font-weight: 800; min-width: 20px; text-align: center; }
+
+/* ИКОНКИ */
+.bp-icon-container {
+    background: var(--bg-element);
+    border: 1px solid var(--border);
+    width: 42px; height: 42px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+
+/* ТАЙМЕРЫ (КАРТОЧКИ) */
+.timer-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 10px;
+    margin-bottom: 10px; position: relative;
+}
+.timer-card.running { border-color: var(--gold); background: rgba(251, 191, 36, 0.05); }
+.tc-title { color: var(--text-main); font-weight: 700; }
+.tc-time { color: var(--text-main); font-size: 28px; font-weight: 800; font-family: monospace; }
+.tc-btn-icon { background: var(--bg-element); border: 1px solid var(--border); color: var(--text-sub); width: 36px; height: 36px; border-radius: 8px; }
+
+/* НИЖНЕЕ МЕНЮ */
+.bottom-nav {
+    background: var(--bg-nav); /* Был хардкод */
+    border-top: 1px solid var(--border);
+    position: fixed; bottom: 0; left: 0; right: 0; height: var(--nav-height);
+    display: flex; justify-content: space-around; padding-top: 12px; z-index: 999;
+    backdrop-filter: blur(10px);
+}
+.nav-btn { background: none; border: none; color: var(--text-sub); display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 10px; font-weight: 600; }
+.nav-btn.active { color: var(--accent); }
+
+/* ПРОЧЕЕ */
+.action-btn { background: var(--bg-element); border: 1px solid var(--border); color: var(--text-main); padding: 8px 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+.segment-wrapper { overflow-x: auto; padding: 0 15px 10px; }
+.seg-btn { background: var(--bg-element); color: var(--text-sub); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; font-weight: 600; white-space: nowrap; margin-right: 5px; }
+.seg-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.card { background: var(--bg-card); border: 1px solid var(--border); padding: 12px; border-radius: 12px; display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.card-title { color: var(--text-main); font-weight: bold; }
+.card-icon { width: 40px; text-align: center; font-size: 24px; background: var(--bg-element); height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 10px; }
+
+/* Прогресс бары */
+.timer-progress-bg { background: rgba(128,128,128,0.1); height: 4px; width: 100%; position: absolute; bottom: 0; left: 0; }
+.header-timer-wrap { background: var(--bg-element); border: 1px solid var(--border); display: flex; align-items: center; padding: 4px; border-radius: 20px; }
+.ht-label { color: var(--text-sub); font-size: 9px; }
+.ht-time { color: var(--text-main); font-weight: bold; font-family: monospace; }
 </style>
 </head>
 <body>
@@ -1676,6 +1155,7 @@ function updateCounterSlider(i, val) {
             Cloud.setItem('gta_tm_22', json);
         }
 
+// 1. Функция отрисовки (вызывается только при добавлении/удалении таймера)
 function renderTimers() {
     const list = document.getElementById('activeTimersList'); 
     if(!list) return;
@@ -1685,40 +1165,20 @@ function renderTimers() {
     if(TIMERS.custom) all = [...TIMERS.custom];
     
     if(all.length === 0) {
-        list.innerHTML = '<div style="padding:10px; color:#555; font-size:13px;">Нет активных таймеров</div>';
+        list.innerHTML = '<div style="padding:10px; color:var(--text-sub); font-size:13px;">Нет активных таймеров</div>';
     }
 
     all.forEach(t => {
-        // --- ЛОГИКА ТАЙМЕРА (как и была) ---
-        if(t.run) {
-            const now = Date.now();
-            if (t.et) {
-                const diff = Math.ceil((t.et - now) / 1000);
-                t.rm = diff;
-            } else {
-                const passed = Math.floor((now - t.ts)/1000);
-                if(passed > 0) t.rm -= passed;
-                t.et = now + (t.rm * 1000);
-            }
-            if(t.rm <= 0) { t.rm = 0; t.run = false; }
-            t.ts = now;
-        }
-
         const isRunning = t.run;
         const statusText = isRunning ? 'Активен' : 'Пауза';
         const displayTime = fmtTime(t.rm);
         
-        // --- РАСЧЕТ ПРОГРЕССА ДЛЯ ПОЛОСКИ ---
-        // t.s - исходная длительность в секундах
-        // t.rm - осталось
-        // Прогресс (убывающий): (t.rm / t.s) * 100
         let pct = 0;
         if(t.s > 0) pct = (t.rm / t.s) * 100;
-        if(pct > 100) pct = 100; if(pct < 0) pct = 0;
         
-        // --- HTML ---
+        // ВАЖНО: Добавили ID для элементов времени и прогресса, чтобы обновлять их точечно
         list.innerHTML += `
-            <div class="timer-card ${isRunning ? 'running' : ''}">
+            <div class="timer-card ${isRunning ? 'running' : ''}" id="card_${t.id}">
                 <div class="tc-header">
                     <div class="tc-title">
                         <span style="color:var(--accent)">::</span> ${t.l}
@@ -1739,10 +1199,67 @@ function renderTimers() {
                     <button class="tc-btn-icon del" onclick="delTime('${t.id}')">✕</button>
                 </div>
             </div>`;
-            
-        if(t.run) runInterval(t.id);
     });
-    saveTm();
+    // Запускаем обновление цифр, если есть активные таймеры
+    if(all.some(t => t.run)) startGlobalTimerLoop();
+}
+
+// 2. Функция точечного обновления (работает быстро, не трогает HTML структуру)
+function updateTimersVisuals() {
+    if(!TIMERS.custom) return;
+    
+    const now = Date.now();
+    let hasRunning = false;
+
+    TIMERS.custom.forEach(t => {
+        if(t.run) {
+            hasRunning = true;
+            // Логика расчета времени
+            if (t.et) {
+                const diff = Math.ceil((t.et - now) / 1000);
+                t.rm = diff;
+            }
+            if(t.rm <= 0) {
+                t.rm = 0; t.run = false;
+                renderTimers(); // Только если таймер кончился, перерисовываем всё, чтобы сменить кнопку
+                // Уведомление
+                 if(window.Telegram && window.Telegram.WebApp) {
+                    window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                }
+            }
+
+            // ТОЧЕЧНОЕ ОБНОВЛЕНИЕ DOM
+            const elDisp = document.getElementById(`disp_${t.id}`);
+            const elBar = document.getElementById(`prog_bar_${t.id}`);
+            
+            if(elDisp) elDisp.innerText = fmtTime(t.rm);
+            if(elBar) {
+                let pct = (t.s > 0) ? (t.rm / t.s) * 100 : 0;
+                elBar.style.width = `${pct}%`;
+            }
+        }
+    });
+    
+    // Сохраняем редко (раз в 5 сек), чтобы не грузить, или при остановке
+    if(now % 5000 < 50) saveTm();
+}
+
+// 3. Глобальный цикл (заменяет старый setInterval)
+let GLOBAL_TIMER_INT = null;
+function startGlobalTimerLoop() {
+    if(GLOBAL_TIMER_INT) return; // Уже запущен
+    
+    GLOBAL_TIMER_INT = setInterval(() => {
+        // Обновляем виджет в шапке
+        if(typeof updateHeaderTimer === 'function') updateHeaderTimer();
+        
+        // Обновляем таймеры в списке задач
+        // ... тут логика для задач ...
+
+        // Обновляем большие таймеры
+        updateTimersVisuals();
+
+    }, 1000);
 }
 
         function fmtTime(s) { const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60; return (h>0?h+':':'')+pad(m)+':'+pad(sec); }
