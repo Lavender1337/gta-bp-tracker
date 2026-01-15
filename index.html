@@ -639,6 +639,76 @@ input[type=range]::-moz-range-thumb { height: 18px; width: 18px; border: none; b
     display: flex; align-items: center; justify-content: center;
     font-size: 11px; font-weight: 800; margin-left: 4px;
 }
+/* ==============================================
+   ИСПРАВЛЕНИЕ СВЕТЛЫХ ТЕМ (ВСТАВИТЬ В КОНЕЦ STYLE)
+   ============================================== */
+
+/* 1. Добавляем переменные для полей ввода и иконок */
+:root {
+    --input-bg: #111;
+    --input-border: #333;
+    --input-text: #fff;
+    --icon-bg: #151515;
+    --bar-bg: #000; /* Фон под кнопками +/- */
+}
+
+/* Настройки для светлых тем */
+body.theme-white-orange, body.theme-white-purple {
+    --input-bg: #e5e5ea;       /* Светло-серый для полей */
+    --input-border: #d1d1d6;
+    --input-text: #000;        /* Черный текст в полях */
+    --icon-bg: #f2f2f7;        /* Светлый фон под иконками */
+    --bar-bg: #e5e5ea;         /* Светлый фон под кнопками +/- */
+    --text-sub: #666;          /* Чтобы доп. текст был виден */
+}
+
+/* 2. Применяем переменные к тексту (чтобы он был темным на белом) */
+.task-text, .card-title, .ht-label { 
+    color: var(--text-main) !important; 
+}
+
+.task-sub, .card-sub, .tc-title, .ht-time, .stat-label { 
+    color: var(--text-sub) !important; 
+}
+
+/* 3. Исправляем поля ввода (делаем их светлыми в светлой теме) */
+input, select, textarea {
+    background: var(--input-bg) !important;
+    border: 1px solid var(--input-border) !important;
+    color: var(--input-text) !important;
+}
+
+/* 4. Исправляем фоны иконок и кнопок */
+.bp-icon-container, .card-icon {
+    background: var(--icon-bg) !important;
+    border: 1px solid var(--border) !important;
+}
+
+/* Панель управления (+ 0 -) */
+.controls-new, .counter-wrapper {
+    background: var(--bar-bg) !important;
+    border-color: var(--border) !important;
+}
+.counter-val, .counter-val-new {
+    color: var(--text-main) !important;
+}
+
+/* Кнопка "Минус" в светлой теме должна быть видна */
+.btn-mini.minus {
+    background: var(--icon-bg) !important;
+    color: var(--text-sub) !important;
+}
+
+/* Метки времени (сделаем их темнее на светлом фоне) */
+.status-badge.time {
+    background: var(--icon-bg) !important;
+    color: var(--text-sub) !important;
+    border: 1px solid var(--border);
+}
+
+/* Исправляем цвет иконок в нижнем меню */
+.nav-btn { color: var(--text-sub) !important; }
+.nav-btn.active { color: var(--accent) !important; }
 </style>
 </head>
 <body>
