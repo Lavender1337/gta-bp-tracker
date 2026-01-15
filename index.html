@@ -3,561 +3,251 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GTA Helper v22 Cloud</title>
+    <title>GTA Helper v22 Lite</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 <style>
-/* =========================================
-   1. ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ И ТЕМЫ
-   ========================================= */
 :root {
-    /* --- ДЕФОЛТНАЯ (Оранжевая Темная) --- */
-    --bg-deep: #050505;
-    --bg-card: #0f0f11;
-    --border: #222;
-    --text-main: #ffffff;
-    --text-sub: rgba(255, 255, 255, 0.55);
-    
-    --accent: #f97316;
-    --accent-glow: rgba(249, 115, 22, 0.4);
-    
-    --green: #10b981;
-    --red: #ef4444;
-    --gold: #fbbf24;
-    --purple: #c084fc;
-    
-    /* Спец. цвета */
-    --twink-bg: rgba(192, 132, 252, 0.15);
-    --twink-border: rgba(192, 132, 252, 0.3);
-    --twink-text: #c084fc;
-
-    /* UI (Кнопки, Поля) */
-    --input-bg: #111;
-    --input-border: #333;
-    --input-text: #fff;
-    --icon-bg: #151515;
-    --bar-bg: #000;
-    --btn-text: #fff;
-
-    --radius: 12px;
-    --nav-height: 85px;
+    --bg-deep: #050505; --bg-card: #0f0f11; --border: #222;
+    --text-main: #ffffff; --text-sub: rgba(255, 255, 255, 0.55);
+    --accent: #f97316; --accent-glow: rgba(249, 115, 22, 0.4);
+    --green: #10b981; --red: #ef4444; --gold: #fbbf24;
+    --twink-bg: rgba(192, 132, 252, 0.15); --twink-border: rgba(192, 132, 252, 0.3); --twink-text: #c084fc;
+    --radius: 12px; --nav-height: 85px;
+    --input-bg: #111; --input-border: #333; --input-text: #fff;
+    --icon-bg: #151515; --bar-bg: #000;
 }
-
-/* === ТЕМА 1: НЕЖНАЯ ПЕРСИКОВАЯ (Светлая) === */
 body.theme-white-orange {
-    --bg-deep: #fff7ed;
-    --bg-card: #fffaf5;        
-    --border: #fed7aa;
-    --text-main: #431407;
-    --text-sub: #9a3412;
-    --accent: #f97316;
-    --accent-glow: rgba(249, 115, 22, 0.2);
-    --input-bg: #ffedd5;       
-    --input-border: #fdba74;
-    --input-text: #431407;
-    --icon-bg: #fff0db;
-    --bar-bg: #fff0db;
-    --btn-text: #431407;
-    --twink-bg: rgba(162, 28, 175, 0.1);
-    --twink-border: rgba(162, 28, 175, 0.2);
-    --twink-text: #86198f;
+    --bg-deep: #f2f2f7; --bg-card: #ffffff; --border: #e5e5ea;
+    --text-main: #000000; --text-sub: #666666;
+    --accent: #ff9500; --accent-glow: rgba(255, 149, 0, 0.3);
+    --twink-bg: rgba(175, 82, 222, 0.1); --twink-border: rgba(175, 82, 222, 0.3); --twink-text: #af52de;
+    --input-bg: #e5e5ea; --input-border: #d1d1d6; --input-text: #000;
+    --icon-bg: #f2f2f7; --bar-bg: #e5e5ea;
 }
-
-/* === ТЕМА 2: ЛИЛОВАЯ НОЧЬ === */
 body.theme-black-purple {
-    --bg-deep: #050505;
-    --bg-card: #121016;
-    --border: #2a2036;
-    --accent: #c084fc;
-    --accent-glow: rgba(192, 132, 252, 0.4);
-    --twink-text: #c084fc;
+    --bg-deep: #050505; --bg-card: #121016; --border: #2a2036;
+    --accent: #c084fc; --accent-glow: rgba(192, 132, 252, 0.4); --twink-text: #c084fc;
 }
-
-/* === ТЕМА 3: КРОВАВАЯ ЛУНА === */
 body.theme-black-red {
-    --bg-deep: #080202;
-    --bg-card: #140a0a;
-    --border: #361010;
-    --accent: #ef4444;
-    --accent-glow: rgba(239, 68, 68, 0.4);
-    --twink-text: #c084fc;
+    --bg-deep: #080202; --bg-card: #140a0a; --border: #361010;
+    --accent: #ef4444; --accent-glow: rgba(239, 68, 68, 0.4); --twink-text: #c084fc;
 }
-
-/* === ТЕМА 4: НЕЖНАЯ ЛАВАНДА (Светлая) === */
 body.theme-white-purple {
-    --bg-deep: #faf5ff;        
-    --bg-card: #fbf7ff;        
-    --border: #e9d5ff;         
-    --text-main: #3b0764;      
-    --text-sub: #6b7280;
-    --accent: #9333ea;
-    --accent-glow: rgba(147, 51, 234, 0.2);
-    --input-bg: #f3e8ff;       
-    --input-border: #d8b4fe;
-    --input-text: #3b0764;
-    --icon-bg: #f3e8ff;
-    --bar-bg: #f5f3ff;
-    --btn-text: #3b0764;
-    --twink-bg: rgba(220, 38, 38, 0.1);
-    --twink-border: rgba(220, 38, 38, 0.2);
-    --twink-text: #b91c1c;
+    --bg-deep: #f5f3ff; --bg-card: #ffffff; --border: #e9d5ff;
+    --text-main: #1e1b4b; --text-sub: #6b7280;
+    --accent: #9333ea; --accent-glow: rgba(147, 51, 234, 0.3);
+    --twink-bg: rgba(239, 68, 68, 0.1); --twink-border: rgba(239, 68, 68, 0.3); --twink-text: #ef4444;
+    --input-bg: #e5e5ea; --input-border: #d1d1d6; --input-text: #000;
+    --icon-bg: #f2f2f7; --bar-bg: #e5e5ea;
 }
+body { background-color: var(--bg-deep); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 0; padding-bottom: calc(var(--nav-height) + 40px); overflow-x: hidden; font-size: 14px; min-height: 100vh; transition: 0.3s; }
 
-/* =========================================
-   2. БАЗОВЫЕ СБРОСЫ
-   ========================================= */
-body {
-    background-color: var(--bg-deep);
-    color: var(--text-main);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    margin: 0; padding: 0; padding-bottom: calc(var(--nav-height) + 40px);
-    overflow-x: hidden; font-size: 14px; min-height: 100vh;
-    transition: background-color 0.3s, color 0.3s;
-}
-
-button { font-family: inherit; -webkit-tap-highlight-color: transparent; outline: none; }
-
-/* Поля ввода */
-input, select, textarea {
-    background: var(--input-bg) !important;
-    border: 1px solid var(--input-border) !important;
-    color: var(--input-text) !important;
-    padding: 10px 12px; border-radius: 8px; font-size: 14px; outline: none;
-    -webkit-appearance: none;
-    width: 100%; box-sizing: border-box;
-}
-input:focus, select:focus {
-    border-color: var(--accent) !important;
-    box-shadow: 0 0 10px var(--accent-glow);
-}
-
-/* Специфично для выпадающего списка сортировки, чтобы добавить стрелочку */
-select {
-    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23f97316%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-    background-repeat: no-repeat;
-    background-position: right 10px top 50%;
-    background-size: 10px auto;
-    padding-right: 30px;
-}
-
-/* =========================================
-   3. КОМПОНЕНТЫ ИНТЕРФЕЙСА
-   ========================================= */
-
-/* --- ХЕДЕР (HERO) --- */
-.bp-hero {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 16px; padding: 15px; margin: 15px 15px 20px;
-}
-.hero-stats-grid {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
-    text-align: center; margin-bottom: 15px; padding-bottom: 15px;
-    border-bottom: 1px solid var(--border);
-}
-.stat-box { display: flex; flex-direction: column; align-items: center; }
-.stat-val { font-size: 20px; font-weight: 800; color: var(--gold); line-height: 1.2; }
-.stat-label { font-size: 10px; text-transform: uppercase; margin-top: 4px; font-weight: 600; color: var(--text-sub); }
-
-.hero-toggles { display: flex; gap: 10px; }
-.hero-btn {
-    background: var(--input-bg); border: 1px solid var(--border);
-    color: var(--text-sub); padding: 12px; border-radius: 10px;
-    font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.2s;
-    display: flex; align-items: center; justify-content: center;
-}
+/* UI ELEMENTS */
+.bp-hero { background: #0f0f11; border: 1px solid #222; border-radius: 16px; padding: 15px; margin: 15px 15px 20px; }
+.hero-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.stat-val { font-size: 20px; font-weight: 800; color: var(--gold); }
+.stat-label { font-size: 10px; color: var(--text-sub); text-transform: uppercase; margin-top: 4px; font-weight: 600; }
+.hero-btn { flex: 1; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: #666; padding: 12px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.2s; }
 .hero-btn.active { background: rgba(251, 191, 36, 0.1); border-color: var(--gold); color: var(--gold); }
-.hero-btn.active.x2 { background: rgba(192, 132, 252, 0.1); border-color: var(--purple); color: var(--purple); }
+input, select { background: var(--input-bg) !important; border: 1px solid var(--input-border) !important; color: var(--input-text) !important; padding: 10px; border-radius: 8px; outline: none; }
 
-/* --- ЗАДАЧИ (BP ITEMS) --- */
-.task-item {
-    background: var(--bg-card); border: 1px solid var(--border);
-    border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px;
-    margin-bottom: 8px; transition: background 0.2s;
-}
-.task-item.completed { opacity: 0.6; background: var(--bg-deep); border-color: var(--border); }
+/* TASK LIST */
+.list-container { padding: 0 15px; display: flex; flex-direction: column; gap: 8px; }
+.task-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; transition: background 0.2s; }
+.task-item.completed { border-color: #333; opacity: 0.6; background: #080808; }
 .task-item.twink-done { border-color: var(--purple); opacity: 0.8; background: rgba(192, 132, 252, 0.05); }
-
 .task-top-row { display: flex; align-items: center; gap: 12px; width: 100%; }
-.task-content { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
-.task-header-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+.task-bottom-row { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 8px; flex-wrap: wrap; gap: 8px; }
+.task-actions-group { display: flex; align-items: center; gap: 6px; margin-left: auto; justify-content: flex-end; }
+.progress-track { height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; width: 100%; margin-top: 8px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #fbbf24); width: 0%; transition: width 0.5s; box-shadow: 0 0 10px var(--accent-glow); }
 
-.task-text { font-size: 14px; font-weight: 600; margin-bottom: 3px; line-height: 1.3; color: var(--text-main); }
-.task-sub { font-size: 11px; font-weight: 500; color: var(--text-sub); }
-
-.bp-icon-container { 
-    width: 42px; height: 42px; background: var(--icon-bg); border-radius: 10px; 
-    border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; 
-}
-.bp-img { width: 32px; height: 32px; object-fit: contain; }
-.bp-emoji { font-size: 22px; }
-
-/* Прогресс бар */
-.progress-track {
-    height: 6px; background: var(--border);
-    border-radius: 3px; width: 100%; margin-top: 8px; overflow: hidden;
-}
-.progress-fill {
-    height: 100%; background: linear-gradient(90deg, var(--accent), var(--gold));
-    width: 0%; border-radius: 3px; transition: width 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-    box-shadow: 0 0 10px var(--accent-glow);
-}
-
-/* --- НИЖНЯЯ ПАНЕЛЬ ЗАДАЧИ --- */
-.task-bottom-row {
-    display: flex; justify-content: space-between; align-items: center;
-    width: 100%; margin-top: 8px; flex-wrap: wrap; gap: 8px;
-}
-.task-actions-group {
-    display: flex; align-items: center; gap: 6px; margin-left: auto; flex-wrap: wrap; justify-content: flex-end;
-}
-
-/* Кнопки */
-.btn-mini, .icon-btn, .btn-instant-done {
-    height: 32px; min-width: 32px;
-    border-radius: 8px; border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: 0.1s;
-    background: var(--icon-bg); color: var(--text-sub);
-}
-.btn-mini.plus { 
-    background: var(--accent); color: #fff !important; border-color: var(--accent);
-    box-shadow: 0 2px 8px var(--accent-glow); font-size: 18px; font-weight: bold;
-}
-.btn-mini.plus:active { transform: scale(0.95); }
-.btn-instant-done {
-    font-size: 10px; font-weight: 800; padding: 0 8px;
-    background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); color: var(--green);
-}
-
-.controls-new {
-    display: flex; align-items: center; gap: 6px;
-    background: var(--bar-bg); padding: 3px; border-radius: 10px; border: 1px solid var(--border);
-}
+/* CONTROLS */
+.controls-new { display: flex; align-items: center; gap: 8px; background: var(--bar-bg); padding: 4px; border-radius: 10px; border: 1px solid var(--border); }
+.btn-mini { width: 32px; height: 32px; border-radius: 8px; border: none; font-size: 18px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.btn-mini.minus { background: var(--icon-bg); color: var(--text-sub); }
+.btn-mini.plus { background: var(--accent); color: #000; }
 .counter-val-new { min-width: 20px; text-align: center; font-size: 14px; font-weight: 800; color: var(--text-main); }
+.checkbox { width: 22px; height: 22px; border-radius: 6px; border: 2px solid #444; display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 14px; background: #000; cursor: pointer; }
+.btn-instant-done { height: 32px; padding: 0 10px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: var(--green); border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: 800; display:flex; align-items:center; }
+.bp-icon-container { width: 42px; height: 42px; background: var(--icon-bg); border-radius: 10px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.bp-img { width: 32px; height: 32px; object-fit: contain; } .bp-emoji { font-size: 22px; }
+.status-badge { font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px; margin-left: 8px; }
+.status-badge.time { color: var(--text-sub); background: var(--icon-bg); border: 1px solid var(--border); }
+.status-badge.twink { color: var(--twink-text); background: var(--twink-bg); border: 1px solid var(--twink-border); }
 
-/* ИСПРАВЛЕННЫЙ СТИЛЬ ЧЕКБОКСА (БЫЛ ОБОРВАН) */
-.checkbox {
-    width: 24px; height: 24px; border-radius: 8px; border: 2px solid var(--border); 
-    display: flex; align-items: center; justify-content: center; color: var(--accent);
-    font-size: 14px; background: var(--icon-bg); cursor: pointer;
-}
-
-/* --- ТАЙМЕРЫ (КАРТОЧКИ) --- */
-.timer-grid-new { display: grid; grid-template-columns: 1fr; gap: 10px; padding: 0 15px; }
-@media(min-width: 600px) { .timer-grid-new { grid-template-columns: 1fr 1fr; } }
-
-.timer-card {
-    background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
-    padding: 15px; display: flex; flex-direction: column; gap: 10px;
-    position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-}
+/* TIMERS & OTHER */
+.inline-timer-box { display: flex; align-items: center; gap: 4px; background: #000; padding: 3px 8px; border-radius: 6px; border: 1px solid #333; height: 24px; }
+.it-btn { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 12px; padding: 0; }
+.it-val { font-size: 11px; font-family: monospace; color: #fff; min-width: 40px; text-align: center; font-weight: bold; }
+.timer-grid-new { display: grid; grid-template-columns: 1fr; gap: 10px; padding: 0 15px; } @media(min-width:600px){.timer-grid-new{grid-template-columns:1fr 1fr;}}
+.timer-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 10px; position: relative; }
 .timer-card.running { border-color: var(--gold); background: rgba(251, 191, 36, 0.05); }
+.tc-time { font-size: 28px; font-weight: 800; font-family: monospace; color: var(--text-sub); }
+.timer-progress-bg { position: absolute; bottom: 0; left: 0; height: 4px; width: 100%; background: rgba(255,255,255,0.05); border-radius: 0 0 12px 12px; overflow: hidden; }
+.timer-progress-bar { height: 100%; background: var(--gold); width: 0%; transition: width 1s linear; }
 
-.tc-header { display: flex; justify-content: space-between; align-items: center; }
-.tc-title { font-weight: 700; color: #ccc; font-size: 14px; display: flex; gap: 6px; align-items: center; }
-.tc-status { font-size: 10px; text-transform: uppercase; color: var(--gold); opacity: 0; }
-.timer-card.running .tc-status { opacity: 1; }
-.tc-time { font-size: 28px; font-weight: 800; font-family: monospace; color: #555; margin: 5px 0; letter-spacing: 1px; }
-.timer-card.running .tc-time { color: var(--gold); text-shadow: 0 0 15px rgba(251, 191, 36, 0.3); }
+/* HEADER WIDGET */
+.sticky-search { position: sticky; top: 0; z-index: 100; background: rgba(5,5,5,0.95); padding: 10px 15px; border-bottom: 1px solid #222; backdrop-filter: blur(10px); }
+.header-timer-wrap { display: flex; align-items: center; background: #111; padding: 4px; border-radius: 20px; border: 1px solid #333; position: relative; overflow: hidden; }
+.ht-progress-bg { position: absolute; bottom: 0; left: 0; width: 100%; height: 2px; background: rgba(255,255,255,0.1); }
+.ht-progress-bar { height: 100%; background: var(--green); width: 0%; transition: width 1s linear; }
+.ht-btn { background: none; border: none; color: #555; font-size: 10px; cursor: pointer; padding: 0 8px; z-index: 2; }
+.ht-content { text-align: center; width: 80px; z-index: 2; }
+.ht-label { font-size: 9px; color: var(--text-main); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ht-time { font-size: 13px; font-weight: bold; color: var(--text-main); font-family: monospace; }
 
-.tc-footer { display: flex; gap: 8px; }
-.tc-btn {
-    flex: 1; height: 36px; border: none; border-radius: 8px; font-weight: 700;
-    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
-    font-size: 12px; text-transform: uppercase; color: #fff;
-}
-.tc-btn.start { background: var(--green); box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2); color: #000; }
-.tc-btn.stop { background: var(--red); color: white; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2); }
-.tc-btn-icon {
-    width: 36px; height: 36px; background: #111; border: 1px solid #333; 
-    border-radius: 8px; color: #888; cursor: pointer; display: flex; align-items: center; justify-content: center;
-}
-
-/* Форма таймера и кнопки */
-.custom-timer { display: flex; gap: 8px; padding: 0 15px; margin-top: 10px; margin-bottom: 20px;}
-.custom-timer button { background: var(--accent); color: white; border: none; border-radius: 8px; font-weight: bold; flex: 1; box-shadow: 0 0 15px var(--accent-glow); }
-
-/* --- ИНТЕРФЕЙСНЫЕ ЭЛЕМЕНТЫ --- */
-.sticky-search {
-    position: sticky; top: 0; z-index: 100; background: rgba(5,5,5,0.95);
-    padding: 10px 15px; border-bottom: 1px solid #222; backdrop-filter: blur(10px);
-}
-.mini-stats-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-.mini-stat-val { font-weight:800; font-size: 13px; }
-
-/* HEADER TIMER WIDGET */
-.header-timer-wrap { 
-    display: flex; align-items: center; background: var(--input-bg); 
-    padding: 4px; border-radius: 20px; border: 1px solid var(--border); 
-    position: relative; overflow: hidden; 
-}
-.ht-btn { background: none; border: none; color: #555; font-size: 10px; cursor: pointer; padding: 0 8px; }
-.ht-content { text-align: center; width: 80px; }
-.ht-label { font-size: 9px; color: #666; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ht-time { font-size: 13px; font-weight: bold; color: #fff; font-family: monospace; }
-
-/* FOOTER */
-.bottom-nav {
-    position: fixed; bottom: 0; left: 0; right: 0; height: var(--nav-height);
-    background: rgba(5,5,5,0.9); backdrop-filter: blur(10px); border-top: 1px solid #222;
-    display: flex; justify-content: space-around; padding-top: 12px; z-index: 999;
-}
-.nav-btn { background: none; border: none; color: #444; display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 10px; font-weight: 600; transition: 0.2s; }
-.nav-btn.active { color: var(--accent); transform: translateY(-2px); }
+/* NAV & TABS */
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: var(--nav-height); background: rgba(5,5,5,0.95); border-top: 1px solid #222; display: flex; justify-content: space-around; padding-top: 12px; z-index: 999; }
+.nav-btn { background: none; border: none; color: var(--text-sub); display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 10px; font-weight: 600; }
+.nav-btn.active { color: var(--accent) !important; transform: translateY(-2px); }
 .nav-icon { font-size: 22px; }
+.tab-content { display: none; animation: fadeIn 0.2s ease-out; } .tab-content.active { display: block; } @keyframes fadeIn { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+
+/* GUIDES & CARDS */
+.segment-wrapper { overflow-x: auto; padding: 0 15px 10px; margin-bottom: 5px; }
+.segment { display: flex; gap: 8px; }
+.seg-btn { background: #111; color: #888; border: 1px solid #333; padding: 8px 16px; border-radius: 20px; font-size: 12px; white-space: nowrap; cursor: pointer; font-weight: 600; }
+.seg-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+.table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid #333; margin-top: 15px; background: #0f0f11; }
+table { width: 100%; border-collapse: collapse; min-width: 320px; font-size: 12px; }
+th { background: #1a1a1a; color: var(--accent); text-align: left; padding: 12px 10px; } td { padding: 12px 10px; border-bottom: 1px solid #222; color: #ddd; }
+.tarot-grid-new { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tarot-card-new { background: #111; border: 1px solid #333; padding: 10px; border-radius: 8px; display: flex; gap: 10px; align-items:center; }
+.tarot-icon-box { font-size: 24px; min-width: 30px; display:flex; justify-content:center;}
+.tarot-card-title { font-weight: bold; font-size: 12px; color: var(--purple); }
+.tarot-card-desc { font-size: 10px; color: #777; margin-top: 2px; line-height: 1.2; }
+.tarot-icon-img { width: 30px; height: 30px; object-fit: contain; }
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 12px; cursor: pointer; margin-bottom: 8px; }
+.card-icon { font-size: 24px; width: 40px; text-align: center; background: var(--icon-bg); border-radius: 8px; padding: 4px; border: 1px solid var(--border); }
+.card-title { font-weight: 700; color: var(--text-main); font-size: 14px; }
+.header { padding: 20px 15px 10px; font-size: 28px; font-weight: 800; color: var(--accent); }
 
 /* MODALS */
-.modal-wrap {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
-    z-index: 2000; display: none; align-items: center; justify-content: center;
-}
-.modal { background: #151515; width: 90%; max-width: 350px; border-radius: 20px; padding: 20px; border: 1px solid #333; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
-.tag { background: #222; padding: 4px 8px; border-radius: 4px; font-size: 11px; color: #ccc; margin-right: 4px; display: inline-block; margin-bottom: 4px; }
-.unhide-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #222; color: #ccc; align-items: center; }
-.unhide-btn { background: var(--accent); border: none; color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: bold; }
-
-/* PAY REMINDERS */
-.reminders-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 15px; }
-.remind-btn {
-    background: var(--input-bg); border: 1px solid var(--border); color: var(--text-sub);
-    padding: 12px; border-radius: 12px; font-size: 13px; font-weight: 600; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s;
-}
-.remind-btn:active { background: var(--accent); color: white; }
-
-/* Прочие стили */
-.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 12px; cursor: pointer; margin-bottom: 8px; }
-.card-icon { width: 40px; text-align: center; font-size: 24px; background: var(--icon-bg); border-radius: 8px; border: 1px solid var(--border); }
-.card-body { flex: 1; }
-.card-title { font-weight: 700; font-size: 14px; color: var(--text-main); }
-.card-sub { font-size: 11px; margin-top: 2px; color: var(--text-sub); }
-.price { color: var(--green); font-weight: bold; font-size: 13px; }
-.segment-wrapper { overflow-x: auto; padding: 0 15px 10px; margin-bottom: 5px; -webkit-overflow-scrolling: touch; }
-.segment { display: flex; gap: 8px; }
-.seg-btn { background: #111; color: #888; border: 1px solid #333; padding: 8px 16px; border-radius: 20px; font-size: 12px; white-space: nowrap; cursor: pointer; transition: 0.2s; font-weight: 600; }
-.seg-btn.active { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 4px 15px var(--accent-glow); }
-.header { padding: 20px 15px 10px; font-size: 28px; font-weight: 800; color: var(--accent); letter-spacing: -1px; }
-.section-title { font-size: 11px; font-weight: 700; color: var(--text-sub); margin: 25px 15px 8px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid var(--accent); display: inline-block; padding-bottom: 4px;}
-.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; background: #0f0f11; padding: 15px; border-radius: 16px; border: 1px solid #222; margin-bottom: 15px; }
-.cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 13px; font-weight: 500; color: #666; background: rgba(255,255,255,0.02); }
-.cal-day.today { background: var(--accent); color: white; font-weight: bold; box-shadow: 0 0 15px var(--accent-glow); }
-.cal-day.event { border: 1px solid var(--accent); color: var(--accent); background: rgba(249, 115, 22, 0.1); }
-.event-item { background: #111; padding: 12px; border-radius: 10px; margin-bottom: 8px; border-left: 3px solid var(--accent); display: flex; font-size: 13px; align-items: center; }
-.list-container { padding: 0 15px; display: flex; flex-direction: column; gap: 8px; }
-.tab-content { display: none; animation: fadeIn 0.2s ease-out; }
-.tab-content.active { display: block; }
-@keyframes fadeIn { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
-
-/* МИНИ-ТАЙМЕР (ГОТОВО) */
-.inline-timer-box { display: flex; align-items: center; gap: 4px; background: #000; padding: 3px 4px 3px 8px; border-radius: 6px; border: 1px solid #333; margin-right: 5px; height: 24px; }
-.it-btn { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 12px; padding: 0; display: flex; align-items: center; }
-.it-val { font-size: 11px; font-family: monospace; color: #fff; min-width: 40px; text-align: center; font-weight: bold; }
-.it-val.done { color: var(--green); text-shadow: 0 0 5px rgba(16, 185, 129, 0.5); }
-.it-sep { width: 1px; height: 12px; background: #333; margin: 0 4px; }
-
-/* ИСПРАВЛЕНИЕ ЦВЕТОВ В СВЕТЛОЙ ТЕМЕ (ФИНАЛ) */
-.task-text, .card-title, .ht-label { color: var(--text-main) !important; }
-.task-sub, .card-sub, .tc-title, .ht-time, .stat-label { color: var(--text-sub) !important; }
-.bp-icon-container, .card-icon { background: var(--icon-bg) !important; border: 1px solid var(--border) !important; }
-.controls-new, .counter-wrapper { background: var(--bar-bg) !important; border-color: var(--border) !important; }
-.counter-val, .counter-val-new { color: var(--text-main) !important; }
-.btn-mini.minus { background: var(--icon-bg) !important; color: var(--text-sub) !important; }
-.status-badge.time { background: var(--icon-bg) !important; color: var(--text-sub) !important; border: 1px solid var(--border); }
-.nav-btn { color: var(--text-sub) !important; }
-.nav-btn.active { color: var(--accent) !important; }
+.modal-wrap { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+.modal { background: #151515; width: 90%; max-width: 350px; border-radius: 20px; padding: 20px; border: 1px solid #333; }
 </style>
 </head>
 <body>
-
-    <div id="loader">
-        <div class="spinner"></div>
-        <div style="margin-top:10px; color:#666; font-size:12px;">Синхронизация...</div>
-    </div>
+    <div id="loader"><div class="spinner"></div><div style="margin-top:10px;color:#666;font-size:12px;">Загрузка...</div></div>
 
 <div id="tab-bp" class="tab-content active">
-<div class="bp-hero">
-    <div class="hero-stats-grid">
-        <div class="stat-box">
-            <div class="stat-val" id="totalBp">0</div>
-            <div class="stat-label">BP</div>
+    <div class="bp-hero">
+        <div class="hero-stats-grid">
+            <div class="stat-box"><div class="stat-val" id="totalBp">0</div><div class="stat-label">BP</div></div>
+            <div class="stat-box"><div class="stat-val" id="totalTime">0</div><div class="stat-label">Часы</div></div>
+            <div class="stat-box"><div class="stat-val" id="multiplierDisp">x1</div><div class="stat-label">Множ.</div></div>
+            <div class="stat-box"><div class="stat-val" id="doneCount">0</div><div class="stat-label">Готово</div></div>
         </div>
-        <div class="stat-box">
-            <div class="stat-val" id="totalTime">0</div>
-            <div class="stat-label">Часы</div>
+        <div class="hero-toggles" style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
+            <div style="display:flex; gap:10px; flex:1;">
+                <button class="hero-btn" id="btnVip" onclick="toggleVip()">👑 VIP</button>
+                <button class="hero-btn" id="btnX2" onclick="toggleX2()">⚡ X2</button>
+            </div>
+            <button class="hero-btn" onclick="openThemeModal()" style="width:40px; padding:0; display:flex; align-items:center; justify-content:center; flex:none;">🎨</button>
         </div>
-        <div class="stat-box">
-            <div class="stat-val" id="multiplierDisp">x1</div>
-            <div class="stat-label">Множ.</div>
+        <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:11px; color:var(--text-sub);">Коррекция старта:</span>
+            <input type="number" id="startBp" value="0" oninput="updateBP()" style="width:60px; padding:4px; font-size:12px; text-align:center;">
         </div>
-        <div class="stat-box">
-            <div class="stat-val" id="doneCount">0</div>
-            <div class="stat-label">Готово</div>
-        </div>
-    </div>
-
-    <div class="hero-toggles" style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
-        <div style="display:flex; gap:10px; flex:1;">
-            <button class="hero-btn" id="btnVip" onclick="toggleVip()">👑 VIP</button>
-            <button class="hero-btn" id="btnX2" onclick="toggleX2()">⚡ X2</button>
-        </div>
-        <button class="hero-btn" onclick="openThemeModal()" style="width:40px; padding:0; display:flex; align-items:center; justify-content:center; flex:none;">🎨</button>
     </div>
     
-    <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
-        <span style="font-size:11px; color:var(--text-sub);">Коррекция старта:</span>
-        <input type="number" id="startBp" value="0" oninput="updateBP()" style="width:60px; padding:4px; font-size:12px; text-align:center;">
+    <div style="display: flex; gap: 8px; padding: 0 15px; margin-bottom: 15px; overflow-x: auto;">
+        <button class="seg-btn" onclick="newDay()">🌅 Новый день</button>
+        <button class="seg-btn" onclick="openUnhideModal()">👁 Вернуть скрытые</button>
+        <button class="seg-btn" onclick="forceSync()" style="border-color:var(--accent); color:var(--accent);">🔄 Обновить</button>
     </div>
-</div>   
-        <div class="bp-actions-top">
-            <button class="action-btn new-day" onclick="newDay()">🌅 Новый день</button>
-            <button class="action-btn" onclick="openUnhideModal()">👁 Вернуть скрытые</button>
-            <button class="action-btn" onclick="forceSync()" style="border-color:var(--accent); color:var(--accent);">🔄 Обновить</button>
-            
-            <div class="action-btn" style="cursor:default; border-color:rgba(255,255,255,0.05); background: rgba(255,255,255,0.03);">
-                <span style="color:#888">Нафармлено:</span>
-                <span id="farmedBpMain" style="color:var(--green); font-weight:800; font-size:15px; margin-left:6px;">+0</span>
-            </div>
-        </div>
-        
-        <div class="sort-container" style="padding: 0 15px 10px; display: flex; justify-content: space-between; color:#666; font-size: 12px; align-items: center;">
-            <span>Удерживайте <b style="color:#aaa">⋮⋮</b> для перемещения</span>
-            <select id="bpSort" class="sort-select" onchange="renderBP()">
-                <option value="user">Сорт: Своя (Drag)</option>
-                <option value="def">Сорт: По списку</option>
-                <option value="max">Сорт: Кол-во (Много)</option>
-                <option value="min">Сорт: Кол-во (Мало)</option>
-            </select>
-        </div>
+    
+    <div style="padding: 0 15px 10px; display: flex; justify-content: space-between; color:#666; font-size: 12px; align-items: center;">
+        <span>Удерживайте <b style="color:#aaa">⋮⋮</b> для перемещения</span>
+        <select id="bpSort" onchange="renderBP()" style="width:120px;">
+            <option value="user">Сорт: Своя</option>
+            <option value="def">Сорт: По списку</option>
+            <option value="max">Сорт: BP (Много)</option>
+            <option value="min">Сорт: BP (Мало)</option>
+        </select>
+    </div>
 
-<div class="sticky-search">
-    <div class="mini-stats-row" style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
-        
-        <div style="flex:1; text-align:left;">
-            <div style="font-size:10px; color:var(--text-sub)">Итого:</div>
-            <div class="mini-stat-val" style="color:var(--gold)" id="stickyTotal">0</div>
-        </div>
-
-        <div style="flex:2; display:flex; justify-content:center;">
-            <div class="header-timer-wrap" id="headerTimerWidget" style="width:100%; max-width:160px; margin:0;">
+    <div class="sticky-search">
+        <div class="mini-stats-row" style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <div class="header-timer-wrap" id="headerTimerWidget" style="flex:1; margin:0 10px;">
                 <button class="ht-btn" onclick="changeHeaderTimer(-1)">◀</button>
                 <div class="ht-content" onclick="go('timers', document.querySelectorAll('.nav-btn')[1])">
                     <span id="htLabel" class="ht-label">Нет активных</span>
                     <span id="htTime" class="ht-time">--:--</span>
                 </div>
                 <button class="ht-btn" onclick="changeHeaderTimer(1)">▶</button>
-                
-                <div class="ht-progress-bg">
-                    <div id="htProgressBar" class="ht-progress-bar"></div>
-                </div>
+                <div class="ht-progress-bg"><div id="htProgressBar" class="ht-progress-bar"></div></div>
             </div>
         </div>
-
-        <div style="flex:1; text-align:right;">
-            <div style="font-size:10px; color:var(--text-sub)">Нафармлено:</div>
-            <div class="mini-stat-val" style="color:var(--green)" id="stickyFarmed">+0</div>
-        </div>
+        <input type="text" class="search-input" id="searchBp" placeholder="🔍 Найти задание..." oninput="renderBP()" style="width:100%; box-sizing:border-box;">
     </div>
-    
-    <input type="text" class="search-input" id="searchBp" placeholder="🔍 Найти задание..." oninput="renderBP()" style="margin-top:10px;">
+    <div class="list-container" id="listBP"></div>
 </div>
-
-        <div class="list-container" id="listBP"></div>
-    </div>
 
 <div id="tab-timers" class="tab-content">
     <div class="header">Таймеры</div>
-
-    <div class="section-title">Активные</div>
+    <div style="padding:0 15px; margin-bottom:10px; font-size:11px; color:#666; text-transform:uppercase;">Активные</div>
     <div id="activeTimersList" class="timer-grid-new"></div>
-
-    <div class="custom-timer">
+    <div style="display: flex; gap: 8px; padding: 0 15px; margin-top: 20px; margin-bottom: 20px;">
         <input type="text" id="customName" placeholder="Название..." style="flex:2">
         <input type="number" id="customMin" placeholder="Мин" style="flex:1">
-        <button onclick="addCustomTimer()">+ ДОБАВИТЬ</button>
+        <button onclick="addCustomTimer()" style="background:var(--accent); border:none; border-radius:8px; font-weight:bold; color:#000; padding:0 15px;">+</button>
     </div>
-
-    <div class="section-title">Шаблоны</div>
+    <div style="padding:0 15px; margin-bottom:10px; font-size:11px; color:#666; text-transform:uppercase;">Шаблоны</div>
     <div id="timerGrid" class="timer-grid-new"></div>
+</div>
 
-    <div class="section-title">Напоминания (Оплата)</div>
-    <div class="reminders-grid" style="padding-bottom: 20px;">
-        <button class="remind-btn" onclick="addPay('Квартира')">🏢 Квартира</button>
-        <button class="remind-btn" onclick="addPay('Дом')">🏠 Дом</button>
-        <button class="remind-btn" onclick="addPay('Склад')">📦 Склад</button>
-        <button class="remind-btn" onclick="addPay('Лаба')">🧪 Лаба</button>
+<div id="tab-calendar" class="tab-content">
+    <div class="header">Календарь</div>
+    <div class="list-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 0 15px;">
+            <button onclick="moveMonth(-1)" style="background:none;border:none;color:white;font-size:24px;">❮</button>
+            <span id="calTitle" style="font-weight:800; font-size:20px; color:var(--text-main);"></span>
+            <button onclick="moveMonth(1)" style="background:none;border:none;color:white;font-size:24px;">❯</button>
+        </div>
+        <div id="calGrid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; background: #0f0f11; padding: 15px; border-radius: 16px; border: 1px solid #222; margin-bottom: 15px;"></div>
+        <div style="margin-left:0; font-weight:bold; color:#666;">События:</div>
+        <div id="eventList"></div>
     </div>
 </div>
 
-    <div id="tab-calendar" class="tab-content">
-        <div class="header">Календарь</div>
-        <div class="list-container">
-            <div class="cal-header">
-                <button onclick="moveMonth(-1)" style="background:none;border:none;color:white;font-size:24px;">❮</button>
-                <span id="calTitle" style="font-weight:800; font-size:20px;"></span>
-                <button onclick="moveMonth(1)" style="background:none;border:none;color:white;font-size:24px;">❯</button>
-            </div>
-            <div id="calGrid" class="cal-grid"></div>
-            <div class="section-title" style="margin-left:0;">События:</div>
-            <div id="eventList"></div>
+<div id="tab-kitchen" class="tab-content">
+    <div class="header" style="color:var(--red)">Кухня</div>
+    <div class="sticky-search">
+        <input type="text" id="searchFood" placeholder="🔍 Рецепт или ингредиент..." oninput="renderFood()" style="width:100%; box-sizing:border-box;">
+    </div>
+    <div class="list-container" id="listFood"></div>
+</div>
+
+<div id="tab-guides" class="tab-content">
+    <div class="header">Гайды</div>
+    <div class="segment-wrapper">
+        <div class="segment">
+            <button class="seg-btn active" onclick="setGuide('payment', this)">Оплата</button>
+            <button class="seg-btn" onclick="setGuide('pet', this)">Питомцы</button>
+            <button class="seg-btn" onclick="setGuide('med', this)">Медицина</button>
+            <button class="seg-btn" onclick="setGuide('tarot', this)">Таро</button>
+            <button class="seg-btn" onclick="setGuide('ball', this)">Шар 8</button>
+            <button class="seg-btn" onclick="setGuide('rep', this)">Ремонт</button>
+            <button class="seg-btn" onclick="setGuide('drop', this)">Шансы</button>
         </div>
     </div>
+    <div id="guideContent" style="padding:10px 15px 20px;"></div>
+</div>
 
-    <div id="tab-cars" class="tab-content">
-        <div class="header">Гараж</div>
-        <div class="segment-wrapper">
-            <div class="segment">
-                <button class="seg-btn active" onclick="setCarCat('platinum', this)">Platinum</button>
-                <button class="seg-btn" onclick="setCarCat('moto', this)">Moto</button>
-                <button class="seg-btn" onclick="setCarCat('container', this)">Контейнер</button>
-                <button class="seg-btn" onclick="setCarCat('pass', this)">Пропуск</button>
-                <button class="seg-btn" onclick="setCarCat('event', this)">Ивент</button>
-                <button class="seg-btn" onclick="setCarCat('tuning', this)">Тюнинг</button>
-            </div>
-        </div>
-        <div class="sticky-search">
-            <input type="text" class="search-input" id="searchCar" placeholder="🔍 Название авто..." oninput="renderCars()">
-        </div>
-        <div class="list-container" id="listCars"></div>
-        <div id="tuningBlock" style="display:none; padding-top:10px;"></div>
-    </div>
+<nav class="bottom-nav">
+    <button class="nav-btn active" onclick="go('bp', this)"><div class="nav-icon">📊</div><span class="nav-label">BP</span></button>
+    <button class="nav-btn" onclick="go('timers', this)"><div class="nav-icon">⏱</div><span class="nav-label">Таймер</span></button>
+    <button class="nav-btn" onclick="go('calendar', this)"><div class="nav-icon">📅</div><span class="nav-label">Планы</span></button>
+    <button class="nav-btn" onclick="go('kitchen', this)"><div class="nav-icon">🍔</div><span class="nav-label">Еда</span></button>
+    <button class="nav-btn" onclick="go('guides', this)"><div class="nav-icon">📚</div><span class="nav-label">Гайды</span></button>
+</nav>
 
-    <div id="tab-kitchen" class="tab-content">
-        <div class="header" style="color:var(--red)">Кухня</div>
-        <div class="sticky-search">
-            <input type="text" class="search-input" id="searchFood" placeholder="🔍 Рецепт или ингредиент..." oninput="renderFood()">
-        </div>
-        <div class="list-container" id="listFood"></div>
-    </div>
-
-    <div id="tab-guides" class="tab-content">
-        <div class="header">Гайды</div>
-        <div class="segment-wrapper">
-            <div class="segment">
-                <button class="seg-btn active" onclick="setGuide('payment', this)">Оплата</button>
-                <button class="seg-btn" onclick="setGuide('pet', this)">Питомцы</button>
-                <button class="seg-btn" onclick="setGuide('med', this)">Медицина</button>
-                <button class="seg-btn" onclick="setGuide('tarot', this)">Таро</button>
-                <button class="seg-btn" onclick="setGuide('ball', this)">Шар 8</button>
-                <button class="seg-btn" onclick="setGuide('rep', this)">Ремонт</button>
-                <button class="seg-btn" onclick="setGuide('drop', this)">Шансы</button>
-            </div>
-        </div>
-        <div id="guideContent" style="padding-top:10px;"></div>
-    </div>
-
-    <nav class="bottom-nav">
-        <button class="nav-btn active" onclick="go('bp', this)"><div class="nav-icon">📊</div><span class="nav-label">BP</span></button>
-        <button class="nav-btn" onclick="go('timers', this)"><div class="nav-icon">⏱</div><span class="nav-label">Таймер</span></button>
-        <button class="nav-btn" onclick="go('calendar', this)"><div class="nav-icon">📅</div><span class="nav-label">Планы</span></button>
-        <button class="nav-btn" onclick="go('cars', this)"><div class="nav-icon">🚗</div><span class="nav-label">Авто</span></button>
-        <button class="nav-btn" onclick="go('kitchen', this)"><div class="nav-icon">🍔</div><span class="nav-label">Еда</span></button>
-        <button class="nav-btn" onclick="go('guides', this)"><div class="nav-icon">📚</div><span class="nav-label">Гайды</span></button>
-    </nav>
 <div id="modalTheme" class="modal-wrap" onclick="closeThemeModal(event)">
     <div class="modal">
-        <div style="font-size:20px; font-weight:800; margin-bottom:15px; text-align:center;">Выберите тему</div>
+        <div style="font-size:20px; font-weight:800; margin-bottom:15px; text-align:center; color:white;">Выберите тему</div>
         <div style="display:flex; justify-content:center; gap:15px; flex-wrap:wrap;">
             <div class="theme-btn" style="background:#050505; border-color:#f97316;" onclick="setTheme('default')"></div>
             <div class="theme-btn" style="background:#f2f2f7; border-color:#ff9500;" onclick="setTheme('theme-white-orange')"></div>
@@ -565,647 +255,647 @@ select {
             <div class="theme-btn" style="background:#080202; border-color:#ef4444;" onclick="setTheme('theme-black-red')"></div>
             <div class="theme-btn" style="background:#f5f3ff; border-color:#9333ea;" onclick="setTheme('theme-white-purple')"></div>
         </div>
-        <div style="text-align:center; margin-top:20px; font-size:12px; color:var(--text-sub);">
-            Метка "Твинк" меняет цвет автоматически.
-        </div>
     </div>
 </div>
-    <div id="modal" class="modal-wrap" onclick="closeModal(event)">
-        <div class="modal">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <div style="font-size:22px; font-weight:800;" id="mTitle"></div>
-                <div style="font-size:26px; cursor:pointer; color:#888;" onclick="closeModal({target:{id:'modal'}})">✕</div>
-            </div>
-            <div id="mContent"></div>
+<div id="modal" class="modal-wrap" onclick="closeModal(event)">
+    <div class="modal">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <div style="font-size:22px; font-weight:800; color:white;" id="mTitle"></div>
+            <div style="font-size:26px; cursor:pointer; color:#888;" onclick="document.getElementById('modal').style.display='none'">✕</div>
         </div>
+        <div id="mContent"></div>
     </div>
+</div>
 <div id="modalUnhide" class="modal-wrap" onclick="closeUnhideModal(event)">
     <div class="modal">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <div style="font-size:20px; font-weight:800;">Скрытые задачи</div>
+            <div style="font-size:20px; font-weight:800; color:white;">Скрытые задачи</div>
             <div style="font-size:26px; cursor:pointer; color:#888;" onclick="document.getElementById('modalUnhide').style.display='none'">✕</div>
         </div>
-        <div id="unhideList" style="max-height: 300px; overflow-y: auto;">
-            </div>
+        <div id="unhideList" style="max-height: 300px; overflow-y: auto;"></div>
     </div>
 </div>
+
 <script>
-    // ================= FULL DATA =================
-    const DB = {
-            cars: {
-                platinum: [
-                    {realName:"VW Golf MK1",gameName:"BF Wolf MK1",price:200000,speed:222,trunk:60,slots:12},{realName:"Audi 80 B4 1996",gameName:"Obey 80 B4 1996",price:225000,speed:222,trunk:60,slots:12},{realName:"BMW 7-series e38",gameName:"Ubermacht 7-line E38",price:250000,speed:220,trunk:60,slots:18},{realName:"Kia Ceed",gameName:"Bollokan Speed",price:250000,speed:235,trunk:90,slots:30},{realName:"Toyota GR Yaris",gameName:"Karin Waris GR 2021",price:275000,speed:237,trunk:90,slots:30},{realName:"BMW 5",gameName:"Ubermacht 5-line E34",price:300000,speed:197,trunk:60,slots:24},{realName:"Skoda Octavia A7 2017",gameName:"BF Olivia A7 2017",price:300000,speed:240,trunk:60,slots:18},{realName:"Subaru Impreza",gameName:"Karin Imperia MRX STI 1",price:350000,speed:246,trunk:60,slots:18},{realName:"BMW 1973 2002",gameName:"Ubermacht 2002 1973",price:375000,speed:238,trunk:60,slots:18},{realName:"BMW 3",gameName:"Ubermacht 3-line E36",price:400000,speed:202,trunk:60,slots:24},{realName:"Toyota AE86 Trueno",gameName:"Karin AE86 Brueno",price:400000,speed:230,trunk:60,slots:18},{realName:"Mazda Miata 1990",gameName:"Annis Myata 1990",price:425000,speed:247,trunk:60,slots:12},{realName:"Toyota Altezza",gameName:"Karin Altura 2001",price:450000,speed:248,trunk:60,slots:18},{realName:"Nissan Silvia S13",gameName:"Annis Slivia S13",price:450000,speed:244,trunk:60,slots:18},{realName:"Toyota Camry V40",gameName:"Karin Camria V40",price:500000,speed:212,trunk:70,slots:24},{realName:"Mitsubishi evo 6",gameName:"Maibatsu Lance Revolution 6",price:500000,speed:250,trunk:60,slots:24},{realName:"BMW e28",gameName:"Ubermacht W5 E28",price:500000,speed:230,trunk:60,slots:18},{realName:"Honda Integra Type R",gameName:"Dinka Entegra Type R 1998",price:525000,speed:257,trunk:60,slots:18},{realName:"Lexus SC300",gameName:"Emperor CS300 2000",price:550000,speed:266,trunk:60,slots:18},{realName:"Toyota Camry",gameName:"Karin Camria V55",price:600000,speed:240,trunk:60,slots:24},{realName:"Nissan GTR Skyline R32",gameName:"Annis GS-R M32",price:600000,speed:248,trunk:60,slots:12},{realName:"Nissan 350z",gameName:"Annis 350x",price:600000,speed:266,trunk:60,slots:12},{realName:"Nissan 240z",gameName:"Annis 240x",price:650000,speed:252,trunk:60,slots:12},{realName:"Honda NSX",gameName:"Dinka NSY 1995",price:700000,speed:263,trunk:60,slots:18},{realName:"BMW e39",gameName:"Ubermacht W5 E39",price:700000,speed:256,trunk:70,slots:18},{realName:"Nissan Silvia S15",gameName:"Annis Slivia S15",price:700000,speed:270,trunk:60,slots:24},{realName:"Ford Mustang Boss 1970",gameName:"Vapid Stud Boss 1970",price:700000,speed:255,trunk:60,slots:12},{realName:"Mercedes A45",gameName:"Benefactor A-series 45 W176",price:750000,speed:235,trunk:90,slots:30},{realName:"Chevrolet Impala 67",gameName:"Declasse Implata 67",price:750000,speed:235,trunk:60,slots:24},{realName:"Infiniti FX50S",gameName:"Fathom XF50 S",price:800000,speed:255,trunk:100,slots:30},{realName:"Volkswagen Touareg",gameName:"BF Twareg",price:800000,speed:238,trunk:125,slots:24},{realName:"Nissan GTR2000",gameName:"Annis GS-R2000",price:800000,speed:260,trunk:60,slots:18},{realName:"Toyota Supra",gameName:"Karin Superia A80",price:850000,speed:260,trunk:60,slots:12},{realName:"Toyota Mark 2",gameName:"Karin Marco 2",price:850000,speed:257,trunk:60,slots:24},{realName:"Subaru WRX STI",gameName:"Karin Imperia MRX STE 3",price:900000,speed:262,trunk:90,slots:24},{realName:"Mitsubishi Evo 10",gameName:"Maibatsu Lance Revolution 10",price:900000,speed:257,trunk:60,slots:18},{realName:"Honda Civic 2019",gameName:"Dinka Civil 2019",price:900000,speed:263,trunk:60,slots:12},{realName:"Mercedes E55",gameName:"Benefactor E-series 55 W210",price:1000000,speed:230,trunk:65,slots:24},{realName:"Nissan Skyline GTR R33",gameName:"Annis GS-R M33",price:1000000,speed:260,trunk:65,slots:30},{realName:"Lexus IS F",gameName:"Emperor IC-F 2012",price:1150000,speed:266,trunk:65,slots:18},{realName:"Toyota Land Cruiser 100",gameName:"Karin Grand Cruiser 100",price:1200000,speed:245,trunk:125,slots:24},{realName:"Subaru Impreza WRX STI",gameName:"Karin Imperia MRX STE 2010",price:1225000,speed:268,trunk:65,slots:18},{realName:"Honda Civic Type R",gameName:"Dinka Civil Type R 2023",price:1250000,speed:265,trunk:75,slots:24},{realName:"Nissan Skyline GTR R34",gameName:"Annis GS-R M34",price:1300000,speed:270,trunk:65,slots:30},{realName:"Mazda rx7",gameName:"Annis PX7",price:1300000,speed:252,trunk:65,slots:18},{realName:"Mercedes CLS",gameName:"Benefactor ZLS C219",price:1400000,speed:248,trunk:75,slots:24},{realName:"VW Golf",gameName:"BF Wolf R7",price:1400000,speed:247,trunk:95,slots:18},{realName:"Mercedes-Benz S-Class W140",gameName:"Benefactor S-series W140",price:1500000,speed:227,trunk:65,slots:24},{realName:"Ford Mustang 1965",gameName:"Vapid Stud 1965",price:1500000,speed:247,trunk:65,slots:18},{realName:"BMW 1M E82",gameName:"Ubermacht 1W E82",price:1550000,speed:262,trunk:65,slots:18},{realName:"Audi RS2 B4",gameName:"Obey PS2 B4",price:1600000,speed:261,trunk:105,slots:24},{realName:"Kia EV6 GT",gameName:"Bollokan IV6 GT 2023",price:1650000,speed:267,trunk:95,slots:36},{realName:"Audi RS6 2002",gameName:"Obey PS6 2002",price:1700000,speed:275,trunk:105,slots:24},{realName:"Dodge Challenger SRT Demon",gameName:"Bravado Contender SPT Demon",price:1800000,speed:265,trunk:65,slots:18},{realName:"BMW M5 E60",gameName:"Ubermacht W5 E60",price:1800000,speed:269,trunk:75,slots:18},{realName:"Alfa Romeo Giulia",gameName:"Lampadati Julia",price:1850000,speed:277,trunk:75,slots:18},{realName:"Land Cruiser 200",gameName:"Karin Grand Cruiser 200",price:2000000,speed:257,trunk:125,slots:24},{realName:"BMW X5 E53",gameName:"Ubermacht Y5 E53",price:2000000,speed:247,trunk:125,slots:30},{realName:"Dodge Charger SRT",gameName:"Bravado Changer SPT",price:2000000,speed:269,trunk:65,slots:18},{realName:"Audi RS5 2020",gameName:"Obey PS5 2020",price:2000000,speed:268,trunk:105,slots:24},{realName:"Audi RS 6 Avant",gameName:"Obey PS6 Awand",price:2200000,speed:263,trunk:105,slots:24},{realName:"Ford Raptor",gameName:"Vapid Predator",price:2200000,speed:232,trunk:205,slots:30},{realName:"Mercedes-Benz S-Class W221",gameName:"Benefactor S-series W221",price:2300000,speed:280,trunk:65,slots:24},{realName:"Audi Q7 V12 2007",gameName:"Obey O7 V12 2007",price:2400000,speed:267,trunk:130,slots:30},{realName:"Toyota GR Supra",gameName:"Karin GR Superia A90",price:2500000,speed:270,trunk:20,slots:18},{realName:"Mercedes GLS 63",gameName:"Benefactor JLS 63 X166",price:3000000,speed:272,trunk:130,slots:30},{realName:"Lexus LFA",gameName:"Emperor MFA",price:3000000,speed:265,trunk:20,slots:12},{realName:"Ford Mustang 2019",gameName:"Vapid Stud 2019",price:3000000,speed:271,trunk:70,slots:18},{realName:"Land Rover Range Rover",gameName:"Gallivanter Range Rider",price:3100000,speed:282,trunk:130,slots:24},{realName:"Audi TT RS 2017",gameName:"Obey DD PS 2017",price:3200000,speed:283,trunk:12,slots:6},{realName:"Ford Mustang 2024",gameName:"Vapid Stud 2024",price:3300000,speed:298,trunk:70,slots:18},{realName:"Cadillac Escalade",gameName:"Albany Excalibur",price:3400000,speed:252,trunk:130,slots:24},{realName:"BMW Z4",gameName:"Ubermacht S4 E86",price:3500000,speed:250,trunk:70,slots:24},{realName:"Audi RS 3 2023",gameName:"Obey PS3 2023",price:3600000,speed:283,trunk:70,slots:18},{realName:"BMW M5 F10",gameName:"Ubermacht W5 H10 2016",price:3650000,speed:285,trunk:70,slots:18},{realName:"BMW M4 F82",gameName:"Ubermacht W4 F82",price:3700000,speed:277,trunk:70,slots:12},{realName:"Lexus GS",gameName:"Emperor GC",price:3750000,speed:290,trunk:80,slots:24},{realName:"Nissan GTR R35",gameName:"Annis GS-R M35",price:3900000,speed:279,trunk:70,slots:12},{realName:"Tesla Model X",gameName:"Coil Line X",price:4000000,speed:235,trunk:80,slots:30},{realName:"Mercedes C63S",gameName:"Benefactor C-series 63S",price:4000000,speed:271,trunk:80,slots:18},{realName:"BMW M5 F90",gameName:"Ubermacht W5 F90",price:4000000,speed:273,trunk:80,slots:18},{realName:"Lexus LX570",gameName:"Emperor MX570",price:4000000,speed:277,trunk:135,slots:30},{realName:"Audi RS6 2020",gameName:"Obey PS6 2020",price:4000000,speed:284,trunk:110,slots:24},{realName:"Porsche Cayenne",gameName:"Pfister Rayenne",price:4200000,speed:270,trunk:135,slots:24},{realName:"Porsche 911 Carrera",gameName:"Pfister 811 Carvera",price:4200000,speed:285,trunk:10,slots:12},{realName:"Tesla Model S",gameName:"Coil Line S",price:4300000,speed:302,trunk:80,slots:24},{realName:"Mercedes G63 2019",gameName:"Benefactor G-series 63",price:4500000,speed:277,trunk:140,slots:30},{realName:"BMW M5 F90 LCI",gameName:"Ubermacht W5 H90 LCI 2021",price:4750000,speed:304,trunk:70,slots:24},{realName:"Audi Q8 2022",gameName:"Obey O8 2022",price:4750000,speed:321,trunk:135,slots:24},{realName:"Lamborghini Gallardo",gameName:"Pegassi Leonardo",price:4800000,speed:302,trunk:5,slots:12},{realName:"Audi RS 7",gameName:"Obey PS7",price:5000000,speed:315,trunk:85,slots:24},{realName:"BMW X6M",gameName:"Ubermacht Y6W F86",price:5000000,speed:313,trunk:140,slots:24},{realName:"Porsche Carrera",gameName:"Pfister Carvera GT",price:5100000,speed:305,trunk:10,slots:6},{realName:"Audi R8 2020",gameName:"Obey P8 2020",price:5200000,speed:323,trunk:10,slots:6},{realName:"Lexus LC500 2018",gameName:"Emperor MC500 2018",price:5300000,speed:330,trunk:75,slots:18},{realName:"BMW i8",gameName:"Ubermacht I8",price:5500000,speed:272,trunk:10,slots:6},{realName:"Lamborghini Huracan",gameName:"Pegassi Hurricane",price:5500000,speed:297,trunk:15,slots:12},{realName:"Chevrolet Corvette 2009",gameName:"Declasse Covetto 2009",price:5600000,speed:309,trunk:30,slots:12},{realName:"Toyota Tundra",gameName:"Karin Thunder 2021",price:5750000,speed:260,trunk:245,slots:42},{realName:"Lucid Air 2021",gameName:"Coil Air 2021",price:6000000,speed:332,trunk:75,slots:24},{realName:"Lamborghini Veneno",gameName:"Pegassi Verano",price:6250000,speed:330,trunk:15,slots:12},{realName:"Mercedes SLR",gameName:"Benefactor CLR Progen C199",price:6700000,speed:303,trunk:75,slots:12},{realName:"BMW X5 M",gameName:"Ubermacht Y5 G05",price:7000000,speed:306,trunk:140,slots:24},{realName:"Lamborghini Urus",gameName:"Pegassi Ursus",price:7400000,speed:315,trunk:145,slots:24},{realName:"Mercedes Maybach",gameName:"Benefactor M-Bach S560",price:7500000,speed:310,trunk:90,slots:18},{realName:"Ferrari F12 Berlinetta",gameName:"Grotti P12 Verleenetta",price:7800000,speed:307,trunk:15,slots:12},{realName:"Rolls Royce Wraith",gameName:"Enus Veil",price:8000000,speed:300,trunk:80,slots:18},{realName:"Bentley Bentayga",gameName:"Enus Benteygo",price:8000000,speed:288,trunk:115,slots:24},{realName:"McLaren GT 2020",gameName:"Progen GT 2020",price:8000000,speed:347,trunk:15,slots:12},{realName:"BMW X7M",gameName:"Ubermacht Y7W G07",price:8300000,speed:301,trunk:145,slots:30},{realName:"McLaren 720s",gameName:"Progen 720c",price:8600000,speed:305,trunk:10,slots:6},{realName:"Tesla Roadster",gameName:"Coil Roadster",price:8600000,speed:310,trunk:80,slots:18},{realName:"Ferrari Aperta",gameName:"Grotti Ascenda",price:9000000,speed:342,trunk:10,slots:12},{realName:"G63 AMG 6x6",gameName:"Benefactor G-series 63 6x6",price:9000000,speed:290,trunk:230,slots:60},{realName:"Ford GT",gameName:"Vapid GT",price:9100000,speed:325,trunk:10,slots:12},{realName:"McLaren Senna",gameName:"Progen Serena",price:9500000,speed:312,trunk:10,slots:12},{realName:"Aston Martin Vulcan",gameName:"Dewbauchee Vulcore",price:10000000,speed:380,trunk:10,slots:12},{realName:"Rolls Royce Cullinan",gameName:"Enus Callinon",price:12000000,speed:343,trunk:125,slots:24},{realName:"Pininfarina Battista",gameName:"Pegassi Bellista 2022",price:12500000,speed:398,trunk:10,slots:12},{realName:"Bugatti Chiron",gameName:"Truffade Shiron",price:15000000,speed:413,trunk:15,slots:12},{realName:"Koenigsegg Jesko",gameName:"Overflod Gesko",price:16000000,speed:392,trunk:15,slots:10},{realName:"Koenigsegg Agera",gameName:"Overflod Ahera",price:17000000,speed:420,trunk:15,slots:12},{realName:"Ferrari 458 Italia",gameName:"Grotti 854 Italy",price:17500000,speed:435,trunk:15,slots:12},{realName:"Pagani Huayra Roadster",gameName:"Pegassi Hayra Roadster",price:18000000,speed:455,trunk:15,slots:12},{realName:"Bugatti Veyron Vitesse",gameName:"Truffade Weyron Witesse",price:18000000,speed:415,trunk:15,slots:12},{realName:"Koenigsegg Gemera",gameName:"Overflod Genera",price:22000000,speed:428,trunk:15,slots:12},{realName:"Bugatti Divo",gameName:"Truffade Vivo 2020",price:22500000,speed:445,trunk:10,slots:12},{realName:"Mercedes-Benz Vision AVTR",gameName:"Benefactor Illusion Avatar",price:25000000,speed:355,trunk:15,slots:15},{realName:"Bentley EXP 100",gameName:"Enus EPX 100",price:25000000,speed:435,trunk:15,slots:12}
-                ],
-                moto: [
-                    {realName:"KTM 125 2006",gameName:"Principe 125 2006",price:350000,speed:260,trunk:0,slots:0},{realName:"Honda Bros 2009",gameName:"Dinka Bro 2009",price:425000,speed:267,trunk:0,slots:0},{realName:"KTM 450 2020",gameName:"Principe 450 2020",price:850000,speed:281,trunk:0,slots:0},{realName:"Ducati 900SS",gameName:"Principe 900SS",price:900000,speed:285,trunk:4,slots:6},{realName:"BMW R75",gameName:"Ubermacht R75",price:1100000,speed:237,trunk:8,slots:6},{realName:"Yamaha R1",gameName:"Nagasaki P1",price:1200000,speed:288,trunk:4,slots:6},{realName:"KTM 690 2017",gameName:"Principe 690 2017",price:1250000,speed:298,trunk:0,slots:0},{realName:"Suzuki GSX-R1000",gameName:"Shitzu CSX-R1000",price:1320000,speed:294,trunk:4,slots:6},{realName:"Yamaha R6 2008",gameName:"Nagasaki P6 2008",price:1500000,speed:296,trunk:4,slots:6},{realName:"Honda CBR1000RR 2017",gameName:"Dinka SBP 1000RR",price:1800000,speed:315,trunk:3,slots:6},{realName:"Yamaha R6 2010",gameName:"Nagasaki P6 2010",price:1800000,speed:331,trunk:4,slots:6},{realName:"Honda Fireblade 2020",gameName:"Dinka SMP 1000RR",price:2000000,speed:331,trunk:4,slots:6},{realName:"Suzuki Hayabusa",gameName:"Shitzu GSX1300R",price:2300000,speed:338,trunk:4,slots:6},{realName:"Yamaha YZF-R1M",gameName:"Nagasaki ZYF-R1M",price:2600000,speed:340,trunk:4,slots:6},{realName:"Kawasaki Ninja ZX-10RR",gameName:"Nagasaki Shinobi",price:2800000,speed:353,trunk:4,slots:6},{realName:"Ducati Panigale V4 R",gameName:"Principe Ranigale",price:3700000,speed:344,trunk:4,slots:6},{realName:"Ducati V4S 2021",gameName:"Principe W4S 2021",price:4000000,speed:348,trunk:4,slots:6},{realName:"Harley Davidson Fat Boy",gameName:"WMC F Boy",price:4000000,speed:249,trunk:8,slots:6},{realName:"Indian Motorcycle",gameName:"WMC Chief Dark Steed",price:4300000,speed:257,trunk:10,slots:6},{realName:"Kawasaki Ninja H2R",gameName:"Nagasaki Shinobi H2R",price:4600000,speed:339,trunk:4,slots:6},{realName:"Harley Davidson iron",gameName:"WMC Copper 883",price:4700000,speed:260,trunk:8,slots:6},{realName:"Harley Davidson Street Glide",gameName:"WMC Country Glide",price:4900000,speed:270,trunk:20,slots:6},{realName:"KTM RC 390",gameName:"Principe RC 390",price:7700000,speed:370,trunk:4,slots:6},{realName:"Honda RC213V-S",gameName:"Dinka PS213V-S",price:13500000,speed:351,trunk:4,slots:6}
-                ],
-                container: [
-                    {realName:"Range Rover Evoque",gameName:"Gallivanter Range Rider Revogue",price:0,speed:290,trunk:135,slots:24},{realName:"BMW M3 G81 Touring",gameName:"Ubermacht W3 G81 Touring",price:0,speed:307,trunk:110,slots:24},{realName:"Jaguar I-Pace",gameName:"Ocelot I-Model",price:0,speed:309,trunk:100,slots:30},{realName:"Mercedes E63s 2022",gameName:"Benefactor E-series 63S ASG W213",price:0,speed:308,trunk:70,slots:24},{realName:"BMW M2 G87",gameName:"Ubermacht W2 G87",price:0,speed:304,trunk:70,slots:24},{realName:"Mercedes C63s AMG W206",gameName:"Benefactor C-series 63S ASG W206",price:0,speed:323,trunk:75,slots:24},{realName:"BMW M4 G82",gameName:"Ubermacht W4 G82",price:0,speed:327,trunk:75,slots:24},{realName:"BMW M6 F13",gameName:"Ubermacht W6 F13",price:0,speed:340,trunk:75,slots:24},{realName:"Audi RS7 2020",gameName:"Obey PS7 2020",price:0,speed:335,trunk:85,slots:24},{realName:"BMW M5 F90 CS 2020",gameName:"Ubermacht W5 F90 CS 2020",price:0,speed:340,trunk:75,slots:24},{realName:"Chevrolet Corvette C8",gameName:"Declasse Covetto Wingray C8",price:0,speed:345,trunk:20,slots:18},{realName:"Audi RS E-TRON GT",gameName:"Obey PS I-tron GT",price:0,speed:350,trunk:80,slots:24},{realName:"Porsche 911 GT3 2021",gameName:"Pfister 811 GT3 2021",price:0,speed:360,trunk:20,slots:12},{realName:"Dodge RAM TRX",gameName:"Bravado RUM TPX",price:0,speed:307,trunk:235,slots:60},{realName:"Porsche 918 Spyder",gameName:"Pfister 819 Spyro",price:0,speed:430,trunk:10,slots:12},{realName:"Aston Martin Victor",gameName:"Dewbauchee Vico",price:0,speed:415,trunk:20,slots:12},{realName:"Lamborghini Countach 1990",gameName:"Pegassi Coutron 1990",price:0,speed:322,trunk:10,slots:12},{realName:"Audi R8 2015",gameName:"Obey P8 2015",price:0,speed:340,trunk:15,slots:12},{realName:"Mercedes E63s W213",gameName:"Benefactor E-series 63S W213",price:0,speed:315,trunk:110,slots:24},{realName:"BMW X6M F96",gameName:"Ubermacht Y6W F96",price:0,speed:333,trunk:145,slots:24},{realName:"Audi RSQ8 2022",gameName:"Obey PSO8 2022",price:0,speed:338,trunk:145,slots:24},{realName:"Mercedes SLS 2009",gameName:"Benefactor CLC ASG C197",price:0,speed:340,trunk:20,slots:12},{realName:"Aston Martin Vantage",gameName:"Dewbauchee Voyage",price:0,speed:340,trunk:95,slots:24}
-                ],
-                pass: [
-                    {realName:"Banana buggy",gameName:"Banana buggy",price:145000,speed:248,season:"Летний 2021",trunk:0,slots:0},{realName:"Highheel (Каблук)",gameName:"Highheel (Каблук)",price:145000,speed:200,season:"Летний 2021",trunk:0,slots:0},{realName:"Eli",gameName:"Eli",price:145000,speed:230,season:"Летний 2021",trunk:20,slots:6},{realName:"Minibug",gameName:"Minibug",price:145000,speed:205,season:"Летний 2021",trunk:20,slots:6},{realName:"Mini Fiat",gameName:"Minigrotti",price:145000,speed:205,season:"Летний 2021",trunk:40,slots:12},{realName:"VISION 6",gameName:"Benefactor M-bach Illusion 6",price:268000,speed:361,season:"Летний 2021",trunk:30,slots:6},{realName:"Studebaker Golden Hawk",gameName:"Studebaker Golden Hawk",price:268000,speed:211,season:"Зимний 2021-2022",trunk:20,slots:6},{realName:"Suzuki Carry",gameName:"Shitzu Carry",price:268000,speed:208,season:"Зимний 2021-2022",trunk:40,slots:12},{realName:"Nash Metropol",gameName:"Nash Metropolitan",price:268000,speed:205,season:"Зимний 2021-2022",trunk:20,slots:6},{realName:"Plymouth Bubbletop 1959",gameName:"Plymouth Bubbletop 1959",price:268000,speed:222,season:"Зимний 2021-2022",trunk:20,slots:6},{realName:"Ford Hot Wheels 1949",gameName:"Vapid Hot Wheels 1949",price:268000,speed:210,season:"Зимний 2021-2022",trunk:20,slots:6},{realName:"Porsche Taycan",gameName:"Pfister Teycan",price:268000,speed:384,season:"Зимний 2021-2022",trunk:15,slots:12},{realName:"Bugatti Atlantic",gameName:"Truffade Pacific",price:268000,speed:447,season:"Зимний 2021-2022",trunk:15,slots:12},{realName:"AC Cobra 474",gameName:"Vapid Cobra",price:268000,speed:229,season:"Летний 2022",trunk:15,slots:6},{realName:"Porsche 365",gameName:"Pfister 356",price:268000,speed:229,season:"Летний 2022",trunk:15,slots:6},{realName:"Ferrari 250 GTO",gameName:"Grotti 250 GTO",price:268000,speed:225,season:"Летний 2022",trunk:15,slots:6},{realName:"Jaguar E-Type",gameName:"Ocelot E-Model",price:268000,speed:229,season:"Летний 2022",trunk:15,slots:6},{realName:"Lotus Evija",gameName:"Ocelot Evia",price:268000,speed:425,season:"Летний 2022",trunk:15,slots:6},{realName:"Ferrari Monza SP2",gameName:"Grotti Wonza SP2",price:268000,speed:455,season:"Летний 2022",trunk:15,slots:6},{realName:"Pontiac Firebird",gameName:"Imponte Firefly",price:145000,speed:228,season:"Зимний 22/23",trunk:60,slots:12},{realName:"Mercedes SL280",gameName:"Benefactor CL280 W113",price:145000,speed:228,season:"Зимний 22/23",trunk:60,slots:12},{realName:"Mercedes AMG ONE",gameName:"Benefactor ASG P-One",price:268000,speed:441,season:"Зимний 22/23",trunk:10,slots:6},{realName:"Apollo Intensa Imazion",gameName:"Overflod Intenza Emotiva",price:268000,speed:441,season:"Зимний 22/23",trunk:10,slots:6},{realName:"Volkswagen Beetle 65",gameName:"BF Beatles 1965",price:145000,speed:231,season:"Летний 2023",trunk:60,slots:18},{realName:"Ford Capri II 1974",gameName:"Vapid Capricorn II 1974",price:145000,speed:231,season:"Летний 2023",trunk:60,slots:12},{realName:"McLaren Speedtail",gameName:"Progen SpeedT",price:268000,speed:465,season:"Летний 2023",trunk:10,slots:6},{realName:"Ferrari SF90 Stradale",gameName:"Grotti SP90 Strata",price:268000,speed:465,season:"Летний 2023",trunk:10,slots:6},{realName:"TVR Tuscan Speed Six",gameName:"Dewbauchee Tuscan",price:145000,speed:235,season:"Зимний 23/24",trunk:60,slots:18},{realName:"Mitsubishi Starion",gameName:"Maibatsu Star",price:145000,speed:238,season:"Зимний 23/24",trunk:60,slots:12},{realName:"Lamborghini Countach 2022",gameName:"Pegassi Coutron 2022",price:268000,speed:455,season:"Зимний 23/24",trunk:10,slots:6},{realName:"Lamborghini Revuelto",gameName:"Pegassi Rewuelto",price:268000,speed:457,season:"Зимний 23/24",trunk:10,slots:6},{realName:"Ford Focus RS",gameName:"Vapid Pocus RS 2003",price:145000,speed:242,season:"Летний 2024",trunk:60,slots:12},{realName:"VW Golf R32",gameName:"BF Wolf R32 2003",price:145000,speed:241,season:"Летний 2024",trunk:60,slots:12},{realName:"Ferrari 812 Superfast",gameName:"Grotti 821 SP 2017",price:268000,speed:440,season:"Летний 2024",trunk:20,slots:6},{realName:"Lamborghini Murcielago",gameName:"Pegassi Purcielago VS 2009",price:268000,speed:440,season:"Летний 2024",trunk:20,slots:6},{realName:"Nissan Pulsar",gameName:"Annis Pulse 1992",price:145000,speed:240,season:"Зимний 24/25",trunk:60,slots:18},{realName:"Toyota MR-2",gameName:"Karin MR-2 1995",price:145000,speed:240,season:"Зимний 24/25",trunk:60,slots:12},{realName:"Chevtolet Impala SS 1996",gameName:"Declasse Implata SS 1996",price:145000,speed:240,season:"Зимний 24/25",trunk:60,slots:12},{realName:"Ford Escort",gameName:"Vapid Export 1992",price:145000,speed:240,season:"Зимний 24/25",trunk:60,slots:18},{realName:"Honda Civic Type-R 2001",gameName:"Dinka Civil Type-R 2001",price:145000,speed:242,season:"Зимний 24/25",trunk:60,slots:18},{realName:"Ford Mustang SVT Cobra 1993",gameName:"Vapid Stud SVT Cobra 1993",price:145000,speed:242,season:"Зимний 24/25",trunk:60,slots:12},{realName:"Lamborghini Centenario",gameName:"Pegassi Centario 2017",price:268000,speed:450,season:"Зимний 24/25",trunk:20,slots:6},{realName:"Ferrari 296 GTB",gameName:"Grotti 269 GTB 2022",price:268000,speed:450,season:"Зимний 24/25",trunk:20,slots:6},{realName:"Subaru SVX",gameName:"Karin SVX 1991",price:145000,speed:241,season:"Летний 2025",trunk:60,slots:18},{realName:"Toyota Chaser JZX81",gameName:"Karin Racer 81 1991",price:145000,speed:241,season:"Летний 2025",trunk:60,slots:18},{realName:"Toyota Sera",gameName:"Karin Cera 1990",price:145000,speed:241,season:"Летний 2025",trunk:60,slots:12},{realName:"Volvo C30 Polestar",gameName:"Vulcar X30 Polestop 2013",price:145000,speed:241,season:"Летний 2025",trunk:90,slots:18},{realName:"Vauxhall Astra",gameName:"Maxwell Astral XVR 2006",price:145000,speed:241,season:"Летний 2025",trunk:90,slots:18},{realName:"Ford Focus RS",gameName:"Vapid Pocus RS 2010",price:145000,speed:241,season:"Летний 2025",trunk:90,slots:18},{realName:"Ford Transit",gameName:"Vapid Cargo 2011",price:223000,speed:241,season:"Летний 2025",trunk:260,slots:60},{realName:"Lamborghini Temerario",gameName:"Pegassi Temario 2025",price:268000,speed:448,season:"Летний 2025",trunk:20,slots:6},{realName:"Ferrari 12Cilindri",gameName:"Crotti 12Cil 2025",price:268000,speed:443,season:"Летний 2025",trunk:20,slots:6},{realName:"Mitsubishi Pajero Evolution",gameName:"Maibatsu Monterjo Revolution 1997",price:145000,speed:246,season:"Зимний 25/26",trunk:120,slots:18},{realName:"Volvo 850 R",gameName:"Vulcar 850R 1997",price:0,speed:0,season:"Зимний 25/26",trunk:0,slots:0},{realName:"Nissan Stagea RS Four V",gameName:"Annis Stage PS 4 V",price:0,speed:0,season:"Зимний 25/26",trunk:0,slots:0},{realName:"Mitsubishi Galant VR-4",gameName:"Maibatsu Garant RV 4 1990",price:0,speed:0,season:"Зимний 25/26",trunk:0,slots:0},{realName:"BMW 323ti Sport",gameName:"Ubermacht 323ti Sport 2000",price:0,speed:0,season:"Зимний 25/26",trunk:0,slots:0},{realName:"Abarth 695 Biposto",gameName:"Grotti 695 Bipost 2016",price:0,speed:0,season:"Зимний 25/26",trunk:0,slots:0},{realName:"Aston Martin Valkyrie",gameName:"Dewbauchee Vanguard Arachna 2022",price:268000,speed:466,season:"Зимний 25/26",trunk:0,slots:0},{realName:"BMW XM",gameName:"Ubermacht YW J09 2023",price:268000,speed:366,season:"Зимний 25/26",trunk:200,slots:42}
-                ],
-                event: [
-                    {realName:"Cadillac ECTO-1 Ghostbusters",gameName:"Albany ECTO-1 Ghostbusters",price:0,speed:280,trunk:200,slots:42},{realName:"Quadra Turbo-R V-Tech",gameName:"Quadra Turbo-R V-Tech",price:0,speed:310,trunk:60,slots:42},{realName:"Hummer H2 Limo",gameName:"Mammoth N2 Limo",price:0,speed:255,trunk:200,slots:42},{realName:"Школьный автобус",gameName:"Школьный автобус",price:0,speed:0,trunk:200,slots:42},{realName:"Tesla Cybertruck",gameName:"Coil Electruck",price:0,speed:320,trunk:240,slots:60},{realName:"Lamborghini Urus 6x6",gameName:"Pegassi Ursus 6x6",price:0,speed:274,trunk:230,slots:60},{realName:"Bugatti Mistral",gameName:"Truffade Wistral 2024",price:0,speed:450,trunk:10,slots:12},{realName:"Karin Technical Aqua",gameName:"Karin Technical Aqua",price:0,speed:163,trunk:200,slots:30},{realName:"Ferrari Roma",gameName:"Grotti Roman",price:0,speed:350,trunk:10,slots:12},{realName:"Toyota Alphard",gameName:"Karin Alfa",price:0,speed:230,trunk:260,slots:60},{realName:"Rolls-Royce Spectre",gameName:"Enus Spectrum",price:0,speed:370,trunk:60,slots:24},{realName:"Rivian R1T",gameName:"Coil R1T",price:0,speed:335,trunk:240,slots:60},{realName:"Lucis Regalia",gameName:"Lucis Regalia",price:0,speed:335,trunk:60,slots:42},{realName:"Morgan Aero GT",gameName:"Truffade Aero GT",price:0,speed:302,trunk:60,slots:42},{realName:"Mercedes-Benz EQG",gameName:"Benefactor IQ G-series",price:0,speed:358,trunk:165,slots:36},{realName:"Mercedes-Benz EQS",gameName:"Benefactor IQ S-series",price:0,speed:378,trunk:100,slots:18},{realName:"Zeekr 001",gameName:"Coil 001",price:0,speed:349,trunk:165,slots:36},{realName:"Lixiang L9",gameName:"Coil L9",price:0,speed:283,trunk:165,slots:36},{realName:"Mercedes-Benz EQS SUV",gameName:"Benefactor IQ S-series SUV 2024",price:0,speed:340,trunk:165,slots:36},{realName:"Aurus Senat",gameName:"Enus Senate 2024",price:0,speed:315,trunk:160,slots:30},{realName:"Hiphi z",gameName:"Coil Z",price:0,speed:345,trunk:165,slots:36},{realName:"Jeep Gladiator Apocalypse 6x6",gameName:"Canis Gladiator Apocalypse 6x6",price:0,speed:280,trunk:240,slots:60},{realName:"Гусеничный квадроцикл",gameName:"Nagasaki Snowquad",price:0,speed:170,trunk:30,slots:18},{realName:"Снегоход",gameName:"Nagasaki Snowmobile",price:0,speed:170,trunk:30,slots:18},{realName:"Bentley Flying Spur",gameName:"Enus Flying Scott 2020",price:0,speed:346,trunk:80,slots:24},{realName:"Jeep Gladiator",gameName:"Canis Glad 2019",price:0,speed:324,trunk:145,slots:30},{realName:"Bugatti La Voiture Noire",gameName:"Truffade Le Voyage Noire 2021",price:0,speed:450,trunk:15,slots:12},{realName:"Rolls-Royce Droptail",gameName:"Enus Sleektail 2024",price:0,speed:450,trunk:15,slots:12},{realName:"Rolls-Royce Boat tail",gameName:"Enus Coattail",price:0,speed:360,trunk:120,slots:36},{realName:"Lamborghini Lanzador",gameName:"Pegassi Lancelot",price:0,speed:362,trunk:165,slots:36},{realName:"Zeekr 009",gameName:"Coil 009",price:0,speed:247,trunk:300,slots:60},{realName:"Cadilac Escalade 2025",gameName:"Albany Excalibur 2025",price:0,speed:251,trunk:145,slots:30},{realName:"Lincoln Continental Mark III 1968",gameName:"Dundreary Kontinental MK3 1968",price:0,speed:313,trunk:60,slots:42},{realName:"Dodge Charger 1968",gameName:"Bravado Changer 1968",price:0,speed:0,trunk:60,slots:42}
-                ]
-            },
-            kitchen: [
-                {name:"Фруктовый салат",icon:"🥗",ing:["Фрукты"],sat:15,mood:40,str:-3,skill:0,tool:"Нож"},{name:"Овощной салат",icon:"🥗",ing:["Овощи"],sat:10,mood:5,str:0,skill:0,tool:"Нож"},{name:"Овощной смузи",icon:"🥤",ing:["Овощи","Вода"],sat:20,mood:35,str:0,skill:2,tool:"Венчик"},{name:"Фруктовый смузи",icon:"🍹",ing:["Фрукты","Вода"],sat:20,mood:50,str:-7,skill:2,tool:"Венчик"},{name:"Фруктовый лёд",icon:"🍧",ing:["Фрукты","Лед","Сахар"],sat:10,mood:65,str:-7,skill:2,tool:"Венчик"},{name:"Масло",icon:"🧈",ing:["Молоко"],sat:5,mood:0,str:-1,skill:2,tool:"Венчик"},{name:"Рыбный фарш",icon:"🥣",ing:["Любая рыба"],sat:0,mood:0,str:0,skill:2,tool:"Нож"},{name:"Сухая рыбная котлета",icon:"🍘",ing:["Рыбный фарш"],sat:10,mood:0,str:-3,skill:2,tool:"Огонь"},{name:"Рыбная котлета",icon:"🧆",ing:["Рыбный фарш","Масло"],sat:25,mood:10,str:-10,skill:2,tool:"Огонь"},{name:"Мясной фарш",icon:"🥩",ing:["Мясо"],sat:0,mood:0,str:0,skill:2,tool:"Нож"},{name:"Мясная котлета",icon:"🥩",ing:["Мясной фарш","Масло"],sat:25,mood:10,str:-10,skill:2,tool:"Огонь"},{name:"Сухая мясная котлета",icon:"🥩",ing:["Мясной фарш"],sat:10,mood:0,str:-3,skill:2,tool:"Огонь"},{name:"Картофельное пюре",icon:"🥣",ing:["Овощи","Масло","Молоко"],sat:10,mood:10,str:-5,skill:2,tool:"Венчик/Огонь"},{name:"Мясная котлета с пюре",icon:"🍛",ing:["Карт. пюре","Мясная котлета"],sat:50,mood:50,str:-20,skill:3,tool:"-"},{name:"Рыбная котлета с пюре",icon:"🍛",ing:["Карт. пюре","Рыбная котлета"],sat:50,mood:50,str:-20,skill:3,tool:"-"},{name:"Вареный рис",icon:"🍚",ing:["Рис","Вода"],sat:10,mood:0,str:-1,skill:2,tool:"Огонь"},{name:"Рыбная котлета с рисом",icon:"🍛",ing:["Рыбная котлета","Вареный рис"],sat:45,mood:40,str:-12,skill:2,tool:"-"},{name:"Котлета с рисом",icon:"🍛",ing:["Мясная котлета","Вареный рис"],sat:45,mood:40,str:-12,skill:2,tool:"-"},{name:"Ролл с лососем",icon:"🍣",ing:["Лосось","Вареный рис"],sat:25,mood:20,str:-3,skill:2,tool:"Нож"},{name:"Ролл с тунцом",icon:"🍣",ing:["Тунец","Вареный рис"],sat:25,mood:20,str:-3,skill:2,tool:"Нож"},{name:"Овощной ролл",icon:"🍣",ing:["Овощи","Вареный рис"],sat:20,mood:10,str:-2,skill:2,tool:"Нож"},{name:"Рыба с рисом",icon:"🍣",ing:["Любая рыба","Вареный рис"],sat:40,mood:10,str:-5,skill:2,tool:"Огонь"},{name:"Рыба с овощами",icon:"🥗",ing:["Любая рыба","Овощи"],sat:35,mood:15,str:-3,skill:2,tool:"Огонь"},{name:"Мясо с овощами",icon:"🍖",ing:["Мясо","Овощи"],sat:40,mood:10,str:-3,skill:2,tool:"Огонь"},{name:"Яичница",icon:"🍳",ing:["Яйцо"],sat:15,mood:5,str:-3,skill:2,tool:"Огонь"},{name:"Яичница с беконом",icon:"🍳",ing:["Яйцо","Мясо","Масло"],sat:25,mood:15,str:-6,skill:3,tool:"Огонь"},{name:"Омлет",icon:"🥚",ing:["Яйцо","Молоко"],sat:20,mood:10,str:-4,skill:2,tool:"Венчик/Огонь"},{name:"Крем-брюле",icon:"🍮",ing:["Молоко","Сахар","Яйцо"],sat:10,mood:80,str:-7,skill:4,tool:"Огонь"},{name:"Суфле",icon:"🧁",ing:["Яйцо","Сахар"],sat:20,mood:80,str:-2,skill:5,tool:"Венчик/Огонь"},{name:"Овощной омлет",icon:"🥚",ing:["Яйцо","Молоко","Овощи"],sat:25,mood:10,str:-4,skill:3,tool:"Венчик/Огонь"},{name:"Компот",icon:"🍹",ing:["Сахар","Вода","Фрукты"],sat:5,mood:50,str:-7,skill:3,tool:"Огонь"},{name:"Карамель",icon:"🍬",ing:["Сахар"],sat:5,mood:10,str:-5,skill:4,tool:"Огонь"},{name:"Оладьи",icon:"🥞",ing:["Яйцо","Молоко","Мука","Сахар"],sat:20,mood:20,str:-10,skill:3,tool:"Венчик/Огонь"},{name:"Оладьи с карамелью",icon:"🥞",ing:["Оладьи","Карамель"],sat:25,mood:40,str:-20,skill:0,tool:"-"},{name:"Тесто",icon:"🍞",ing:["Мука","Вода","Яйцо"],sat:0,mood:0,str:0,skill:0,tool:"Венчик"},{name:"Чизкейк",icon:"🍰",ing:["Тесто","Сыр","Сахар"],sat:30,mood:60,str:-15,skill:4,tool:"Венчик/Огонь"},{name:"Карамельный чизкейк",icon:"🍰",ing:["Чизкейк","Карамель"],sat:35,mood:85,str:-25,skill:5,tool:"-"},{name:"Фруктовый чизкейк",icon:"🍰",ing:["Чизкейк","Фрукты"],sat:35,mood:70,str:-20,skill:5,tool:"-"},{name:"Яблоко в карамели",icon:"🍎",ing:["Карамель","Фрукты"],sat:20,mood:55,str:-7,skill:4,tool:"-"},{name:"Фруктовый салат с карамелью",icon:"🥗",ing:["Карамель","Фруктовый салат"],sat:25,mood:60,str:-11,skill:0,tool:"-"},{name:"Мороженое",icon:"🍦",ing:["Яйцо","Сахар","Молоко","Лёд"],sat:10,mood:70,str:-15,skill:2,tool:"Венчик"},{name:"Карамельное мороженое",icon:"🍦",ing:["Карамель","Мороженое"],sat:15,mood:80,str:-20,skill:0,tool:"-"},{name:"Молочный коктейль",icon:"🥤",ing:["Мороженое","Молоко"],sat:20,mood:70,str:-15,skill:3,tool:"Венчик"},{name:"Карамельный коктейль",icon:"🥤",ing:["Карамель","Молочный коктейль"],sat:25,mood:80,str:-20,skill:0,tool:"-"},{name:"Бульон",icon:"🍲",ing:["Мясо","Вода"],sat:10,mood:0,str:-25,skill:0,tool:"Огонь"},{name:"Стейк с фруктовым соусом и рисом",icon:"🍛",ing:["Стейк с ф.с.","Вареный рис"],sat:80,mood:60,str:-13,skill:5,tool:"-"},{name:"Стейк с фруктовым соусом и пюре",icon:"🍛",ing:["Стейк с ф.с.","Картофельное пюре"],sat:80,mood:80,str:-15,skill:5,tool:"-"},{name:"Рыба с фруктовым соусом",icon:"🍲",ing:["Рыба","Фрукты","Сахар"],sat:60,mood:50,str:-10,skill:5,tool:"Огонь"},{name:"Рыба с фруктовым соусом и рисом",icon:"🍛",ing:["Рыба с ф.с","Вареный рис"],sat:80,mood:60,str:-13,skill:5,tool:"-"},{name:"Рыба с фруктовым соусом и пюре",icon:"🍛",ing:["Рыба с ф.с","Картофельное пюре"],sat:80,mood:80,str:-15,skill:5,tool:"-"},{name:"Лазанья",icon:"🍕",ing:["Молоко","Мука","Сыр","Овощи","Мясной фарш"],sat:65,mood:50,str:-20,skill:5,tool:"Огонь"},{name:"Бургер",icon:"🍔",ing:["Мясная котлета","Овощи","Хлеб"],sat:40,mood:0,str:-10,skill:2,tool:"-"},{name:"Ризотто",icon:"🍚",ing:["Бульон","Рисовая крупа","Сыр"],sat:40,mood:20,str:-20,skill:0,tool:"Огонь"},{name:"Тако с мясом",icon:"🌮",ing:["Хлеб","Мясной фарш","Сыр","Овощи"],sat:30,mood:30,str:-10,skill:3,tool:"Огонь"},{name:"Тако с рыбой",icon:"🌮",ing:["Хлеб","Рыбный фарш","Сыр","Овощи"],sat:30,mood:30,str:-10,skill:3,tool:"Огонь"},{name:"Буррито",icon:"🌯",ing:["Хлеб","Вареный рис","Мясной фарш","Овощи","Сыр"],sat:50,mood:50,str:-15,skill:3,tool:"Огонь"},{name:"Поке",icon:"🍲",ing:["Вареный рис","Сыр","Овощи","Лосось"],sat:70,mood:50,str:-15,skill:4,tool:"-"},{name:"Мальма в сливочном соусе",icon:"🐟",ing:["Мальма","Овощи","Молоко"],sat:75,mood:75,str:-13,skill:5,tool:"Огонь"},{name:"Мясо по-французски",icon:"🥩",ing:["Мясо","Овощи","Сыр"],sat:60,mood:40,str:-15,skill:5,tool:"Огонь"},{name:"Оливье",icon:"🥗",ing:["Мясо","Овощи","Яйца","Вода"],sat:60,mood:50,str:-25,skill:5,tool:"Нож/Огонь"},{name:"Сашими из фугу",icon:"🐡",ing:["Фугу"],sat:20,mood:60,str:0,skill:0,tool:"Нож"},{name:"Сашими из лосося",icon:"🍣",ing:["Лосось"],sat:10,mood:30,str:0,skill:4,tool:"Нож"},{name:"Сашими из тунца",icon:"🍣",ing:["Тунец"],sat:10,mood:30,str:0,skill:4,tool:"Нож"}
-            ],
-        bp: [
-            {t:"3 часа в онлайне",q:1,b:2,v:4,r:1,c:0, i:"⏳", timer: 10800},
-            {t:" 0 или 00 в казино",q:1,b:2,v:4, img:"img/casino_img.png"},
-            {t:"Выполнить 25 действий на стройке",q:25,b:2,v:4, img:"img/build_img.png"},
-            {t:"Выполнить 25 действий в порту",q:25,b:2,v:4, img:"img/port_img.png"},
-            {t:"Выполнить 25 действий в шахте",q:25,b:2,v:4, img:"img/shahta_img.png"},
-            {t:"3 победы в Дэнс Баттлах",q:3,b:2,v:4, img:"img/dance_battle_img.png"},
-            {t:"Сделать заказ материалов",q:1,b:1,v:2, img:"img/material_busines_img.png"},
-            {t:"20 подходов в спортзале",q:20,b:1,v:2, img:"img/tren_zal_img.png"},
-            {t:"Пройти тренировку в тире",q:1,b:1,v:2, img:"img/tir.png"},
-            {t:"10 посылок на почте",q:10,b:1,v:2, img:"img/poshta.png", timer: 600},
-            {t:"Арендовать киностудию",q:1,b:2,v:4, img:"img/cinema_studio_img.png"},
-            {t:"Купить лотерейный билет",q:1,b:1,v:2, img:"img/lotery_img.png"},
-            {t:"Выиграть гонку в картинге",q:1,b:1,v:2, img:"img/carting_img.png"},
-            {t:"10 действий на ферме",q:10,b:1,v:2, img:"img/ferma_img.png"},
-            {t:"Потушить 25 \"огоньков\"",q:25,b:1,v:2, img:"img/pogarniy_img.png"},
-            {t:"Выкопать 1 сокровище",q:1,b:1,v:2, img:"img/sokrovishe_img.png"},
-            {t:"Проехать 1 уличную гонку",q:1,b:1,v:2, img:"img/racing_img.png"},
-            {t:"Выполнить 3 заказа дальнобойщиком",q:3,b:2,v:4, img:"img/dalnoboy_img.png"},
-            {t:"Два раза оплатить смену внешности",q:2,b:2,v:4, img:"img/smena_ebala_img.png"},
-            {t:"Добавить 5 видео в кинотеатре",q:5,b:1,v:2, img:"img/cinema_teatr_img.png"},
-            {t:"Выиграть 5 игр в тренировочном комплексе",q:5,b:1,v:2, img:"img/tren_complex_img.png"},
-            {t:"Выиграть 3 любых игры на арене",q:3,b:1,v:2, img:"img/arena_img.png"},
-            {t:"2 круга на любом маршруте автобусника",q:2,b:2,v:4, img:"img/bus.png"},
-            {t:"5 раз снять 100% шкуру с животных",q:5,b:2,v:4, img:"img/paw.png"},
-            {t:"7 закрашенных граффити",q:7,b:1,v:2, img:"img/graffiti_img.png"},
-            {t:"Сдать 5 контрабанды",q:5,b:2,v:4, img:"img/contrabanda_img.png"},
-            {t:"Участие в каптах/бизварах",q:1,b:1,v:2, img:"img/bizvar_img.png"},
-            {t:"Сдать Хаммер с ВЗХ",q:1,b:3,v:6, img:"img/hummer_img.png"},
-            {t:"Починить другому игроку(Предложение через капот)",q:1,b:2,v:4, img:"img/hummer_img.png"},
-            {t:"5 выданных медкарт в EMS",q:5,b:2,v:4, img:"img/medical_card_img.png"},
-            {t:"Закрыть 15 вызовов в EMS",q:15,b:2,v:4, img:"img/ems_img.png"},
-            {t:"Отредактировать 40 объявлений в WN",q:40,b:2,v:4, img:"img/obyavlenie_wn_img.png"},
-            {t:"Взломать 15 замков",q:15,b:2,v:4, img:"img/ograb_domov_img.png"},
-            {t:"Закрыть 5 кодов в силовых",q:5,b:2,v:4, img:"img/codes_img.png"},
-            {t:"Поставить на учет 2 автомобиля",q:2,b:1,v:2, img:"img/register_auto_img.png"},
-            {t:"Произвести 1 арест в КПЗ",q:1,b:1,v:2, img:"img/arest_img.png"},
-            {t:"Выкупить двух человек из КПЗ",q:2,b:2,v:4, img:"img/vikup_kpz_img.png"},
-            {t:"Посетить любой сайт в браузере",q:1,b:1,v:2, img:"img/icon_site.png"},
-            {t:"Зайти в любой канал в Brawl",q:1,b:1,v:2, img:"img/icon_brawl.png"},
-            {t:"Поставить лайк любой анкете в Match",q:1,b:1,v:2, img:"img/icon_like_match.png"},
-            {t:"Прокрутить за DP кейс",q:1,b:10,v:20, img:"img/case.png"},
-            {t:"Кинуть мяч питомцу 15 раз",q:15,b:2,v:4, img:"img/icon_push_ball.png"},
-            {t:"15 выполненных питомцем команд",q:15,b:2,v:4, img:"img/icon_dressirovka.png"},
-            {t:"Ставка в колесе удачи в казино",q:1,b:3,v:6, img:"img/icon_stavka_in_coleso.png"},
-            {t:"Проехать 1 станцию на метро",q:1,b:2,v:4, img:"img/icon_metro.png"},
-            {t:"Поймать 20 рыб",q:20,b:4,v:8, img:"img/icon_fishing.png"},
-            {t:"Выполнить 2 квеста любых клубов",q:2,b:4,v:8, img:"img/icon_club_task.png"},
-            {t:"Починить деталь в автосервисе",q:1,b:1,v:2, img:"img/icon_auto-service.png"},
-            {t:"Забросить 2 мяча в баскетболе",q:2,b:1,v:2, img:"img/icon_basketbol.png"},
-            {t:"Забить 2 гола в футболе",q:2,b:1,v:2, img:"img/icon_football.png"},
-            {t:"Победить в армрестлинге",q:1,b:1,v:2, img:"img/icon_armwresling.png"},
-            {t:"Победить в дартс",q:1,b:1,v:2, img:"img/icon_darts.png"},
-            {t:"Поиграть 1 минуту в волейбол",q:1,b:1,v:2, img:"img/icon_volleyball.png", timer: 60},
-            {t:"Поиграть 1 минуту в настольный теннис",q:1,b:1,v:2, img:"img/icon_ping_pong.png", timer: 60},
-            {t:"Поиграть 1 минуту в большой теннис",q:1,b:1,v:2, img:"img/icon_big_tennis.png", timer: 60},
-            {t:"Сыграть в мафию в казино",q:1,b:3,v:6, img:"img/icon_play_mafia.png"},
-            {t:"Сделать платеж по лизингу",q:1,b:1,v:2, img:"img/icon_lizing_pay.png"},
-            {t:"Посадить траву в теплице",q:1,b:4,v:8, img:"img/icon_grass_teplisa.png"},
-            {t:"Запустить переработку в лаборатории",q:1,b:4,v:8, img:"img/icon_obezbol_laboratory.png"},
-            {t:"Принять участие в 2 аирдропах",q:2,b:4,v:8, img:"img/airdrop.png"}
-        ],
-        timers: [
-            {id:'q1', l:'Для 1-мин квестов', s:60, i:'⏱'}, 
-            {id:'mail', l:'Почта (10м)', s:600, i:'img/poshta.png'},
-            {id:'mech', l:'Механик (5м)', s:300, i:'img/autougon.png'},
-            {id:'taxi', l:'Таксист (5м)', s:300, i:'img/autougon.png'},
-            {id:'train', l:'Дрессировка (15м)', s:900, i:'img/paw.png'},
-            {id:'theft', l:'Автоугон (1.5ч)', s:5400, i:'img/autougon.png'},
-            {id:'shoot', l:'Тир (1.5ч)', s:5400, i:'img/tir.png'},
-            {id:'pimp', l:'Сутенерка (1.5ч)', s:5400, i:'img/icon_like_match.png'},
-            {id:'club', l:'Клуб (2ч)', s:7200, i:'img/icon_club_task.png'},
-            {id:'tarot', l:'Таро (3ч)', s:10800, i:'img/taro.png'},
-            {id:'casino', l:'Казино (24ч)', s:86400, i:'img/casino_img.png'}
-        ],
-        guides: {
-            payment: {
-                animals: { h: ["Зверь","Скупщик","Rednecks"], r: [["Кролик","1.000$","1.160$"],["Кабан","2.500$","2.900$"],["Олень","4.000$","4.640$"],["Койот","7.500$","8.700$"],["Пума","15.000$","17.400$"]] },
-                treasures: { h: ["Название","Скуп 0","Скуп 5","Red 0","Red 5"], r: [["Дублон","1-3к","1.5-4.5к","1.1-3.4к","1.7-5.2к"],["Самородок","2-5к","3-7.5к","2.3-5.8к","3.4-8.7к"],["Инструмент","6-10к","9-15к","6.9-11.6к","10.4-17.4к"],["Медаль","9-15к","13.5-22.5к","10.4-17.4к","15.6-26.1к"],["Украшение","12-18к","18-27к","13.9-20.8к","20.8-31.3к"],["Метеорит","22-28к","33-42к","25.5-32.4к","38.2-48.7к"]] }
-            },
-            pet: { h: ["Питомец","Еда / Лакомство","Навык"], r: [["🐱 Кот","Еда: Нормяу<br>Лак: Лакомкот","1. Восстанавливает настроение (на руках)<br>2. Восстанавливает здоровье (на руках)"],["🐵 Обезьяна","Еда: Овощи и фрукты<br>Лак: Похвалобез","1. Ворует еду и рыбу из инвентаря других игроков.<br>2. Рыбачит вместе с вами и периодически отдает улов."],["🦁 Пума","Еда: Мясо<br>Лак: Лакомкот","1. Режим охоты: бежит к животным в радиусе 100м.<br>2. Режим атаки: нападает на игроков, которые атаковали вы."],["🐀 Крыса","Еда: Хрумкажуй<br>Лак: Лакомгрыз","1. С вероятностью 50% заменяет хлам на сокровище при их поиске.<br>2. Увеличивает шанс найти обезболивающее на стартовых работах."],["🐗 Кабан","Еда: Любые блюда и отходы<br>Лак: Умнисвин","1. С вероятностью 50% заменяет хлам на сокровище при их поиске.<br>2. Режим атаки: нападает на игроков, которых атаковали вы."],["🐰 Заяц","Еда: Хрумкажуй<br>Лак: Лакомгрыз","1. Увеличивает шанс найти семена на ферме, если следует за игроком.<br>2. Восстанавливает здоровье, если взять его на руки."],["🐶 Собака","Еда: Нормалай<br>Лак: Молодог","1. В режиме охоты бежит к животным в радиусе 100 метров.<br>2. В режиме атаки нападает на игроков, которых атаковали вы."]] },
-            med: { 
-                r: [
-                    { t: "Артериал. кровотеч.", i: "img/art.png", c: "Жгут выше", ci: "img/zhjutvishe.png", type: "red" },
-                    { t: "Венозное кровотеч.", i: "img/venoznoe.png", c: "Жгут ниже", ci: "img/jgutnishe.png", type: "red" },
-                    { t: "Огнестрел", i: "img/ognestrel.png", c: "Повязка", ci: "img/povyazka.png", type: "brown" },
-                    { t: "Рваная рана", i: "img/rana.png", c: "Повязка", ci: "img/povyazka.png", type: "brown" },
-                    { t: "Ожог кислотой", i: "img/kislotaoshoj.png", c: "Щелочной р-р", ci: "img/shelosh.png", type: "yellow" },
-                    { t: "Ожог щелочью", i: "img/ojogsheloch.png", c: "Кислый р-р", ci: "img/kislyrasvor.png", type: "yellow" },
-                    { t: "Ожог термический", i: "img/ojhogterm.png", c: "Холод. компресс", ci: "img/holodniycompres.png", type: "yellow" },
-                    { t: "Обморожение", i: "img/obmorojenie.png", c: "Грелка (Тепло)", ci: "img/teplo.png", type: "blue" },
-                    { t: "Недостаточность", i: "img/nedostatoch.png", c: "Таблетки", ci: "img/tabletka.png", type: "blue" },
-                    { t: "Перелом", i: "img/perelom.png", c: "Шина", ci: "img/shina.png", type: "blue" },
-                    { t: "Вывих", i: "img/vivih.png", c: "Шина", ci: "img/shina.png", type: "blue" },
-                    { t: "Растяжение", i: "img/rastyajenie.png", c: "Тугая повязка", ci: "img/tygayapovyuazka.png", type: "blue" },
-                    { t: "Ушиб", i: "img/ushib.png", c: "Лёд", ci: "img/led.png", type: "blue" }
-                ]
-            },
-            rep: { h: ["Компонент","Пробег 100%","Цена починки"], r: [["Двигатель","100.000 км","30% от гос"],["Тормоза","20.000 км","9% от гос"],["Покрышки","20.000 км","6% от гос (макс 100к)"],["Топливо","20.000 км","6% от гос (макс 100к)"],["Выхлоп","10.000 км","6% от гос (макс 100к)"],["Кузов","100.000 км","19% от гос"],["Аккумулятор","10.000 км","6% от гос (макс 100к)"],["Подвеска","20.000 км","9% от гос"],["Зажигание","20.000 км","6% от гос (макс 100к)"],["Трансмиссия","50.000 км","20% от гос"]] },
-            drop: { h: ["Деятельность","Шанс","5 ранг Red","+Питомец"], r: [["Обезбол (Порт, Стройка, Шахта)","2%","4%","6%"],["Обезбол (Почта разовая)","10%","12%","14%"],["Обезбол (Почта работа)","3%","5%","7%"],["Обезбол (Ограбление домов)","5%","7%","-"],["Семена (Сбор апельсинов/капусты)","6%","8%","10% (с кроликом)"],["Семена (Поиск клада/Контрабанда)","10%","12%","-"]] }
+// ================= DATA (FIXED & MINIFIED) =================
+const DB = {
+    // CARS REMOVED
+    kitchen: [
+        {name:"Фруктовый салат",icon:"🥗",ing:["Фрукты"],sat:15,mood:40,str:-3,skill:0,tool:"Нож"},{name:"Овощной салат",icon:"🥗",ing:["Овощи"],sat:10,mood:5,str:0,skill:0,tool:"Нож"},{name:"Овощной смузи",icon:"🥤",ing:["Овощи","Вода"],sat:20,mood:35,str:0,skill:2,tool:"Венчик"},{name:"Фруктовый смузи",icon:"🍹",ing:["Фрукты","Вода"],sat:20,mood:50,str:-7,skill:2,tool:"Венчик"},{name:"Фруктовый лёд",icon:"🍧",ing:["Фрукты","Лед","Сахар"],sat:10,mood:65,str:-7,skill:2,tool:"Венчик"},{name:"Масло",icon:"🧈",ing:["Молоко"],sat:5,mood:0,str:-1,skill:2,tool:"Венчик"},{name:"Рыбный фарш",icon:"🥣",ing:["Любая рыба"],sat:0,mood:0,str:0,skill:2,tool:"Нож"},{name:"Сухая рыбная котлета",icon:"🍘",ing:["Рыбный фарш"],sat:10,mood:0,str:-3,skill:2,tool:"Огонь"},{name:"Рыбная котлета",icon:"🧆",ing:["Рыбный фарш","Масло"],sat:25,mood:10,str:-10,skill:2,tool:"Огонь"},{name:"Мясной фарш",icon:"🥩",ing:["Мясо"],sat:0,mood:0,str:0,skill:2,tool:"Нож"},{name:"Мясная котлета",icon:"🥩",ing:["Мясной фарш","Масло"],sat:25,mood:10,str:-10,skill:2,tool:"Огонь"},{name:"Сухая мясная котлета",icon:"🥩",ing:["Мясной фарш"],sat:10,mood:0,str:-3,skill:2,tool:"Огонь"},{name:"Картофельное пюре",icon:"🥣",ing:["Овощи","Масло","Молоко"],sat:10,mood:10,str:-5,skill:2,tool:"Венчик/Огонь"},{name:"Мясная котлета с пюре",icon:"🍛",ing:["Карт. пюре","Мясная котлета"],sat:50,mood:50,str:-20,skill:3,tool:"-"},{name:"Рыбная котлета с пюре",icon:"🍛",ing:["Карт. пюре","Рыбная котлета"],sat:50,mood:50,str:-20,skill:3,tool:"-"},{name:"Вареный рис",icon:"🍚",ing:["Рис","Вода"],sat:10,mood:0,str:-1,skill:2,tool:"Огонь"},{name:"Рыбная котлета с рисом",icon:"🍛",ing:["Рыбная котлета","Вареный рис"],sat:45,mood:40,str:-12,skill:2,tool:"-"},{name:"Котлета с рисом",icon:"🍛",ing:["Мясная котлета","Вареный рис"],sat:45,mood:40,str:-12,skill:2,tool:"-"},{name:"Ролл с лососем",icon:"🍣",ing:["Лосось","Вареный рис"],sat:25,mood:20,str:-3,skill:2,tool:"Нож"},{name:"Ролл с тунцом",icon:"🍣",ing:["Тунец","Вареный рис"],sat:25,mood:20,str:-3,skill:2,tool:"Нож"},{name:"Овощной ролл",icon:"🍣",ing:["Овощи","Вареный рис"],sat:20,mood:10,str:-2,skill:2,tool:"Нож"},{name:"Рыба с рисом",icon:"🍣",ing:["Любая рыба","Вареный рис"],sat:40,mood:10,str:-5,skill:2,tool:"Огонь"},{name:"Рыба с овощами",icon:"🥗",ing:["Любая рыба","Овощи"],sat:35,mood:15,str:-3,skill:2,tool:"Огонь"},{name:"Мясо с овощами",icon:"🍖",ing:["Мясо","Овощи"],sat:40,mood:10,str:-3,skill:2,tool:"Огонь"},{name:"Яичница",icon:"🍳",ing:["Яйцо"],sat:15,mood:5,str:-3,skill:2,tool:"Огонь"},{name:"Яичница с беконом",icon:"🍳",ing:["Яйцо","Мясо","Масло"],sat:25,mood:15,str:-6,skill:3,tool:"Огонь"},{name:"Омлет",icon:"🥚",ing:["Яйцо","Молоко"],sat:20,mood:10,str:-4,skill:2,tool:"Венчик/Огонь"},{name:"Крем-брюле",icon:"🍮",ing:["Молоко","Сахар","Яйцо"],sat:10,mood:80,str:-7,skill:4,tool:"Огонь"},{name:"Суфле",icon:"🧁",ing:["Яйцо","Сахар"],sat:20,mood:80,str:-2,skill:5,tool:"Венчик/Огонь"},{name:"Овощной омлет",icon:"🥚",ing:["Яйцо","Молоко","Овощи"],sat:25,mood:10,str:-4,skill:3,tool:"Венчик/Огонь"},{name:"Компот",icon:"🍹",ing:["Сахар","Вода","Фрукты"],sat:5,mood:50,str:-7,skill:3,tool:"Огонь"},{name:"Карамель",icon:"🍬",ing:["Сахар"],sat:5,mood:10,str:-5,skill:4,tool:"Огонь"},{name:"Оладьи",icon:"🥞",ing:["Яйцо","Молоко","Мука","Сахар"],sat:20,mood:20,str:-10,skill:3,tool:"Венчик/Огонь"},{name:"Оладьи с карамелью",icon:"🥞",ing:["Оладьи","Карамель"],sat:25,mood:40,str:-20,skill:0,tool:"-"},{name:"Тесто",icon:"🍞",ing:["Мука","Вода","Яйцо"],sat:0,mood:0,str:0,skill:0,tool:"Венчик"},{name:"Чизкейк",icon:"🍰",ing:["Тесто","Сыр","Сахар"],sat:30,mood:60,str:-15,skill:4,tool:"Венчик/Огонь"},{name:"Карамельный чизкейк",icon:"🍰",ing:["Чизкейк","Карамель"],sat:35,mood:85,str:-25,skill:5,tool:"-"},{name:"Фруктовый чизкейк",icon:"🍰",ing:["Чизкейк","Фрукты"],sat:35,mood:70,str:-20,skill:5,tool:"-"},{name:"Яблоко в карамели",icon:"🍎",ing:["Карамель","Фрукты"],sat:20,mood:55,str:-7,skill:4,tool:"-"},{name:"Фруктовый салат с карамелью",icon:"🥗",ing:["Карамель","Фруктовый салат"],sat:25,mood:60,str:-11,skill:0,tool:"-"},{name:"Мороженое",icon:"🍦",ing:["Яйцо","Сахар","Молоко","Лёд"],sat:10,mood:70,str:-15,skill:2,tool:"Венчик"},{name:"Карамельное мороженое",icon:"🍦",ing:["Карамель","Мороженое"],sat:15,mood:80,str:-20,skill:0,tool:"-"},{name:"Молочный коктейль",icon:"🥤",ing:["Мороженое","Молоко"],sat:20,mood:70,str:-15,skill:3,tool:"Венчик"},{name:"Карамельный коктейль",icon:"🥤",ing:["Карамель","Молочный коктейль"],sat:25,mood:80,str:-20,skill:0,tool:"-"},{name:"Бульон",icon:"🍲",ing:["Мясо","Вода"],sat:10,mood:0,str:-25,skill:0,tool:"Огонь"},{name:"Стейк с фруктовым соусом и рисом",icon:"🍛",ing:["Стейк с ф.с.","Вареный рис"],sat:80,mood:60,str:-13,skill:5,tool:"-"},{name:"Стейк с фруктовым соусом и пюре",icon:"🍛",ing:["Стейк с ф.с.","Картофельное пюре"],sat:80,mood:80,str:-15,skill:5,tool:"-"},{name:"Рыба с фруктовым соусом",icon:"🍲",ing:["Рыба","Фрукты","Сахар"],sat:60,mood:50,str:-10,skill:5,tool:"Огонь"},{name:"Рыба с фруктовым соусом и рисом",icon:"🍛",ing:["Рыба с ф.с","Вареный рис"],sat:80,mood:60,str:-13,skill:5,tool:"-"},{name:"Рыба с фруктовым соусом и пюре",icon:"🍛",ing:["Рыба с ф.с","Картофельное пюре"],sat:80,mood:80,str:-15,skill:5,tool:"-"},{name:"Лазанья",icon:"🍕",ing:["Молоко","Мука","Сыр","Овощи","Мясной фарш"],sat:65,mood:50,str:-20,skill:5,tool:"Огонь"},{name:"Бургер",icon:"🍔",ing:["Мясная котлета","Овощи","Хлеб"],sat:40,mood:0,str:-10,skill:2,tool:"-"},{name:"Ризотто",icon:"🍚",ing:["Бульон","Рисовая крупа","Сыр"],sat:40,mood:20,str:-20,skill:0,tool:"Огонь"},{name:"Тако с мясом",icon:"🌮",ing:["Хлеб","Мясной фарш","Сыр","Овощи"],sat:30,mood:30,str:-10,skill:3,tool:"Огонь"},{name:"Тако с рыбой",icon:"🌮",ing:["Хлеб","Рыбный фарш","Сыр","Овощи"],sat:30,mood:30,str:-10,skill:3,tool:"Огонь"},{name:"Буррито",icon:"🌯",ing:["Хлеб","Вареный рис","Мясной фарш","Овощи","Сыр"],sat:50,mood:50,str:-15,skill:3,tool:"Огонь"},{name:"Поке",icon:"🍲",ing:["Вареный рис","Сыр","Овощи","Лосось"],sat:70,mood:50,str:-15,skill:4,tool:"-"},{name:"Мальма в сливочном соусе",icon:"🐟",ing:["Мальма","Овощи","Молоко"],sat:75,mood:75,str:-13,skill:5,tool:"Огонь"},{name:"Мясо по-французски",icon:"🥩",ing:["Мясо","Овощи","Сыр"],sat:60,mood:40,str:-15,skill:5,tool:"Огонь"},{name:"Оливье",icon:"🥗",ing:["Мясо","Овощи","Яйца","Вода"],sat:60,mood:50,str:-25,skill:5,tool:"Нож/Огонь"},{name:"Сашими из фугу",icon:"🐡",ing:["Фугу"],sat:20,mood:60,str:0,skill:0,tool:"Нож"},{name:"Сашими из лосося",icon:"🍣",ing:["Лосось"],sat:10,mood:30,str:0,skill:4,tool:"Нож"},{name:"Сашими из тунца",icon:"🍣",ing:["Тунец"],sat:10,mood:30,str:0,skill:4,tool:"Нож"}
+    ],
+    bp: [
+        {t:"3 часа в онлайне",q:1,b:2,v:4,r:1,c:0, i:"⏳", timer: 10800},
+        {t:" 0 или 00 в казино",q:1,b:2,v:4, img:"img/casino_img.png"},
+        {t:"Выполнить 25 действий на стройке",q:25,b:2,v:4, img:"img/build_img.png"},
+        {t:"Выполнить 25 действий в порту",q:25,b:2,v:4, img:"img/port_img.png"},
+        {t:"Выполнить 25 действий в шахте",q:25,b:2,v:4, img:"img/shahta_img.png"},
+        {t:"3 победы в Дэнс Баттлах",q:3,b:2,v:4, img:"img/dance_battle_img.png"},
+        {t:"Сделать заказ материалов",q:1,b:1,v:2, img:"img/material_busines_img.png"},
+        {t:"20 подходов в спортзале",q:20,b:1,v:2, img:"img/tren_zal_img.png"},
+        {t:"Пройти тренировку в тире",q:1,b:1,v:2, img:"img/tir.png"},
+        {t:"10 посылок на почте",q:10,b:1,v:2, img:"img/poshta.png", timer: 600},
+        {t:"Арендовать киностудию",q:1,b:2,v:4, img:"img/cinema_studio_img.png"},
+        {t:"Купить лотерейный билет",q:1,b:1,v:2, img:"img/lotery_img.png"},
+        {t:"Выиграть гонку в картинге",q:1,b:1,v:2, img:"img/carting_img.png"},
+        {t:"10 действий на ферме",q:10,b:1,v:2, img:"img/ferma_img.png"},
+        {t:"Потушить 25 \"огоньков\"",q:25,b:1,v:2, img:"img/pogarniy_img.png"},
+        {t:"Выкопать 1 сокровище",q:1,b:1,v:2, img:"img/sokrovishe_img.png"},
+        {t:"Проехать 1 уличную гонку",q:1,b:1,v:2, img:"img/racing_img.png"},
+        {t:"Выполнить 3 заказа дальнобойщиком",q:3,b:2,v:4, img:"img/dalnoboy_img.png"},
+        {t:"Два раза оплатить смену внешности",q:2,b:2,v:4, img:"img/smena_ebala_img.png"},
+        {t:"Добавить 5 видео в кинотеатре",q:5,b:1,v:2, img:"img/cinema_teatr_img.png"},
+        {t:"Выиграть 5 игр в тренировочном комплексе",q:5,b:1,v:2, img:"img/tren_complex_img.png"},
+        {t:"Выиграть 3 любых игры на арене",q:3,b:1,v:2, img:"img/arena_img.png"},
+        {t:"2 круга на любом маршруте автобусника",q:2,b:2,v:4, img:"img/bus.png"},
+        {t:"5 раз снять 100% шкуру с животных",q:5,b:2,v:4, img:"img/paw.png"},
+        {t:"7 закрашенных граффити",q:7,b:1,v:2, img:"img/graffiti_img.png"},
+        {t:"Сдать 5 контрабанды",q:5,b:2,v:4, img:"img/contrabanda_img.png"},
+        {t:"Участие в каптах/бизварах",q:1,b:1,v:2, img:"img/bizvar_img.png"},
+        {t:"Сдать Хаммер с ВЗХ",q:1,b:3,v:6, img:"img/hummer_img.png"},
+        {t:"Починить другому игроку(Предложение через капот)",q:1,b:2,v:4, img:"img/hummer_img.png"},
+        {t:"5 выданных медкарт в EMS",q:5,b:2,v:4, img:"img/medical_card_img.png"},
+        {t:"Закрыть 15 вызовов в EMS",q:15,b:2,v:4, img:"img/ems_img.png"},
+        {t:"Отредактировать 40 объявлений в WN",q:40,b:2,v:4, img:"img/obyavlenie_wn_img.png"},
+        {t:"Взломать 15 замков",q:15,b:2,v:4, img:"img/ograb_domov_img.png"},
+        {t:"Закрыть 5 кодов в силовых",q:5,b:2,v:4, img:"img/codes_img.png"},
+        {t:"Поставить на учет 2 автомобиля",q:2,b:1,v:2, img:"img/register_auto_img.png"},
+        {t:"Произвести 1 арест в КПЗ",q:1,b:1,v:2, img:"img/arest_img.png"},
+        {t:"Выкупить двух человек из КПЗ",q:2,b:2,v:4, img:"img/vikup_kpz_img.png"},
+        {t:"Посетить любой сайт в браузере",q:1,b:1,v:2, img:"img/icon_site.png"},
+        {t:"Зайти в любой канал в Brawl",q:1,b:1,v:2, img:"img/icon_brawl.png"},
+        {t:"Поставить лайк любой анкете в Match",q:1,b:1,v:2, img:"img/icon_like_match.png"},
+        {t:"Прокрутить за DP кейс",q:1,b:10,v:20, img:"img/case.png"},
+        {t:"Кинуть мяч питомцу 15 раз",q:15,b:2,v:4, img:"img/icon_push_ball.png"},
+        {t:"15 выполненных питомцем команд",q:15,b:2,v:4, img:"img/icon_dressirovka.png"},
+        {t:"Ставка в колесе удачи в казино",q:1,b:3,v:6, img:"img/icon_stavka_in_coleso.png"},
+        {t:"Проехать 1 станцию на метро",q:1,b:2,v:4, img:"img/icon_metro.png"},
+        {t:"Поймать 20 рыб",q:20,b:4,v:8, img:"img/icon_fishing.png"},
+        {t:"Выполнить 2 квеста любых клубов",q:2,b:4,v:8, img:"img/icon_club_task.png"},
+        {t:"Починить деталь в автосервисе",q:1,b:1,v:2, img:"img/icon_auto-service.png"},
+        {t:"Забросить 2 мяча в баскетболе",q:2,b:1,v:2, img:"img/icon_basketbol.png"},
+        {t:"Забить 2 гола в футболе",q:2,b:1,v:2, img:"img/icon_football.png"},
+        {t:"Победить в армрестлинге",q:1,b:1,v:2, img:"img/icon_armwresling.png"},
+        {t:"Победить в дартс",q:1,b:1,v:2, img:"img/icon_darts.png"},
+        {t:"Поиграть 1 минуту в волейбол",q:1,b:1,v:2, img:"img/icon_volleyball.png", timer: 60},
+        {t:"Поиграть 1 минуту в настольный теннис",q:1,b:1,v:2, img:"img/icon_ping_pong.png", timer: 60},
+        {t:"Поиграть 1 минуту в большой теннис",q:1,b:1,v:2, img:"img/icon_big_tennis.png", timer: 60},
+        {t:"Сыграть в мафию в казино",q:1,b:3,v:6, img:"img/icon_play_mafia.png"},
+        {t:"Сделать платеж по лизингу",q:1,b:1,v:2, img:"img/icon_lizing_pay.png"},
+        {t:"Посадить траву в теплице",q:1,b:4,v:8, img:"img/icon_grass_teplisa.png"},
+        {t:"Запустить переработку в лаборатории",q:1,b:4,v:8, img:"img/icon_obezbol_laboratory.png"},
+        {t:"Принять участие в 2 аирдропах",q:2,b:4,v:8, img:"img/airdrop.png"}
+    ],
+    timers: [
+        {id:'q1', l:'Для 1-мин квестов', s:60, i:'⏱'},
+        {id:'mail', l:'Почта (10м)', s:600, i:'img/poshta.png'},
+        {id:'mech', l:'Механик (5м)', s:300, i:'img/autougon.png'},
+        {id:'taxi', l:'Таксист (5м)', s:300, i:'img/autougon.png'},
+        {id:'train', l:'Дрессировка (15м)', s:900, i:'img/paw.png'},
+        {id:'theft', l:'Автоугон (1.5ч)', s:5400, i:'img/autougon.png'},
+        {id:'shoot', l:'Тир (1.5ч)', s:5400, i:'img/tir.png'},
+        {id:'pimp', l:'Сутенерка (1.5ч)', s:5400, i:'img/icon_like_match.png'},
+        {id:'club', l:'Клуб (2ч)', s:7200, i:'img/icon_club_task.png'},
+        {id:'tarot', l:'Таро (3ч)', s:10800, i:'img/taro.png'},
+        {id:'casino', l:'Казино (24ч)', s:86400, i:'img/casino_img.png'}
+    ],
+    guides: {
+        payment: {
+            animals: { h: ["Зверь","Скупщик","Rednecks"], r: [["Кролик","1.000$","1.160$"],["Кабан","2.500$","2.900$"],["Олень","4.000$","4.640$"],["Койот","7.500$","8.700$"],["Пума","15.000$","17.400$"]] },
+            treasures: { h: ["Название","Скуп 0","Скуп 5","Red 0","Red 5"], r: [["Дублон","1-3к","1.5-4.5к","1.1-3.4к","1.7-5.2к"],["Самородок","2-5к","3-7.5к","2.3-5.8к","3.4-8.7к"],["Инструмент","6-10к","9-15к","6.9-11.6к","10.4-17.4к"],["Медаль","9-15к","13.5-22.5к","10.4-17.4к","15.6-26.1к"],["Украшение","12-18к","18-27к","13.9-20.8к","20.8-31.3к"],["Метеорит","22-28к","33-42к","25.5-32.4к","38.2-48.7к"]] }
         },
-        tarot: [
-            {n:"0. Дурак", i:"🃏", img:"img/1.png", d:"Несколько минут будет проигрываться смех 'повара'"},
-            {n:"1. Маг", i:"🎩", img:"img/2.png", d:"Все персонажи вашего пола поблизости копируют вашу внешность"},
-            {n:"2. Жрица", i:"🌙", img:"img/3.png", d:"У персонажа начинается кровотечение"},
-            {n:"3. Императрица", i:"👑", img:"img/4.png", d:"Включается 'Женская походка'"},
-            {n:"4. Император", i:"🤴", img:"img/5.png", d:"Включается походка 'Раскидывать руками'"},
-            {n:"5. Иерофант", i:"⛪", img:"img/6.png", d:"Восстанавливает здоровье до макс, но настроение/сытость в 0"},
-            {n:"6. Влюбленные", i:"💞", img:"img/7.png", d:"Камера фокусируется на персонажах противоположного пола"},
-            {n:"7. Колесница", i:"🐎", img:"img/8.png", d:"Ненадолго ускоряет бег персонажа"},
-            {n:"8. Сила", i:"🦁", img:"img/9.png", d:"+50 очков навыка сила"},
-            {n:"9. Отшельник", i:"🔦", img:"img/10.png", d:"X2 зарплата на функциональных работах (час)"},
-            {n:"10. Колесо Фортуны", i:"🎡", img:"img/11.png", d:"Сбрасывается счетчик колеса удачи"},
-            {n:"11. Справедливость", i:"⚖️", img:"img/12.png", d:"+1 доллар"},
-            {n:"12. Повешенный", i:"🧘", img:"img/13.png", d:"Тело прозрачное, остается лишь голова в петле"},
-            {n:"13. Смерть", i:"💀", img:"img/14.png", d:"Персонажу становится плохо и он умирает"},
-            {n:"14. Умеренность", i:"🏺", img:"img/15.png", d:"Здоровье минимум, но настроение и сытость 100%"},
-            {n:"15. Дьявол", i:"😈", img:"img/16.png", d:"Персонаж горит, но не получает урона"},
-            {n:"16. Башня", i:"🏰", img:"img/17.png", d:"Наличные деньги исчезают и возвращаются"},
-            {n:"17. Звезда", i:"🌟", img:"img/18.png", d:"Подкидывает персонажа в воздух"},
-            {n:"18. Луна", i:"🌝", img:"img/19.png", d:"Делает кожу белой (если был темный)"},
-            {n:"19. Солнце", i:"🌞", img:"img/20.png", d:"Делает кожу чёрной (если был светлый)"},
-            {n:"20. Суд", i:"🎺", img:"img/21.png", d:"Персонаж получает розыск на 2 минуты"},
-            {n:"21. Мир", i:"🌍", img:"img/22.png", d:"Телепортирует в случайные места"}
-        ],
-        ball8: [
-            {q:"Ровные ли сегодня дороги?",a:"Да: Уменьшает расход бензина в 2 раза<br>Нет: Увеличивает расход в 2 раза"},
-            {q:"Уважают ли меня в моем клубе?",a:"Да: Х2 репутация за задания в клубах<br>Нет: Уменьшает репутацию в 2 раза"},
-            {q:"На подработках сегодня хорошо платят?",a:"Да: +25% зарплаты на функц. работах<br>Нет: -25% зарплаты"},
-            {q:"Вкусно ли я сегодня поем?",a:"Да: Отключает голод до рестарта<br>Нет: Опускает сытость до нуля 1 раз"},
-            {q:"Буду ли я сегодня внимателен?",a:"Да: Увеличивает шанс выпадения семян/обезбол<br>Нет: Уменьшает шанс выпадения"},
-            {q:"Крепкое ли сегодня оружие?",a:"Да: Отключает износ оружия до рестарта<br>Нет: Износ оружия в 2 раза больше"},
-            {q:"Пойдет ли сегодня торговля?",a:"Да: Скидка 20% на объявления 5vito<br>Нет: Повышает цену на 20%"},
-            {q:"Сегодня хороший улов?",a:"Да: Облегчает рыбалку (на 1 кружок меньше)<br>Нет: Усложняет (на 1 кружок больше)"},
-            {q:"Смена будет продуктивной?",a:"Да: +25% к пейдею во фракции<br>Нет: -25% от пейдея во фракции"}
-        ]
-    };
-    
-    // ================= LOGIC & CLOUD =================
-    let BP = { start:0, done:[], doneTwink:[], times:{}, hidden:[], counters:{}, vip:false, x2:false, sortOrder:[] };
-    let TIMERS = {}; 
-    let EVENTS = []; 
-    let TIMER_INT = {};
-    let saveTimers = {};
-    
-    const Cloud = {
-        isAvailable: () => window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.CloudStorage,
-        getItem: (key) => {
-            return new Promise((resolve) => {
-                if (!Cloud.isAvailable()) return resolve(localStorage.getItem(key));
-                const safetyTimeout = setTimeout(() => resolve(localStorage.getItem(key)), 2000);
-                window.Telegram.WebApp.CloudStorage.getItem(key, (err, val) => {
-                    clearTimeout(safetyTimeout);
-                    if (err || !val) resolve(localStorage.getItem(key));
-                    else { localStorage.setItem(key, val); resolve(val); }
-                });
-            });
+        pet: { h: ["Питомец","Еда / Лакомство","Навык"], r: [["🐱 Кот","Еда: Нормяу<br>Лак: Лакомкот","1. Восстанавливает настроение (на руках)<br>2. Восстанавливает здоровье (на руках)"],["🐵 Обезьяна","Еда: Овощи и фрукты<br>Лак: Похвалобез","1. Ворует еду и рыбу из инвентаря других игроков.<br>2. Рыбачит вместе с вами и периодически отдает улов."],["🦁 Пума","Еда: Мясо<br>Лак: Лакомкот","1. Режим охоты: бежит к животным в радиусе 100м.<br>2. Режим атаки: нападает на игроков, которые атаковали вы."],["🐀 Крыса","Еда: Хрумкажуй<br>Лак: Лакомгрыз","1. С вероятностью 50% заменяет хлам на сокровище при их поиске.<br>2. Увеличивает шанс найти обезболивающее на стартовых работах."],["🐗 Кабан","Еда: Любые блюда и отходы<br>Лак: Умнисвин","1. С вероятностью 50% заменяет хлам на сокровище при их поиске.<br>2. Режим атаки: нападает на игроков, которых атаковали вы."],["🐰 Заяц","Еда: Хрумкажуй<br>Лак: Лакомгрыз","1. Увеличивает шанс найти семена на ферме, если следует за игроком.<br>2. Восстанавливает здоровье, если взять его на руки."],["🐶 Собака","Еда: Нормалай<br>Лак: Молодог","1. В режиме охоты бежит к животным в радиусе 100 метров.<br>2. В режиме атаки нападает на игроков, которых атаковали вы."]] },
+        med: { 
+            r: [
+                { t: "Артериал. кровотеч.", i: "img/art.png", c: "Жгут выше", ci: "img/zhjutvishe.png", type: "red" },
+                { t: "Венозное кровотеч.", i: "img/venoznoe.png", c: "Жгут ниже", ci: "img/jgutnishe.png", type: "red" },
+                { t: "Огнестрел", i: "img/ognestrel.png", c: "Повязка", ci: "img/povyazka.png", type: "brown" },
+                { t: "Рваная рана", i: "img/rana.png", c: "Повязка", ci: "img/povyazka.png", type: "brown" },
+                { t: "Ожог кислотой", i: "img/kislotaoshoj.png", c: "Щелочной р-р", ci: "img/shelosh.png", type: "yellow" },
+                { t: "Ожог щелочью", i: "img/ojogsheloch.png", c: "Кислый р-р", ci: "img/kislyrasvor.png", type: "yellow" },
+                { t: "Ожог термический", i: "img/ojhogterm.png", c: "Холод. компресс", ci: "img/holodniycompres.png", type: "yellow" },
+                { t: "Обморожение", i: "img/obmorojenie.png", c: "Грелка (Тепло)", ci: "img/teplo.png", type: "blue" },
+                { t: "Недостаточность", i: "img/nedostatoch.png", c: "Таблетки", ci: "img/tabletka.png", type: "blue" },
+                { t: "Перелом", i: "img/perelom.png", c: "Шина", ci: "img/shina.png", type: "blue" },
+                { t: "Вывих", i: "img/vivih.png", c: "Шина", ci: "img/shina.png", type: "blue" },
+                { t: "Растяжение", i: "img/rastyajenie.png", c: "Тугая повязка", ci: "img/tygayapovyuazka.png", type: "blue" },
+                { t: "Ушиб", i: "img/ushib.png", c: "Лёд", ci: "img/led.png", type: "blue" }
+            ]
         },
-        setItem: (key, value) => {
-            localStorage.setItem(key, value);
-            if (Cloud.isAvailable()) {
-                if (saveTimers[key]) clearTimeout(saveTimers[key]);
-                saveTimers[key] = setTimeout(() => {
-                    window.Telegram.WebApp.CloudStorage.setItem(key, value, (err) => { if(err) console.error(err); });
-                }, 500);
-            }
+        rep: { h: ["Компонент","Пробег 100%","Цена починки"], r: [["Двигатель","100.000 км","30% от гос"],["Тормоза","20.000 км","9% от гос"],["Покрышки","20.000 км","6% от гос (макс 100к)"],["Топливо","20.000 км","6% от гос (макс 100к)"],["Выхлоп","10.000 км","6% от гос (макс 100к)"],["Кузов","100.000 км","19% от гос"],["Аккумулятор","10.000 км","6% от гос (макс 100к)"],["Подвеска","20.000 км","9% от гос"],["Зажигание","20.000 км","6% от гос (макс 100к)"],["Трансмиссия","50.000 км","20% от гос"]] },
+        drop: { h: ["Деятельность","Шанс","5 ранг Red","+Питомец"], r: [["Обезбол (Порт, Стройка, Шахта)","2%","4%","6%"],["Обезбол (Почта разовая)","10%","12%","14%"],["Обезбол (Почта работа)","3%","5%","7%"],["Обезбол (Ограбление домов)","5%","7%","-"],["Семена (Сбор апельсинов/капусты)","6%","8%","10% (с кроликом)"],["Семена (Поиск клада/Контрабанда)","10%","12%","-"]] }
+    },
+    tarot: [
+        {n:"0. Дурак", i:"🃏", img:"img/1.png", d:"Несколько минут будет проигрываться смех 'повара'"},
+        {n:"1. Маг", i:"🎩", img:"img/2.png", d:"Все персонажи вашего пола поблизости копируют вашу внешность"},
+        {n:"2. Жрица", i:"🌙", img:"img/3.png", d:"У персонажа начинается кровотечение"},
+        {n:"3. Императрица", i:"👑", img:"img/4.png", d:"Включается 'Женская походка'"},
+        {n:"4. Император", i:"🤴", img:"img/5.png", d:"Включается походка 'Раскидывать руками'"},
+        {n:"5. Иерофант", i:"⛪", img:"img/6.png", d:"Восстанавливает здоровье до макс, но настроение/сытость в 0"},
+        {n:"6. Влюбленные", i:"💞", img:"img/7.png", d:"Камера фокусируется на персонажах противоположного пола"},
+        {n:"7. Колесница", i:"🐎", img:"img/8.png", d:"Ненадолго ускоряет бег персонажа"},
+        {n:"8. Сила", i:"🦁", img:"img/9.png", d:"+50 очков навыка сила"},
+        {n:"9. Отшельник", i:"🔦", img:"img/10.png", d:"X2 зарплата на функциональных работах (час)"},
+        {n:"10. Колесо Фортуны", i:"🎡", img:"img/11.png", d:"Сбрасывается счетчик колеса удачи"},
+        {n:"11. Справедливость", i:"⚖️", img:"img/12.png", d:"+1 доллар"},
+        {n:"12. Повешенный", i:"🧘", img:"img/13.png", d:"Тело прозрачное, остается лишь голова в петле"},
+        {n:"13. Смерть", i:"💀", img:"img/14.png", d:"Персонажу становится плохо и он умирает"},
+        {n:"14. Умеренность", i:"🏺", img:"img/15.png", d:"Здоровье минимум, но настроение и сытость 100%"},
+        {n:"15. Дьявол", i:"😈", img:"img/16.png", d:"Персонаж горит, но не получает урона"},
+        {n:"16. Башня", i:"🏰", img:"img/17.png", d:"Наличные деньги исчезают и возвращаются"},
+        {n:"17. Звезда", i:"🌟", img:"img/18.png", d:"Подкидывает персонажа в воздух"},
+        {n:"18. Луна", i:"🌝", img:"img/19.png", d:"Делает кожу белой (если был темный)"},
+        {n:"19. Солнце", i:"🌞", img:"img/20.png", d:"Делает кожу чёрной (если был светлый)"},
+        {n:"20. Суд", i:"🎺", img:"img/21.png", d:"Персонаж получает розыск на 2 минуты"},
+        {n:"21. Мир", i:"🌍", img:"img/22.png", d:"Телепортирует в случайные места"}
+    ],
+    ball8: [
+        {q:"Ровные ли сегодня дороги?",a:"Да: Уменьшает расход бензина в 2 раза<br>Нет: Увеличивает расход в 2 раза"},
+        {q:"Уважают ли меня в моем клубе?",a:"Да: Х2 репутация за задания в клубах<br>Нет: Уменьшает репутацию в 2 раза"},
+        {q:"На подработках сегодня хорошо платят?",a:"Да: +25% зарплаты на функц. работах<br>Нет: -25% зарплаты"},
+        {q:"Вкусно ли я сегодня поем?",a:"Да: Отключает голод до рестарта<br>Нет: Опускает сытость до нуля 1 раз"},
+        {q:"Буду ли я сегодня внимателен?",a:"Да: Увеличивает шанс выпадения семян/обезбол<br>Нет: Уменьшает шанс выпадения"},
+        {q:"Крепкое ли сегодня оружие?",a:"Да: Отключает износ оружия до рестарта<br>Нет: Износ оружия в 2 раза больше"},
+        {q:"Пойдет ли сегодня торговля?",a:"Да: Скидка 20% на объявления 5vito<br>Нет: Повышает цену на 20%"},
+        {q:"Сегодня хороший улов?",a:"Да: Облегчает рыбалку (на 1 кружок меньше)<br>Нет: Усложняет (на 1 кружок больше)"},
+        {q:"Смена будет продуктивной?",a:"Да: +25% к пейдею во фракции<br>Нет: -25% от пейдея во фракции"}
+    ]
+};
+
+// ================= LOGIC =================
+let BP = { start:0, done:[], times:{}, hidden:[], counters:{}, vip:false, x2:false, sortOrder:[] };
+let TIMERS = {}; let EVENTS = []; let TIMER_INT = {};
+let saveTimers = {}; let SCROLL_POS = {};
+
+const Cloud = {
+    isAvailable: () => window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.CloudStorage,
+    getItem: (key) => new Promise((resolve) => {
+        if (!Cloud.isAvailable()) return resolve(localStorage.getItem(key));
+        const safetyTimeout = setTimeout(() => resolve(localStorage.getItem(key)), 2000);
+        window.Telegram.WebApp.CloudStorage.getItem(key, (err, val) => {
+            clearTimeout(safetyTimeout);
+            resolve((err || !val) ? localStorage.getItem(key) : val);
+        });
+    }),
+    setItem: (key, value) => {
+        localStorage.setItem(key, value);
+        if (Cloud.isAvailable()) {
+            if (saveTimers[key]) clearTimeout(saveTimers[key]);
+            saveTimers[key] = setTimeout(() => {
+                window.Telegram.WebApp.CloudStorage.setItem(key, value, (err)=>{});
+            }, 500);
         }
-    };
+    }
+};
 
-    async function init() {
-        try {
-            const [bpData, tmData, evData] = await Promise.all([
-                Cloud.getItem('gta_bp_22'), Cloud.getItem('gta_tm_22'), Cloud.getItem('gta_ev_22')
-            ]);
-            if(bpData) BP = JSON.parse(bpData);
-            if(tmData) TIMERS = JSON.parse(tmData);
-            if(evData) EVENTS = JSON.parse(evData);
-        } catch (e) { console.error("Error loading data", e); }
-
+async function init() {
+    try {
+        const [bpData, tmData, evData] = await Promise.all([
+            Cloud.getItem('gta_bp_22'), Cloud.getItem('gta_tm_22'), Cloud.getItem('gta_ev_22')
+        ]);
+        if(bpData) BP = JSON.parse(bpData);
         if(!BP.doneTwink) BP.doneTwink = [];
-        
-        // --- ЗАЩИТА ОТ ОШИБОК ПРИ СМЕНЕ ЗАДАЧ ---
-        // Если в сохраненной сортировке есть ID, которого нет в новой базе - удаляем его
-        if(!BP.sortOrder || BP.sortOrder.length === 0) {
-            BP.sortOrder = DB.bp.map((_, i) => i);
-        } else {
-            BP.sortOrder = BP.sortOrder.filter(id => DB.bp[id]); // Оставляем только существующие ID
-            // Добавляем новые задачи, если появились
-            const existingIds = new Set(BP.sortOrder);
-            DB.bp.forEach((_, index) => {
-                if(!existingIds.has(index)) BP.sortOrder.push(index);
-            });
-        }
+        if(tmData) TIMERS = JSON.parse(tmData);
+        if(evData) EVENTS = JSON.parse(evData);
+    } catch (e) { console.error(e); }
 
-        const loader = document.getElementById('loader');
-        if(loader) { loader.style.opacity = '0'; setTimeout(() => loader.remove(), 300); }
-
-        const savedTheme = localStorage.getItem('gta_theme_22');
-        if(savedTheme) setTheme(savedTheme);
-
-        document.getElementById('startBp').value = BP.start || '';
-        document.getElementById('btnVip').classList.toggle('active', BP.vip);
-        document.getElementById('btnX2').classList.toggle('active', BP.x2);
-        
-        renderBP(); updateBP();
-        renderTimers(); renderTimerPresets(); renderCal(); 
-        
-        // Проверка на наличие машин/еды перед рендером
-        if(DB.cars.platinum && DB.cars.platinum.length > 0) renderCars();
-        if(DB.kitchen.length > 0) renderFood();
-
-        const activeGuideBtn = document.querySelector('#tab-guides .seg-btn.active');
-        if(activeGuideBtn) setGuide('payment', activeGuideBtn);
-        
-        setupDragAndDrop();
-    }
-
-    let SCROLL_POS = {};
-    function go(id, btn) {
-        const currentTab = document.querySelector('.tab-content.active');
-        if (currentTab) SCROLL_POS[currentTab.id] = window.scrollY;
-        document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
-        document.getElementById('tab-'+id).classList.add('active');
-        document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active'));
-        btn.classList.add('active');
-        window.scrollTo(0, SCROLL_POS['tab-'+id] || 0);
-    }
-
-    function saveBP() { Cloud.setItem('gta_bp_22', JSON.stringify(BP)); }
-    function toggleVip() { BP.vip = !BP.vip; document.getElementById('btnVip').classList.toggle('active'); saveBP(); renderBP(); updateBP(); }
-    function toggleX2() { BP.x2 = !BP.x2; document.getElementById('btnX2').classList.toggle('active'); saveBP(); renderBP(); updateBP(); }
+    if(!BP.sortOrder || BP.sortOrder.length !== DB.bp.length) BP.sortOrder = DB.bp.map((_, i) => i);
     
-    function updateBP() {
-        BP.start = parseInt(document.getElementById('startBp').value) || 0;
-        let total = BP.start;
-        let doneCount = BP.done.length + (BP.doneTwink ? BP.doneTwink.length : 0);
-        
-        BP.done.forEach(i => { let t = DB.bp[i]; if(t && !t.r) { let rw = BP.vip ? t.v : t.b; if(BP.x2) rw *= 2; total += rw; } });
-        if(BP.counters) { Object.keys(BP.counters).forEach(i => { let t = DB.bp[i]; if(t && t.r) { let rw = BP.vip ? t.v : t.b; if(BP.x2) rw *= 2; total += (rw * BP.counters[i]); } }); }
+    document.getElementById('loader').remove();
+    const savedTheme = localStorage.getItem('gta_theme_22');
+    if(savedTheme) setTheme(savedTheme);
 
-        document.getElementById('totalBp').innerText = total;
-        document.getElementById('doneCount').innerText = doneCount;
-        
-        let mult = 1; if(BP.vip) mult *= 2; if(BP.x2) mult *= 2;
-        document.getElementById('multiplierDisp').innerText = 'x' + mult;
-
-        const elTime = document.getElementById('totalTime');
-        if(elTime) {
-            const taskID = 0; 
-            let count = (BP.counters && BP.counters[taskID]) ? BP.counters[taskID] : 0;
-            if(count === 0 && BP.done.includes(taskID)) count = 1;
-            const totalHours = count * 3;
-            elTime.innerText = totalHours + 'ч';
-            elTime.style.color = totalHours > 0 ? "var(--gold)" : "var(--text-sub)";
-        }
-        document.getElementById('btnVip').classList.toggle('active', BP.vip);
-        document.getElementById('btnX2').classList.toggle('active', BP.x2);
-        saveBP();
-    }
-
-    function toggleTask(i, event) {
-        if (event) event.stopPropagation();
-        if(BP.done.includes(i)) { 
-            BP.done = BP.done.filter(x=>x!==i); 
-            delete BP.times[i]; 
-            if(BP.counters && BP.counters[i]) BP.counters[i] = 0;
-        } else { 
-            BP.done.push(i);
-            if(BP.doneTwink) BP.doneTwink = BP.doneTwink.filter(x => x !== i);
-            BP.times[i] = new Date().toLocaleTimeString().slice(0,5); 
-            if(DB.bp[i].q > 1) BP.counters[i] = DB.bp[i].q;
-        }
-        saveBP(); renderBP(); updateBP();
-    }
-
-    function toggleTwink(i, e) {
-        e.stopPropagation();
-        if(!BP.doneTwink) BP.doneTwink = [];
-        if(BP.doneTwink.includes(i)) {
-            BP.doneTwink = BP.doneTwink.filter(x => x !== i);
-        } else {
-            BP.doneTwink.push(i);
-            BP.done = BP.done.filter(x => x !== i);
-            BP.times[i] = new Date().toLocaleTimeString().slice(0,5);
-        }
-        saveBP(); renderBP(); updateBP();
-    }
-
-    function updateCounter(id, delta) {
-        if(!BP.counters) BP.counters = {};
-        if(typeof BP.counters[id] === 'undefined') BP.counters[id] = 0;
-        const wasDone = BP.done.includes(id);
-        const max = DB.bp[id].q;
-        BP.counters[id] += delta;
-        if(BP.counters[id] < 0) BP.counters[id] = 0;
-        
-        if (!DB.bp[id].r) {
-            if(BP.counters[id] > max) BP.counters[id] = max;
-            if(BP.counters[id] >= max) {
-                if(!BP.done.includes(id)) { BP.done.push(id); BP.times[id] = new Date().toLocaleTimeString().slice(0,5); }
-            } else {
-                if(BP.done.includes(id)) { BP.done = BP.done.filter(x => x !== id); delete BP.times[id]; }
-            }
-        }
-        const isDoneNow = BP.done.includes(id);
-        saveBP(); updateBP();
-
-        if (wasDone !== isDoneNow) {
-            renderBP();
-        } else {
-            const elBar = document.getElementById(`prog_${id}`);
-            const elTxt = document.getElementById(`cnt_${id}`);
-            if (elBar && elTxt) {
-                let newPct = (BP.counters[id] / max) * 100;
-                if(newPct > 100) newPct = 100;
-                elBar.style.width = newPct + '%';
-                elTxt.innerText = BP.counters[id];
-            } else { renderBP(); }
-        }
-    }
-
-    function completeInstant(id) {
-        const max = DB.bp[id].q;
-        const current = BP.counters && BP.counters[id] ? BP.counters[id] : 0;
-        const diff = max - current;
-        if (diff > 0) updateCounter(id, diff);
-    }
-
-    function hideBP(i,e) { e.stopPropagation(); BP.hidden.push(i); saveBP(); renderBP(); }
-    function newDay() {
-        if(confirm("Начать новый день? Сбросится прогресс.")) {
-            BP.done = []; BP.doneTwink = []; BP.times = {}; BP.counters = {}; BP.start = 0;
-            document.getElementById('startBp').value = '';
-            saveBP(); renderBP(); updateBP();
-        }
-    }
-
-    function renderBP() {
-        const list = document.getElementById('listBP'); 
-        const search = document.getElementById('searchBp').value.toLowerCase();
-        const sortMode = document.getElementById('bpSort').value;
-        if(!BP.localTimers) BP.localTimers = {};
-        if(!BP.doneTwink) BP.doneTwink = [];
-
-        // --- ВАЖНО: Фильтруем задачи, которых больше нет в базе ---
-        let validIds = BP.sortOrder.filter(id => DB.bp[id]);
-        let tasks = validIds.map(id => ({...DB.bp[id], id: id}));
-
-        if(sortMode === 'max') tasks.sort((a, b) => b.q - a.q);
-        if(sortMode === 'min') tasks.sort((a, b) => a.q - b.q);
-
-        list.innerHTML = '';
-        tasks.forEach(t => {
-            const i = t.id;
-            if(BP.hidden.includes(i) || (search && !t.t.toLowerCase().includes(search))) return;
-            
-            const done = BP.done.includes(i);
-            const isTwink = BP.doneTwink.includes(i);
-            let rw = BP.vip ? t.v : t.b; if(BP.x2) rw *= 2;
-            
-            let statusBadgeHTML = '';
-            if (done && BP.times[i]) statusBadgeHTML = `<div class="status-badge time">${BP.times[i]}</div>`;
-            else if (isTwink) statusBadgeHTML = `<div class="status-badge twink">ТВИНК</div>`;
-
-            let controlHTML = '', progressBarHTML = '', instantDoneBtn = '';
-            
-            if(t.q > 1 || t.r) {
-                const curr = BP.counters && BP.counters[i] ? BP.counters[i] : 0;
-                const max = t.q;
-                let pct = max > 0 ? (curr / max) * 100 : 0; if(pct > 100) pct = 100;
-
-                if(!t.r) {
-                    progressBarHTML = `<div class="progress-track"><div id="prog_${i}" class="progress-fill" style="width: ${pct}%"></div></div>`;
-                    if(!done) instantDoneBtn = `<button class="btn-instant-done" onclick="completeInstant(${i})">MAX</button>`;
-                }
-                controlHTML = `<div class="controls-new" onclick="event.stopPropagation()"><button class="btn-mini minus" onclick="updateCounter(${i}, -1)">−</button><span id="cnt_${i}" class="counter-val-new">${curr}</span><button class="btn-mini plus" onclick="updateCounter(${i}, 1)">+</button></div><div class="reward-badge">+${rw}</div>`;
-            } else {
-                controlHTML = `<div class="checkbox" onclick="toggleTask(${i}, event)">${done?'✔':''}</div><div class="reward-badge" style="margin-left:6px;">+${rw}</div>`;
-            }
-
-            let iconHTML = '';
-            if(t.img) iconHTML = `<div class="bp-icon-container"><img src="${t.img}" class="bp-img"></div>`;
-            else if (t.i) iconHTML = `<div class="bp-icon-container"><span class="bp-emoji">${t.i}</span></div>`;
-
-            let timerHTML = '';
-            if (t.timer) {
-                let lt = BP.localTimers[i] || { rm: t.timer, run: false };
-                if(lt.run && lt.et) {
-                    const diff = Math.ceil((lt.et - Date.now()) / 1000);
-                    lt.rm = diff > 0 ? diff : 0; if(lt.rm === 0) lt.run = false;
-                }
-                const displayTime = lt.rm <= 0 ? "ГОТОВО" : fmtTime(lt.rm);
-                const playStyle = lt.run ? 'color:var(--gold); border-color:var(--gold);' : '';
-                timerHTML = `<div class="inline-timer-box" onclick="event.stopPropagation()"><button class="it-btn" style="${playStyle}" onclick="toggleLocalTimer(${i}, ${t.timer})">${lt.run ? '⏸' : '▶'}</button><div class="it-val ${lt.rm<=0?'done':''}" id="loc_timer_${i}">${displayTime}</div><button class="it-btn" onclick="resetLocalTimer(${i}, ${t.timer})">↺</button></div>`;
-            }
-
-            const item = document.createElement('div');
-            let doneClass = (done && !t.r) ? 'completed' : '';
-            if (isTwink) doneClass = 'completed twink-done';
-            item.className = `task-item ${doneClass}`;
-            item.setAttribute('data-id', i);
-            if(!t.r && t.q <= 1) item.onclick = () => toggleTask(i);
-
-            let twinkBtnStyle = isTwink ? 'color: #c084fc; background: rgba(192, 132, 252, 0.15); border: 1px solid rgba(192, 132, 252, 0.3);' : '';
-            const twinkBtn = !t.r ? `<button class="icon-btn" style="width:28px; height:28px; border-radius:6px; ${twinkBtnStyle}" onclick="toggleTwink(${i}, event)">👻</button>` : '';
-
-            item.innerHTML = `<div class="task-top-row"><div class="drag-handle" style="margin-right:4px; color:#444;">⋮⋮</div>${iconHTML}<div class="task-content"><div class="task-header-row"><div class="task-text">${t.t} ${t.r ? '<span class="tag">∞</span>' : ''}</div>${statusBadgeHTML}</div>${progressBarHTML}</div></div><div class="task-bottom-row"><div style="display:flex;">${timerHTML}</div><div class="task-actions-group">${controlHTML}${instantDoneBtn}${twinkBtn}<button class="icon-btn del" style="width:28px; height:28px; border-radius:6px; border:1px solid #333;" onclick="hideBP(${i},event)">✕</button></div></div>`;
-            list.appendChild(item);
-        });
-    }
-
-    function setupDragAndDrop() {
-        const list = document.getElementById('listBP');
-        Sortable.create(list, {
-            handle: '.drag-handle',
-            animation: 150,
-            onEnd: function (evt) {
-                const newOrder = [];
-                list.querySelectorAll('.task-item').forEach(el => newOrder.push(parseInt(el.getAttribute('data-id'))));
-                const hiddenItems = BP.sortOrder.filter(id => !newOrder.includes(id));
-                BP.sortOrder = [...newOrder, ...hiddenItems];
-                saveBP();
-            }
-        });
-    }
-
-    function saveTm() { Cloud.setItem('gta_tm_22', JSON.stringify(TIMERS)); }
-    function renderTimerPresets() {
-        const container = document.getElementById('timerGrid'); if (!container) return; container.innerHTML = '';
-        DB.timers.forEach(t => {
-            const timeStr = fmtTimeSimple(t.s);
-            container.innerHTML += `<div class="timer-card"><div class="tc-header"><div class="tc-title"><span style="color:#666">::</span> ${t.l}</div></div><div class="tc-time">${timeStr}</div><div class="tc-footer"><button class="tc-btn start" onclick="addGameTimer('${t.id}')">▶ Старт</button></div></div>`;
-        });
-    }
-    function fmtTimeSimple(s) { const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60; return (h>0?h+':':'') + pad(m)+':'+pad(sec); }
-    function renderTimers() {
-        const list = document.getElementById('activeTimersList'); if(!list) return; list.innerHTML = '';
-        let all = TIMERS.custom ? [...TIMERS.custom] : [];
-        if(all.length === 0) list.innerHTML = '<div style="padding:10px; color:var(--text-sub); font-size:13px;">Нет активных таймеров</div>';
-        all.forEach(t => {
-            if(t.run) {
-                const now = Date.now();
-                if (t.et) t.rm = Math.ceil((t.et - now) / 1000);
-                else { const passed = Math.floor((now - t.ts)/1000); if(passed > 0) t.rm -= passed; t.et = now + (t.rm * 1000); }
-                if(t.rm <= 0) { t.rm = 0; t.run = false; }
-                t.ts = now;
-            }
-            const isRunning = t.run;
-            const statusText = isRunning ? 'Активен' : 'Пауза';
-            const displayTime = fmtTime(t.rm);
-            let pct = 0; if(t.s > 0) pct = (t.rm / t.s) * 100; if(pct > 100) pct = 100; if(pct < 0) pct = 0;
-            list.innerHTML += `<div class="timer-card ${isRunning ? 'running' : ''}"><div class="tc-header"><div class="tc-title"><span style="color:var(--accent)">::</span> ${t.l}</div><div class="tc-status">${statusText}</div></div><div class="tc-time" id="disp_${t.id}">${displayTime}</div><div class="timer-progress-bg"><div id="prog_bar_${t.id}" class="timer-progress-bar" style="width: ${pct}%"></div></div><div class="tc-footer" style="margin-top:10px;"><button class="tc-btn ${isRunning ? 'stop' : 'start'}" onclick="togTime('${t.id}')">${isRunning ? '|| Стоп' : '▶ Старт'}</button><button class="tc-btn-icon" onclick="rstTime('${t.id}')">↺</button><button class="tc-btn-icon del" onclick="delTime('${t.id}')">✕</button></div></div>`;
-            if(t.run) runInterval(t.id);
-        });
-        saveTm();
-    }
-    function fmtTime(s) { const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60; return (h>0?h+':':'')+pad(m)+':'+pad(sec); }
-    function pad(n) { return n<10?'0'+n:n; }
-    function addCustomTimer() { const m = parseInt(document.getElementById('customMin').value), name = document.getElementById('customName').value; if(m) addTimerRaw(m, name.trim() ? name : (m + ' мин')); document.getElementById('customMin').value = ''; document.getElementById('customName').value = ''; }
-    function addGameTimer(key) { const t = DB.timers.find(x => x.id === key); if(t) addTimerRaw(t.s/60, t.l); }
-    function addTimerRaw(min, label) { if(!TIMERS.custom) TIMERS.custom = []; const now = Date.now(), d = min * 60; TIMERS.custom.push({ id: 't_' + now, l: label, s: d, rm: d, run: true, ts: now, et: now + (d * 1000) }); saveTm(); renderTimers(); }
-    function togTime(id) { const t = TIMERS.custom.find(x => x.id === id); if(t) { t.run = !t.run; if(t.run) { if(t.rm <= 0) t.rm = t.s; t.et = Date.now() + (t.rm * 1000); } saveTm(); renderTimers(); } }
-    function rstTime(id) { const t = TIMERS.custom.find(x=>x.id===id); if(t) { t.rm = t.s; t.run = false; t.ts = Date.now(); clearInterval(TIMER_INT[id]); saveTm(); renderTimers(); } }
-    function delTime(id) { TIMERS.custom = TIMERS.custom.filter(t=>t.id!==id); clearInterval(TIMER_INT[id]); saveTm(); renderTimers(); }
-    function runInterval(id) { if(TIMER_INT[id]) clearInterval(TIMER_INT[id]); TIMER_INT[id] = setInterval(() => { const t = TIMERS.custom.find(x => x.id === id); if(!t || !t.run) { clearInterval(TIMER_INT[id]); return; } if(!t.et) t.et = Date.now() + (t.rm * 1000); const now = Date.now(), diff = Math.ceil((t.et - now) / 1000); if (diff <= 0) { t.rm = 0; t.run = false; clearInterval(TIMER_INT[id]); renderTimers(); if(window.Telegram.WebApp) { window.Telegram.WebApp.HapticFeedback.notificationOccurred('success'); window.Telegram.WebApp.showPopup({ title: '⏰ Таймер завершен!', message: `Время вышло: ${t.l}`, buttons: [{type: 'ok', text: 'Понял'}] }); } } saveTm(); }, 1000); }
-    function addPay(t) { const d = prompt(`Оплата ${t}. Через сколько дней?`, "10"); if(d) addEvent(parseInt(d), `Оплата: ${t}`); }
+    document.getElementById('startBp').value = BP.start || '';
+    renderBP(); updateBP(); renderTimers(); renderTimerPresets(); renderCal(); renderFood();
     
-    // CALENDAR
-    let calDate = new Date();
-    function saveEv() { Cloud.setItem('gta_ev_22', JSON.stringify(EVENTS)); }
-    function renderCal() {
-        const y = calDate.getFullYear(), m = calDate.getMonth();
-        document.getElementById('calTitle').innerText = calDate.toLocaleDateString('ru',{month:'long',year:'numeric'});
-        const grid = document.getElementById('calGrid'); grid.innerHTML = '';
-        ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].forEach(d => grid.innerHTML+=`<div style="font-size:11px; color:var(--text-sub); text-align:center;">${d}</div>`);
-        const first = new Date(y, m, 1).getDay() || 7, days = new Date(y, m+1, 0).getDate(), today = new Date().toISOString().split('T')[0];
-        for(let i=1; i<first; i++) grid.innerHTML += `<div></div>`;
-        for(let d=1; d<=days; d++) {
-            const dt = `${y}-${pad(m+1)}-${pad(d)}`;
-            const hasEv = EVENTS.some(e => e.d === dt);
-            const isToday = dt === today;
-            grid.innerHTML += `<div class="cal-day ${isToday?'today':''} ${hasEv?'event':''}">${d}</div>`;
-        }
-        const list = document.getElementById('eventList'); list.innerHTML = '';
-        EVENTS.filter(e => e.d >= today).sort((a,b)=>a.d.localeCompare(b.d)).slice(0,5).forEach(e => {
-            if(!e.id) { e.id = Date.now() + Math.floor(Math.random()*1000); saveEv(); }
-            const dateStr = e.d.split('-').reverse().slice(0,2).join('.');
-            list.innerHTML += `<div class="event-item" style="align-items:center;"><div style="flex:1; padding-right:10px;"><span style="color:var(--accent); font-weight:bold; margin-right:6px;">${dateStr}</span><span>${e.t}</span></div><button class="icon-btn" style="width:28px; height:28px; min-width:28px; color:var(--red);" onclick="delEvent(${e.id})">✕</button></div>`;
-        });
-    }
-    function moveMonth(v) { calDate.setMonth(calDate.getMonth()+v); renderCal(); }
-    function addEvent(d, t) { const date = new Date(); date.setDate(date.getDate() + d); EVENTS.push({ id: Date.now(), d: date.toISOString().split('T')[0], t: t }); saveEv(); renderCal(); }
-    function delEvent(id) { if(confirm('Удалить это событие?')) { EVENTS = EVENTS.filter(e => e.id !== id); saveEv(); renderCal(); } }
+    // Auto open guide
+    const activeGuideBtn = document.querySelector('#tab-guides .seg-btn.active');
+    if(activeGuideBtn) setGuide('payment', activeGuideBtn);
 
-    // CARS & FOOD
-    let carCat = 'platinum';
-    function setCarCat(c, btn) {
-        carCat = c; document.querySelectorAll('#tab-cars .seg-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
-        if(c==='tuning') {
-            document.getElementById('listCars').style.display='none'; document.getElementById('tuningBlock').style.display='block';
-            document.getElementById('tuningBlock').innerHTML = `<div class="table-wrap"><table><thead><tr><th>Деталь</th><th>Эконом</th><th>Стандарт</th><th>Комфорт</th><th>Бизнес</th><th>Элит</th></tr></thead><tbody><tr><td>Двиг 1</td><td>5000</td><td>7000</td><td>13000</td><td>20000</td><td>24000</td></tr><tr><td>Двиг 2</td><td>8750</td><td>12250</td><td>22750</td><td>35000</td><td>42000</td></tr></tbody></table></div>`;
-        } else { document.getElementById('listCars').style.display='block'; document.getElementById('tuningBlock').style.display='none'; renderCars(); }
-    }
-    function renderCars() {
-        const list = document.getElementById('listCars'); list.innerHTML = '';
-        const s = document.getElementById('searchCar').value.toLowerCase();
-        if(!DB.cars[carCat]) return;
-        DB.cars[carCat].forEach(c => {
-            if(s && !c.realName.toLowerCase().includes(s) && !c.gameName.toLowerCase().includes(s)) return;
-            const p = c.price > 0 ? new Intl.NumberFormat().format(c.price)+'$' : (carCat==='container'?'📦':'🎉');
-            const season = c.season ? `<div style="font-size:11px; color:var(--purple); margin-top:2px;">${c.season}</div>` : '';
-            list.innerHTML += `<div class="card"><div class="card-icon">🚗</div><div class="card-body"><div class="card-title">${c.realName}</div><div class="card-sub">${c.gameName}</div>${season}</div><div class="card-end"><div class="price ${c.price===0?'free':''}">${p}</div><div style="color:var(--text-sub); margin-top:4px;">🚀 ${c.speed}</div><div style="color:var(--text-sub);">📦 ${c.trunk}</div></div></div>`;
-        });
-    }
-    function renderFood() {
-        const list = document.getElementById('listFood'); list.innerHTML = '';
-        const s = document.getElementById('searchFood').value.toLowerCase();
-        DB.kitchen.forEach(f => {
-            if(s && !f.name.toLowerCase().includes(s)) return;
-            list.innerHTML += `<div class="card" onclick='openModal(${JSON.stringify(f)})'><div class="card-icon">${f.icon}</div><div class="card-body"><div class="card-title">${f.name}</div><div class="food-stats-mini"><span style="color:var(--green)">🍖 ${f.sat}</span> <span style="color:var(--gold)">😎 ${f.mood}</span></div></div></div>`;
-        });
-    }
-    function openModal(f) {
-        document.getElementById('mTitle').innerText = f.name;
-        document.getElementById('mContent').innerHTML = `<div style="text-align:center; font-size:60px; margin-bottom:20px;">${f.icon}</div><div>ингредиенты: ${f.ing.join(', ')}</div>`;
-        document.getElementById('modal').style.display = 'flex';
-    }
-    function closeModal(e) { if(e.target.id === 'modal') document.getElementById('modal').style.display = 'none'; }
+    setupDragAndDrop();
+}
 
-    // GUIDES
-    function setGuide(id, btn) {
-        document.querySelectorAll('#tab-guides .seg-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
-        const c = document.getElementById('guideContent'); c.innerHTML = '';
-        if(id==='payment') { c.innerHTML += `<div class="guide-section-title">Животные</div>` + buildTable(DB.guides.payment.animals.r, DB.guides.payment.animals.h); return; }
-        if(id==='med' && DB.guides.med) {
-            c.innerHTML = '<div style="padding:10px; display:flex; flex-direction:column; gap:8px;">';
-            DB.guides.med.r.forEach(item => {
-                let bg='#3a5c8a', txt='#ccddff'; if(item.type==='red'){bg='#8a3a3a';txt='#ffcccc';} if(item.type==='brown'){bg='#8a5c3a';txt='#ffddcc';} if(item.type==='yellow'){bg='#8a7a3a';txt='#ffeecc';}
-                const iL = item.i.includes('.') ? `<img src="${item.i}" class="med-img" style="width:24px;">` : item.i;
-                const iR = item.ci.includes('.') ? `<img src="${item.ci}" class="med-img" style="width:24px;">` : item.ci;
-                c.innerHTML += `<div style="display:flex; width:100%; gap:4px;"><div style="flex:1; background:${bg}; color:${txt}; padding:10px; border-radius:12px; display:flex; align-items:center; gap:10px;">${iL}<span>${item.t}</span></div><div style="flex:1; background:var(--input-bg); border:1px solid var(--border); color:var(--text-main); padding:10px; border-radius:12px; display:flex; align-items:center; gap:10px;">${iR}<span>${item.c}</span></div></div>`;
-            });
-            c.innerHTML += '</div>';
-            return;
-        }
-        if(id==='tarot') {
-            c.innerHTML = '<div class="tarot-grid-new">';
-            DB.tarot.forEach(t => {
-                let v = t.img ? `<img src="${t.img}" class="tarot-icon-img" style="width:30px;">` : (t.i||'🃏');
-                c.innerHTML += `<div class="tarot-card-new"><div class="tarot-icon-box">${v}</div><div class="tarot-text-box"><div class="tarot-card-title">${t.n}</div><div class="tarot-card-desc">${t.d}</div></div></div>`;
-            });
-            c.innerHTML += '</div>';
-            return;
-        }
-        if(DB.guides[id]) c.innerHTML += buildTable(DB.guides[id].r, DB.guides[id].h);
-    }
-    function buildTable(rows, headers) {
-        let h = `<div class="table-wrap"><table><thead><tr>`; headers.forEach(x=>h+=`<th>${x}</th>`); h+='</tr></thead><tbody>';
-        rows.forEach((r, idx)=>{ h+=`<tr style="background:${idx%2===0?'rgba(255,255,255,0.02)':'transparent'}">`; r.forEach(ce=>h+=`<td>${ce}</td>`); h+='</tr>'; });
-        return h + `</tbody></table></div>`;
-    }
-    async function forceSync() { await init(); }
+function go(id, btn) {
+    const currentTab = document.querySelector('.tab-content.active');
+    if(currentTab) SCROLL_POS[currentTab.id] = window.scrollY;
     
-    // --- ИНТЕРВАЛ ДЛЯ ХЕДЕРА ---
-    let headerTimerIdx = 0;
-    function changeHeaderTimer(dir) { headerTimerIdx += dir; updateHeaderTimer(); }
-    function updateHeaderTimer() {
-        if (!TIMERS || !TIMERS.custom) return;
-        const active = TIMERS.custom.filter(t => t.run);
-        const elLabel = document.getElementById('htLabel'), elTime = document.getElementById('htTime'), elBar = document.getElementById('htProgressBar');
-        if (!elLabel || !elTime) return;
-        if (active.length === 0) { elLabel.innerText = "Нет активных"; elTime.innerText = "--:--"; elTime.style.color = "#555"; if(elBar) elBar.style.width = '0%'; return; }
-        if (headerTimerIdx >= active.length) headerTimerIdx = 0; if (headerTimerIdx < 0) headerTimerIdx = active.length - 1;
-        const t = active[headerTimerIdx], now = Date.now();
-        let timeLeft = t.et ? Math.ceil((t.et - now) / 1000) : (t.rm || 0); if (timeLeft < 0) timeLeft = 0;
-        let pct = 0; if(t.s > 0) pct = (timeLeft / t.s) * 100; if(elBar) elBar.style.width = pct + '%';
-        let name = t.l || "Таймер"; if (name.length > 12) name = name.slice(0, 11) + "..";
-        elLabel.innerText = name; elTime.innerText = fmtTime(timeLeft); elTime.style.color = "var(--text-main)"; 
-    }
-    setInterval(updateHeaderTimer, 1000); updateHeaderTimer();
+    document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
+    document.getElementById('tab-'+id).classList.add('active');
+    document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active'));
+    btn.classList.add('active');
+    
+    window.scrollTo(0, SCROLL_POS['tab-'+id] || 0);
+}
 
-    // --- ВОЗВРАТ СКРЫТЫХ ---
-    function openUnhideModal() {
-        const list = document.getElementById('unhideList'); list.innerHTML = '';
-        if(BP.hidden.length === 0) list.innerHTML = '<div style="padding:20px; text-align:center; color:#666;">Нет скрытых задач</div>';
-        else BP.hidden.forEach(id => { let task = DB.bp[id]; if(task) list.innerHTML += `<div class="unhide-item"><span>${task.t}</span><button class="unhide-btn" onclick="restoreTask(${id})">Вернуть</button></div>`; });
-        document.getElementById('modalUnhide').style.display = 'flex';
-    }
-    function restoreTask(id) { BP.hidden = BP.hidden.filter(h => h !== id); saveBP(); renderBP(); openUnhideModal(); }
-    function closeUnhideModal(e) { if(e.target.id === 'modalUnhide') document.getElementById('modalUnhide').style.display = 'none'; }
+// --- BP CORE ---
+function saveBP() { Cloud.setItem('gta_bp_22', JSON.stringify(BP)); }
+function toggleVip() { BP.vip = !BP.vip; updateBP(); renderBP(); }
+function toggleX2() { BP.x2 = !BP.x2; updateBP(); renderBP(); }
 
-    // Init App
-    if (window.Telegram && window.Telegram.WebApp) { window.Telegram.WebApp.ready(); window.Telegram.WebApp.expand(); try { window.Telegram.WebApp.disableVerticalSwipes(); } catch(e){} }
-    init();
+function updateBP() {
+    BP.start = parseInt(document.getElementById('startBp').value) || 0;
+    let total = BP.start;
+    let doneCount = BP.done.length + (BP.doneTwink ? BP.doneTwink.length : 0);
+    
+    BP.done.forEach(i => { let t = DB.bp[i]; if(t && !t.r) { let rw = BP.vip ? t.v : t.b; if(BP.x2) rw *= 2; total += rw; } });
+    if(BP.counters) { Object.keys(BP.counters).forEach(i => { let t = DB.bp[i]; if(t && t.r) { let rw = BP.vip ? t.v : t.b; if(BP.x2) rw *= 2; total += (rw * BP.counters[i]); } }); }
+
+    document.getElementById('totalBp').innerText = total;
+    document.getElementById('doneCount').innerText = doneCount;
+    document.getElementById('multiplierDisp').innerText = 'x' + ((BP.vip?2:1)*(BP.x2?2:1));
+    
+    // Hours logic
+    let hCount = (BP.counters && BP.counters[0]) ? BP.counters[0] : 0;
+    if(hCount === 0 && BP.done.includes(0)) hCount = 1;
+    const elTime = document.getElementById('totalTime');
+    elTime.innerText = (hCount * 3) + 'ч';
+    elTime.style.color = hCount > 0 ? "var(--gold)" : "#555";
+    
+    document.getElementById('btnVip').classList.toggle('active', BP.vip);
+    document.getElementById('btnX2').classList.toggle('active', BP.x2);
+    saveBP();
+}
+
+function toggleTask(i, event) {
+    if(event) event.stopPropagation();
+    if(BP.done.includes(i)) { 
+        BP.done = BP.done.filter(x=>x!==i); delete BP.times[i]; 
+        if(BP.counters && BP.counters[i]) BP.counters[i] = 0;
+    } else { 
+        BP.done.push(i); if(BP.doneTwink) BP.doneTwink = BP.doneTwink.filter(x => x !== i);
+        BP.times[i] = new Date().toLocaleTimeString().slice(0,5); 
+        if(DB.bp[i].q > 1) BP.counters[i] = DB.bp[i].q;
+    }
+    saveBP(); renderBP(); updateBP();
+}
+
+function toggleTwink(i, e) {
+    e.stopPropagation();
+    if(!BP.doneTwink) BP.doneTwink = [];
+    if(BP.doneTwink.includes(i)) BP.doneTwink = BP.doneTwink.filter(x => x !== i);
+    else { BP.doneTwink.push(i); BP.done = BP.done.filter(x => x !== i); }
+    saveBP(); renderBP(); updateBP();
+}
+
+function updateCounter(id, delta) {
+    if(!BP.counters) BP.counters = {};
+    if(typeof BP.counters[id] === 'undefined') BP.counters[id] = 0;
+    
+    const wasDone = BP.done.includes(id);
+    const max = DB.bp[id].q;
+    BP.counters[id] += delta;
+    if(BP.counters[id] < 0) BP.counters[id] = 0;
+    
+    if(!DB.bp[id].r) {
+        if(BP.counters[id] > max) BP.counters[id] = max;
+        if(BP.counters[id] >= max && !BP.done.includes(id)) { BP.done.push(id); BP.times[id] = new Date().toLocaleTimeString().slice(0,5); }
+        else if(BP.counters[id] < max && BP.done.includes(id)) { BP.done = BP.done.filter(x=>x!==id); delete BP.times[id]; }
+    }
+    saveBP(); updateBP();
+    
+    if(wasDone !== BP.done.includes(id)) renderBP();
+    else {
+        const elBar = document.getElementById(`prog_${id}`);
+        const elTxt = document.getElementById(`cnt_${id}`);
+        if(elBar && elTxt) {
+            let pct = (BP.counters[id] / max) * 100; if(pct>100) pct=100;
+            elBar.style.width = pct + '%'; elTxt.innerText = BP.counters[id];
+        } else renderBP();
+    }
+}
+
+function completeInstant(id) {
+    const max = DB.bp[id].q;
+    const current = BP.counters && BP.counters[id] ? BP.counters[id] : 0;
+    if (max - current > 0) updateCounter(id, max - current);
+}
+
+function hideBP(i,e) { e.stopPropagation(); BP.hidden.push(i); saveBP(); renderBP(); }
+function newDay() { if(confirm("Начать новый день?")) { BP.done=[]; BP.doneTwink=[]; BP.times={}; BP.counters={}; BP.start=0; document.getElementById('startBp').value=''; saveBP(); renderBP(); updateBP(); } }
+
+function renderBP() {
+    const list = document.getElementById('listBP'); 
+    const search = document.getElementById('searchBp').value.toLowerCase();
+    const sortMode = document.getElementById('bpSort').value;
+    if(!BP.localTimers) BP.localTimers = {};
+    if(!BP.doneTwink) BP.doneTwink = [];
+
+    let tasks = BP.sortOrder.map(id => ({...DB.bp[id], id: id}));
+    if(sortMode === 'max') tasks.sort((a, b) => b.q - a.q);
+    if(sortMode === 'min') tasks.sort((a, b) => a.q - b.q);
+
+    list.innerHTML = '';
+    tasks.forEach(t => {
+        const i = t.id;
+        if(BP.hidden.includes(i) || (search && !t.t.toLowerCase().includes(search))) return;
+        
+        const done = BP.done.includes(i);
+        const isTwink = BP.doneTwink.includes(i);
+        let rw = BP.vip ? t.v : t.b; if(BP.x2) rw *= 2;
+        
+        // UI Components
+        let statusHtml = done && BP.times[i] ? `<div class="status-badge time">${BP.times[i]}</div>` : (isTwink ? `<div class="status-badge twink">ТВИНК</div>` : '');
+        let controlsHtml = '';
+        let progressHtml = '';
+        
+        if(t.q > 1 || t.r) {
+            const curr = BP.counters && BP.counters[i] ? BP.counters[i] : 0;
+            const pct = t.q > 0 ? Math.min((curr / t.q) * 100, 100) : 0;
+            if(!t.r) {
+                progressHtml = `<div class="progress-track"><div id="prog_${i}" class="progress-fill" style="width: ${pct}%"></div></div>`;
+            }
+            controlsHtml = `
+                <div class="controls-new" onclick="event.stopPropagation()">
+                    <button class="btn-mini minus" onclick="updateCounter(${i}, -1)">−</button>
+                    <span id="cnt_${i}" class="counter-val-new">${curr}</span>
+                    <button class="btn-mini plus" onclick="updateCounter(${i}, 1)">+</button>
+                </div>
+                <div style="font-size:11px; font-weight:800; color:var(--green); margin-left:4px;">+${rw}</div>
+                ${(!t.r && !done) ? `<button class="btn-instant-done" onclick="completeInstant(${i})">MAX</button>` : ''}
+            `;
+        } else {
+            controlsHtml = `<div class="checkbox" onclick="toggleTask(${i}, event)">${done?'✔':''}</div><div style="font-size:11px; font-weight:800; color:var(--green); margin-left:6px;">+${rw}</div>`;
+        }
+
+        let timerHtml = '';
+        if (t.timer) {
+            let lt = BP.localTimers[i] || { rm: t.timer, run: false };
+            if(lt.run && lt.et) { const diff = Math.ceil((lt.et - Date.now()) / 1000); lt.rm = diff > 0 ? diff : 0; if(lt.rm===0) lt.run=false; }
+            timerHtml = `
+            <div class="inline-timer-box" onclick="event.stopPropagation()">
+                <button class="it-btn" style="${lt.run?'color:var(--gold)':''}" onclick="toggleLocalTimer(${i}, ${t.timer})">${lt.run?'⏸':'▶'}</button>
+                <div class="it-val ${lt.rm<=0?'done':''}" id="loc_timer_${i}">${lt.rm<=0?"ГОТОВО":fmtTime(lt.rm)}</div>
+                <button class="it-btn" onclick="resetLocalTimer(${i}, ${t.timer})">↺</button>
+            </div>`;
+        }
+
+        const item = document.createElement('div');
+        item.className = `task-item ${done && !t.r ? 'completed' : ''} ${isTwink ? 'twink-done' : ''}`;
+        item.setAttribute('data-id', i);
+        if(!t.r && t.q <= 1) item.onclick = () => toggleTask(i);
+        
+        const icon = t.img ? `<img src="${t.img}" class="bp-img">` : `<span class="bp-emoji">${t.i||'🔹'}</span>`;
+        const twinkBtn = !t.r ? `<button class="btn-mini" style="width:28px; height:28px; background:transparent; border:1px solid #333; color:#888;" onclick="toggleTwink(${i}, event)">👻</button>` : '';
+
+        item.innerHTML = `
+            <div class="task-top-row">
+                <div class="drag-handle" style="color:#444;">⋮⋮</div>
+                <div class="bp-icon-container">${icon}</div>
+                <div style="flex:1; min-width:0;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="font-size:14px; font-weight:700; color:var(--text-main);">${t.t} ${t.r?'<span style="font-size:10px; opacity:0.5">∞</span>':''}</div>
+                        ${statusHtml}
+                    </div>
+                    ${progressHtml}
+                </div>
+            </div>
+            <div class="task-bottom-row">
+                 <div style="display:flex;">${timerHtml}</div>
+                 <div class="task-actions-group">
+                    ${controlsHtml}
+                    ${twinkBtn}
+                    <button class="btn-mini del" style="width:28px; height:28px; border:1px solid #333; background:transparent; color:#666;" onclick="hideBP(${i},event)">✕</button>
+                 </div>
+            </div>
+        `;
+        list.appendChild(item);
+    });
+}
+
+// --- TIMERS ---
+function saveTm() { Cloud.setItem('gta_tm_22', JSON.stringify(TIMERS)); }
+function fmtTime(s) { const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sc=s%60; return (h>0?h+':':'')+pad(m)+':'+pad(sc); }
+function pad(n) { return n<10?'0'+n:n; }
+
+function renderTimers() {
+    const list = document.getElementById('activeTimersList');
+    list.innerHTML = '';
+    const all = TIMERS.custom || [];
+    if(all.length === 0) list.innerHTML = '<div style="color:#666; font-size:13px;">Нет активных таймеров</div>';
+
+    all.forEach(t => {
+        if(t.run) {
+            const now = Date.now();
+            if(t.et) t.rm = Math.ceil((t.et - now)/1000);
+            else t.et = now + (t.rm*1000);
+            if(t.rm <= 0) { t.rm = 0; t.run = false; }
+        }
+        
+        const pct = t.s > 0 ? (t.rm / t.s)*100 : 0;
+        list.innerHTML += `
+            <div class="timer-card ${t.run?'running':''}">
+                <div style="display:flex; justify-content:space-between;">
+                    <div style="font-weight:700; color:#ccc;">${t.l}</div>
+                    <div style="font-size:10px; color:var(--gold); opacity:${t.run?1:0}">АКТИВЕН</div>
+                </div>
+                <div class="tc-time" id="disp_${t.id}">${fmtTime(t.rm)}</div>
+                <div class="timer-progress-bg"><div id="prog_bar_${t.id}" class="timer-progress-bar" style="width:${pct}%"></div></div>
+                <div style="display:flex; gap:8px; margin-top:10px;">
+                    <button onclick="togTime('${t.id}')" style="flex:1; background:${t.run?'var(--red)':'var(--green)'}; border:none; border-radius:8px; color:#fff; font-weight:bold; height:36px;">${t.run?'СТОП':'СТАРТ'}</button>
+                    <button onclick="rstTime('${t.id}')" style="width:36px; background:#222; border:1px solid #333; color:#fff; border-radius:8px;">↺</button>
+                    <button onclick="delTime('${t.id}')" style="width:36px; background:#222; border:1px solid #333; color:#888; border-radius:8px;">✕</button>
+                </div>
+            </div>`;
+        if(t.run) runInterval(t.id);
+    });
+    saveTm();
+}
+
+function runInterval(id) {
+    if(TIMER_INT[id]) clearInterval(TIMER_INT[id]);
+    TIMER_INT[id] = setInterval(() => {
+        const t = TIMERS.custom.find(x => x.id === id);
+        if(!t || !t.run) { clearInterval(TIMER_INT[id]); return; }
+        
+        if(!t.et) t.et = Date.now() + (t.rm * 1000);
+        const diff = Math.ceil((t.et - Date.now()) / 1000);
+        
+        if (diff <= 0) {
+            t.rm = 0; t.run = false; clearInterval(TIMER_INT[id]); renderTimers();
+            if(window.Telegram.WebApp) {
+                window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                window.Telegram.WebApp.showPopup({title:'Таймер!', message: t.l});
+            }
+        }
+    }, 1000);
+}
+
+function renderTimerPresets() {
+    const c = document.getElementById('timerGrid'); c.innerHTML = '';
+    DB.timers.forEach(t => {
+        c.innerHTML += `<div class="timer-card" onclick="addGameTimer('${t.id}')" style="cursor:pointer; align-items:center; flex-direction:row;">
+            <div style="font-size:24px;">${t.i||'⏱'}</div>
+            <div style="flex:1;"><div style="font-weight:bold; color:var(--text-main);">${t.l}</div><div style="color:var(--text-sub); font-size:12px;">${fmtTimeSimple(t.s)}</div></div>
+            <div style="font-size:20px; color:var(--accent);">+</div>
+        </div>`;
+    });
+}
+function fmtTimeSimple(s) { const h=Math.floor(s/3600), m=Math.floor((s%3600)/60); return h>0 ? h+'ч '+m+'м' : m+' мин'; }
+
+function addTimerRaw(min, label) {
+    if(!TIMERS.custom) TIMERS.custom = [];
+    const dur = min*60;
+    TIMERS.custom.push({ id:'t_'+Date.now(), l:label, s:dur, rm:dur, run:true, ts:Date.now(), et:Date.now()+(dur*1000) });
+    saveTm(); renderTimers();
+}
+function addCustomTimer() { const m=parseInt(document.getElementById('customMin').value), n=document.getElementById('customName').value; if(m) { addTimerRaw(m, n||(m+' мин')); document.getElementById('customMin').value=''; } }
+function addGameTimer(id) { const t=DB.timers.find(x=>x.id===id); if(t) addTimerRaw(t.s/60, t.l); }
+function togTime(id) { const t=TIMERS.custom.find(x=>x.id===id); if(t) { t.run=!t.run; if(t.run) t.et=Date.now()+(t.rm*1000); saveTm(); renderTimers(); } }
+function rstTime(id) { const t=TIMERS.custom.find(x=>x.id===id); if(t) { t.rm=t.s; t.run=false; delete t.et; saveTm(); renderTimers(); } }
+function delTime(id) { TIMERS.custom=TIMERS.custom.filter(t=>t.id!==id); clearInterval(TIMER_INT[id]); saveTm(); renderTimers(); }
+
+// --- CALENDAR & FOOD ---
+let calDate = new Date();
+function saveEv() { Cloud.setItem('gta_ev_22', JSON.stringify(EVENTS)); }
+function renderCal() {
+    const y = calDate.getFullYear(), m = calDate.getMonth();
+    document.getElementById('calTitle').innerText = calDate.toLocaleDateString('ru',{month:'long',year:'numeric'});
+    const grid = document.getElementById('calGrid'); grid.innerHTML = '';
+    const daysInMonth = new Date(y, m+1, 0).getDate();
+    const firstDay = new Date(y, m, 1).getDay() || 7;
+    const today = new Date().toISOString().split('T')[0];
+
+    ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].forEach(d=>grid.innerHTML+=`<div style="font-size:10px; color:#666; text-align:center;">${d}</div>`);
+    for(let i=1; i<firstDay; i++) grid.innerHTML+='<div></div>';
+    for(let d=1; d<=daysInMonth; d++) {
+        const dt = `${y}-${pad(m+1)}-${pad(d)}`;
+        const hasEv = EVENTS.some(e=>e.d===dt);
+        const isToday = dt===today;
+        grid.innerHTML+=`<div class="cal-day ${isToday?'today':''} ${hasEv?'event':''}" onclick="addEventPrompt('${dt}')" style="aspect-ratio:1; display:flex; align-items:center; justify-content:center; border-radius:8px; background:${isToday?'var(--accent)':'rgba(255,255,255,0.02)'}; color:${isToday?'#000':'#666'}; ${hasEv?'border:1px solid var(--accent)':''}">${d}</div>`;
+    }
+    
+    const list = document.getElementById('eventList'); list.innerHTML = '';
+    EVENTS.filter(e=>e.d>=today).sort((a,b)=>a.d.localeCompare(b.d)).forEach(e => {
+        if(!e.id) e.id=Date.now()+Math.random();
+        list.innerHTML += `<div style="background:#111; padding:10px; margin-top:5px; border-radius:8px; display:flex; justify-content:space-between;"><div><span style="color:var(--accent)">${e.d.slice(5)}</span> ${e.t}</div><button onclick="delEvent(${e.id})" style="background:none; border:none; color:var(--red);">✕</button></div>`;
+    });
+}
+function moveMonth(v) { calDate.setMonth(calDate.getMonth()+v); renderCal(); }
+function addEventPrompt(dt) { const t=prompt("Событие:"); if(t) { EVENTS.push({id:Date.now(), d:dt, t:t}); saveEv(); renderCal(); } }
+function delEvent(id) { if(confirm('Удалить?')) { EVENTS=EVENTS.filter(e=>e.id!==id); saveEv(); renderCal(); } }
+
+function renderFood() {
+    const list = document.getElementById('listFood'); list.innerHTML='';
+    const s = document.getElementById('searchFood').value.toLowerCase();
+    DB.kitchen.forEach(f => {
+        if(s && !f.name.toLowerCase().includes(s)) return;
+        list.innerHTML += `<div class="card" onclick='openModal(${JSON.stringify(f)})'>
+            <div class="card-icon">${f.icon}</div>
+            <div class="card-body"><div class="card-title">${f.name}</div><div style="font-size:10px; color:#666;">🍖${f.sat} 😎${f.mood} 💪${f.str}</div></div>
+        </div>`;
+    });
+}
+function openModal(f) {
+    document.getElementById('mTitle').innerText=f.name;
+    document.getElementById('mContent').innerHTML=`<div style="text-align:center;font-size:60px;margin-bottom:20px;">${f.icon}</div>
+    <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px; margin-bottom:15px;">
+        Ингредиенты: ${f.ing.join(', ')}
+    </div>
+    <div>Инструмент: <span style="color:var(--red)">${f.tool}</span> | Навык: ${f.skill}</div>`;
+    document.getElementById('modal').style.display='flex';
+}
+
+// --- GUIDES ---
+function setGuide(id, btn) {
+    document.querySelectorAll('#tab-guides .seg-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+    const c = document.getElementById('guideContent'); c.innerHTML = '';
+
+    if (id === 'payment') {
+        c.innerHTML += `<div style="color:var(--text-sub); margin-bottom:5px;">Животные</div>` + buildTable(DB.guides.payment.animals.r, DB.guides.payment.animals.h);
+        c.innerHTML += `<div style="color:var(--text-sub); margin:20px 0 5px;">Сокровища</div>` + buildTable(DB.guides.payment.treasures.r, DB.guides.payment.treasures.h);
+    } 
+    else if (id === 'med') {
+        let h = '<div style="display:flex; flex-direction:column; gap:8px;">';
+        DB.guides.med.r.forEach(x => {
+            let bg = '#3a5c8a', tc = '#ccddff';
+            if(x.type==='red'){bg='#8a3a3a';tc='#ffcccc'} if(x.type==='yellow'){bg='#8a7a3a';tc='#ffeecc'}
+            h += `<div style="display:flex; gap:4px;"><div style="flex:1; background:${bg}; color:${tc}; padding:10px; border-radius:8px; font-weight:bold;">${x.t}</div><div style="flex:1; background:#222; padding:10px; border-radius:8px;">${x.c}</div></div>`;
+        });
+        c.innerHTML = h + '</div>';
+    } 
+    else if (id === 'tarot') {
+        let h = '<div class="tarot-grid-new">';
+        DB.tarot.forEach(t => h += `<div class="tarot-card-new"><div class="tarot-icon-box">${t.img?`<img src="${t.img}" class="tarot-icon-img" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">`:''}<span style="display:${t.img?'none':'block'}">${t.i}</span></div><div><div class="tarot-card-title">${t.n}</div><div class="tarot-card-desc">${t.d}</div></div></div>`);
+        c.innerHTML = h + '</div>';
+    } 
+    else if (id === 'ball') {
+        c.innerHTML = buildTable(DB.ball8.map(x=>[x.q, x.a]), ["Вопрос", "Ответ"]);
+    } 
+    else if (DB.guides[id]) {
+        c.innerHTML = buildTable(DB.guides[id].r, DB.guides[id].h);
+    }
+}
+function buildTable(rows, headers) {
+    let h=`<div class="table-wrap"><table><thead><tr>`; headers.forEach(x=>h+=`<th>${x}</th>`);
+    h+='</tr></thead><tbody>'; rows.forEach((r,i)=>{ h+=`<tr style="background:${i%2?'transparent':'rgba(255,255,255,0.02)'}">`; r.forEach(c=>h+=`<td>${c}</td>`); h+='</tr>'; });
+    return h+'</tbody></table></div>';
+}
+
+// --- HEADER TIMER & UNHIDE ---
+let headTimerIdx = 0;
+setInterval(() => {
+    const active = TIMERS.custom ? TIMERS.custom.filter(t=>t.run) : [];
+    const elLab = document.getElementById('htLabel'), elTime = document.getElementById('htTime'), elBar = document.getElementById('htProgressBar');
+    if(active.length === 0) { elLab.innerText="Нет активных"; elTime.innerText="--:--"; elBar.style.width="0%"; return; }
+    if(headTimerIdx >= active.length) headTimerIdx=0;
+    const t = active[headTimerIdx];
+    
+    let now=Date.now(), rm=0;
+    if(t.et) rm = Math.ceil((t.et-now)/1000); else rm=t.rm;
+    
+    elLab.innerText = t.l; elTime.innerText = fmtTime(rm>0?rm:0); elTime.style.color = "var(--text-main)";
+    elBar.style.width = t.s>0 ? Math.min((rm/t.s)*100, 100) + "%" : "0%";
+}, 1000);
+function changeHeaderTimer(d) { headTimerIdx+=d; }
+
+// --- LOCAL TIMERS ---
+function toggleLocalTimer(id, def) {
+    if(!BP.localTimers) BP.localTimers={};
+    let t = BP.localTimers[id];
+    if(!t) BP.localTimers[id] = t = { rm:def, run:false };
+    if(t.rm <= 0) { t.rm=def; t.run=false; } else { t.run=!t.run; if(t.run) t.et=Date.now()+(t.rm*1000); }
+    saveBP(); renderBP();
+}
+function resetLocalTimer(id, def) { if(BP.localTimers && BP.localTimers[id]) { BP.localTimers[id].rm=def; BP.localTimers[id].run=false; delete BP.localTimers[id].et; saveBP(); renderBP(); } }
+setInterval(() => {
+    if(!BP.localTimers) return;
+    let ch = false; const now=Date.now();
+    for(const k in BP.localTimers) {
+        let t = BP.localTimers[k];
+        if(t.run) {
+            let df = Math.ceil((t.et - now)/1000);
+            if(df<=0) { t.rm=0; t.run=false; renderBP(); } else { t.rm=df; const el=document.getElementById('loc_timer_'+k); if(el) el.innerText=fmtTime(df); }
+            ch=true;
+        }
+    }
+    if(ch && now%5000<1000) saveBP();
+}, 1000);
+
+// --- THEME & UNHIDE ---
+function openThemeModal() { document.getElementById('modalTheme').style.display = 'flex'; }
+function closeThemeModal(e) { if(e.target.id === 'modalTheme') document.getElementById('modalTheme').style.display = 'none'; }
+function setTheme(n) {
+    document.body.className = ''; if(n!=='default') document.body.classList.add(n);
+    localStorage.setItem('gta_theme_22', n); closeThemeModal({target:{id:'modalTheme'}});
+}
+function openUnhideModal() {
+    const l = document.getElementById('unhideList'); l.innerHTML = BP.hidden.length ? '' : '<div style="padding:20px; text-align:center; color:#666;">Пусто</div>';
+    BP.hidden.forEach(id => {
+        let t = DB.bp[id]; if(t) l.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #222; color:#ccc;"><span>${t.t}</span><button onclick="restoreTask(${id})" style="background:var(--accent); border:none; color:white; padding:4px 10px; border-radius:4px;">Вернуть</button></div>`;
+    });
+    document.getElementById('modalUnhide').style.display='flex';
+}
+function restoreTask(id) { BP.hidden=BP.hidden.filter(x=>x!==id); saveBP(); renderBP(); openUnhideModal(); }
+function forceSync() { location.reload(); }
+function setupDragAndDrop() {
+    Sortable.create(document.getElementById('listBP'), { handle:'.drag-handle', animation:150, onEnd: function() {
+        const ord=[]; document.querySelectorAll('#listBP .task-item').forEach(el=>ord.push(parseInt(el.getAttribute('data-id'))));
+        BP.sortOrder = [...ord, ...BP.sortOrder.filter(id=>!ord.includes(id))]; saveBP();
+    }});
+}
+
+// Start
+if(window.Telegram && window.Telegram.WebApp) { window.Telegram.WebApp.ready(); window.Telegram.WebApp.expand(); }
+init();
 </script>
 </body>
 </html>
