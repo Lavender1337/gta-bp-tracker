@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GTA Helper v22 Fix</title>
+    <title>GTA Helper v23 Final</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 <style>
@@ -22,75 +22,75 @@
     --red: #ef4444;
     --gold: #fbbf24;
     
-    /* Элементы управления (по умолчанию темные) */
+    /* Элементы управления */
     --input-bg: #111;
     --input-border: #333;
     --input-text: #fff;
-    --icon-bg: #151515;
+    --icon-bg: #1a1a1a; /* Всегда темный для белых иконок */
     --bar-bg: #000;
-    --btn-sec-bg: #1a1a1a; /* Фон второстепенных кнопок */
+    --btn-sec-bg: #1a1a1a;
     
     --radius: 12px;
     --nav-height: 85px;
 }
 
-/* --- ТЕМА 1: НЕЖНАЯ БЕЛО-ОРАНЖЕВАЯ --- */
+/* --- ТЕМА: НЕЖНАЯ БЕЛО-ОРАНЖЕВАЯ --- */
 body.theme-white-orange {
-    --bg-deep: #F2F4F8; /* Очень светлый серо-голубой, приятный глазу */
+    --bg-deep: #F0F2F5;
     --bg-card: #FFFFFF;
-    --border: #E1E3E8;
-    --text-main: #2C2C2E; /* Мягкий черный */
-    --text-sub: #8E8E93;
+    --border: #E0E0E0;
+    --text-main: #111111;
+    --text-sub: #666666;
     
     --accent: #FF9F0A;
     --accent-glow: rgba(255, 159, 10, 0.25);
     
-    --input-bg: #F0F1F5; /* Светло-серый для полей */
-    --input-border: #D1D1D6;
+    --input-bg: #FFFFFF;
+    --input-border: #CCCCCC;
     --input-text: #000;
     
-    --icon-bg: #F2F4F8; /* Светлая подложка под иконки */
-    --bar-bg: #F2F4F8;
-    --btn-sec-bg: #F2F4F8;
+    /* Важно: оставляем фон иконок темным, чтобы белые PNG были видны */
+    --icon-bg: #2C2C2E; 
+    --bar-bg: #F0F2F5;
+    --btn-sec-bg: #F0F2F5;
     
-    /* Твинк фиолетовый */
     --twink-bg: rgba(175, 82, 222, 0.1);
     --twink-border: rgba(175, 82, 222, 0.2);
     --twink-text: #af52de;
 }
 
-/* --- ТЕМА 2: ЧЕРНО-ЛИЛОВАЯ (Без изменений) --- */
+/* --- ТЕМА: ЧЕРНО-ЛИЛОВАЯ --- */
 body.theme-black-purple {
     --bg-deep: #050505; --bg-card: #121016; --border: #2a2036;
     --accent: #c084fc; --accent-glow: rgba(192, 132, 252, 0.4);
     --twink-text: #c084fc;
 }
 
-/* --- ТЕМА 3: ЧЕРНО-КРАСНАЯ (Без изменений) --- */
+/* --- ТЕМА: ЧЕРНО-КРАСНАЯ --- */
 body.theme-black-red {
     --bg-deep: #080202; --bg-card: #140a0a; --border: #361010;
     --accent: #ef4444; --accent-glow: rgba(239, 68, 68, 0.4);
     --twink-text: #c084fc;
 }
 
-/* --- ТЕМА 4: НЕЖНАЯ БЕЛО-ФИОЛЕТОВАЯ --- */
+/* --- ТЕМА: НЕЖНАЯ БЕЛО-ФИОЛЕТОВАЯ --- */
 body.theme-white-purple {
-    --bg-deep: #F5F3FF; /* Очень светлый фиолетовый оттенок */
+    --bg-deep: #F8F7FF;
     --bg-card: #FFFFFF;
-    --border: #E9D5FF;
-    --text-main: #1e1b4b;
-    --text-sub: #8b8b9e;
+    --border: #E5D5F5;
+    --text-main: #2E1A47;
+    --text-sub: #7D7D8E;
     
     --accent: #9333ea;
     --accent-glow: rgba(147, 51, 234, 0.2);
     
-    --input-bg: #F3F4F6;
-    --input-border: #E5E7EB;
+    --input-bg: #FFFFFF;
+    --input-border: #D8B4FE;
     --input-text: #1f2937;
     
-    --icon-bg: #F3F4F6;
-    --bar-bg: #F3F4F6;
-    --btn-sec-bg: #F3F4F6;
+    --icon-bg: #2E1A47; /* Темно-фиолетовый фон для иконок */
+    --bar-bg: #F3F0FF;
+    --btn-sec-bg: #F3F0FF;
 
     --twink-bg: rgba(239, 68, 68, 0.1);
     --twink-border: rgba(239, 68, 68, 0.2);
@@ -107,7 +107,7 @@ body {
     transition: background-color 0.3s, color 0.3s;
 }
 
-/* Inputs & Forms (Адаптируются под тему) */
+/* Inputs */
 input, select, textarea {
     background: var(--input-bg) !important;
     border: 1px solid var(--input-border) !important;
@@ -117,26 +117,27 @@ input, select, textarea {
 }
 input:focus, select:focus { border-color: var(--accent) !important; }
 
-/* Карточки */
+/* Cards & Items */
 .task-item, .card, .bp-hero, .timer-card, .cal-grid {
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 16px; /* Чуть круглее */
-    box-shadow: 0 4px 20px rgba(0,0,0,0.03); /* Мягкая тень для светлых тем */
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
 }
 
-/* Иконки задач (Квадратики слева) */
+/* Icons Container - ВСЕГДА ТЕМНЫЙ ФОН ВНУТРИ */
 .bp-icon-container {
     width: 42px; height: 42px;
-    background: var(--icon-bg); /* Теперь меняется в теме */
+    background: var(--icon-bg); 
     border-radius: 12px;
-    border: 1px solid var(--border);
+    border: 1px solid rgba(255,255,255,0.1);
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
 .bp-img { width: 32px; height: 32px; object-fit: contain; }
+.card-icon { font-size: 24px; width: 40px; text-align: center; background: var(--icon-bg); border-radius: 8px; padding: 4px; border: 1px solid rgba(255,255,255,0.1); color: #fff; }
 
-/* Управление (+ / -) */
-.controls-new, .counter-wrapper {
+/* Controls */
+.controls-new {
     background: var(--bar-bg);
     border: 1px solid var(--border);
     display: flex; align-items: center; gap: 6px; padding: 4px; border-radius: 10px;
@@ -146,11 +147,11 @@ input:focus, select:focus { border-color: var(--accent) !important; }
     display: flex; align-items: center; justify-content: center; cursor: pointer;
 }
 .btn-mini.minus { background: transparent; color: var(--text-sub); }
-.btn-mini.plus { background: var(--accent); color: #fff; box-shadow: 0 2px 8px var(--accent-glow); }
+.btn-mini.plus { background: var(--accent); color: #000; box-shadow: 0 2px 8px var(--accent-glow); }
 .counter-val-new { min-width: 20px; text-align: center; font-size: 14px; font-weight: 800; color: var(--text-main); }
 
-/* Кнопки действий (Верхние) */
-.hero-btn, .action-btn, .seg-btn {
+/* Buttons */
+.hero-btn, .seg-btn {
     background: var(--btn-sec-bg);
     border: 1px solid var(--border);
     color: var(--text-sub);
@@ -163,51 +164,56 @@ input:focus, select:focus { border-color: var(--accent) !important; }
     box-shadow: 0 4px 12px var(--accent-glow);
 }
 
-/* Прогресс бары */
-.progress-track {
-    height: 6px; background: var(--icon-bg); border-radius: 3px; width: 100%; margin-top: 8px; overflow: hidden;
-}
-.progress-fill {
-    height: 100%; background: var(--accent); width: 0%; transition: width 0.5s;
-}
+/* Progress */
+.progress-track { height: 6px; background: var(--bar-bg); border-radius: 3px; width: 100%; margin-top: 8px; overflow: hidden; border: 1px solid var(--border); }
+.progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.5s; }
 
-/* Таймеры */
+/* Inline Timer Box */
+.inline-timer-box {
+    display: flex; align-items: center; gap: 4px; 
+    background: #111; /* Всегда темный для контраста цифр */
+    padding: 3px 8px; border-radius: 6px; border: 1px solid #333; height: 24px;
+}
+.it-val { font-size: 11px; font-family: monospace; color: #fff; min-width: 40px; text-align: center; font-weight: bold; }
+
+/* Timers Tab */
 .timer-card.running { border-color: var(--gold); background: rgba(251, 191, 36, 0.05); }
 .tc-time { font-size: 28px; font-weight: 800; font-family: monospace; color: var(--text-main); margin: 5px 0; }
-.tc-btn {
-    flex: 1; height: 36px; border: none; border-radius: 8px; font-weight: 700;
-    cursor: pointer; display: flex; align-items: center; justify-content: center; color: #fff;
-}
-.tc-btn.start { background: var(--green); color: #fff; }
-.tc-btn.stop { background: var(--red); color: #fff; }
-.tc-btn-icon {
-    width: 36px; height: 36px; background: var(--btn-sec-bg); border: 1px solid var(--border);
-    border-radius: 8px; color: var(--text-sub); cursor: pointer;
-}
+.timer-progress-bg { position: absolute; bottom: 0; left: 0; height: 4px; width: 100%; background: rgba(128,128,128,0.1); border-radius: 0 0 12px 12px; overflow: hidden; }
+.timer-progress-bar { height: 100%; background: var(--gold); width: 0%; transition: width 1s linear; }
 
 /* Header Widget */
 .sticky-search {
     position: sticky; top: 0; z-index: 100;
     background: var(--bg-deep); /* Фон хедера под цвет темы */
     padding: 10px 15px; border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(10px);
 }
-.header-timer-wrap {
-    background: var(--input-bg);
-    border: 1px solid var(--border);
-}
-.ht-label { color: var(--text-main); }
-.ht-time { color: var(--text-main); }
-.ht-btn { color: var(--text-sub); }
+.mini-stats-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.stat-side { flex: 0 0 70px; font-size: 10px; color: var(--text-sub); text-align: center; }
+.mini-stat-val { font-size: 14px; font-weight: 800; display: block; margin-top: 2px; }
 
-/* Grid Layouts */
+.header-timer-wrap {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    background: var(--input-bg);
+    padding: 4px; border-radius: 20px; border: 1px solid var(--border);
+    position: relative; overflow: hidden; height: 32px; margin: 0 8px;
+}
+.ht-progress-bg { position: absolute; bottom: 0; left: 0; width: 100%; height: 2px; background: rgba(128,128,128,0.2); }
+.ht-progress-bar { height: 100%; background: var(--green); width: 0%; transition: width 1s linear; }
+.ht-btn { background: none; border: none; color: var(--text-sub); font-size: 10px; cursor: pointer; padding: 0 8px; z-index: 2; height: 100%; display: flex; align-items: center; }
+.ht-content { text-align: center; width: 100%; z-index: 2; overflow: hidden; }
+.ht-label { font-size: 9px; color: var(--text-main); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ht-time { font-size: 13px; font-weight: bold; color: var(--text-main); font-family: monospace; }
+
+/* Grids */
 .hero-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
 .stat-val { font-size: 20px; font-weight: 800; color: var(--gold); }
 .stat-label { font-size: 10px; color: var(--text-sub); text-transform: uppercase; font-weight: 600; margin-top: 4px;}
-
 .timer-grid-new { display: grid; grid-template-columns: 1fr; gap: 10px; padding: 0 15px; }
 @media(min-width: 600px) { .timer-grid-new { grid-template-columns: 1fr 1fr; } }
 .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; padding: 15px; }
-.cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 12px; color: var(--text-sub); background: var(--icon-bg); }
+.cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 12px; color: var(--text-sub); background: var(--icon-bg); color: #fff; }
 .cal-day.today { background: var(--accent); color: #fff; font-weight: bold; }
 .cal-day.event { border: 1px solid var(--accent); color: var(--accent); }
 
@@ -223,23 +229,32 @@ input:focus, select:focus { border-color: var(--accent) !important; }
 /* Modals */
 .modal-wrap { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
 .modal { background: var(--bg-card); width: 90%; max-width: 350px; border-radius: 20px; padding: 20px; border: 1px solid var(--border); color: var(--text-main); box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
-.theme-btn { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--border); cursor: pointer; margin: 5px; transition: 0.2s; }
+.theme-btn { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--border); cursor: pointer; margin: 5px; transition: 0.2s; position:relative; }
 .theme-btn:active { transform: scale(0.9); }
 
 /* Helpers */
 .list-container { padding: 0 15px; display: flex; flex-direction: column; gap: 8px; }
 .task-top-row { display: flex; align-items: center; gap: 12px; width: 100%; }
 .task-bottom-row { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 8px; flex-wrap: wrap; gap: 8px; }
-.task-text { font-size: 14px; font-weight: 700; color: var(--text-main); line-height: 1.2; }
 .status-badge { font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px; margin-left: 8px; }
-.status-badge.time { color: var(--text-sub); background: var(--icon-bg); border: 1px solid var(--border); }
+.status-badge.time { color: var(--text-sub); background: var(--bar-bg); border: 1px solid var(--border); }
 .status-badge.twink { color: var(--twink-text); background: var(--twink-bg); border: 1px solid var(--twink-border); }
 .checkbox { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--text-sub); display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 14px; background: var(--input-bg); cursor: pointer; }
 .task-item.completed { opacity: 0.6; }
-
-/* Text Utils */
+.btn-instant-done { height: 32px; padding: 0 10px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: var(--green); border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: 800; display:flex; align-items:center; }
+.it-btn { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 12px; padding: 0; }
 .header { padding: 20px 15px 10px; font-size: 28px; font-weight: 800; color: var(--accent); }
-.section-title { font-size: 11px; font-weight: 700; color: var(--text-sub); margin: 25px 15px 8px; text-transform: uppercase; border-bottom: 2px solid var(--accent); display: inline-block; padding-bottom: 4px; }
+.segment-wrapper { overflow-x: auto; padding: 0 15px 10px; margin-bottom: 5px; }
+.segment { display: flex; gap: 8px; }
+.table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); margin-top: 15px; background: var(--bg-card); }
+table { width: 100%; border-collapse: collapse; min-width: 320px; font-size: 12px; }
+th { background: var(--bar-bg); color: var(--accent); text-align: left; padding: 12px 10px; } td { padding: 12px 10px; border-bottom: 1px solid var(--border); color: var(--text-main); }
+.tarot-grid-new { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tarot-card-new { background: var(--bar-bg); border: 1px solid var(--border); padding: 10px; border-radius: 8px; display: flex; gap: 10px; align-items:center; }
+.tarot-icon-box { font-size: 24px; min-width: 30px; display:flex; justify-content:center;}
+.tarot-card-title { font-weight: bold; font-size: 12px; color: var(--accent); }
+.tarot-card-desc { font-size: 10px; color: var(--text-sub); margin-top: 2px; line-height: 1.2; }
+.tarot-icon-img { width: 30px; height: 30px; object-fit: contain; }
 </style>
 </head>
 <body>
@@ -272,8 +287,8 @@ input:focus, select:focus { border-color: var(--accent) !important; }
         <button class="seg-btn" onclick="forceSync()" style="border-color:var(--accent); color:var(--accent);">🔄 Обновить</button>
     </div>
     
-    <div style="padding: 0 15px 10px; display: flex; justify-content: space-between; color:#666; font-size: 12px; align-items: center;">
-        <span>Удерживайте <b style="color:#aaa">⋮⋮</b> для перемещения</span>
+    <div style="padding: 0 15px 10px; display: flex; justify-content: space-between; color:var(--text-sub); font-size: 12px; align-items: center;">
+        <span>Удерживайте <b style="opacity:0.5">⋮⋮</b> для перемещения</span>
         <select id="bpSort" onchange="renderBP()" style="width:120px;">
             <option value="user">Сорт: Своя</option>
             <option value="def">Сорт: По списку</option>
@@ -312,14 +327,14 @@ input:focus, select:focus { border-color: var(--accent) !important; }
 
 <div id="tab-timers" class="tab-content">
     <div class="header">Таймеры</div>
-    <div style="padding:0 15px; margin-bottom:10px; font-size:11px; color:#666; text-transform:uppercase;">Активные</div>
+    <div style="padding:0 15px; margin-bottom:10px; font-size:11px; color:var(--text-sub); text-transform:uppercase;">Активные</div>
     <div id="activeTimersList" class="timer-grid-new"></div>
     <div style="display: flex; gap: 8px; padding: 0 15px; margin-top: 20px; margin-bottom: 20px;">
         <input type="text" id="customName" placeholder="Название..." style="flex:2">
         <input type="number" id="customMin" placeholder="Мин" style="flex:1">
         <button onclick="addCustomTimer()" style="background:var(--accent); border:none; border-radius:8px; font-weight:bold; color:#000; padding:0 15px;">+</button>
     </div>
-    <div style="padding:0 15px; margin-bottom:10px; font-size:11px; color:#666; text-transform:uppercase;">Шаблоны</div>
+    <div style="padding:0 15px; margin-bottom:10px; font-size:11px; color:var(--text-sub); text-transform:uppercase;">Шаблоны</div>
     <div id="timerGrid" class="timer-grid-new"></div>
 </div>
 
@@ -327,12 +342,12 @@ input:focus, select:focus { border-color: var(--accent) !important; }
     <div class="header">Календарь</div>
     <div class="list-container">
         <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 0 15px;">
-            <button onclick="moveMonth(-1)" style="background:none;border:none;color:white;font-size:24px;">❮</button>
+            <button onclick="moveMonth(-1)" style="background:none;border:none;color:var(--text-main);font-size:24px;">❮</button>
             <span id="calTitle" style="font-weight:800; font-size:20px; color:var(--text-main);"></span>
-            <button onclick="moveMonth(1)" style="background:none;border:none;color:white;font-size:24px;">❯</button>
+            <button onclick="moveMonth(1)" style="background:none;border:none;color:var(--text-main);font-size:24px;">❯</button>
         </div>
-        <div id="calGrid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; background: #0f0f11; padding: 15px; border-radius: 16px; border: 1px solid #222; margin-bottom: 15px;"></div>
-        <div style="margin-left:0; font-weight:bold; color:#666;">События:</div>
+        <div id="calGrid" class="cal-grid"></div>
+        <div style="margin-left:0; font-weight:bold; color:var(--text-sub);">События:</div>
         <div id="eventList"></div>
     </div>
 </div>
@@ -371,7 +386,7 @@ input:focus, select:focus { border-color: var(--accent) !important; }
 
 <div id="modalTheme" class="modal-wrap" onclick="closeThemeModal(event)">
     <div class="modal">
-        <div style="font-size:20px; font-weight:800; margin-bottom:15px; text-align:center; color:white;">Выберите тему</div>
+        <div style="font-size:20px; font-weight:800; margin-bottom:15px; text-align:center; color:var(--text-main);">Выберите тему</div>
         <div style="display:flex; justify-content:center; gap:15px; flex-wrap:wrap; padding:10px;">
             <div class="theme-btn" style="background:#050505; border-color:#f97316;" onclick="setTheme('default')"></div>
             <div class="theme-btn" style="background:#f2f2f7; border-color:#ff9500;" onclick="setTheme('theme-white-orange')"></div>
@@ -384,8 +399,8 @@ input:focus, select:focus { border-color: var(--accent) !important; }
 <div id="modal" class="modal-wrap" onclick="closeModal(event)">
     <div class="modal">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <div style="font-size:22px; font-weight:800; color:white;" id="mTitle"></div>
-            <div style="font-size:26px; cursor:pointer; color:#888;" onclick="document.getElementById('modal').style.display='none'">✕</div>
+            <div style="font-size:22px; font-weight:800; color:var(--text-main);" id="mTitle"></div>
+            <div style="font-size:26px; cursor:pointer; color:var(--text-sub);" onclick="document.getElementById('modal').style.display='none'">✕</div>
         </div>
         <div id="mContent"></div>
     </div>
@@ -393,8 +408,8 @@ input:focus, select:focus { border-color: var(--accent) !important; }
 <div id="modalUnhide" class="modal-wrap" onclick="closeUnhideModal(event)">
     <div class="modal">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <div style="font-size:20px; font-weight:800; color:white;">Скрытые задачи</div>
-            <div style="font-size:26px; cursor:pointer; color:#888;" onclick="document.getElementById('modalUnhide').style.display='none'">✕</div>
+            <div style="font-size:20px; font-weight:800; color:var(--text-main);">Скрытые задачи</div>
+            <div style="font-size:26px; cursor:pointer; color:var(--text-sub);" onclick="document.getElementById('modalUnhide').style.display='none'">✕</div>
         </div>
         <div id="unhideList" style="max-height: 300px; overflow-y: auto;"></div>
     </div>
@@ -590,7 +605,6 @@ async function init() {
     document.getElementById('startBp').value = BP.start || '';
     renderBP(); updateBP(); renderTimers(); renderTimerPresets(); renderCal(); renderFood();
     
-    // Auto open guide
     const activeGuideBtn = document.querySelector('#tab-guides .seg-btn.active');
     if(activeGuideBtn) setGuide('payment', activeGuideBtn);
 
@@ -622,22 +636,20 @@ function updateBP() {
     BP.done.forEach(i => { let t = DB.bp[i]; if(t && !t.r) { let rw = BP.vip ? t.v : t.b; if(BP.x2) rw *= 2; total += rw; } });
     if(BP.counters) { Object.keys(BP.counters).forEach(i => { let t = DB.bp[i]; if(t && t.r) { let rw = BP.vip ? t.v : t.b; if(BP.x2) rw *= 2; total += (rw * BP.counters[i]); } }); }
 
-    // Update MAIN stats
+    // Stats
     document.getElementById('totalBp').innerText = total;
     document.getElementById('doneCount').innerText = doneCount;
     document.getElementById('multiplierDisp').innerText = 'x' + ((BP.vip?2:1)*(BP.x2?2:1));
-    
-    // Update STICKY stats
     document.getElementById('stickyTotal').innerText = total;
     let farmed = total - BP.start;
     document.getElementById('stickyFarmed').innerText = (farmed >= 0 ? "+" : "") + farmed;
 
-    // Hours logic
+    // Hours
     let hCount = (BP.counters && BP.counters[0]) ? BP.counters[0] : 0;
     if(hCount === 0 && BP.done.includes(0)) hCount = 1;
     const elTime = document.getElementById('totalTime');
     elTime.innerText = (hCount * 3) + 'ч';
-    elTime.style.color = hCount > 0 ? "var(--gold)" : "#555";
+    elTime.style.color = hCount > 0 ? "var(--gold)" : "var(--text-sub)";
     
     document.getElementById('btnVip').classList.toggle('active', BP.vip);
     document.getElementById('btnX2').classList.toggle('active', BP.x2);
@@ -721,7 +733,6 @@ function renderBP() {
         const isTwink = BP.doneTwink.includes(i);
         let rw = BP.vip ? t.v : t.b; if(BP.x2) rw *= 2;
         
-        // UI Components
         let statusHtml = done && BP.times[i] ? `<div class="status-badge time">${BP.times[i]}</div>` : (isTwink ? `<div class="status-badge twink">ТВИНК</div>` : '');
         let controlsHtml = '';
         let progressHtml = '';
@@ -762,8 +773,14 @@ function renderBP() {
         item.setAttribute('data-id', i);
         if(!t.r && t.q <= 1) item.onclick = () => toggleTask(i);
         
-        // FIXED IMAGE RENDERING
-        const icon = (t.img && t.img.includes('/')) ? `<img src="${t.img}" class="bp-img">` : `<span class="bp-emoji">${t.i||'🔹'}</span>`;
+        // FIXED IMAGE LOGIC (Force image if text contains dot or slash)
+        let icon;
+        if (t.img && (t.img.includes('/') || t.img.includes('.'))) {
+             icon = `<img src="${t.img}" class="bp-img">`;
+        } else {
+             icon = `<span class="bp-emoji">${t.i||'🔹'}</span>`;
+        }
+        
         const twinkBtn = !t.r ? `<button class="btn-mini" style="width:28px; height:28px; background:transparent; border:1px solid #333; color:#888;" onclick="toggleTwink(${i}, event)">👻</button>` : '';
 
         item.innerHTML = `
@@ -800,7 +817,7 @@ function renderTimers() {
     const list = document.getElementById('activeTimersList');
     list.innerHTML = '';
     const all = TIMERS.custom || [];
-    if(all.length === 0) list.innerHTML = '<div style="color:#666; font-size:13px;">Нет активных таймеров</div>';
+    if(all.length === 0) list.innerHTML = '<div style="color:var(--text-sub); font-size:13px;">Нет активных таймеров</div>';
 
     all.forEach(t => {
         if(t.run) {
@@ -814,7 +831,7 @@ function renderTimers() {
         list.innerHTML += `
             <div class="timer-card ${t.run?'running':''}">
                 <div style="display:flex; justify-content:space-between;">
-                    <div style="font-weight:700; color:#ccc;">${t.l}</div>
+                    <div style="font-weight:700; color:var(--text-sub);">${t.l}</div>
                     <div style="font-size:10px; color:var(--gold); opacity:${t.run?1:0}">АКТИВЕН</div>
                 </div>
                 <div class="tc-time" id="disp_${t.id}">${fmtTime(t.rm)}</div>
@@ -826,31 +843,27 @@ function renderTimers() {
                 </div>
             </div>`;
     });
-    // Global interval now handles updates, so we don't call runInterval per timer individually
+    // Interval updates DOM directly
     saveTm();
 }
 
-// REALTIME TIMER UPDATE LOOP
 setInterval(() => {
     let ch = false;
     const now = Date.now();
     if(TIMERS.custom) {
         TIMERS.custom.forEach(t => {
             if(t.run) {
-                // Calculate
                 if(!t.et) t.et = now + (t.rm * 1000);
                 const diff = Math.ceil((t.et - now) / 1000);
                 if (diff <= 0) {
                     t.rm = 0; t.run = false; renderTimers();
-                    if(window.Telegram.WebApp) {
+                    if(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
                         window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
                         window.Telegram.WebApp.showPopup({title:'Таймер!', message: t.l});
                     }
                 } else {
                     t.rm = diff;
                 }
-                
-                // Update DOM directly
                 const elDisp = document.getElementById(`disp_${t.id}`);
                 const elBar = document.getElementById(`prog_bar_${t.id}`);
                 if(elDisp) elDisp.innerText = fmtTime(t.rm);
@@ -868,8 +881,13 @@ setInterval(() => {
 function renderTimerPresets() {
     const c = document.getElementById('timerGrid'); c.innerHTML = '';
     DB.timers.forEach(t => {
-        // FIXED IMAGE RENDERING
-        const icon = (t.i && t.i.includes('/')) ? `<img src="${t.i}" style="width:24px;height:24px;object-fit:contain">` : `<div style="font-size:24px;">${t.i||'⏱'}</div>`;
+        // FIXED IMAGE LOGIC (Bug fix for showing text instead of image)
+        let icon;
+        if (t.i && (t.i.includes('/') || t.i.includes('.'))) {
+             icon = `<img src="${t.i}" style="width:24px;height:24px;object-fit:contain">`;
+        } else {
+             icon = `<div style="font-size:24px;">${t.i||'⏱'}</div>`;
+        }
         
         c.innerHTML += `<div class="timer-card" onclick="addGameTimer('${t.id}')" style="cursor:pointer; align-items:center; flex-direction:row;">
             ${icon}
@@ -891,30 +909,13 @@ function addGameTimer(id) { const t=DB.timers.find(x=>x.id===id); if(t) addTimer
 function togTime(id) { 
     const t = TIMERS.custom.find(x => x.id === id);
     if(t) { 
-        // Если таймер закончился (время <= 0), сначала сбрасываем его
-        if(t.rm <= 0) {
-            t.rm = t.s; // Возвращаем полное время
-            t.run = false; // Формально ставим на стоп перед запуском
-        }
-
+        // Bug fix: If time is 0, reset AND start immediately
+        if(t.rm <= 0) { t.rm = t.s; t.run = false; }
         t.run = !t.run; 
-        
-        if(t.run) {
-            // Если включили: устанавливаем новое время финиша
-            t.et = Date.now() + (t.rm * 1000);
-            
-            // Сразу запускаем интервал, не дожидаясь renderTimers
-            runInterval(id);
-        } else {
-            // Если поставили на паузу
-            delete t.et;
-        }
-        
-        // Вибрация при нажатии
-        if(window.Telegram && window.Telegram.WebApp.HapticFeedback) {
+        if(t.run) { t.et = Date.now() + (t.rm * 1000); } else { delete t.et; }
+        if(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
             window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
         }
-
         saveTm(); 
         renderTimers(); 
     }
@@ -922,94 +923,7 @@ function togTime(id) {
 function rstTime(id) { const t=TIMERS.custom.find(x=>x.id===id); if(t) { t.rm=t.s; t.run=false; delete t.et; saveTm(); renderTimers(); } }
 function delTime(id) { TIMERS.custom=TIMERS.custom.filter(t=>t.id!==id); saveTm(); renderTimers(); }
 
-// --- CALENDAR & FOOD ---
-let calDate = new Date();
-function saveEv() { Cloud.setItem('gta_ev_22', JSON.stringify(EVENTS)); }
-function renderCal() {
-    const y = calDate.getFullYear(), m = calDate.getMonth();
-    document.getElementById('calTitle').innerText = calDate.toLocaleDateString('ru',{month:'long',year:'numeric'});
-    const grid = document.getElementById('calGrid'); grid.innerHTML = '';
-    const daysInMonth = new Date(y, m+1, 0).getDate();
-    const firstDay = new Date(y, m, 1).getDay() || 7;
-    const today = new Date().toISOString().split('T')[0];
-
-    ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].forEach(d=>grid.innerHTML+=`<div style="font-size:10px; color:#666; text-align:center;">${d}</div>`);
-    for(let i=1; i<firstDay; i++) grid.innerHTML+='<div></div>';
-    for(let d=1; d<=daysInMonth; d++) {
-        const dt = `${y}-${pad(m+1)}-${pad(d)}`;
-        const hasEv = EVENTS.some(e=>e.d===dt);
-        const isToday = dt===today;
-        grid.innerHTML+=`<div class="cal-day ${isToday?'today':''} ${hasEv?'event':''}" onclick="addEventPrompt('${dt}')" style="aspect-ratio:1; display:flex; align-items:center; justify-content:center; border-radius:8px; background:${isToday?'var(--accent)':'rgba(255,255,255,0.02)'}; color:${isToday?'#000':'#666'}; ${hasEv?'border:1px solid var(--accent)':''}">${d}</div>`;
-    }
-    
-    const list = document.getElementById('eventList'); list.innerHTML = '';
-    EVENTS.filter(e=>e.d>=today).sort((a,b)=>a.d.localeCompare(b.d)).forEach(e => {
-        if(!e.id) e.id=Date.now()+Math.random();
-        list.innerHTML += `<div style="background:#111; padding:10px; margin-top:5px; border-radius:8px; display:flex; justify-content:space-between;"><div><span style="color:var(--accent)">${e.d.slice(5)}</span> ${e.t}</div><button onclick="delEvent(${e.id})" style="background:none; border:none; color:var(--red);">✕</button></div>`;
-    });
-}
-function moveMonth(v) { calDate.setMonth(calDate.getMonth()+v); renderCal(); }
-function addEventPrompt(dt) { const t=prompt("Событие:"); if(t) { EVENTS.push({id:Date.now(), d:dt, t:t}); saveEv(); renderCal(); } }
-function delEvent(id) { if(confirm('Удалить?')) { EVENTS=EVENTS.filter(e=>e.id!==id); saveEv(); renderCal(); } }
-
-function renderFood() {
-    const list = document.getElementById('listFood'); list.innerHTML='';
-    const s = document.getElementById('searchFood').value.toLowerCase();
-    DB.kitchen.forEach(f => {
-        if(s && !f.name.toLowerCase().includes(s)) return;
-        list.innerHTML += `<div class="card" onclick='openModal(${JSON.stringify(f)})'>
-            <div class="card-icon">${f.icon}</div>
-            <div class="card-body"><div class="card-title">${f.name}</div><div style="font-size:10px; color:#666;">🍖${f.sat} 😎${f.mood} 💪${f.str}</div></div>
-        </div>`;
-    });
-}
-function openModal(f) {
-    document.getElementById('mTitle').innerText=f.name;
-    document.getElementById('mContent').innerHTML=`<div style="text-align:center;font-size:60px;margin-bottom:20px;">${f.icon}</div>
-    <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px; margin-bottom:15px;">
-        Ингредиенты: ${f.ing.join(', ')}
-    </div>
-    <div>Инструмент: <span style="color:var(--red)">${f.tool}</span> | Навык: ${f.skill}</div>`;
-    document.getElementById('modal').style.display='flex';
-}
-
-// --- GUIDES ---
-function setGuide(id, btn) {
-    document.querySelectorAll('#tab-guides .seg-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
-    const c = document.getElementById('guideContent'); c.innerHTML = '';
-
-    if (id === 'payment') {
-        c.innerHTML += `<div style="color:var(--text-sub); margin-bottom:5px;">Животные</div>` + buildTable(DB.guides.payment.animals.r, DB.guides.payment.animals.h);
-        c.innerHTML += `<div style="color:var(--text-sub); margin:20px 0 5px;">Сокровища</div>` + buildTable(DB.guides.payment.treasures.r, DB.guides.payment.treasures.h);
-    } 
-    else if (id === 'med') {
-        let h = '<div style="display:flex; flex-direction:column; gap:8px;">';
-        DB.guides.med.r.forEach(x => {
-            let bg = '#3a5c8a', tc = '#ccddff';
-            if(x.type==='red'){bg='#8a3a3a';tc='#ffcccc'} if(x.type==='yellow'){bg='#8a7a3a';tc='#ffeecc'}
-            h += `<div style="display:flex; gap:4px;"><div style="flex:1; background:${bg}; color:${tc}; padding:10px; border-radius:8px; font-weight:bold;">${x.t}</div><div style="flex:1; background:#222; padding:10px; border-radius:8px;">${x.c}</div></div>`;
-        });
-        c.innerHTML = h + '</div>';
-    } 
-    else if (id === 'tarot') {
-        let h = '<div class="tarot-grid-new">';
-        DB.tarot.forEach(t => h += `<div class="tarot-card-new"><div class="tarot-icon-box">${t.img?`<img src="${t.img}" class="tarot-icon-img" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">`:''}<span style="display:${t.img?'none':'block'}">${t.i}</span></div><div><div class="tarot-card-title">${t.n}</div><div class="tarot-card-desc">${t.d}</div></div></div>`);
-        c.innerHTML = h + '</div>';
-    } 
-    else if (id === 'ball') {
-        c.innerHTML = buildTable(DB.ball8.map(x=>[x.q, x.a]), ["Вопрос", "Ответ"]);
-    } 
-    else if (DB.guides[id]) {
-        c.innerHTML = buildTable(DB.guides[id].r, DB.guides[id].h);
-    }
-}
-function buildTable(rows, headers) {
-    let h=`<div class="table-wrap"><table><thead><tr>`; headers.forEach(x=>h+=`<th>${x}</th>`);
-    h+='</tr></thead><tbody>'; rows.forEach((r,i)=>{ h+=`<tr style="background:${i%2?'transparent':'rgba(255,255,255,0.02)'}">`; r.forEach(c=>h+=`<td>${c}</td>`); h+='</tr>'; });
-    return h+'</tbody></table></div>';
-}
-
-// --- HEADER TIMER & UNHIDE ---
+// --- HEADER TIMER & LOCAL TIMER FIX ---
 let headTimerIdx = 0;
 setInterval(() => {
     const active = TIMERS.custom ? TIMERS.custom.filter(t=>t.run) : [];
@@ -1017,21 +931,27 @@ setInterval(() => {
     if(active.length === 0) { elLab.innerText="Нет активных"; elTime.innerText="--:--"; elBar.style.width="0%"; return; }
     if(headTimerIdx >= active.length) headTimerIdx=0;
     const t = active[headTimerIdx];
-    
     let now=Date.now(), rm=0;
     if(t.et) rm = Math.ceil((t.et-now)/1000); else rm=t.rm;
-    
     elLab.innerText = t.l; elTime.innerText = fmtTime(rm>0?rm:0); elTime.style.color = "var(--text-main)";
     elBar.style.width = t.s>0 ? Math.min((rm/t.s)*100, 100) + "%" : "0%";
 }, 1000);
 function changeHeaderTimer(d) { headTimerIdx+=d; }
 
-// --- LOCAL TIMERS ---
 function toggleLocalTimer(id, def) {
     if(!BP.localTimers) BP.localTimers={};
     let t = BP.localTimers[id];
     if(!t) BP.localTimers[id] = t = { rm:def, run:false };
-    if(t.rm <= 0) { t.rm=def; t.run=false; } else { t.run=!t.run; if(t.run) t.et=Date.now()+(t.rm*1000); }
+    
+    // Bug fix: Logic for mini-timers inside tasks
+    if(t.rm <= 0) {
+        t.rm = def; // Reset
+        t.run = true; // Auto-start!
+        t.et = Date.now() + (t.rm * 1000);
+    } else {
+        t.run = !t.run;
+        if(t.run) t.et = Date.now() + (t.rm * 1000); else delete t.et;
+    }
     saveBP(); renderBP();
 }
 function resetLocalTimer(id, def) { if(BP.localTimers && BP.localTimers[id]) { BP.localTimers[id].rm=def; BP.localTimers[id].run=false; delete BP.localTimers[id].et; saveBP(); renderBP(); } }
@@ -1057,9 +977,9 @@ function setTheme(n) {
     localStorage.setItem('gta_theme_22', n); closeThemeModal({target:{id:'modalTheme'}});
 }
 function openUnhideModal() {
-    const l = document.getElementById('unhideList'); l.innerHTML = BP.hidden.length ? '' : '<div style="padding:20px; text-align:center; color:#666;">Пусто</div>';
+    const l = document.getElementById('unhideList'); l.innerHTML = BP.hidden.length ? '' : '<div style="padding:20px; text-align:center; color:var(--text-sub);">Пусто</div>';
     BP.hidden.forEach(id => {
-        let t = DB.bp[id]; if(t) l.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #222; color:#ccc;"><span>${t.t}</span><button onclick="restoreTask(${id})" style="background:var(--accent); border:none; color:white; padding:4px 10px; border-radius:4px;">Вернуть</button></div>`;
+        let t = DB.bp[id]; if(t) l.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid var(--border); color:var(--text-main);"><span>${t.t}</span><button onclick="restoreTask(${id})" style="background:var(--accent); border:none; color:white; padding:4px 10px; border-radius:4px;">Вернуть</button></div>`;
     });
     document.getElementById('modalUnhide').style.display='flex';
 }
@@ -1072,10 +992,8 @@ function setupDragAndDrop() {
     }});
 }
 
-// Start
 if(window.Telegram && window.Telegram.WebApp) { window.Telegram.WebApp.ready(); window.Telegram.WebApp.expand(); }
 init();
 </script>
 </body>
 </html>
-
