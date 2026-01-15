@@ -139,11 +139,12 @@ select {
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--accent), #fbbf24); /* Градиент */
+    background: linear-gradient(90deg, var(--accent), #fbbf24);
     width: 0%;
     border-radius: 3px;
-    /* ВОТ ЭТО ДЕЛАЕТ АНИМАЦИЮ МЯГКОЙ: */
-    transition: width 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+    /* Это свойство отвечает за плавность */
+    transition: width 0.5s cubic-bezier(0.25, 1, 0.5, 1); 
+    will-change: width; /* Оптимизация для браузера */
     box-shadow: 0 0 10px var(--accent-glow);
 }
 .task-header-row {
@@ -478,6 +479,54 @@ input[type=range]::-webkit-slider-thumb:active { transform: scale(1.2); backgrou
 /* Firefox фиксы (если нужно) */
 input[type=range]::-moz-range-track { width: 100%; height: 6px; background: #333; border-radius: 4px; }
 input[type=range]::-moz-range-thumb { height: 18px; width: 18px; border: none; border-radius: 50%; background: var(--accent); }
+/* --- ИСПРАВЛЕНИЕ ЗАЕЗЖАЮЩИХ КНОПОК И АНИМАЦИИ --- */
+
+/* Контейнер нижней строки (Таймер слева, кнопки справа) */
+.task-bottom-row {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    width: 100%; 
+    margin-top: 8px; 
+    box-sizing: border-box;
+    flex-wrap: wrap; /* ВАЖНО: Разрешаем перенос на новую строку */
+    gap: 8px; /* Отступ между таймером и кнопками при переносе */
+}
+
+/* Группа кнопок справа */
+.task-actions-group {
+    display: flex; 
+    align-items: center; 
+    gap: 6px; 
+    margin-left: auto; /* Прижимает вправо */
+    flex-wrap: wrap; /* Кнопки тоже могут переноситься, если совсем узко */
+    justify-content: flex-end;
+}
+
+/* Кнопка мгновенного выполнения (Галочка) */
+.btn-instant-done {
+    width: 28px; height: 28px;
+    background: rgba(16, 185, 129, 0.1); 
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: var(--green);
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    transition: 0.2s;
+}
+.btn-instant-done:active { background: var(--green); color: black; }
+
+/* Обновленный стиль полоски для плавности */
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #fbbf24);
+    width: 0%;
+    border-radius: 3px;
+    /* КРИТИЧЕСКИ ВАЖНО ДЛЯ ПЛАВНОСТИ: */
+    transition: width 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    box-shadow: 0 0 10px var(--accent-glow);
+}
 </style>
 </head>
 <body>
@@ -1108,37 +1157,67 @@ function toggleTwink(i, e) {
     saveBP(); renderBP(); updateBP();
 }
 
-function updateCounter(i, delta) {
+function updateCounter(id, delta) {
     if(!BP.counters) BP.counters = {};
-    if(!BP.counters[i]) BP.counters[i] = 0;
+    if(typeof BP.counters[id] === 'undefined') BP.counters[id] = 0;
     
-    const task = DB.bp[i];
-    const max = task.q;
-    
-    // Изменяем значение
-    BP.counters[i] += delta;
-    
-    // Не даем уйти в минус
-    if(BP.counters[i] < 0) BP.counters[i] = 0;
+    // Запоминаем старое состояние выполнения
+    const wasDone = BP.done.includes(id);
+    const max = DB.bp[id].q;
 
-    // ЛОГИКА: Если это НЕ многоразовая задача (нет r:1)
-    if (!task.r) {
-        if(BP.counters[i] >= max) {
-            BP.counters[i] = max;
-            if(!BP.done.includes(i)) { 
-                BP.done.push(i); 
-                BP.times[i] = new Date().toLocaleTimeString().slice(0,5); 
+    // Меняем значение
+    BP.counters[id] += delta;
+    if(BP.counters[id] < 0) BP.counters[id] = 0;
+    
+    // Если задача обычная (не бесконечная)
+    if (!DB.bp[id].r) {
+        if(BP.counters[id] > max) BP.counters[id] = max;
+
+        // Проверяем выполнение
+        if(BP.counters[id] >= max) {
+            if(!BP.done.includes(id)) { 
+                BP.done.push(id); 
+                BP.times[id] = new Date().toLocaleTimeString().slice(0,5); 
             }
         } else {
-            if(BP.done.includes(i)) { 
-                BP.done = BP.done.filter(x=>x!==i); 
-                delete BP.times[i]; 
+            if(BP.done.includes(id)) { 
+                BP.done = BP.done.filter(x => x !== id); 
+                delete BP.times[id]; 
             }
         }
     }
-    // Если задача многоразовая (r:1), мы просто сохраняем счетчик (лимита нет)
-    
-    saveBP(); renderBP(); updateBP();
+
+    const isDoneNow = BP.done.includes(id);
+
+    // СОХРАНЯЕМ ДАННЫЕ
+    saveBP();
+    updateBP(); // Обновляем шапку (цифры сверху)
+
+    // --- МАГИЯ ПЛАВНОЙ АНИМАЦИИ ---
+    // Если статус задачи (Выполнено/Не выполнено) изменился — нужна полная перерисовка, 
+    // чтобы появилась галочка или изменился цвет карточки.
+    if (wasDone !== isDoneNow) {
+        renderBP();
+    } else {
+        // Если статус не изменился, мы просто двигаем полоску БЕЗ перерисовки всего списка!
+        // Это и дает плавную анимацию, так как элемент остается тем же самым.
+        
+        const elBar = document.getElementById(`prog_${id}`);
+        const elTxt = document.getElementById(`cnt_${id}`);
+        
+        if (elBar && elTxt) {
+            // Считаем новый процент
+            let newPct = (BP.counters[id] / max) * 100;
+            if(newPct > 100) newPct = 100;
+            
+            // Применяем новые значения напрямую к элементам
+            elBar.style.width = newPct + '%';
+            elTxt.innerText = BP.counters[id];
+        } else {
+            // Если вдруг элемент не найден (например, был скрыт фильтром), перерисовываем
+            renderBP();
+        }
+    }
 }
         function hideBP(i,e) { e.stopPropagation(); BP.hidden.push(i); saveBP(); renderBP(); }
         function resetHiddenBP() { BP.hidden = []; saveBP(); renderBP(); }
@@ -1167,9 +1246,6 @@ function renderBP() {
 
     list.innerHTML = '';
     
-    // --- ВАЖНО: Принудительный рефлоу для анимации ---
-    // Мы используем setTimeout(0) внутри, но CSS transition сработает сам при изменении width
-
     tasks.forEach(t => {
         const i = t.id;
         if(BP.hidden.includes(i) || (search && !t.t.toLowerCase().includes(search))) return;
@@ -1178,7 +1254,7 @@ function renderBP() {
         const isTwink = BP.doneTwink.includes(i);
         let rw = BP.vip ? t.v : t.b; if(BP.x2) rw *= 2;
         
-        // --- ЛОГИКА МЕТОК (ТВИНК / ВРЕМЯ) ---
+        // --- МЕТКИ (ВРЕМЯ/ТВИНК) ---
         let statusBadgeHTML = '';
         if (done && BP.times[i]) {
             statusBadgeHTML = `<div class="status-badge time">${BP.times[i]}</div>`;
@@ -1186,41 +1262,47 @@ function renderBP() {
             statusBadgeHTML = `<div class="status-badge twink">ТВИНК</div>`;
         }
 
-        // --- ЛОГИКА ПРОГРЕСС БАРА И КНОПОК ---
+        // --- ЛОГИКА КОНТРОЛЛЕРОВ ---
         let controlHTML = '';
         let progressBarHTML = '';
+        let instantDoneBtn = ''; // Кнопка "Галочка"
         
         if(t.q > 1 || t.r) {
             const curr = BP.counters && BP.counters[i] ? BP.counters[i] : 0;
             const max = t.q;
             
-            // Вычисляем процент (защита от >100%)
+            // Процент для полоски
             let pct = max > 0 ? (curr / max) * 100 : 0;
             if(pct > 100) pct = 100;
 
-            // Рисуем полоску только для обычных задач (не бесконечных)
             if(!t.r) {
+                // Добавляем ID для JS-анимации (prog_ID)
                 progressBarHTML = `
                     <div class="progress-track">
-                        <div class="progress-fill" style="width: ${pct}%"></div>
+                        <div id="prog_${i}" class="progress-fill" style="width: ${pct}%"></div>
                     </div>
                 `;
+                
+                // Кнопка моментального выполнения (только для обычных задач)
+                if(!done) {
+                    instantDoneBtn = `<button class="btn-instant-done" onclick="completeInstant(${i})">✔</button>`;
+                }
             }
 
-            // Кнопки управления
+            // Кнопки управления (Минус / Цифра / Плюс)
             controlHTML = `
             <div class="controls-new" onclick="event.stopPropagation()">
                 <button class="btn-mini minus" onclick="updateCounter(${i}, -1)">−</button>
-                <span class="counter-val-new">${curr}</span>
+                <span id="cnt_${i}" class="counter-val-new">${curr}</span>
                 <button class="btn-mini plus" onclick="updateCounter(${i}, 1)">+</button>
             </div>
             <div class="reward-badge">+${rw}</div>
             `;
         } else {
-             // Обычная галочка
+             // Для простых задач (без счетчика)
              controlHTML = `
-                <div class="checkbox" style="margin-left:auto;">${done?'✔':''}</div>
-                <div class="reward-badge" style="margin-left:8px;">+${rw}</div>
+                <div class="checkbox" onclick="toggleTask(${i})">${done?'✔':''}</div>
+                <div class="reward-badge" style="margin-left:6px;">+${rw}</div>
              `;
         }
 
@@ -1241,7 +1323,6 @@ function renderBP() {
                  lt.rm = diff > 0 ? diff : 0; if(lt.rm === 0) lt.run = false;
             }
             const displayTime = lt.rm <= 0 ? "ГОТОВО" : fmtTime(lt.rm);
-            // Красим кнопку в оранжевый, если таймер идет
             const playStyle = lt.run ? 'color:var(--gold); border-color:var(--gold);' : '';
             
             timerHTML = `
@@ -1260,11 +1341,13 @@ function renderBP() {
 
         item.className = `task-item ${doneClass}`;
         item.setAttribute('data-id', i);
-        if(!t.r) item.onclick = () => toggleTask(i);
+        // Для простых задач клик по всей карте работает, для сложных - нет (чтобы не мешать кнопкам)
+        if(!t.r && t.q <= 1) item.onclick = () => toggleTask(i);
 
         let twinkBtnStyle = isTwink ? 'color: #c084fc; background: rgba(192, 132, 252, 0.15); border: 1px solid rgba(192, 132, 252, 0.3);' : '';
-        const twinkBtn = !t.r ? `<button class="icon-btn" style="width:28px; height:28px; margin-left:4px; border-radius:6px; ${twinkBtnStyle}" onclick="toggleTwink(${i}, event)">👻</button>` : '';
+        const twinkBtn = !t.r ? `<button class="icon-btn" style="width:28px; height:28px; border-radius:6px; ${twinkBtnStyle}" onclick="toggleTwink(${i}, event)">👻</button>` : '';
 
+        // --- СБОРКА КАРТОЧКИ ---
         item.innerHTML = `
             <div class="task-top-row">
                 <div class="drag-handle" style="margin-right:4px; color:#444;">⋮⋮</div>
@@ -1278,17 +1361,27 @@ function renderBP() {
                 </div>
             </div>
             
-            <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-top:8px; padding-left:50px; box-sizing:border-box;">
+            <div class="task-bottom-row">
                  <div style="display:flex;">${timerHTML}</div>
-                 <div style="display:flex; align-items:center; gap:6px;">
+                 
+                 <div class="task-actions-group">
                     ${controlHTML}
-                    ${twinkBtn}
-                    <button class="icon-btn del" style="width:24px;" onclick="hideBP(${i},event)">✕</button>
+                    ${instantDoneBtn} ${twinkBtn}
+                    <button class="icon-btn del" style="width:28px; height:28px; border-radius:6px; border:1px solid #333;" onclick="hideBP(${i},event)">✕</button>
                  </div>
             </div>
         `;
         list.appendChild(item);
     });
+}
+function completeInstant(id) {
+    const max = DB.bp[id].q;
+    const current = BP.counters && BP.counters[id] ? BP.counters[id] : 0;
+    const diff = max - current;
+    
+    if (diff > 0) {
+        updateCounter(id, diff); // Добавляем столько, сколько не хватает до максимума
+    }
 }
 // --- НОВАЯ ФУНКЦИЯ ДЛЯ ПОЛЗУНКА ---
 function updateCounterSlider(i, val) {
