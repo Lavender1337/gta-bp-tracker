@@ -3,675 +3,1647 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GTA 5 RP Helper Ultimate</title>
+    <title>GTA Helper v22 Cloud</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        :root {
-            --bg-main: #121212;
-            --bg-card: #1e1e1e;
-            --bg-header: #000000;
-            
-            /* Цвета */
-            --c-gold: #ffb300;
-            --c-green: #00c853; 
-            --c-red: #d32f2f;
-            --c-blue: #29b6f6;
-            --c-orange: #ff7043;
-            --c-purple: #ab47bc;
-            --c-cyan: #26c6da;
-            --c-grey-btn: #2c2c2c;
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+<style>
+:root {
+    /* --- ORANGE NEON PALETTE --- */
+    --bg-deep: #050505;          /* Deep Black */
+    
+    /* Orbs (Warm Background Spots) */
+    --orb-1: rgba(255, 69, 0, 0.25);   /* Orange Red */
+    --orb-2: rgba(255, 140, 0, 0.20);  /* Dark Orange */
+    --orb-3: rgba(255, 215, 0, 0.15);  /* Gold */
 
-            --text-main: #ffffff;
-            --text-sub: #888888;
-            --border: 1px solid #333;
-            --nav-height: 70px;
-        }
+    /* Glass Parameters */
+    --glass-bg: rgba(20, 20, 20, 0.6); 
+    --glass-surface: linear-gradient(160deg, rgba(255,165,0,0.05) 0%, rgba(0,0,0,0) 100%);
+    --glass-border: 1px solid rgba(255, 165, 0, 0.15);
+    --glass-blur: blur(20px) saturate(180%);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+    
+    --text-main: #ffffff;
+    --text-sub: rgba(255, 255, 255, 0.55);
+    
+    /* Accents */
+    --accent: #f97316;       /* Bright Orange */
+    --accent-glow: rgba(249, 115, 22, 0.4);
+    --green: #10b981;        /* Green */
+    --red: #ef4444;          /* Red */
+    --gold: #fbbf24;         /* Gold/Yellow for active timers */
+    
+    --radius: 16px;
+    --nav-height: 85px;
+}
 
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-            margin: 0; padding: 0; 
-            padding-bottom: calc(var(--nav-height) + 20px);
-            overflow-x: hidden;
-            -webkit-tap-highlight-color: transparent;
-        }
+/* --- ANIMATED BACKGROUND --- */
+body {
+    background-color: var(--bg-deep);
+    color: var(--text-main);
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    margin: 0; padding: 0; padding-bottom: calc(var(--nav-height) + 30px);
+    overflow-x: hidden; font-size: 15px; min-height: 100vh;
+}
 
-        /* --- HEADER & UI --- */
-        .header { padding: 15px; background: var(--bg-header); font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--c-gold); display: flex; justify-content: space-between; align-items: center; }
-        .sticky-search { position: sticky; top: 0; z-index: 100; background: rgba(18, 18, 18, 0.95); backdrop-filter: blur(10px); padding: 10px 15px; border-bottom: var(--border); }
-        .search-input { width: 100%; background: #252525; border: none; outline: none; padding: 12px; border-radius: 10px; color: white; font-size: 14px; box-sizing: border-box; }
+body::before, body::after {
+    content: ''; position: fixed; z-index: -1;
+    filter: blur(90px); opacity: 0.6;
+}
+body::before {
+    width: 80vw; height: 80vw; top: -20%; left: -20%;
+    background: radial-gradient(circle, var(--orb-1), transparent 70%);
+    animation: drift 20s infinite alternate ease-in-out;
+}
+body::after {
+    width: 70vw; height: 70vw; bottom: -10%; right: -10%;
+    background: radial-gradient(circle, var(--orb-2), var(--orb-3), transparent 70%);
+    animation: drift 25s infinite alternate-reverse ease-in-out;
+}
+@keyframes drift { from {transform: translate(0,0);} to {transform: translate(30px, 50px);} }
 
-        /* --- BP HERO --- */
-        .bp-hero { margin: 15px; padding: 20px; background: linear-gradient(135deg, #1e1e1e 0%, #101010 100%); border: 1px solid #333; border-radius: 16px; display: flex; flex-direction: column; gap: 15px; }
-        .bp-row { display: flex; justify-content: space-between; align-items: flex-end; }
-        .bp-big-num { font-size: 42px; font-weight: 900; line-height: 1; color: var(--c-gold); text-shadow: 0 0 15px rgba(255, 179, 0, 0.2); }
-        .bp-input { background: #333; border: none; color: white; padding: 8px; border-radius: 8px; width: 80px; text-align: center; font-weight: bold; font-size: 16px; }
-        .bp-toggles { display: flex; gap: 10px; }
-        .toggle-btn { flex: 1; padding: 10px; background: #2a2a2a; border: 1px solid #333; color: #888; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .toggle-btn.active { background: var(--c-gold); color: black; border-color: var(--c-gold); box-shadow: 0 0 10px rgba(255, 179, 0, 0.3); }
-        
-        /* --- BP LIST --- */
-        .category-group { margin-bottom: 2px; }
-        .cat-header { background: #1a1a1a; padding: 14px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #252525; cursor: pointer; }
-        .cat-title { font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 8px; text-transform: uppercase; color: #ddd; }
-        .cat-arrow { transition: 0.3s; font-size: 10px; color: #666; }
-        .category-group.open .cat-arrow { transform: rotate(180deg); color: var(--c-gold); }
-        .cat-content { display: none; background: #121212; }
-        .category-group.open .cat-content { display: block; animation: slideDown 0.2s ease; }
-        @keyframes slideDown { from {opacity:0; transform:translateY(-10px);} to {opacity:1; transform:translateY(0);} }
-        
-        .task-item { padding: 12px 15px; border-bottom: 1px solid #222; display: flex; align-items: center; justify-content: space-between; }
-        .task-item.completed .task-name { text-decoration: line-through; color: #555; }
-        .task-item.twink-done { background: rgba(171, 71, 188, 0.05); }
-        .task-left { display: flex; align-items: center; gap: 12px; flex: 1; }
-        .task-icon { width: 24px; text-align: center; font-size: 18px; }
-        .task-name { font-size: 13px; font-weight: 500; line-height: 1.3; }
-        .task-sub { font-size: 10px; color: #666; }
-        .task-right { display: flex; align-items: center; gap: 8px; }
-        
-        .btn-act { width: 32px; height: 32px; border-radius: 8px; border: 1px solid #333; background: transparent; color: #666; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; }
-        .btn-act.twink.active { color: #ab47bc; border-color: #ab47bc; background: rgba(171, 71, 188, 0.1); }
-        .btn-act.check.active { background: var(--c-gold); color: black; border-color: var(--c-gold); }
+/* --- COMMON ELEMENTS --- */
+.header { padding: 25px 20px 10px; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; color: var(--accent); }
 
-        /* --- TIMERS (GRID CARD STYLE) --- */
-        .timer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; }
-        .timer-card {
-            background: var(--bg-card); border: 1px solid #333; border-radius: 12px; padding: 12px;
-            display: flex; flex-direction: column; justify-content: space-between; min-height: 110px;
-            position: relative; transition: 0.2s;
-        }
-        .timer-card.running { border: 1px solid var(--c-gold); box-shadow: 0 0 10px rgba(255, 179, 0, 0.1); }
-        .tc-header { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #ddd; font-weight: 600; margin-bottom: 4px; }
-        .tc-status { font-size: 10px; color: var(--c-gold); margin-left: 20px; margin-bottom: 5px; display: none; }
-        .timer-card.running .tc-status { display: block; }
-        .tc-time { font-size: 24px; font-weight: 700; font-family: monospace; color: #666; margin-bottom: 10px; letter-spacing: 1px; }
-        .timer-card.running .tc-time { color: var(--c-gold); }
-        .tc-footer { display: flex; gap: 8px; }
-        .btn-main { flex: 1; border: none; border-radius: 6px; padding: 8px 0; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; color: white; }
-        .btn-start { background: var(--c-green); color: #000; }
-        .btn-stop { background: var(--c-red); color: #fff; border: 1px solid #ff5252; }
-        .btn-reset-mini { width: 36px; background: var(--c-grey-btn); border: 1px solid #444; border-radius: 6px; color: #aaa; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; }
+/* --- TIMER CARDS (NEW STYLE) --- */
+.timer-grid-new {
+    display: grid; 
+    grid-template-columns: 1fr; /* Mobile: 1 column */
+    gap: 12px; padding: 0 15px; margin-bottom: 20px;
+}
+@media (min-width: 600px) {
+    .timer-grid-new { grid-template-columns: 1fr 1fr; } /* Desktop/Tablet: 2 columns */
+}
 
-        /* --- GUIDES --- */
-        .guide-nav { display: flex; overflow-x: auto; gap: 8px; padding: 10px 15px; scrollbar-width: none; border-bottom: 1px solid #222; }
-        .g-tab { padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; white-space: nowrap; background: #1e1e1e; border: 1px solid #333; color: #888; transition: 0.2s; }
-        .g-tab.active { background: rgba(255,255,255,0.1); color: white; border-color: #666; }
-        
-        .table-container { padding: 15px; overflow-x: auto; }
-        .custom-table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 100%; }
-        .custom-table th { padding: 10px; text-align: left; font-weight: 700; text-transform: uppercase; font-size: 11px; background: rgba(255,255,255,0.05); color: #aaa; }
-        .custom-table td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #ddd; }
-        
-        /* Tab Colors */
-        .g-tab.active[data-type="fishing"] { border-color: var(--c-blue); color: var(--c-blue); background: rgba(41, 182, 246, 0.1); }
-        .g-tab.active[data-type="hunting"] { border-color: var(--c-orange); color: var(--c-orange); background: rgba(255, 112, 67, 0.1); }
-        .g-tab.active[data-type="treasures"] { border-color: var(--c-gold); color: var(--c-gold); background: rgba(255, 179, 0, 0.1); }
-        .g-tab.active[data-type="garage"] { border-color: var(--c-purple); color: var(--c-purple); background: rgba(171, 71, 188, 0.1); }
-        .g-tab.active[data-type="seeds"] { border-color: var(--c-green); color: var(--c-green); background: rgba(0, 200, 83, 0.1); }
-        .g-tab.active[data-type="repair"] { border-color: var(--c-red); color: var(--c-red); background: rgba(211, 47, 47, 0.1); }
-        
-        /* Table Colors */
-        .t-fishing td:first-child { color: var(--c-blue); font-weight: bold; }
-        .t-hunting td:first-child { color: var(--c-orange); font-weight: bold; }
-        .t-treasures td:first-child { color: var(--c-gold); font-weight: bold; }
-        .t-garage td:first-child { color: var(--c-purple); font-weight: bold; }
-        .t-repair td:first-child { color: var(--c-gold); font-weight: bold; }
-        .t-seeds td:first-child { color: var(--c-green); font-weight: bold; }
+.timer-card {
+    background: #0f0f11;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex; flex-direction: column; gap: 10px;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    transition: 0.2s;
+}
 
-        /* --- NAV --- */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: var(--nav-height); background: #000; border-top: 1px solid #333; display: flex; justify-content: space-around; padding-top: 10px; z-index: 999; }
-        .nav-btn { background: none; border: none; color: #555; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; width: 100%; }
-        .nav-icon { font-size: 22px; margin-bottom: 2px; }
-        .nav-btn.active { color: var(--c-gold); }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-    </style>
+/* Active State (Yellow Border) */
+.timer-card.running {
+    border-color: var(--gold);
+    background: rgba(251, 191, 36, 0.05);
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.15);
+}
+
+.tc-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+}
+.tc-title {
+    font-size: 14px; font-weight: 700; color: #ccc;
+    display: flex; align-items: center; gap: 6px;
+}
+.tc-dots { color: #555; font-size: 16px; }
+
+.tc-status {
+    font-size: 10px; color: var(--gold);
+    display: flex; align-items: center; gap: 4px;
+    opacity: 0; transition: 0.2s;
+}
+.timer-card.running .tc-status { opacity: 1; }
+.tc-status::before { content:'●'; font-size: 8px; }
+
+.tc-time {
+    font-size: 28px; font-weight: 800; 
+    font-family: monospace; letter-spacing: 1px;
+    color: #444; /* Grey when inactive */
+    margin: 2px 0 6px;
+    font-variant-numeric: tabular-nums;
+}
+.timer-card.running .tc-time {
+    color: var(--gold); /* Gold when active */
+    text-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
+}
+
+.tc-footer { display: flex; gap: 8px; }
+
+.tc-btn {
+    flex: 1; height: 38px; border: none; border-radius: 6px;
+    font-weight: 700; font-size: 13px; text-transform: uppercase;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: 0.2s; color: #000;
+}
+.tc-btn:active { transform: scale(0.97); }
+
+.tc-btn.start { background: var(--green); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2); }
+.tc-btn.stop { background: var(--red); color: white; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2); }
+
+.tc-btn-icon {
+    width: 38px; height: 38px; background: transparent;
+    border: 1px solid #444; border-radius: 6px;
+    color: #888; font-size: 16px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: 0.2s;
+}
+.tc-btn-icon:hover { border-color: #666; color: white; }
+.tc-btn-icon.del { border-color: rgba(239, 68, 68, 0.3); color: var(--red); }
+
+/* --- CUSTOM TIMER INPUT (BIG ORANGE BUTTON) --- */
+.custom-timer {
+    display: flex; gap: 8px; padding: 0 15px; margin-top: 10px; margin-bottom: 30px;
+}
+.custom-timer input {
+    background: #111; border: 1px solid #333; color: white;
+    padding: 0 12px; border-radius: 8px; height: 44px;
+    font-size: 14px; outline: none;
+}
+.custom-timer input:focus { border-color: var(--accent); }
+.custom-timer button {
+    background: var(--accent); color: white; border: none;
+    border-radius: 8px; height: 44px; padding: 0 20px;
+    font-weight: 700; font-size: 14px; cursor: pointer;
+    flex: 1; box-shadow: 0 5px 20px var(--accent-glow);
+}
+.custom-timer button:active { transform: scale(0.98); }
+
+/* --- OTHER UI ELEMENTS --- */
+.sticky-search {
+    background: rgba(5, 5, 5, 0.85); backdrop-filter: blur(15px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    position: sticky; top: 0; z-index: 100; padding: 10px 15px 15px;
+}
+.search-input {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    color: white; padding: 12px 16px; border-radius: 12px; width: 100%; box-sizing: border-box; font-size: 15px;
+}
+.search-input:focus { border-color: var(--accent); outline: none; }
+
+.section-title { font-size: 12px; font-weight: 700; color: var(--text-sub); margin: 20px 15px 8px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid var(--accent); display: inline-block; padding-bottom: 2px; }
+
+/* Tabs */
+.tab-content { display: none; animation: fadeIn 0.3s; }
+.tab-content.active { display: block; }
+
+/* Bottom Nav */
+.bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    height: var(--nav-height); background: rgba(5,5,5,0.9);
+    border-top: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px);
+    display: flex; justify-content: space-around; padding-top: 10px; z-index: 1000;
+}
+.nav-btn { background: none; border: none; color: #555; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: 0.2s; }
+.nav-btn.active { color: var(--accent); }
+.nav-icon { font-size: 24px; }
+
+/* Modal */
+.modal-wrap { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+.modal { background: #151515; width: 90%; max-width: 400px; border-radius: 20px; padding: 20px; border: 1px solid #333; }
+
+/* Fixes for other tabs to fit orange theme */
+.bp-hero { background: linear-gradient(135deg, rgba(249, 115, 22, 0.15) 0%, rgba(0,0,0,0) 100%); border: 1px solid var(--accent); }
+.bp-total-val { background: linear-gradient(45deg, #FFD700, #FFA500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.task-item.completed { border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.05); }
+.card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); }
+.list-container { padding: 0 15px; }
+
+@keyframes fadeIn { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+/* --- СТИЛИ ДЛЯ КНОПОК ОПЛАТЫ (БЫЛИ ПРОПУЩЕНЫ) --- */
+.reminders-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 0 15px;
+}
+
+.remind-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ccc;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.remind-btn:hover {
+    border-color: var(--accent);
+    color: white;
+    background: rgba(249, 115, 22, 0.1);
+}
+
+.remind-btn:active {
+    transform: scale(0.96);
+}
+</style>
 </head>
 <body>
 
-    <div id="tab-bp" class="tab-content active">
-        <div class="header">Battle Pass <span id="headerTimer" style="font-size:12px; color:var(--text-sub); text-transform:none;"></span></div>
-        
+    <div id="loader">
+        <div class="spinner"></div>
+        <div style="margin-top:10px; color:#666; font-size:12px;">Синхронизация...</div>
+    </div>
+
+<div id="tab-bp" class="tab-content active">
         <div class="bp-hero">
             <div class="bp-row">
-                <div>
-                    <div style="font-size:11px; color:#888; text-transform:uppercase; margin-bottom:5px;">Старт</div>
+                <div style="display:flex; flex-direction:column; gap:5px;">
+                    <span style="font-size:12px; color:#888; text-transform:uppercase;">Старт сегодня</span>
                     <input type="number" id="startBp" class="bp-input" placeholder="0" oninput="updateBP()">
                 </div>
-                <div style="text-align:right">
-                    <div style="font-size:11px; color:#888; text-transform:uppercase; margin-bottom:5px;">Итого</div>
-                    <div class="bp-big-num" id="totalBp">0</div>
+                <div style="text-align:right;">
+                    <div style="font-size:12px; color:#888; text-transform:uppercase;">Итого BP</div>
+                    <div class="bp-total-val" id="totalBp">0</div>
                 </div>
             </div>
             <div class="bp-toggles">
-                <button class="toggle-btn" id="btnVip" onclick="toggleVip()">👑 VIP</button>
-                <button class="toggle-btn" id="btnX2" onclick="toggleX2()">⚡ X2</button>
-                <button class="toggle-btn" onclick="newDay()" style="color:var(--c-red); border-color:rgba(239,83,80,0.3)">🔄 Сброс</button>
-            </div>
-            <div style="font-size:12px; color:#666; text-align:center;">
-                Нафармлено: <span id="farmedBp" style="color:var(--c-green); font-weight:bold;">+0</span>
+                <button class="toggle-btn vip" id="btnVip" onclick="toggleVip()">👑 VIP</button>
+                <button class="toggle-btn x2" id="btnX2" onclick="toggleX2()">⚡ X2</button>
             </div>
         </div>
 
-        <div class="sticky-search">
-            <input type="text" class="search-input" id="searchBp" placeholder="🔍 Найти задание..." oninput="renderBP()">
+        <div class="bp-actions-top">
+            <button class="action-btn new-day" onclick="newDay()">🌅 Новый день</button>
+            <button class="action-btn" onclick="openUnhideModal()">👁 Вернуть скрытые</button>
+            <button class="action-btn" onclick="forceSync()" style="border-color:var(--accent); color:var(--accent);">🔄 Обновить</button>
+            
+            <div class="action-btn" style="cursor:default; border-color:rgba(255,255,255,0.05); background: rgba(255,255,255,0.03);">
+                <span style="color:#888">Нафармлено:</span>
+                <span id="farmedBpMain" style="color:var(--green); font-weight:800; font-size:15px; margin-left:6px;">+0</span>
+            </div>
+        </div>
+        
+        <div class="sort-container" style="padding: 0 15px 10px; display: flex; justify-content: space-between; color:#666; font-size: 12px; align-items: center;">
+            <span>Удерживайте <b style="color:#aaa">⋮⋮</b> для перемещения</span>
+            <select id="bpSort" class="sort-select" onchange="renderBP()">
+                <option value="user">Сорт: Своя (Drag)</option>
+                <option value="def">Сорт: По списку</option>
+                <option value="max">Сорт: Кол-во (Много)</option>
+                <option value="min">Сорт: Кол-во (Мало)</option>
+            </select>
         </div>
 
-        <div id="listBP"></div>
+<div class="sticky-search">
+    <div class="mini-stats-row">
+        <div style="flex:1">
+            <div style="font-size:10px; color:#888">Итого:</div>
+            <div class="mini-stat-val" style="color:var(--gold)" id="stickyTotal">0</div>
+        </div>
+
+        <div class="header-timer-wrap" id="headerTimerWidget">
+            <button class="ht-btn" onclick="changeHeaderTimer(-1)">◀</button>
+            <div class="ht-content" onclick="go('timers', document.querySelectorAll('.nav-btn')[1])">
+                <span id="htLabel" class="ht-label">Нет активных</span>
+                <span id="htTime" class="ht-time">--:--</span>
+            </div>
+            <button class="ht-btn" onclick="changeHeaderTimer(1)">▶</button>
+        </div>
+
+        <div style="flex:1; text-align:right;">
+            <div style="font-size:10px; color:#888">Нафармлено:</div>
+            <div class="mini-stat-val" style="color:var(--green)" id="stickyFarmed">+0</div>
+        </div>
+    </div>
+    
+    <input type="text" class="search-input" id="searchBp" placeholder="🔍 Найти задание..." oninput="renderBP()">
+</div>
+
+        <div class="list-container" id="listBP"></div>
     </div>
 
-    <div id="tab-timers" class="tab-content">
-        <div class="header" style="color:var(--c-red)">Таймеры</div>
-        
-        <div class="timer-grid" id="timerGrid"></div>
+<div id="tab-timers" class="tab-content">
+    <div class="header">Таймеры</div>
 
-        <div style="padding: 0 15px; margin-bottom:20px;">
-            <div style="display:flex; gap:10px;">
-                <input type="text" id="custTmName" class="search-input" placeholder="Название">
-                <input type="number" id="custTmMin" class="search-input" placeholder="Мин" style="width:70px;">
-                <button onclick="addCustomTimer()" style="background:var(--c-gold); color:black; border:none; border-radius:10px; padding:0 15px; font-weight:bold;">+</button>
+    <div class="section-title">Активные</div>
+    <div id="activeTimersList" class="timer-grid-new"></div>
+
+    <div class="custom-timer">
+        <input type="text" id="customName" placeholder="Название..." style="flex:2">
+        <input type="number" id="customMin" placeholder="Мин" style="flex:1">
+        <button onclick="addCustomTimer()">+ ДОБАВИТЬ</button>
+    </div>
+
+    <div class="section-title">Шаблоны</div>
+    <div id="timerGrid" class="timer-grid-new"></div>
+
+    <div class="section-title">Напоминания (Оплата)</div>
+    <div class="reminders-grid" style="padding-bottom: 20px;">
+        <button class="remind-btn" onclick="addPay('Квартира')">🏢 Квартира</button>
+        <button class="remind-btn" onclick="addPay('Дом')">🏠 Дом</button>
+        <button class="remind-btn" onclick="addPay('Склад')">📦 Склад</button>
+        <button class="remind-btn" onclick="addPay('Лаба')">🧪 Лаба</button>
+    </div>
+</div>
+
+    <div id="tab-calendar" class="tab-content">
+        <div class="header">Календарь</div>
+        <div class="list-container">
+            <div class="cal-header">
+                <button onclick="moveMonth(-1)" style="background:none;border:none;color:white;font-size:24px;">❮</button>
+                <span id="calTitle" style="font-weight:800; font-size:20px;"></span>
+                <button onclick="moveMonth(1)" style="background:none;border:none;color:white;font-size:24px;">❯</button>
+            </div>
+            <div id="calGrid" class="cal-grid"></div>
+            <div class="section-title" style="margin-left:0;">События:</div>
+            <div id="eventList"></div>
+        </div>
+    </div>
+
+    <div id="tab-cars" class="tab-content">
+        <div class="header">Гараж</div>
+        <div class="segment-wrapper">
+            <div class="segment">
+                <button class="seg-btn active" onclick="setCarCat('platinum', this)">Platinum</button>
+                <button class="seg-btn" onclick="setCarCat('moto', this)">Moto</button>
+                <button class="seg-btn" onclick="setCarCat('container', this)">Контейнер</button>
+                <button class="seg-btn" onclick="setCarCat('pass', this)">Пропуск</button>
+                <button class="seg-btn" onclick="setCarCat('event', this)">Ивент</button>
+                <button class="seg-btn" onclick="setCarCat('tuning', this)">Тюнинг</button>
             </div>
         </div>
+        <div class="sticky-search">
+            <input type="text" class="search-input" id="searchCar" placeholder="🔍 Название авто..." oninput="renderCars()">
+        </div>
+        <div class="list-container" id="listCars"></div>
+        <div id="tuningBlock" style="display:none; padding-top:10px;"></div>
+    </div>
+
+    <div id="tab-kitchen" class="tab-content">
+        <div class="header" style="color:var(--red)">Кухня</div>
+        <div class="sticky-search">
+            <input type="text" class="search-input" id="searchFood" placeholder="🔍 Рецепт или ингредиент..." oninput="renderFood()">
+        </div>
+        <div class="list-container" id="listFood"></div>
     </div>
 
     <div id="tab-guides" class="tab-content">
-        <div class="header" style="color:var(--c-blue)">Справочник</div>
-        
-        <div class="guide-nav">
-            <button class="g-tab active" data-type="fishing" onclick="setGuide('fishing', this)">🐟 Рыбалка</button>
-            <button class="g-tab" data-type="hunting" onclick="setGuide('hunting', this)">🏹 Охота</button>
-            <button class="g-tab" data-type="treasures" onclick="setGuide('treasures', this)">💎 Сокровища</button>
-            <button class="g-tab" data-type="skills" onclick="setGuide('skills', this)">📊 Навыки</button>
-            <button class="g-tab" data-type="seeds" onclick="setGuide('seeds', this)">🌱 Семена</button>
-            <button class="g-tab" data-type="garage" onclick="setGuide('garage', this)">🚗 Гаражи</button>
-            <button class="g-tab" data-type="repair" onclick="setGuide('repair', this)">🔧 Ремонт</button>
+        <div class="header">Гайды</div>
+        <div class="segment-wrapper">
+            <div class="segment">
+                <button class="seg-btn active" onclick="setGuide('payment', this)">Оплата</button>
+                <button class="seg-btn" onclick="setGuide('pet', this)">Питомцы</button>
+                <button class="seg-btn" onclick="setGuide('med', this)">Медицина</button>
+                <button class="seg-btn" onclick="setGuide('tarot', this)">Таро</button>
+                <button class="seg-btn" onclick="setGuide('ball', this)">Шар 8</button>
+                <button class="seg-btn" onclick="setGuide('rep', this)">Ремонт</button>
+                <button class="seg-btn" onclick="setGuide('drop', this)">Шансы</button>
+            </div>
         </div>
-
-        <div id="guideContainer" class="table-container"></div>
+        <div id="guideContent" style="padding-top:10px;"></div>
     </div>
 
     <nav class="bottom-nav">
-        <button class="nav-btn active" onclick="go('bp', this)"><div class="nav-icon">📜</div>BP</button>
-        <button class="nav-btn" onclick="go('timers', this)"><div class="nav-icon">⏱</div>Таймеры</button>
-        <button class="nav-btn" onclick="go('guides', this)"><div class="nav-icon">📚</div>Гайды</button>
+        <button class="nav-btn active" onclick="go('bp', this)"><div class="nav-icon">📊</div><span class="nav-label">BP</span></button>
+        <button class="nav-btn" onclick="go('timers', this)"><div class="nav-icon">⏱</div><span class="nav-label">Таймер</span></button>
+        <button class="nav-btn" onclick="go('calendar', this)"><div class="nav-icon">📅</div><span class="nav-label">Планы</span></button>
+        <button class="nav-btn" onclick="go('cars', this)"><div class="nav-icon">🚗</div><span class="nav-label">Авто</span></button>
+        <button class="nav-btn" onclick="go('kitchen', this)"><div class="nav-icon">🍔</div><span class="nav-label">Еда</span></button>
+        <button class="nav-btn" onclick="go('guides', this)"><div class="nav-icon">📚</div><span class="nav-label">Гайды</span></button>
     </nav>
 
+    <div id="modal" class="modal-wrap" onclick="closeModal(event)">
+        <div class="modal">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <div style="font-size:22px; font-weight:800;" id="mTitle"></div>
+                <div style="font-size:26px; cursor:pointer; color:#888;" onclick="closeModal({target:{id:'modal'}})">✕</div>
+            </div>
+            <div id="mContent"></div>
+        </div>
+    </div>
+<div id="modalUnhide" class="modal-wrap" onclick="closeUnhideModal(event)">
+    <div class="modal">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <div style="font-size:20px; font-weight:800;">Скрытые задачи</div>
+            <div style="font-size:26px; cursor:pointer; color:#888;" onclick="document.getElementById('modalUnhide').style.display='none'">✕</div>
+        </div>
+        <div id="unhideList" style="max-height: 300px; overflow-y: auto;">
+            </div>
+    </div>
+</div>
 <script>
-// --- DB DATA ---
-const DB = {
-    bp: [
-        // Easy
-        {t:"Посетить сайт", q:1, b:1, v:2, i:"🌐", cat:"easy"},
-        {t:"Зайти в канал Brawl", q:1, b:1, v:2, i:"📺", cat:"easy"},
-        {t:"Лайк в Match", q:1, b:1, v:2, i:"❤️", cat:"easy"},
-        {t:"Лотерея", q:1, b:1, v:2, i:"🎫", cat:"easy"},
-        {t:"Кейс за DP", q:1, b:10, v:20, i:"🎁", cat:"easy"},
-        {t:"Броски питомцу", q:15, b:2, v:4, i:"🎾", cat:"easy"},
-        {t:"Команды питомца", q:15, b:2, v:4, i:"🐕", cat:"easy"},
-        {t:"Киностудия", q:1, b:2, v:4, i:"🎬", cat:"easy"},
-        {t:"Починить авто (сервис)", q:1, b:1, v:2, i:"🔧", cat:"easy"},
-        {t:"Тир", q:1, b:1, v:2, i:"🎯", cat:"easy"},
+        // ================= FULL DATA =================
+        const DB = {
+            cars: {
+                platinum: [
+                    {realName:"VW Golf MK1",gameName:"BF Wolf MK1",price:200000,speed:222,trunk:60,slots:12},{realName:"Audi 80 B4 1996",gameName:"Obey 80 B4 1996",price:225000,speed:222,trunk:60,slots:12},{realName:"BMW 7-series e38",gameName:"Ubermacht 7-line E38",price:250000,speed:220,trunk:60,slots:18},{realName:"Kia Ceed",gameName:"Bollokan Speed",price:250000,speed:235,trunk:90,slots:30},{realName:"Toyota GR Yaris",gameName:"Karin Waris GR 2021",price:275000,speed:237,trunk:90,slots:30},{realName:"BMW 5",gameName:"Ubermacht 5-line E34",price:300000,speed:197,trunk:60,slots:24},{realName:"Skoda Octavia A7 2017",gameName:"BF Olivia A7 2017",price:300000,speed:240,trunk:60,slots:18},{realName:"Subaru Impreza",gameName:"Karin Imperia MRX STI 1",price:350000,speed:246,trunk:60,slots:18},{realName:"BMW 1973 2002",gameName:"Ubermacht 2002 1973",price:375000,speed:238,trunk:60,slots:18},{realName:"BMW 3",gameName:"Ubermacht 3-line E36",price:400000,speed:202,trunk:60,slots:24},{realName:"Toyota AE86 Trueno",gameName:"Karin AE86 Brueno",price:400000,speed:230,trunk:60,slots:18},{realName:"Mazda Miata 1990",gameName:"Annis Myata 1990",price:425000,speed:247,trunk:60,slots:12},{realName:"Toyota Altezza",gameName:"Karin Altura 2001",price:450000,speed:248,trunk:60,slots:18},{realName:"Nissan Silvia S13",gameName:"Annis Slivia S13",price:450000,speed:244,trunk:60,slots:18},{realName:"Toyota Camry V40",gameName:"Karin Camria V40",price:500000,speed:212,trunk:70,slots:24},{realName:"Mitsubishi evo 6",gameName:"Maibatsu Lance Revolution 6",price:500000,speed:250,trunk:60,slots:24},{realName:"BMW e28",gameName:"Ubermacht W5 E28",price:500000,speed:230,trunk:60,slots:18},{realName:"Honda Integra Type R",gameName:"Dinka Entegra Type R 1998",price:525000,speed:257,trunk:60,slots:18},{realName:"Lexus SC300",gameName:"Emperor CS300 2000",price:550000,speed:266,trunk:60,slots:18},{realName:"Toyota Camry",gameName:"Karin Camria V55",price:600000,speed:240,trunk:60,slots:24},{realName:"Nissan GTR Skyline R32",gameName:"Annis GS-R M32",price:600000,speed:248,trunk:60,slots:12},{realName:"Nissan 350z",gameName:"Annis 350x",price:600000,speed:266,trunk:60,slots:12},{realName:"Nissan 240z",gameName:"Annis 240x",price:650000,speed:252,trunk:60,slots:12},{realName:"Honda NSX",gameName:"Dinka NSY 1995",price:700000,speed:263,trunk:60,slots:18},{realName:"BMW e39",gameName:"Ubermacht W5 E39",price:700000,speed:256,trunk:70,slots:18},{realName:"Nissan Silvia S15",gameName:"Annis Slivia S15",price:700000,speed:270,trunk:60,slots:24},{realName:"Ford Mustang Boss 1970",gameName:"Vapid Stud Boss 1970",price:700000,speed:255,trunk:60,slots:12},{realName:"Mercedes A45",gameName:"Benefactor A-series 45 W176",price:750000,speed:235,trunk:90,slots:30},{realName:"Chevrolet Impala 67",gameName:"Declasse Implata 67",price:750000,speed:235,trunk:60,slots:24},{realName:"Infiniti FX50S",gameName:"Fathom XF50 S",price:800000,speed:255,trunk:100,slots:30},{realName:"Volkswagen Touareg",gameName:"BF Twareg",price:800000,speed:238,trunk:125,slots:24},{realName:"Nissan GTR2000",gameName:"Annis GS-R2000",price:800000,speed:260,trunk:60,slots:18},{realName:"Toyota Supra",gameName:"Karin Superia A80",price:850000,speed:260,trunk:60,slots:12},{realName:"Toyota Mark 2",gameName:"Karin Marco 2",price:850000,speed:257,trunk:60,slots:24},{realName:"Subaru WRX STI",gameName:"Karin Imperia MRX STE 3",price:900000,speed:262,trunk:90,slots:24},{realName:"Mitsubishi Evo 10",gameName:"Maibatsu Lance Revolution 10",price:900000,speed:257,trunk:60,slots:18},{realName:"Honda Civic 2019",gameName:"Dinka Civil 2019",price:900000,speed:263,trunk:60,slots:12},{realName:"Mercedes E55",gameName:"Benefactor E-series 55 W210",price:1000000,speed:230,trunk:65,slots:24},{realName:"Nissan Skyline GTR R33",gameName:"Annis GS-R M33",price:1000000,speed:260,trunk:65,slots:30},{realName:"Lexus IS F",gameName:"Emperor IC-F 2012",price:1150000,speed:266,trunk:65,slots:18},{realName:"Toyota Land Cruiser 100",gameName:"Karin Grand Cruiser 100",price:1200000,speed:245,trunk:125,slots:24},{realName:"Subaru Impreza WRX STI",gameName:"Karin Imperia MRX STE 2010",price:1225000,speed:268,trunk:65,slots:18},{realName:"Honda Civic Type R",gameName:"Dinka Civil Type R 2023",price:1250000,speed:265,trunk:75,slots:24},{realName:"Nissan Skyline GTR R34",gameName:"Annis GS-R M34",price:1300000,speed:270,trunk:65,slots:30},{realName:"Mazda rx7",gameName:"Annis PX7",price:1300000,speed:252,trunk:65,slots:18},{realName:"Mercedes CLS",gameName:"Benefactor ZLS C219",price:1400000,speed:248,trunk:75,slots:24},{realName:"VW Golf",gameName:"BF Wolf R7",price:1400000,speed:247,trunk:95,slots:18},{realName:"Mercedes-Benz S-Class W140",gameName:"Benefactor S-series W140",price:1500000,speed:227,trunk:65,slots:24},{realName:"Ford Mustang 1965",gameName:"Vapid Stud 1965",price:1500000,speed:247,trunk:65,slots:18},{realName:"BMW 1M E82",gameName:"Ubermacht 1W E82",price:1550000,speed:262,trunk:65,slots:18},{realName:"Audi RS2 B4",gameName:"Obey PS2 B4",price:1600000,speed:261,trunk:105,slots:24},{realName:"Kia EV6 GT",gameName:"Bollokan IV6 GT 2023",price:1650000,speed:267,trunk:95,slots:36},{realName:"Audi RS6 2002",gameName:"Obey PS6 2002",price:1700000,speed:275,trunk:105,slots:24},{realName:"Dodge Challenger SRT Demon",gameName:"Bravado Contender SPT Demon",price:1800000,speed:265,trunk:65,slots:18},{realName:"BMW M5 E60",gameName:"Ubermacht W5 E60",price:1800000,speed:269,trunk:75,slots:18},{realName:"Alfa Romeo Giulia",gameName:"Lampadati Julia",price:1850000,speed:277,trunk:75,slots:18},{realName:"Land Cruiser 200",gameName:"Karin Grand Cruiser 200",price:2000000,speed:257,trunk:125,slots:24},{realName:"BMW X5 E53",gameName:"Ubermacht Y5 E53",price:2000000,speed:247,trunk:125,slots:30},{realName:"Dodge Charger SRT",gameName:"Bravado Changer SPT",price:2000000,speed:269,trunk:65,slots:18},{realName:"Audi RS5 2020",gameName:"Obey PS5 2020",price:2000000,speed:268,trunk:105,slots:24},{realName:"Audi RS 6 Avant",gameName:"Obey PS6 Awand",price:2200000,speed:263,trunk:105,slots:24},{realName:"Ford Raptor",gameName:"Vapid Predator",price:2200000,speed:232,trunk:205,slots:30},{realName:"Mercedes-Benz S-Class W221",gameName:"Benefactor S-series W221",price:2300000,speed:280,trunk:65,slots:24},{realName:"Audi Q7 V12 2007",gameName:"Obey O7 V12 2007",price:2400000,speed:267,trunk:130,slots:30},{realName:"Toyota GR Supra",gameName:"Karin GR Superia A90",price:2500000,speed:270,trunk:20,slots:18},{realName:"Mercedes GLS 63",gameName:"Benefactor JLS 63 X166",price:3000000,speed:272,trunk:130,slots:30},{realName:"Lexus LFA",gameName:"Emperor MFA",price:3000000,speed:265,trunk:20,slots:12},{realName:"Ford Mustang 2019",gameName:"Vapid Stud 2019",price:3000000,speed:271,trunk:70,slots:18},{realName:"Land Rover Range Rover",gameName:"Gallivanter Range Rider",price:3100000,speed:282,trunk:130,slots:24},{realName:"Audi TT RS 2017",gameName:"Obey DD PS 2017",price:3200000,speed:283,trunk:12,slots:6},{realName:"Ford Mustang 2024",gameName:"Vapid Stud 2024",price:3300000,speed:298,trunk:70,slots:18},{realName:"Cadillac Escalade",gameName:"Albany Excalibur",price:3400000,speed:252,trunk:130,slots:24},{realName:"BMW Z4",gameName:"Ubermacht S4 E86",price:3500000,speed:250,trunk:70,slots:24},{realName:"Audi RS 3 2023",gameName:"Obey PS3 2023",price:3600000,speed:283,trunk:70,slots:18},{realName:"BMW M5 F10",gameName:"Ubermacht W5 H10 2016",price:3650000,speed:285,trunk:70,slots:18},{realName:"BMW M4 F82",gameName:"Ubermacht W4 F82",price:3700000,speed:277,trunk:70,slots:12},{realName:"Lexus GS",gameName:"Emperor GC",price:3750000,speed:290,trunk:80,slots:24},{realName:"Nissan GTR R35",gameName:"Annis GS-R M35",price:3900000,speed:279,trunk:70,slots:12},{realName:"Tesla Model X",gameName:"Coil Line X",price:4000000,speed:235,trunk:80,slots:30},{realName:"Mercedes C63S",gameName:"Benefactor C-series 63S",price:4000000,speed:271,trunk:80,slots:18},{realName:"BMW M5 F90",gameName:"Ubermacht W5 F90",price:4000000,speed:273,trunk:80,slots:18},{realName:"Lexus LX570",gameName:"Emperor MX570",price:4000000,speed:277,trunk:135,slots:30},{realName:"Audi RS6 2020",gameName:"Obey PS6 2020",price:4000000,speed:284,trunk:110,slots:24},{realName:"Porsche Cayenne",gameName:"Pfister Rayenne",price:4200000,speed:270,trunk:135,slots:24},{realName:"Porsche 911 Carrera",gameName:"Pfister 811 Carvera",price:4200000,speed:285,trunk:10,slots:12},{realName:"Tesla Model S",gameName:"Coil Line S",price:4300000,speed:302,trunk:80,slots:24},{realName:"Mercedes G63 2019",gameName:"Benefactor G-series 63",price:4500000,speed:277,trunk:140,slots:30},{realName:"BMW M5 F90 LCI",gameName:"Ubermacht W5 H90 LCI 2021",price:4750000,speed:304,trunk:70,slots:24},{realName:"Audi Q8 2022",gameName:"Obey O8 2022",price:4750000,speed:321,trunk:135,slots:24},{realName:"Lamborghini Gallardo",gameName:"Pegassi Leonardo",price:4800000,speed:302,trunk:5,slots:12},{realName:"Audi RS 7",gameName:"Obey PS7",price:5000000,speed:315,trunk:85,slots:24},{realName:"BMW X6M",gameName:"Ubermacht Y6W F86",price:5000000,speed:313,trunk:140,slots:24},{realName:"Porsche Carrera",gameName:"Pfister Carvera GT",price:5100000,speed:305,trunk:10,slots:6},{realName:"Audi R8 2020",gameName:"Obey P8 2020",price:5200000,speed:323,trunk:10,slots:6},{realName:"Lexus LC500 2018",gameName:"Emperor MC500 2018",price:5300000,speed:330,trunk:75,slots:18},{realName:"BMW i8",gameName:"Ubermacht I8",price:5500000,speed:272,trunk:10,slots:6},{realName:"Lamborghini Huracan",gameName:"Pegassi Hurricane",price:5500000,speed:297,trunk:15,slots:12},{realName:"Chevrolet Corvette 2009",gameName:"Declasse Covetto 2009",price:5600000,speed:309,trunk:30,slots:12},{realName:"Toyota Tundra",gameName:"Karin Thunder 2021",price:5750000,speed:260,trunk:245,slots:42},{realName:"Lucid Air 2021",gameName:"Coil Air 2021",price:6000000,speed:332,trunk:75,slots:24},{realName:"Lamborghini Veneno",gameName:"Pegassi Verano",price:6250000,speed:330,trunk:15,slots:12},{realName:"Mercedes SLR",gameName:"Benefactor CLR Progen C199",price:6700000,speed:303,trunk:75,slots:12},{realName:"BMW X5 M",gameName:"Ubermacht Y5 G05",price:7000000,speed:306,trunk:140,slots:24},{realName:"Lamborghini Urus",gameName:"Pegassi Ursus",price:7400000,speed:315,trunk:145,slots:24},{realName:"Mercedes Maybach",gameName:"Benefactor M-Bach S560",price:7500000,speed:310,trunk:90,slots:18},{realName:"Ferrari F12 Berlinetta",gameName:"Grotti P12 Verleenetta",price:7800000,speed:307,trunk:15,slots:12},{realName:"Rolls Royce Wraith",gameName:"Enus Veil",price:8000000,speed:300,trunk:80,slots:18},{realName:"Bentley Bentayga",gameName:"Enus Benteygo",price:8000000,speed:288,trunk:115,slots:24},{realName:"McLaren GT 2020",gameName:"Progen GT 2020",price:8000000,speed:347,trunk:15,slots:12},{realName:"BMW X7M",gameName:"Ubermacht Y7W G07",price:8300000,speed:301,trunk:145,slots:30},{realName:"McLaren 720s",gameName:"Progen 720c",price:8600000,speed:305,trunk:10,slots:6},{realName:"Tesla Roadster",gameName:"Coil Roadster",price:8600000,speed:310,trunk:80,slots:18},{realName:"Ferrari Aperta",gameName:"Grotti Ascenda",price:9000000,speed:342,trunk:10,slots:12},{realName:"G63 AMG 6x6",gameName:"Benefactor G-series 63 6x6",price:9000000,speed:290,trunk:230,slots:60},{realName:"Ford GT",gameName:"Vapid GT",price:9100000,speed:325,trunk:10,slots:12},{realName:"McLaren Senna",gameName:"Progen Serena",price:9500000,speed:312,trunk:10,slots:12},{realName:"Aston Martin Vulcan",gameName:"Dewbauchee Vulcore",price:10000000,speed:380,trunk:10,slots:12},{realName:"Rolls Royce Cullinan",gameName:"Enus Callinon",price:12000000,speed:343,trunk:125,slots:24},{realName:"Pininfarina Battista",gameName:"Pegassi Bellista 2022",price:12500000,speed:398,trunk:10,slots:12},{realName:"Bugatti Chiron",gameName:"Truffade Shiron",price:15000000,speed:413,trunk:15,slots:12},{realName:"Koenigsegg Jesko",gameName:"Overflod Gesko",price:16000000,speed:392,trunk:15,slots:10},{realName:"Koenigsegg Agera",gameName:"Overflod Ahera",price:17000000,speed:420,trunk:15,slots:12},{realName:"Ferrari 458 Italia",gameName:"Grotti 854 Italy",price:17500000,speed:435,trunk:15,slots:12},{realName:"Pagani Huayra Roadster",gameName:"Pegassi Hayra Roadster",price:18000000,speed:455,trunk:15,slots:12},{realName:"Bugatti Veyron Vitesse",gameName:"Truffade Weyron Witesse",price:18000000,speed:415,trunk:15,slots:12},{realName:"Koenigsegg Gemera",gameName:"Overflod Genera",price:22000000,speed:428,trunk:15,slots:12},{realName:"Bugatti Divo",gameName:"Truffade Vivo 2020",price:22500000,speed:445,trunk:10,slots:12},{realName:"Mercedes-Benz Vision AVTR",gameName:"Benefactor Illusion Avatar",price:25000000,speed:355,trunk:15,slots:15},{realName:"Bentley EXP 100",gameName:"Enus EPX 100",price:25000000,speed:435,trunk:15,slots:12}
+                ],
+                moto: [
+                    {realName:"KTM 125 2006",gameName:"Principe 125 2006",price:350000,speed:260,trunk:0,slots:0},{realName:"Honda Bros 2009",gameName:"Dinka Bro 2009",price:425000,speed:267,trunk:0,slots:0},{realName:"KTM 450 2020",gameName:"Principe 450 2020",price:850000,speed:281,trunk:0,slots:0},{realName:"Ducati 900SS",gameName:"Principe 900SS",price:900000,speed:285,trunk:4,slots:6},{realName:"BMW R75",gameName:"Ubermacht R75",price:1100000,speed:237,trunk:8,slots:6},{realName:"Yamaha R1",gameName:"Nagasaki P1",price:1200000,speed:288,trunk:4,slots:6},{realName:"KTM 690 2017",gameName:"Principe 690 2017",price:1250000,speed:298,trunk:0,slots:0},{realName:"Suzuki GSX-R1000",gameName:"Shitzu CSX-R1000",price:1320000,speed:294,trunk:4,slots:6},{realName:"Yamaha R6 2008",gameName:"Nagasaki P6 2008",price:1500000,speed:296,trunk:4,slots:6},{realName:"Honda CBR1000RR 2017",gameName:"Dinka SBP 1000RR",price:1800000,speed:315,trunk:3,slots:6},{realName:"Yamaha R6 2010",gameName:"Nagasaki P6 2010",price:1800000,speed:331,trunk:4,slots:6},{realName:"Honda Fireblade 2020",gameName:"Dinka SMP 1000RR",price:2000000,speed:331,trunk:4,slots:6},{realName:"Suzuki Hayabusa",gameName:"Shitzu GSX1300R",price:2300000,speed:338,trunk:4,slots:6},{realName:"Yamaha YZF-R1M",gameName:"Nagasaki ZYF-R1M",price:2600000,speed:340,trunk:4,slots:6},{realName:"Kawasaki Ninja ZX-10RR",gameName:"Nagasaki Shinobi",price:2800000,speed:353,trunk:4,slots:6},{realName:"Ducati Panigale V4 R",gameName:"Principe Ranigale",price:3700000,speed:344,trunk:4,slots:6},{realName:"Ducati V4S 2021",gameName:"Principe W4S 2021",price:4000000,speed:348,trunk:4,slots:6},{realName:"Harley Davidson Fat Boy",gameName:"WMC F Boy",price:4000000,speed:249,trunk:8,slots:6},{realName:"Indian Motorcycle",gameName:"WMC Chief Dark Steed",price:4300000,speed:257,trunk:10,slots:6},{realName:"Kawasaki Ninja H2R",gameName:"Nagasaki Shinobi H2R",price:4600000,speed:339,trunk:4,slots:6},{realName:"Harley Davidson iron",gameName:"WMC Copper 883",price:4700000,speed:260,trunk:8,slots:6},{realName:"Harley Davidson Street Glide",gameName:"WMC Country Glide",price:4900000,speed:270,trunk:20,slots:6},{realName:"KTM RC 390",gameName:"Principe RC 390",price:7700000,speed:370,trunk:4,slots:6},{realName:"Honda RC213V-S",gameName:"Dinka PS213V-S",price:13500000,speed:351,trunk:4,slots:6}
+                ],
+                container: [
+                    {realName:"Range Rover Evoque",gameName:"Gallivanter Range Rider Revogue",price:0,speed:290,trunk:135,slots:24},{realName:"BMW M3 G81 Touring",gameName:"Ubermacht W3 G81 Touring",price:0,speed:307,trunk:110,slots:24},{realName:"Jaguar I-Pace",gameName:"Ocelot I-Model",price:0,speed:309,trunk:100,slots:30},{realName:"Mercedes E63s 2022",gameName:"Benefactor E-series 63S ASG W213",price:0,speed:308,trunk:70,slots:24},{realName:"BMW M2 G87",gameName:"Ubermacht W2 G87",price:0,speed:304,trunk:70,slots:24},{realName:"Mercedes C63s AMG W206",gameName:"Benefactor C-series 63S ASG W206",price:0,speed:323,trunk:75,slots:24},{realName:"BMW M4 G82",gameName:"Ubermacht W4 G82",price:0,speed:327,trunk:75,slots:24},{realName:"BMW M6 F13",gameName:"Ubermacht W6 F13",price:0,speed:340,trunk:75,slots:24},{realName:"Audi RS7 2020",gameName:"Obey PS7 2020",price:0,speed:335,trunk:85,slots:24},{realName:"BMW M5 F90 CS 2020",gameName:"Ubermacht W5 F90 CS 2020",price:0,speed:340,trunk:75,slots:24},{realName:"Chevrolet Corvette C8",gameName:"Declasse Covetto Wingray C8",price:0,speed:345,trunk:20,slots:18},{realName:"Audi RS E-TRON GT",gameName:"Obey PS I-tron GT",price:0,speed:350,trunk:80,slots:24},{realName:"Porsche 911 GT3 2021",gameName:"Pfister 811 GT3 2021",price:0,speed:360,trunk:20,slots:12},{realName:"Dodge RAM TRX",gameName:"Bravado RUM TPX",price:0,speed:307,trunk:235,slots:60},{realName:"Porsche 918 Spyder",gameName:"Pfister 819 Spyro",price:0,speed:430,trunk:10,slots:12},{realName:"Aston Martin Victor",gameName:"Dewbauchee Vico",price:0,speed:415,trunk:20,slots:12},{realName:"Lamborghini Countach 1990",gameName:"Pegassi Coutron 1990",price:0,speed:322,trunk:10,slots:12},{realName:"Audi R8 2015",gameName:"Obey P8 2015",price:0,speed:340,trunk:15,slots:12},{realName:"Mercedes E63s W213",gameName:"Benefactor E-series 63S W213",price:0,speed:315,trunk:110,slots:24},{realName:"BMW X6M F96",gameName:"Ubermacht Y6W F96",price:0,speed:333,trunk:145,slots:24},{realName:"Audi RSQ8 2022",gameName:"Obey PSO8 2022",price:0,speed:338,trunk:145,slots:24},{realName:"Mercedes SLS 2009",gameName:"Benefactor CLC ASG C197",price:0,speed:340,trunk:20,slots:12},{realName:"Aston Martin Vantage",gameName:"Dewbauchee Voyage",price:0,speed:340,trunk:95,slots:24}
+                ],
+                pass: [
+                    {realName:"Banana buggy",gameName:"Banana buggy",price:145000,speed:248,season:"Летний 2021",trunk:0,slots:0},{realName:"Highheel (Каблук)",gameName:"Highheel (Каблук)",price:145000,speed:200,season:"Летний 2021",trunk:0,slots:0},{realName:"Eli",gameName:"Eli",price:145000,speed:230,season:"Летний 2021",trunk:20,slots:6},{realName:"Minibug",gameName:"Minibug",price:145000,speed:205,season:"Летний 2021",trunk:20,slots:6},{realName:"Mini Fiat",gameName:"Minigrotti",price:145000,speed:205,season:"Летний 2021",trunk:40,slots:12},{realName:"VISION 6",gameName:"Benefactor M-bach Illusion 6",price:268000,speed:361,season:"Летний 2021",trunk:30,slots:6},{realName:"Studebaker Golden Hawk",gameName:"Studebaker Golden Hawk",price:268000,speed:211,season:"Зимний 2021-2022",trunk:20,slots:6},{realName:"Suzuki Carry",gameName:"Shitzu Carry",price:268000,speed:208,season:"Зимний 2021-2022",trunk:40,slots:12},{realName:"Nash Metropol",gameName:"Nash Metropolitan",price:268000,speed:205,season:"Зимний 2021-2022",trunk:20,slots:6},{realName:"Plymouth Bubbletop 1959",gameName:"Plymouth Bubbletop 1959",price:268000,speed:222,season:"Зимний 2021-2022",trunk:20,slots:6},{realName:"Ford Hot Wheels 1949",gameName:"Vapid Hot Wheels 1949",price:268000,speed:210,season:"Зимний 2021-2022",trunk:20,slots:6},{realName:"Porsche Taycan",gameName:"Pfister Teycan",price:268000,speed:384,season:"Зимний 2021-2022",trunk:15,slots:12},{realName:"Bugatti Atlantic",gameName:"Truffade Pacific",price:268000,speed:447,season:"Зимний 2021-2022",trunk:15,slots:12},{realName:"AC Cobra 474",gameName:"Vapid Cobra",price:268000,speed:229,season:"Летний 2022",trunk:15,slots:6},{realName:"Porsche 365",gameName:"Pfister 356",price:268000,speed:229,season:"Летний 2022",trunk:15,slots:6},{realName:"Ferrari 250 GTO",gameName:"Grotti 250 GTO",price:268000,speed:225,season:"Летний 2022",trunk:15,slots:6},{realName:"Jaguar E-Type",gameName:"Ocelot E-Model",price:268000,speed:229,season:"Летний 2022",trunk:15,slots:6},{realName:"Lotus Evija",gameName:"Ocelot Evia",price:268000,speed:425,season:"Летний 2022",trunk:15,slots:6},{realName:"Ferrari Monza SP2",gameName:"Grotti Wonza SP2",price:268000,speed:455,season:"Летний 2022",trunk:15,slots:6},{realName:"Pontiac Firebird",gameName:"Imponte Firefly",price:145000,speed:228,season:"Зимний 22/23",trunk:60,slots:12},{realName:"Mercedes SL280",gameName:"Benefactor CL280 W113",price:145000,speed:228,season:"Зимний 22/23",trunk:60,slots:12},{realName:"Mercedes AMG ONE",gameName:"Benefactor ASG P-One",price:268000,speed:441,season:"Зимний 22/23",trunk:10,slots:6},{realName:"Apollo Intensa Imazion",gameName:"Overflod Intenza Emotiva",price:268000,speed:441,season:"Зимний 22/23",trunk:10,slots:6},{realName:"Volkswagen Beetle 65",gameName:"BF Beatles 1965",price:145000,speed:231,season:"Летний 2023",trunk:60,slots:18},{realName:"Ford Capri II 1974",gameName:"Vapid Capricorn II 1974",price:145000,speed:231,season:"Летний 2023",trunk:60,slots:12},{realName:"McLaren Speedtail",gameName:"Progen SpeedT",price:268000,speed:465,season:"Летний 2023",trunk:10,slots:6},{realName:"Ferrari SF90 Stradale",gameName:"Grotti SP90 Strata",price:268000,speed:465,season:"Летний 2023",trunk:10,slots:6},{realName:"TVR Tuscan Speed Six",gameName:"Dewbauchee Tuscan",price:145000,speed:235,season:"Зимний 23/24",trunk:60,slots:18},{realName:"Mitsubishi Starion",gameName:"Maibatsu Star",price:145000,speed:238,season:"Зимний 23/24",trunk:60,slots:12},{realName:"Lamborghini Countach 2022",gameName:"Pegassi Coutron 2022",price:268000,speed:455,season:"Зимний 23/24",trunk:10,slots:6},{realName:"Lamborghini Revuelto",gameName:"Pegassi Rewuelto",price:268000,speed:457,season:"Зимний 23/24",trunk:10,slots:6},{realName:"Ford Focus RS",gameName:"Vapid Pocus RS 2003",price:145000,speed:242,season:"Летний 2024",trunk:60,slots:12},{realName:"VW Golf R32",gameName:"BF Wolf R32 2003",price:145000,speed:241,season:"Летний 2024",trunk:60,slots:12},{realName:"Ferrari 812 Superfast",gameName:"Grotti 821 SP 2017",price:268000,speed:440,season:"Летний 2024",trunk:20,slots:6},{realName:"Lamborghini Murcielago",gameName:"Pegassi Purcielago VS 2009",price:268000,speed:440,season:"Летний 2024",trunk:20,slots:6},{realName:"Nissan Pulsar",gameName:"Annis Pulse 1992",price:145000,speed:240,season:"Зимний 24/25",trunk:60,slots:18},{realName:"Toyota MR-2",gameName:"Karin MR-2 1995",price:145000,speed:240,season:"Зимний 24/25",trunk:60,slots:12},{realName:"Chevtolet Impala SS 1996",gameName:"Declasse Implata SS 1996",price:145000,speed:240,season:"Зимний 24/25",trunk:60,slots:12},{realName:"Ford Escort",gameName:"Vapid Export 1992",price:145000,speed:240,season:"Зимний 24/25",trunk:60,slots:18},{realName:"Honda Civic Type-R 2001",gameName:"Dinka Civil Type-R 2001",price:145000,speed:242,season:"Зимний 24/25",trunk:60,slots:18},{realName:"Ford Mustang SVT Cobra 1993",gameName:"Vapid Stud SVT Cobra 1993",price:145000,speed:242,season:"Зимний 24/25",trunk:60,slots:12},{realName:"Lamborghini Centenario",gameName:"Pegassi Centario 2017",price:268000,speed:450,season:"Зимний 24/25",trunk:20,slots:6},{realName:"Ferrari 296 GTB",gameName:"Grotti 269 GTB 2022",price:268000,speed:450,season:"Зимний 24/25",trunk:20,slots:6},{realName:"Subaru SVX",gameName:"Karin SVX 1991",price:145000,speed:241,season:"Летний 2025",trunk:60,slots:18},{realName:"Toyota Chaser JZX81",gameName:"Karin Racer 81 1991",price:145000,speed:241,season:"Летний 2025",trunk:60,slots:18},{realName:"Toyota Sera",gameName:"Karin Cera 1990",price:145000,speed:241,season:"Летний 2025",trunk:60,slots:12},{realName:"Volvo C30 Polestar",gameName:"Vulcar X30 Polestop 2013",price:145000,speed:241,season:"Летний 2025",trunk:90,slots:18},{realName:"Vauxhall Astra",gameName:"Maxwell Astral XVR 2006",price:145000,speed:241,season:"Летний 2025",trunk:90,slots:18},{realName:"Ford Focus RS",gameName:"Vapid Pocus RS 2010",price:145000,speed:241,season:"Летний 2025",trunk:90,slots:18},{realName:"Ford Transit",gameName:"Vapid Cargo 2011",price:223000,speed:241,season:"Летний 2025",trunk:260,slots:60},{realName:"Lamborghini Temerario",gameName:"Pegassi Temario 2025",price:268000,speed:448,season:"Летний 2025",trunk:20,slots:6},{realName:"Ferrari 12Cilindri",gameName:"Crotti 12Cil 2025",price:268000,speed:443,season:"Летний 2025",trunk:20,slots:6},{realName:"Mitsubishi Pajero Evolution",gameName:"Maibatsu Monterjo Revolution 1997",price:145000,speed:246,season:"Зимний 25/26",trunk:120,slots:18},{realName:"Volvo 850 R",gameName:"Vulcar 850R 1997",price:0,speed:0,season:"Зимний 25/26",trunk:0,slots:0},{realName:"Nissan Stagea RS Four V",gameName:"Annis Stage PS 4 V",price:0,speed:0,season:"Зимний 25/26",trunk:0,slots:0},{realName:"Mitsubishi Galant VR-4",gameName:"Maibatsu Garant RV 4 1990",price:0,speed:0,season:"Зимний 25/26",trunk:0,slots:0},{realName:"BMW 323ti Sport",gameName:"Ubermacht 323ti Sport 2000",price:0,speed:0,season:"Зимний 25/26",trunk:0,slots:0},{realName:"Abarth 695 Biposto",gameName:"Grotti 695 Bipost 2016",price:0,speed:0,season:"Зимний 25/26",trunk:0,slots:0},{realName:"Aston Martin Valkyrie",gameName:"Dewbauchee Vanguard Arachna 2022",price:268000,speed:466,season:"Зимний 25/26",trunk:0,slots:0},{realName:"BMW XM",gameName:"Ubermacht YW J09 2023",price:268000,speed:366,season:"Зимний 25/26",trunk:200,slots:42}
+                ],
+                event: [
+                    {realName:"Cadillac ECTO-1 Ghostbusters",gameName:"Albany ECTO-1 Ghostbusters",price:0,speed:280,trunk:200,slots:42},{realName:"Quadra Turbo-R V-Tech",gameName:"Quadra Turbo-R V-Tech",price:0,speed:310,trunk:60,slots:42},{realName:"Hummer H2 Limo",gameName:"Mammoth N2 Limo",price:0,speed:255,trunk:200,slots:42},{realName:"Школьный автобус",gameName:"Школьный автобус",price:0,speed:0,trunk:200,slots:42},{realName:"Tesla Cybertruck",gameName:"Coil Electruck",price:0,speed:320,trunk:240,slots:60},{realName:"Lamborghini Urus 6x6",gameName:"Pegassi Ursus 6x6",price:0,speed:274,trunk:230,slots:60},{realName:"Bugatti Mistral",gameName:"Truffade Wistral 2024",price:0,speed:450,trunk:10,slots:12},{realName:"Karin Technical Aqua",gameName:"Karin Technical Aqua",price:0,speed:163,trunk:200,slots:30},{realName:"Ferrari Roma",gameName:"Grotti Roman",price:0,speed:350,trunk:10,slots:12},{realName:"Toyota Alphard",gameName:"Karin Alfa",price:0,speed:230,trunk:260,slots:60},{realName:"Rolls-Royce Spectre",gameName:"Enus Spectrum",price:0,speed:370,trunk:60,slots:24},{realName:"Rivian R1T",gameName:"Coil R1T",price:0,speed:335,trunk:240,slots:60},{realName:"Lucis Regalia",gameName:"Lucis Regalia",price:0,speed:335,trunk:60,slots:42},{realName:"Morgan Aero GT",gameName:"Truffade Aero GT",price:0,speed:302,trunk:60,slots:42},{realName:"Mercedes-Benz EQG",gameName:"Benefactor IQ G-series",price:0,speed:358,trunk:165,slots:36},{realName:"Mercedes-Benz EQS",gameName:"Benefactor IQ S-series",price:0,speed:378,trunk:100,slots:18},{realName:"Zeekr 001",gameName:"Coil 001",price:0,speed:349,trunk:165,slots:36},{realName:"Lixiang L9",gameName:"Coil L9",price:0,speed:283,trunk:165,slots:36},{realName:"Mercedes-Benz EQS SUV",gameName:"Benefactor IQ S-series SUV 2024",price:0,speed:340,trunk:165,slots:36},{realName:"Aurus Senat",gameName:"Enus Senate 2024",price:0,speed:315,trunk:160,slots:30},{realName:"Hiphi z",gameName:"Coil Z",price:0,speed:345,trunk:165,slots:36},{realName:"Jeep Gladiator Apocalypse 6x6",gameName:"Canis Gladiator Apocalypse 6x6",price:0,speed:280,trunk:240,slots:60},{realName:"Гусеничный квадроцикл",gameName:"Nagasaki Snowquad",price:0,speed:170,trunk:30,slots:18},{realName:"Снегоход",gameName:"Nagasaki Snowmobile",price:0,speed:170,trunk:30,slots:18},{realName:"Bentley Flying Spur",gameName:"Enus Flying Scott 2020",price:0,speed:346,trunk:80,slots:24},{realName:"Jeep Gladiator",gameName:"Canis Glad 2019",price:0,speed:324,trunk:145,slots:30},{realName:"Bugatti La Voiture Noire",gameName:"Truffade Le Voyage Noire 2021",price:0,speed:450,trunk:15,slots:12},{realName:"Rolls-Royce Droptail",gameName:"Enus Sleektail 2024",price:0,speed:450,trunk:15,slots:12},{realName:"Rolls-Royce Boat tail",gameName:"Enus Coattail",price:0,speed:360,trunk:120,slots:36},{realName:"Lamborghini Lanzador",gameName:"Pegassi Lancelot",price:0,speed:362,trunk:165,slots:36},{realName:"Zeekr 009",gameName:"Coil 009",price:0,speed:247,trunk:300,slots:60},{realName:"Cadilac Escalade 2025",gameName:"Albany Excalibur 2025",price:0,speed:251,trunk:145,slots:30},{realName:"Lincoln Continental Mark III 1968",gameName:"Dundreary Kontinental MK3 1968",price:0,speed:313,trunk:60,slots:42},{realName:"Dodge Charger 1968",gameName:"Bravado Changer 1968",price:0,speed:0,trunk:60,slots:42}
+                ]
+            },
+            kitchen: [
+                {name:"Фруктовый салат",icon:"🥗",ing:["Фрукты"],sat:15,mood:40,str:-3,skill:0,tool:"Нож"},{name:"Овощной салат",icon:"🥗",ing:["Овощи"],sat:10,mood:5,str:0,skill:0,tool:"Нож"},{name:"Овощной смузи",icon:"🥤",ing:["Овощи","Вода"],sat:20,mood:35,str:0,skill:2,tool:"Венчик"},{name:"Фруктовый смузи",icon:"🍹",ing:["Фрукты","Вода"],sat:20,mood:50,str:-7,skill:2,tool:"Венчик"},{name:"Фруктовый лёд",icon:"🍧",ing:["Фрукты","Лед","Сахар"],sat:10,mood:65,str:-7,skill:2,tool:"Венчик"},{name:"Масло",icon:"🧈",ing:["Молоко"],sat:5,mood:0,str:-1,skill:2,tool:"Венчик"},{name:"Рыбный фарш",icon:"🥣",ing:["Любая рыба"],sat:0,mood:0,str:0,skill:2,tool:"Нож"},{name:"Сухая рыбная котлета",icon:"🍘",ing:["Рыбный фарш"],sat:10,mood:0,str:-3,skill:2,tool:"Огонь"},{name:"Рыбная котлета",icon:"🧆",ing:["Рыбный фарш","Масло"],sat:25,mood:10,str:-10,skill:2,tool:"Огонь"},{name:"Мясной фарш",icon:"🥩",ing:["Мясо"],sat:0,mood:0,str:0,skill:2,tool:"Нож"},{name:"Мясная котлета",icon:"🥩",ing:["Мясной фарш","Масло"],sat:25,mood:10,str:-10,skill:2,tool:"Огонь"},{name:"Сухая мясная котлета",icon:"🥩",ing:["Мясной фарш"],sat:10,mood:0,str:-3,skill:2,tool:"Огонь"},{name:"Картофельное пюре",icon:"🥣",ing:["Овощи","Масло","Молоко"],sat:10,mood:10,str:-5,skill:2,tool:"Венчик/Огонь"},{name:"Мясная котлета с пюре",icon:"🍛",ing:["Карт. пюре","Мясная котлета"],sat:50,mood:50,str:-20,skill:3,tool:"-"},{name:"Рыбная котлета с пюре",icon:"🍛",ing:["Карт. пюре","Рыбная котлета"],sat:50,mood:50,str:-20,skill:3,tool:"-"},{name:"Вареный рис",icon:"🍚",ing:["Рис","Вода"],sat:10,mood:0,str:-1,skill:2,tool:"Огонь"},{name:"Рыбная котлета с рисом",icon:"🍛",ing:["Рыбная котлета","Вареный рис"],sat:45,mood:40,str:-12,skill:2,tool:"-"},{name:"Котлета с рисом",icon:"🍛",ing:["Мясная котлета","Вареный рис"],sat:45,mood:40,str:-12,skill:2,tool:"-"},{name:"Ролл с лососем",icon:"🍣",ing:["Лосось","Вареный рис"],sat:25,mood:20,str:-3,skill:2,tool:"Нож"},{name:"Ролл с тунцом",icon:"🍣",ing:["Тунец","Вареный рис"],sat:25,mood:20,str:-3,skill:2,tool:"Нож"},{name:"Овощной ролл",icon:"🍣",ing:["Овощи","Вареный рис"],sat:20,mood:10,str:-2,skill:2,tool:"Нож"},{name:"Рыба с рисом",icon:"🍣",ing:["Любая рыба","Вареный рис"],sat:40,mood:10,str:-5,skill:2,tool:"Огонь"},{name:"Рыба с овощами",icon:"🥗",ing:["Любая рыба","Овощи"],sat:35,mood:15,str:-3,skill:2,tool:"Огонь"},{name:"Мясо с овощами",icon:"🍖",ing:["Мясо","Овощи"],sat:40,mood:10,str:-3,skill:2,tool:"Огонь"},{name:"Яичница",icon:"🍳",ing:["Яйцо"],sat:15,mood:5,str:-3,skill:2,tool:"Огонь"},{name:"Яичница с беконом",icon:"🍳",ing:["Яйцо","Мясо","Масло"],sat:25,mood:15,str:-6,skill:3,tool:"Огонь"},{name:"Омлет",icon:"🥚",ing:["Яйцо","Молоко"],sat:20,mood:10,str:-4,skill:2,tool:"Венчик/Огонь"},{name:"Крем-брюле",icon:"🍮",ing:["Молоко","Сахар","Яйцо"],sat:10,mood:80,str:-7,skill:4,tool:"Огонь"},{name:"Суфле",icon:"🧁",ing:["Яйцо","Сахар"],sat:20,mood:80,str:-2,skill:5,tool:"Венчик/Огонь"},{name:"Овощной омлет",icon:"🥚",ing:["Яйцо","Молоко","Овощи"],sat:25,mood:10,str:-4,skill:3,tool:"Венчик/Огонь"},{name:"Компот",icon:"🍹",ing:["Сахар","Вода","Фрукты"],sat:5,mood:50,str:-7,skill:3,tool:"Огонь"},{name:"Карамель",icon:"🍬",ing:["Сахар"],sat:5,mood:10,str:-5,skill:4,tool:"Огонь"},{name:"Оладьи",icon:"🥞",ing:["Яйцо","Молоко","Мука","Сахар"],sat:20,mood:20,str:-10,skill:3,tool:"Венчик/Огонь"},{name:"Оладьи с карамелью",icon:"🥞",ing:["Оладьи","Карамель"],sat:25,mood:40,str:-20,skill:0,tool:"-"},{name:"Тесто",icon:"🍞",ing:["Мука","Вода","Яйцо"],sat:0,mood:0,str:0,skill:0,tool:"Венчик"},{name:"Чизкейк",icon:"🍰",ing:["Тесто","Сыр","Сахар"],sat:30,mood:60,str:-15,skill:4,tool:"Венчик/Огонь"},{name:"Карамельный чизкейк",icon:"🍰",ing:["Чизкейк","Карамель"],sat:35,mood:85,str:-25,skill:5,tool:"-"},{name:"Фруктовый чизкейк",icon:"🍰",ing:["Чизкейк","Фрукты"],sat:35,mood:70,str:-20,skill:5,tool:"-"},{name:"Яблоко в карамели",icon:"🍎",ing:["Карамель","Фрукты"],sat:20,mood:55,str:-7,skill:4,tool:"-"},{name:"Фруктовый салат с карамелью",icon:"🥗",ing:["Карамель","Фруктовый салат"],sat:25,mood:60,str:-11,skill:0,tool:"-"},{name:"Мороженое",icon:"🍦",ing:["Яйцо","Сахар","Молоко","Лёд"],sat:10,mood:70,str:-15,skill:2,tool:"Венчик"},{name:"Карамельное мороженое",icon:"🍦",ing:["Карамель","Мороженое"],sat:15,mood:80,str:-20,skill:0,tool:"-"},{name:"Молочный коктейль",icon:"🥤",ing:["Мороженое","Молоко"],sat:20,mood:70,str:-15,skill:3,tool:"Венчик"},{name:"Карамельный коктейль",icon:"🥤",ing:["Карамель","Молочный коктейль"],sat:25,mood:80,str:-20,skill:0,tool:"-"},{name:"Бульон",icon:"🍲",ing:["Мясо","Вода"],sat:10,mood:0,str:-25,skill:0,tool:"Огонь"},{name:"Стейк с фруктовым соусом и рисом",icon:"🍛",ing:["Стейк с ф.с.","Вареный рис"],sat:80,mood:60,str:-13,skill:5,tool:"-"},{name:"Стейк с фруктовым соусом и пюре",icon:"🍛",ing:["Стейк с ф.с.","Картофельное пюре"],sat:80,mood:80,str:-15,skill:5,tool:"-"},{name:"Рыба с фруктовым соусом",icon:"🍲",ing:["Рыба","Фрукты","Сахар"],sat:60,mood:50,str:-10,skill:5,tool:"Огонь"},{name:"Рыба с фруктовым соусом и рисом",icon:"🍛",ing:["Рыба с ф.с","Вареный рис"],sat:80,mood:60,str:-13,skill:5,tool:"-"},{name:"Рыба с фруктовым соусом и пюре",icon:"🍛",ing:["Рыба с ф.с","Картофельное пюре"],sat:80,mood:80,str:-15,skill:5,tool:"-"},{name:"Лазанья",icon:"🍕",ing:["Молоко","Мука","Сыр","Овощи","Мясной фарш"],sat:65,mood:50,str:-20,skill:5,tool:"Огонь"},{name:"Бургер",icon:"🍔",ing:["Мясная котлета","Овощи","Хлеб"],sat:40,mood:0,str:-10,skill:2,tool:"-"},{name:"Ризотто",icon:"🍚",ing:["Бульон","Рисовая крупа","Сыр"],sat:40,mood:20,str:-20,skill:0,tool:"Огонь"},{name:"Тако с мясом",icon:"🌮",ing:["Хлеб","Мясной фарш","Сыр","Овощи"],sat:30,mood:30,str:-10,skill:3,tool:"Огонь"},{name:"Тако с рыбой",icon:"🌮",ing:["Хлеб","Рыбный фарш","Сыр","Овощи"],sat:30,mood:30,str:-10,skill:3,tool:"Огонь"},{name:"Буррито",icon:"🌯",ing:["Хлеб","Вареный рис","Мясной фарш","Овощи","Сыр"],sat:50,mood:50,str:-15,skill:3,tool:"Огонь"},{name:"Поке",icon:"🍲",ing:["Вареный рис","Сыр","Овощи","Лосось"],sat:70,mood:50,str:-15,skill:4,tool:"-"},{name:"Мальма в сливочном соусе",icon:"🐟",ing:["Мальма","Овощи","Молоко"],sat:75,mood:75,str:-13,skill:5,tool:"Огонь"},{name:"Мясо по-французски",icon:"🥩",ing:["Мясо","Овощи","Сыр"],sat:60,mood:40,str:-15,skill:5,tool:"Огонь"},{name:"Оливье",icon:"🥗",ing:["Мясо","Овощи","Яйца","Вода"],sat:60,mood:50,str:-25,skill:5,tool:"Нож/Огонь"},{name:"Сашими из фугу",icon:"🐡",ing:["Фугу"],sat:20,mood:60,str:0,skill:0,tool:"Нож"},{name:"Сашими из лосося",icon:"🍣",ing:["Лосось"],sat:10,mood:30,str:0,skill:4,tool:"Нож"},{name:"Сашими из тунца",icon:"🍣",ing:["Тунец"],sat:10,mood:30,str:0,skill:4,tool:"Нож"}
+            ],
+            bp: [
+                {t:"3 часа в онлайне",q:1,b:2,v:4,r:1,c:0, i:"⏳", timer: 10800},
+                {t:" 0 или 00 в казино",q:1,b:2,v:4, img:"img/casino_img.png"},
+                {t:"Выполнить 25 действий на стройке",q:25,b:2,v:4, img:"img/build_img.png"},
+                {t:"Выполнить 25 действий в порту",q:25,b:2,v:4, img:"img/port_img.png"},
+                {t:"Выполнить 25 действий в шахте",q:25,b:2,v:4, img:"img/shahta_img.png"},
+                {t:"3 победы в Дэнс Баттлах",q:3,b:2,v:4, img:"img/dance_battle_img.png"},
+                {t:"Сделать заказ материалов",q:1,b:1,v:2, img:"img/material_busines_img.png"},
+                {t:"20 подходов в спортзале",q:20,b:1,v:2, img:"img/tren_zal_img.png"},
+                {t:"Пройти тренировку в тире",q:1,b:1,v:2, img:"img/tir.png"},
+                {t:"10 посылок на почте",q:10,b:1,v:2, img:"img/poshta.png", timer: 600},
+                {t:"Арендовать киностудию",q:1,b:2,v:4, img:"img/cinema_studio_img.png"},
+                {t:"Купить лотерейный билет",q:1,b:1,v:2, img:"img/lotery_img.png"},
+                {t:"Выиграть гонку в картинге",q:1,b:1,v:2, img:"img/carting_img.png"},
+                {t:"10 действий на ферме",q:10,b:1,v:2, img:"img/ferma_img.png"},
+                {t:"Потушить 25 \"огоньков\"",q:25,b:1,v:2, img:"img/pogarniy_img.png"},
+                {t:"Выкопать 1 сокровище",q:1,b:1,v:2, img:"img/sokrovishe_img.png"},
+                {t:"Проехать 1 уличную гонку",q:1,b:1,v:2, img:"img/racing_img.png"},
+                {t:"Выполнить 3 заказа дальнобойщиком",q:3,b:2,v:4, img:"img/dalnoboy_img.png"},
+                {t:"Два раза оплатить смену внешности",q:2,b:2,v:4, img:"img/smena_ebala_img.png"},
+                {t:"Добавить 5 видео в кинотеатре",q:5,b:1,v:2, img:"img/cinema_teatr_img.png"},
+                {t:"Выиграть 5 игр в тренировочном комплексе",q:5,b:1,v:2, img:"img/tren_complex_img.png"},
+                {t:"Выиграть 3 любых игры на арене",q:3,b:1,v:2, img:"img/arena_img.png"},
+                {t:"2 круга на любом маршруте автобусника",q:2,b:2,v:4, img:"img/bus.png"},
+                {t:"5 раз снять 100% шкуру с животных",q:5,b:2,v:4, img:"img/paw.png"},
+                {t:"7 закрашенных граффити",q:7,b:1,v:2, img:"img/graffiti_img.png"},
+                {t:"Сдать 5 контрабанды",q:5,b:2,v:4, img:"img/contrabanda_img.png"},
+                {t:"Участие в каптах/бизварах",q:1,b:1,v:2, img:"img/bizvar_img.png"},
+                {t:"Сдать Хаммер с ВЗХ",q:1,b:3,v:6, img:"img/hummer_img.png"},
+                {t:"Починить другому игроку(Предложение через капот)",q:1,b:2,v:4, img:"img/hummer_img.png"},
+                {t:"5 выданных медкарт в EMS",q:5,b:2,v:4, img:"img/medical_card_img.png"},
+                {t:"Закрыть 15 вызовов в EMS",q:15,b:2,v:4, img:"img/ems_img.png"},
+                {t:"Отредактировать 40 объявлений в WN",q:40,b:2,v:4, img:"img/obyavlenie_wn_img.png"},
+                {t:"Взломать 15 замков",q:15,b:2,v:4, img:"img/ograb_domov_img.png"},
+                {t:"Закрыть 5 кодов в силовых",q:5,b:2,v:4, img:"img/codes_img.png"},
+                {t:"Поставить на учет 2 автомобиля",q:2,b:1,v:2, img:"img/register_auto_img.png"},
+                {t:"Произвести 1 арест в КПЗ",q:1,b:1,v:2, img:"img/arest_img.png"},
+                {t:"Выкупить двух человек из КПЗ",q:2,b:2,v:4, img:"img/vikup_kpz_img.png"},
+                {t:"Посетить любой сайт в браузере",q:1,b:1,v:2, img:"img/icon_site.png"},
+                {t:"Зайти в любой канал в Brawl",q:1,b:1,v:2, img:"img/icon_brawl.png"},
+                {t:"Поставить лайк любой анкете в Match",q:1,b:1,v:2, img:"img/icon_like_match.png"},
+                {t:"Прокрутить за DP кейс",q:1,b:10,v:20, img:"img/case.png"},
+                {t:"Кинуть мяч питомцу 15 раз",q:15,b:2,v:4, img:"img/icon_push_ball.png"},
+                {t:"15 выполненных питомцем команд",q:15,b:2,v:4, img:"img/icon_dressirovka.png"},
+                {t:"Ставка в колесе удачи в казино",q:1,b:3,v:6, img:"img/icon_stavka_in_coleso.png"},
+                {t:"Проехать 1 станцию на метро",q:1,b:2,v:4, img:"img/icon_metro.png"},
+                {t:"Поймать 20 рыб",q:20,b:4,v:8, img:"img/icon_fishing.png"},
+                {t:"Выполнить 2 квеста любых клубов",q:2,b:4,v:8, img:"img/icon_club_task.png"},
+                {t:"Починить деталь в автосервисе",q:1,b:1,v:2, img:"img/icon_auto-service.png"},
+                {t:"Забросить 2 мяча в баскетболе",q:2,b:1,v:2, img:"img/icon_basketbol.png"},
+                {t:"Забить 2 гола в футболе",q:2,b:1,v:2, img:"img/icon_football.png"},
+                {t:"Победить в армрестлинге",q:1,b:1,v:2, img:"img/icon_armwresling.png"},
+                {t:"Победить в дартс",q:1,b:1,v:2, img:"img/icon_darts.png"},
+                {t:"Поиграть 1 минуту в волейбол",q:1,b:1,v:2, img:"img/icon_volleyball.png", timer: 60},
+                {t:"Поиграть 1 минуту в настольный теннис",q:1,b:1,v:2, img:"img/icon_ping_pong.png", timer: 60},
+                {t:"Поиграть 1 минуту в большой теннис",q:1,b:1,v:2, img:"img/icon_big_tennis.png", timer: 60},
+                {t:"Сыграть в мафию в казино",q:1,b:3,v:6, img:"img/icon_play_mafia.png"},
+                {t:"Сделать платеж по лизингу",q:1,b:1,v:2, img:"img/icon_lizing_pay.png"},
+                {t:"Посадить траву в теплице",q:1,b:4,v:8, img:"img/icon_grass_teplisa.png"},
+                {t:"Запустить переработку в лаборатории",q:1,b:4,v:8, img:"img/icon_obezbol_laboratory.png"},
+                {t:"Принять участие в 2 аирдропах",q:2,b:4,v:8, img:"img/airdrop.png"}
+            ],
+timers: [
+    // Новый таймер на 1 минуту (60 секунд)
+    {id:'q1', l:'Для 1-мин квестов', s:60, i:'⏱'}, 
 
-        // Medium
-        {t:"Автобус (2 круга)", q:2, b:2, v:4, i:"🚌", cat:"medium"},
-        {t:"Стройка (25)", q:25, b:2, v:4, i:"🏗", cat:"medium"},
-        {t:"Порт (25)", q:25, b:2, v:4, i:"🚢", cat:"medium"},
-        {t:"Шахта (25)", q:25, b:2, v:4, i:"⛏", cat:"medium"},
-        {t:"Метро (1 станция)", q:1, b:2, v:4, i:"🚇", cat:"medium"},
-        {t:"Ферма (10)", q:10, b:1, v:2, i:"🚜", cat:"medium"},
-        {t:"Дальнобойщик (3)", q:3, b:2, v:4, i:"🚚", cat:"medium"},
-        {t:"Почта (10)", q:10, b:1, v:2, i:"✉️", cat:"medium"},
-        {t:"Пожарный (25)", q:25, b:1, v:2, i:"🔥", cat:"medium"},
+    // Твои основные игровые таймеры (пути к иконкам проверь, если менял)
+    {id:'mail', l:'Почта (10м)', s:600, i:'img/poshta.png'},
+    {id:'mech', l:'Механик (5м)', s:300, i:'img/autougon.png'}, // Или путь к картинке
+    {id:'taxi', l:'Таксист (5м)', s:300, i:'img/autougon.png'},
+    {id:'train', l:'Дрессировка (15м)', s:900, i:'img/paw.png'},
+    {id:'theft', l:'Автоугон (1.5ч)', s:5400, i:'img/autougon.png'},
+    {id:'shoot', l:'Тир (1.5ч)', s:5400, i:'img/tir.png'},
+    {id:'pimp', l:'Сутенерка (1.5ч)', s:5400, i:'img/icon_like_match.png'},
+    {id:'club', l:'Клуб (2ч)', s:7200, i:'img/icon_club_task.png'},
+    {id:'tarot', l:'Таро (3ч)', s:10800, i:'img/taro.png'},
+    {id:'casino', l:'Казино (24ч)', s:86400, i:'img/casino_img.png'}
+],
+            guides: {
+                payment: {
+                    animals: { h: ["Зверь","Скупщик","Rednecks"], r: [["Кролик","1.000$","1.160$"],["Кабан","2.500$","2.900$"],["Олень","4.000$","4.640$"],["Койот","7.500$","8.700$"],["Пума","15.000$","17.400$"]] },
+                    treasures: { h: ["Название","Скуп 0","Скуп 5","Red 0","Red 5"], r: [["Дублон","1-3к","1.5-4.5к","1.1-3.4к","1.7-5.2к"],["Самородок","2-5к","3-7.5к","2.3-5.8к","3.4-8.7к"],["Инструмент","6-10к","9-15к","6.9-11.6к","10.4-17.4к"],["Медаль","9-15к","13.5-22.5к","10.4-17.4к","15.6-26.1к"],["Украшение","12-18к","18-27к","13.9-20.8к","20.8-31.3к"],["Метеорит","22-28к","33-42к","25.5-32.4к","38.2-48.7к"]] }
+                },
+                pet: { h: ["Питомец","Еда / Лакомство","Навык"], r: [["🐱 Кот","Еда: Нормяу<br>Лак: Лакомкот","1. Восстанавливает настроение (на руках)<br>2. Восстанавливает здоровье (на руках)"],["🐵 Обезьяна","Еда: Овощи и фрукты<br>Лак: Похвалобез","1. Ворует еду и рыбу из инвентаря других игроков.<br>2. Рыбачит вместе с вами и периодически отдает улов."],["🦁 Пума","Еда: Мясо<br>Лак: Лакомкот","1. Режим охоты: бежит к животным в радиусе 100м.<br>2. Режим атаки: нападает на игроков, которые атаковали вы."],["🐀 Крыса","Еда: Хрумкажуй<br>Лак: Лакомгрыз","1. С вероятностью 50% заменяет хлам на сокровище при их поиске.<br>2. Увеличивает шанс найти обезболивающее на стартовых работах."],["🐗 Кабан","Еда: Любые блюда и отходы<br>Лак: Умнисвин","1. С вероятностью 50% заменяет хлам на сокровище при их поиске.<br>2. Режим атаки: нападает на игроков, которых атаковали вы."],["🐰 Заяц","Еда: Хрумкажуй<br>Лак: Лакомгрыз","1. Увеличивает шанс найти семена на ферме, если следует за игроком.<br>2. Восстанавливает здоровье, если взять его на руки."],["🐶 Собака","Еда: Нормалай<br>Лак: Молодог","1. В режиме охоты бежит к животным в радиусе 100 метров.<br>2. В режиме атаки нападает на игроков, которых атаковали вы."]] },
+                // Внутри DB.guides:
+med: { 
+    r: [
+        // type: "red" (Красный - Кровотечение)
+        { t: "Артериал. кровотеч.", i: "img/art.png", c: "Жгут выше", ci: "img/zhjutvishe.png", type: "red" },
+        { t: "Венозное кровотеч.", i: "img/venoznoe.png", c: "Жгут ниже", ci: "img/jgutnishe.png", type: "red" },
+        
+        // type: "brown" (Коричневый - Раны/Огнестрел)
+        { t: "Огнестрел", i: "img/ognestrel.png", c: "Повязка", ci: "img/povyazka.png", type: "brown" },
+        { t: "Рваная рана", i: "img/rana.png", c: "Повязка", ci: "img/povyazka.png", type: "brown" },
 
-        // Hard
-        {t:"Нули в казино", q:1, b:2, v:4, i:"🎲", cat:"hard"},
-        {t:"Колесо удачи", q:1, b:3, v:6, i:"🎡", cat:"hard"},
-        {t:"Заказ материалов", q:1, b:1, v:2, i:"🧱", cat:"hard"},
-        {t:"Смена внешности (2)", q:2, b:2, v:4, i:"💇", cat:"hard"},
-        {t:"Мафия в казино", q:1, b:3, v:6, i:"🕵️", cat:"hard"},
-        {t:"Хаммер с ВЗХ", q:1, b:3, v:6, i:"🚙", cat:"hard"},
+        // type: "yellow" (Желтый - Ожоги)
+        { t: "Ожог кислотой", i: "img/kislotaoshoj.png", c: "Щелочной р-р", ci: "img/shelosh.png", type: "yellow" },
+        { t: "Ожог щелочью", i: "img/ojogsheloch.png", c: "Кислый р-р", ci: "img/kislyrasvor.png", type: "yellow" },
+        { t: "Ожог термический", i: "img/ojhogterm.png", c: "Холод. компресс", ci: "img/holodniycompres.png", type: "yellow" },
 
-        // Pair
-        {t:"Гонка", q:1, b:1, v:2, i:"🏎", cat:"pair"},
-        {t:"Тренер. комплекс (5)", q:5, b:1, v:2, i:"💪", cat:"pair"},
-        {t:"Денс батл (3)", q:3, b:2, v:4, i:"💃", cat:"pair"},
-        {t:"Арена (3)", q:3, b:1, v:2, i:"🔫", cat:"pair"},
-        {t:"Теннис/Волейбол", q:1, b:1, v:2, i:"🏐", cat:"pair"},
-        {t:"Армрестлинг", q:1, b:1, v:2, i:"🦾", cat:"pair"},
+        // type: "blue" (Синий - Переломы/Ушибы/Таблетки)
+        { t: "Обморожение", i: "img/obmorojenie.png", c: "Грелка (Тепло)", ci: "img/teplo.png", type: "blue" },
+        { t: "Недостаточность", i: "img/nedostatoch.png", c: "Таблетки", ci: "img/tabletka.png", type: "blue" },
+        { t: "Перелом", i: "img/perelom.png", c: "Шина", ci: "img/shina.png", type: "blue" },
+        { t: "Вывих", i: "img/vivih.png", c: "Шина", ci: "img/shina.png", type: "blue" },
+        { t: "Растяжение", i: "img/rastyajenie.png", c: "Тугая повязка", ci: "img/tygayapovyuazka.png", type: "blue" },
+        { t: "Ушиб", i: "img/ushib.png", c: "Лёд", ci: "img/led.png", type: "blue" }
+    ]
+},
+                rep: { h: ["Компонент","Пробег 100%","Цена починки"], r: [["Двигатель","100.000 км","30% от гос"],["Тормоза","20.000 км","9% от гос"],["Покрышки","20.000 км","6% от гос (макс 100к)"],["Топливо","20.000 км","6% от гос (макс 100к)"],["Выхлоп","10.000 км","6% от гос (макс 100к)"],["Кузов","100.000 км","19% от гос"],["Аккумулятор","10.000 км","6% от гос (макс 100к)"],["Подвеска","20.000 км","9% от гос"],["Зажигание","20.000 км","6% от гос (макс 100к)"],["Трансмиссия","50.000 км","20% от гос"]] },
+                drop: { h: ["Деятельность","Шанс","5 ранг Red","+Питомец"], r: [["Обезбол (Порт, Стройка, Шахта)","2%","4%","6%"],["Обезбол (Почта разовая)","10%","12%","14%"],["Обезбол (Почта работа)","3%","5%","7%"],["Обезбол (Ограбление домов)","5%","7%","-"],["Семена (Сбор апельсинов/капусты)","6%","8%","10% (с кроликом)"],["Семена (Поиск клада/Контрабанда)","10%","12%","-"]] }
+            },
+tarot: [
+    {n:"0. Дурак", i:"🃏", img:"img/1.png", d:"Несколько минут будет проигрываться смех 'повара'"},
+    {n:"1. Маг", i:"🎩", img:"img/2.png", d:"Все персонажи вашего пола поблизости копируют вашу внешность"},
+    {n:"2. Жрица", i:"🌙", img:"img/3.png", d:"У персонажа начинается кровотечение"},
+    {n:"3. Императрица", i:"👑", img:"img/4.png", d:"Включается 'Женская походка'"},
+    {n:"4. Император", i:"🤴", img:"img/5.png", d:"Включается походка 'Раскидывать руками'"},
+    {n:"5. Иерофант", i:"⛪", img:"img/6.png", d:"Восстанавливает здоровье до макс, но настроение/сытость в 0"},
+    {n:"6. Влюбленные", i:"💞", img:"img/7.png", d:"Камера фокусируется на персонажах противоположного пола"},
+    {n:"7. Колесница", i:"🐎", img:"img/8.png", d:"Ненадолго ускоряет бег персонажа"},
+    {n:"8. Сила", i:"🦁", img:"img/9.png", d:"+50 очков навыка сила"},
+    {n:"9. Отшельник", i:"🔦", img:"img/10.png", d:"X2 зарплата на функциональных работах (час)"},
+    {n:"10. Колесо Фортуны", i:"🎡", img:"img/11.png", d:"Сбрасывается счетчик колеса удачи"},
+    {n:"11. Справедливость", i:"⚖️", img:"img/12.png", d:"+1 доллар"},
+    {n:"12. Повешенный", i:"🧘", img:"img/13.png", d:"Тело прозрачное, остается лишь голова в петле"},
+    {n:"13. Смерть", i:"💀", img:"img/14.png", d:"Персонажу становится плохо и он умирает"},
+    {n:"14. Умеренность", i:"🏺", img:"img/15.png", d:"Здоровье минимум, но настроение и сытость 100%"},
+    {n:"15. Дьявол", i:"😈", img:"img/16.png", d:"Персонаж горит, но не получает урона"},
+    {n:"16. Башня", i:"🏰", img:"img/17.png", d:"Наличные деньги исчезают и возвращаются"},
+    {n:"17. Звезда", i:"🌟", img:"img/18.png", d:"Подкидывает персонажа в воздух"},
+    {n:"18. Луна", i:"🌝", img:"img/19.png", d:"Делает кожу белой (если был темный)"},
+    {n:"19. Солнце", i:"🌞", img:"img/20.png", d:"Делает кожу чёрной (если был светлый)"},
+    {n:"20. Суд", i:"🎺", img:"img/21.png", d:"Персонаж получает розыск на 2 минуты"},
+    {n:"21. Мир", i:"🌍", img:"img/22.png", d:"Телепортирует в случайные места"}
+],
+            ball8: [
+                {q:"Ровные ли сегодня дороги?",a:"Да: Уменьшает расход бензина в 2 раза<br>Нет: Увеличивает расход в 2 раза"},
+                {q:"Уважают ли меня в моем клубе?",a:"Да: Х2 репутация за задания в клубах<br>Нет: Уменьшает репутацию в 2 раза"},
+                {q:"На подработках сегодня хорошо платят?",a:"Да: +25% зарплаты на функц. работах<br>Нет: -25% зарплаты"},
+                {q:"Вкусно ли я сегодня поем?",a:"Да: Отключает голод до рестарта<br>Нет: Опускает сытость до нуля 1 раз"},
+                {q:"Буду ли я сегодня внимателен?",a:"Да: Увеличивает шанс выпадения семян/обезбол<br>Нет: Уменьшает шанс выпадения"},
+                {q:"Крепкое ли сегодня оружие?",a:"Да: Отключает износ оружия до рестарта<br>Нет: Износ оружия в 2 раза больше"},
+                {q:"Пойдет ли сегодня торговля?",a:"Да: Скидка 20% на объявления 5vito<br>Нет: Повышает цену на 20%"},
+                {q:"Сегодня хороший улов?",a:"Да: Облегчает рыбалку (на 1 кружок меньше)<br>Нет: Усложняет (на 1 кружок больше)"},
+                {q:"Смена будет продуктивной?",a:"Да: +25% к пейдею во фракции<br>Нет: -25% от пейдея во фракции"}
+            ]
+        };
+        
+        // ================= LOGIC & CLOUD =================
+        let BP = { start:0, done:[], times:{}, hidden:[], counters:{}, vip:false, x2:false, sortOrder:[] };
+        let TIMERS = {}; 
+        let EVENTS = []; 
+        let TIMER_INT = {};
+// Обёртка для удобной работы с CloudStorage
+let saveTimers = {}; // Хранилище таймеров для каждого ключа
+        
+const Cloud = {
+            isAvailable: () => window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.CloudStorage,
+            
+            getItem: (key) => {
+                return new Promise((resolve) => {
+                    // Если облако недоступно — сразу берем из LocalStorage
+                    if (!Cloud.isAvailable()) {
+                        return resolve(localStorage.getItem(key));
+                    }
 
-        // Faction
-        {t:"Трава (Теплица)", q:1, b:4, v:8, i:"🌿", cat:"faction"},
-        {t:"Обезбол (Лаба)", q:1, b:4, v:8, i:"💊", cat:"faction"},
-        {t:"Аирдропы (2)", q:2, b:4, v:8, i:"📦", cat:"faction"},
-        {t:"Граффити (7)", q:7, b:1, v:2, i:"🎨", cat:"faction"},
-        {t:"Контрабанда (5)", q:5, b:2, v:4, i:"💼", cat:"faction"},
-        {t:"Капт/Бизвар", q:1, b:1, v:2, i:"⚔️", cat:"faction"},
-        {t:"Угон авто (регистр)", q:2, b:1, v:2, i:"🚗", cat:"faction"},
-        {t:"EMS вызовы (15)", q:15, b:2, v:4, i:"🚑", cat:"faction"},
-        {t:"WN объявления (40)", q:40, b:2, v:4, i:"📰", cat:"faction"}
-    ],
-    timers: [
-        {id:'org', l:'Организация', s:7200, i:'🏢'},
-        {id:'mail', l:'Почта', s:600, i:'✉️'},
-        {id:'avtogon', l:'Автоугон', s:5400, i:'🚗'},
-        {id:'pimp', l:'Сутенерка', s:5400, i:'👠'},
-        {id:'contra', l:'Контрабанда', s:300, i:'💼'},
-        {id:'bus', l:'Автобус', s:300, i:'🚌'},
-        {id:'club', l:'Задание клуба', s:7200, i:'🏍'},
-        {id:'tir', l:'Тир', s:5400, i:'🎯'},
-        {id:'sew', l:'Швейка', s:5400, i:'🧵'},
-        {id:'box', l:'Коробки', s:5400, i:'📦'},
-        {id:'biker', l:'Байкерка', s:7200, i:'🏍'},
-        {id:'redneck', l:'Реднеки', s:7200, i:'🚜'},
-        {id:'carmit', l:'Кармит', s:7200, i:'🏎'},
-        {id:'merry', l:'Меривезер', s:7200, i:'⚔️'},
-        {id:'epsi', l:'Эпсилон', s:7200, i:'🌀'},
-        {id:'pet', l:'Дрессировка', s:900, i:'🐕'}
-    ],
-    guides: {
-        fishing: {
-            h: ["Рыба", "Шанс", "Цены", "Red", "Вес"],
-            d: [
-                ["Стерлядь", "33.3%", "54-71", "81", "0.3"],
-                ["Лосось", "17.4%", "73-96", "110", "0.3"],
-                ["Осетр", "29.0%", "132-173", "198", "0.3"],
-                ["Черный Амур", "6.3%", "264-346", "396", "0.4"],
-                ["Скат", "7.0%", "300-393", "450", "0.4"],
-                ["Тунец", "1.0%", "840-1103", "1260", "0.4"],
-                ["Мальма", "1.0%", "1260-1654", "1890", "0.4"],
-                ["Фугу", "5.0%", "3000-3950", "4500", "0.5"],
-                ["---", "На червя", "---", "---", "---"],
-                ["Корюшка", "-", "30-39", "45", "0.2"],
-                ["Окунь", "-", "31-40", "46", "0.2"],
-                ["Угорь", "-", "32-43", "49", "0.2"],
-                ["Щука", "-", "35-46", "52", "0.3"]
-            ]
-        },
-        hunting: {
-            h: ["Животное", "Обычный (100%)", "Rednecks (100%)"],
-            d: [
-                ["Кролик", "1.000$", "1.160$"],
-                ["Кабан", "2.500$", "2.900$"],
-                ["Олень", "4.000$", "4.640$"],
-                ["Койот", "7.500$", "8.700$"],
-                ["Пума", "15.000$", "17.400$"]
-            ]
-        },
-        treasures: {
-            h: ["Сокровище", "Lv0 - Lv5", "Red Lv0 - Lv5"],
-            d: [
-                ["Дублон", "1k-3k | 1.5k-4.5k", "1.1k-3.4k | 1.7k-5.2k"],
-                ["Самородок", "2k-5k | 3k-7.5k", "2.3k-5.8k | 3.4k-8.7k"],
-                ["Инструмент", "6k-10k | 9k-15k", "6.9k-11.6k | 10.4k-17.4k"],
-                ["Медаль", "9k-15k | 13.5k-22.5k", "10.4k-17.4k | 15.6k-26.1k"],
-                ["Украшение", "12k-18k | 18k-27k", "13.9k-20.8k | 20.8k-31.3k"],
-                ["Метеорит", "22k-28k | 33k-42k", "25.5k-32.4k | 38.2k-48.7k"]
-            ]
-        },
-        skills: {
-            h: ["Навык", "Действий", "До 60%", "До 5 лвл", "Бонус"],
-            d: [
-                ["Сила", "100-500", "12/6 ч", "30/15 ч", "+4% скорость"],
-                ["Стрельба", "5-20", "60/30 ч", "160/80 ч", "Меньше разброс"],
-                ["Кулинария", "50-250", "1/0.5 ч", "2/1 ч", "Новые блюда"],
-                ["Рыболовство", "25-1000", "6/3 ч", "16/8 ч", "Новые рыбы"],
-                ["Охота", "100-300", "60/30 ч", "150/75 ч", "Качество шкур"],
-                ["Сокровища", "100-500", "130/65 ч", "350/170 ч", "+10% цена"],
-                ["Фермерство", "500-1500", "28/14 ч", "64/32 ч", "Техника"],
-                ["Строитель", "1500-4500", "26/13 ч", "56/28 ч", "Погрузчик"],
-                ["Шахтер", "1000-3000", "32/16 ч", "68/34 ч", "Бульдозер"],
-                ["Таксист", "100-500", "80/40 ч", "200/100 ч", "Новые авто"]
-            ]
-        },
-        seeds: {
-            h: ["Деятельность", "Базовый", "5 Red", "+Крыса/Кролик"],
-            d: [
-                ["--- Обезбол ---", "", "", ""],
-                ["Порт/Стройка", "2%", "4%", "6%"],
-                ["Почта (разовая)", "10%", "12%", "14%"],
-                ["Почта (работа)", "3%", "5%", "7%"],
-                ["Ограбление", "5%", "7%", "-"],
-                ["--- Семена ---", "", "", ""],
-                ["Апельсины/Капуста", "6%", "8%", "10%"],
-                ["Поиск клада", "10%", "12%", "-"],
-                ["Контрабанда", "10%", "12%", "-"]
-            ]
-        },
-        garage: {
-            h: ["Класс", "2гм", "6гм", "10гм", "Итого (Макс)"],
-            d: [
-                ["КВАРТИРЫ", "", "", "", ""],
-                ["Эконом", "50k", "-", "-", "150k"],
-                ["Стандарт", "50k", "-", "-", "150k"],
-                ["Комфорт+", "50k", "200k", "-", "350k"],
-                ["Премиум", "+", "200k", "-", "700k"],
-                ["Люкс", "+", "200k", "600k", "9.3kk"],
-                ["Платинум", "+", "200k", "600k", "9.3kk"],
-                ["ДОМА", "", "", "", ""],
-                ["Стандарт", "100k", "200k", "-", "300k"],
-                ["Комфорт", "100k", "200k", "-", "300k"],
-                ["Комфорт+", "+", "400k", "800k", "1.8kk"],
-                ["Престиж", "+", "400k", "800k", "1.8kk"],
-                ["Элитное", "+", "+", "800k", "8.1kk"]
-            ]
-        },
-        repair: {
-            h: ["Компонент", "Износ", "Цена"],
-            d: [
-                ["Двигатель", "100к", "30%"],
-                ["Тормоза", "20к", "9%"],
-                ["Покрышки", "20к", "6%"],
-                ["Топливо", "20к", "6%"],
-                ["Выхлоп", "10к", "6%"],
-                ["Кузов", "100к", "19%"],
-                ["Аккумулятор", "10к", "6%"],
-                ["Подвеска", "20к", "9%"],
-                ["Зажигание", "20к", "6%"],
-                ["Трансмиссия", "50к", "20%"]
-            ]
-        }
+                    // --- ФИКС ДЛЯ ПК: СТРАХОВКА ---
+                    // Если Telegram не ответит через 2 секунды, берем данные из LocalStorage
+                    const safetyTimeout = setTimeout(() => {
+                        console.warn(`Cloud timeout for ${key}, using LocalStorage`);
+                        resolve(localStorage.getItem(key));
+                    }, 2000);
+
+                    window.Telegram.WebApp.CloudStorage.getItem(key, (err, val) => {
+                        // Телеграм ответил, отменяем таймер страховки
+                        clearTimeout(safetyTimeout);
+                        
+                        if (err || !val) {
+                            resolve(localStorage.getItem(key));
+                        } else {
+                            // Обновляем и локальную копию
+                            localStorage.setItem(key, val);
+                            resolve(val);
+                        }
+                    });
+                });
+            },
+
+            setItem: (key, value) => {
+                // 1. МГНОВЕННО сохраняем в localStorage
+                localStorage.setItem(key, value);
+                
+                if (Cloud.isAvailable()) {
+                    if (saveTimers[key]) clearTimeout(saveTimers[key]);
+
+                    saveTimers[key] = setTimeout(() => {
+                        window.Telegram.WebApp.CloudStorage.setItem(key, value, (err, stored) => {
+                            if (err) console.error('Cloud save error:', err);
+                        });
+                    }, 500);
+                }
+            }
+        };
+
+        async function init() {
+            // Загружаем данные из облака (или локально)
+            try {
+                const [bpData, tmData, evData] = await Promise.all([
+                    Cloud.getItem('gta_bp_22'),
+                    Cloud.getItem('gta_tm_22'),
+                    Cloud.getItem('gta_ev_22')
+                ]);
+
+                if(bpData) BP = JSON.parse(bpData);
+if(!BP.doneTwink) BP.doneTwink = [];
+                if(tmData) TIMERS = JSON.parse(tmData);
+                if(evData) EVENTS = JSON.parse(evData);
+
+            } catch (e) {
+                console.error("Error loading data", e);
+            }
+
+            // Init sort order if missing
+            if(!BP.sortOrder || BP.sortOrder.length !== DB.bp.length) {
+                BP.sortOrder = DB.bp.map((_, i) => i);
+            }
+
+            // Убираем лоадер
+            const loader = document.getElementById('loader');
+            if(loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => loader.remove(), 300);
+            }
+
+            document.getElementById('startBp').value = BP.start || '';
+            document.getElementById('btnVip').classList.toggle('active', BP.vip);
+            document.getElementById('btnX2').classList.toggle('active', BP.x2);
+            
+            renderBP(); updateBP();
+            renderTimers(); renderTimerPresets(); renderCal(); renderCars(); renderFood(); 
+const activeGuideBtn = document.querySelector('#tab-guides .seg-btn.active');
+            if(activeGuideBtn) setGuide('payment', activeGuideBtn);
+            
+            setupDragAndDrop();
+        } // <--- ВОТ ЭТА СКОБКА ОЧЕНЬ ВАЖНА! ОНА ЗАКРЫВАЕТ INIT()
+
+// Объект для хранения позиций скролла: { 'tab-bp': 500, 'tab-cars': 0, ... }
+let SCROLL_POS = {};
+
+function go(id, btn) {
+    // 1. Находим текущую активную вкладку (откуда уходим)
+    const currentTab = document.querySelector('.tab-content.active');
+    if (currentTab) {
+        // Запоминаем, насколько она была прокручена
+        SCROLL_POS[currentTab.id] = window.scrollY;
     }
-};
 
-// --- LOGIC ---
-let BP = { start:0, done:[], doneTwink:[], counters:{}, vip:false, x2:false };
-let ACTIVE_TIMERS = {}; 
-let CAT_STATE = { easy:true, medium:false, hard:false, pair:false, faction:false };
-
-// Init
-function init() {
-    // Load data
-    const savedBP = localStorage.getItem('gta_bp_final');
-    if(savedBP) BP = JSON.parse(savedBP);
-
-    const savedActive = localStorage.getItem('gta_timers_active_final');
-    if(savedActive) ACTIVE_TIMERS = JSON.parse(savedActive);
-
-    document.getElementById('startBp').value = BP.start || '';
-    document.getElementById('btnVip').classList.toggle('active', BP.vip);
-    document.getElementById('btnX2').classList.toggle('active', BP.x2);
+    // 2. Стандартное переключение (твой старый код)
+    document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
+    document.getElementById('tab-'+id).classList.add('active');
     
-    renderBP(); updateBP(); renderTimers(); setGuide('fishing', document.querySelector('.g-tab'));
+    document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active'));
+    btn.classList.add('active');
+
+    // 3. Восстанавливаем скролл для новой вкладки
+    // Если мы уже были здесь — берем сохраненное значение, иначе — 0 (верх)
+    const savedScroll = SCROLL_POS['tab-'+id] || 0;
     
-    // Timer Tick Loop
-    setInterval(tickTimers, 1000);
+    // Мгновенно перематываем страницу
+    window.scrollTo(0, savedScroll);
+}
+// --- ИСПРАВЛЕННАЯ ФУНКЦИЯ ---
+function renderTimerPresets() {
+    const container = document.getElementById('timerGrid');
+    if (!container) return;
+    container.innerHTML = '';
+
+    DB.timers.forEach(t => {
+        const timeStr = fmtTimeSimple(t.s);
+        // Visual for preset (Grey, Start button)
+        container.innerHTML += `
+            <div class="timer-card">
+                <div class="tc-header">
+                    <div class="tc-title">
+                        <span style="color:#666">::</span> ${t.l}
+                    </div>
+                </div>
+                <div class="tc-time">${timeStr}</div>
+                <div class="tc-footer">
+                    <button class="tc-btn start" onclick="addGameTimer('${t.id}')">
+                        ▶ Старт
+                    </button>
+                </div>
+            </div>
+        `;
+    });
 }
 
-// --- BP FUNCTIONS ---
-function toggleVip() { BP.vip = !BP.vip; document.getElementById('btnVip').classList.toggle('active'); saveBP(); updateBP(); renderBP(); }
-function toggleX2() { BP.x2 = !BP.x2; document.getElementById('btnX2').classList.toggle('active'); saveBP(); updateBP(); renderBP(); }
-
-function updateBP() {
-    BP.start = parseInt(document.getElementById('startBp').value) || 0;
-    let total = BP.start;
-
-    // Считаем выполненные
-    const processTask = (id) => {
-        let task = DB.bp[id];
-        let rw = BP.vip ? task.v : task.b;
-        if(BP.x2) rw *= 2;
-        return rw;
-    };
-
-    BP.done.forEach(id => total += processTask(id));
+// --- ЭТОЙ ФУНКЦИИ У ТЕБЯ ТОЖЕ НЕ БЫЛО, ДОБАВЬ ЕЁ СЮДА ---
+function fmtTimeSimple(s) {
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
     
-    // Счетчики
-    Object.keys(BP.counters).forEach(id => {
-        let task = DB.bp[id];
-        let rw = BP.vip ? task.v : task.b;
-        if(BP.x2) rw *= 2;
-        total += (rw * BP.counters[id]);
+    // Функция pad() у тебя уже есть ниже в коде, она сработает
+    if (h > 0) {
+        return `${h}:${pad(m)}:${pad(sec)}`;
+    } else {
+        return `${m}:${pad(sec)}`;
+    }
+}
+
+        // --- BP LOGIC ---
+        function saveBP() { 
+            const json = JSON.stringify(BP);
+            Cloud.setItem('gta_bp_22', json);
+        }
+        function toggleVip() { BP.vip = !BP.vip; document.getElementById('btnVip').classList.toggle('active'); saveBP(); renderBP(); updateBP(); }
+        function toggleX2() { BP.x2 = !BP.x2; document.getElementById('btnX2').classList.toggle('active'); saveBP(); renderBP(); updateBP(); }
+ function updateBP() {
+    BP.start = parseInt(document.getElementById('startBp').value) || 0;
+    
+    let total = BP.start;
+    
+    // 1. Считаем обычные выполненные задачи (одноразовые)
+    BP.done.forEach(i => { 
+        let task = DB.bp[i]; 
+        // Если задача многоразовая (r:1), мы ее тут НЕ считаем (посчитаем ниже по счетчику)
+        if(task && !task.r) {
+            let rw = BP.vip ? task.v : task.b; 
+            if(BP.x2) rw *= 2; 
+            total += rw; 
+        }
     });
 
+    // 2. Считаем многоразовые задачи по счетчику
+    if(BP.counters) {
+        Object.keys(BP.counters).forEach(i => {
+            let task = DB.bp[i];
+            // Если задача существует и у нее есть флаг r:1
+            if(task && task.r) {
+                let count = BP.counters[i];
+                let rw = BP.vip ? task.v : task.b; 
+                if(BP.x2) rw *= 2;
+                total += (rw * count);
+            }
+        });
+    }
+
+    // Считаем "Нафармлено"
     let farmed = total - BP.start;
+
+    // Обновляем HTML
     document.getElementById('totalBp').innerText = total;
-    document.getElementById('farmedBp').innerText = '+' + farmed;
+    document.getElementById('farmedBpMain').innerText = '+' + farmed;
+
+    const stickyTotal = document.getElementById('stickyTotal');
+    const stickyFarmed = document.getElementById('stickyFarmed');
+    if(stickyTotal) stickyTotal.innerText = total;
+    if(stickyFarmed) stickyFarmed.innerText = '+' + farmed;
+
     saveBP();
+}
+        
+function toggleTask(i) {
+    if(BP.done.includes(i)) { 
+        BP.done = BP.done.filter(x=>x!==i); 
+        delete BP.times[i]; 
+        if(BP.counters && BP.counters[i]) BP.counters[i] = 0;
+    } else { 
+        BP.done.push(i);
+        // --- ДОБАВЛЕНО: Если нажали на основу, убираем из твинков ---
+        if(BP.doneTwink) BP.doneTwink = BP.doneTwink.filter(x => x !== i);
+        // -----------------------------------------------------------
+        BP.times[i] = new Date().toLocaleTimeString().slice(0,5); 
+        if(DB.bp[i].q > 1) BP.counters[i] = DB.bp[i].q;
+    }
+    saveBP(); renderBP(); updateBP();
+}
+
+function toggleTwink(i, e) {
+    e.stopPropagation(); // Чтобы не срабатывал клик по самой карточке
+
+    if(!BP.doneTwink) BP.doneTwink = [];
+
+    // Если уже отмечено как твинк — снимаем отметку
+    if(BP.doneTwink.includes(i)) {
+        BP.doneTwink = BP.doneTwink.filter(x => x !== i);
+    } else {
+        // Если отмечаем как твинк:
+        BP.doneTwink.push(i);
+        // Убираем из "Основы", если оно там было (чтобы не считались очки)
+        BP.done = BP.done.filter(x => x !== i);
+        
+        // Можем сохранить время выполнения
+        BP.times[i] = new Date().toLocaleTimeString().slice(0,5);
+    }
+    saveBP(); renderBP(); updateBP();
+}
+
+function updateCounter(i, delta) {
+    if(!BP.counters) BP.counters = {};
+    if(!BP.counters[i]) BP.counters[i] = 0;
+    
+    const task = DB.bp[i];
+    const max = task.q;
+    
+    // Изменяем значение
+    BP.counters[i] += delta;
+    
+    // Не даем уйти в минус
+    if(BP.counters[i] < 0) BP.counters[i] = 0;
+
+    // ЛОГИКА: Если это НЕ многоразовая задача (нет r:1)
+    if (!task.r) {
+        if(BP.counters[i] >= max) {
+            BP.counters[i] = max;
+            if(!BP.done.includes(i)) { 
+                BP.done.push(i); 
+                BP.times[i] = new Date().toLocaleTimeString().slice(0,5); 
+            }
+        } else {
+            if(BP.done.includes(i)) { 
+                BP.done = BP.done.filter(x=>x!==i); 
+                delete BP.times[i]; 
+            }
+        }
+    }
+    // Если задача многоразовая (r:1), мы просто сохраняем счетчик (лимита нет)
+    
+    saveBP(); renderBP(); updateBP();
+}
+        function hideBP(i,e) { e.stopPropagation(); BP.hidden.push(i); saveBP(); renderBP(); }
+        function resetHiddenBP() { BP.hidden = []; saveBP(); renderBP(); }
+function newDay() {
+    if(confirm("Начать новый день? Сбросится прогресс.")) {
+        // --- ЗАМЕНИТЬ СТРОКУ СБРОСА НА ЭТУ: ---
+        BP.done = []; BP.doneTwink = []; BP.times = {}; BP.counters = {}; BP.start = 0;
+        // --------------------------------------
+        document.getElementById('startBp').value = '';
+        saveBP(); renderBP(); updateBP();
+    }
 }
 
 function renderBP() {
-    const list = document.getElementById('listBP');
+    const list = document.getElementById('listBP'); 
     const search = document.getElementById('searchBp').value.toLowerCase();
+    const sortMode = document.getElementById('bpSort').value;
+    
+    if(!BP.localTimers) BP.localTimers = {};
+    if(!BP.doneTwink) BP.doneTwink = []; // Защита
+
+    let tasks = BP.sortOrder.map(id => ({...DB.bp[id], id: id}));
+
+    if(sortMode === 'max') tasks.sort((a, b) => b.q - a.q);
+    if(sortMode === 'min') tasks.sort((a, b) => a.q - b.q);
+
     list.innerHTML = '';
-
-    const CAT_NAMES = { easy:"Легкие", medium:"Средние", hard:"Сложные", pair:"Парные", faction:"Фракционные" };
-    const groups = { easy:[], medium:[], hard:[], pair:[], faction:[] };
-
-    DB.bp.forEach((t, i) => {
-        if(search && !t.t.toLowerCase().includes(search)) return;
-        if(groups[t.cat]) groups[t.cat].push({...t, id:i});
-    });
-
-    Object.keys(CAT_NAMES).forEach(key => {
-        const tasks = groups[key];
-        if(!tasks.length) return;
+    tasks.forEach(t => {
+        const i = t.id;
+        if(BP.hidden.includes(i) || (search && !t.t.toLowerCase().includes(search))) return;
         
-        const isOpen = CAT_STATE[key] || search.length > 0;
+        const done = BP.done.includes(i);
+        const isTwink = BP.doneTwink.includes(i); // Проверка на твинка
         
-        let html = `
-            <div class="category-group ${isOpen?'open':''}">
-                <div class="cat-header" onclick="toggleCat('${key}')">
-                    <div class="cat-title"><span class="cat-arrow">▼</span> ${CAT_NAMES[key]}</div>
-                    <div class="badge" style="background:#333; color:#888;">${tasks.length}</div>
+        let rw = BP.vip ? t.v : t.b; if(BP.x2) rw *= 2;
+        
+        // Счетчик
+        let counterHTML = '';
+        if(t.q > 1 || t.r) {
+            const curr = BP.counters && BP.counters[i] ? BP.counters[i] : 0;
+            const countDisplay = t.r ? `x${curr}` : `${curr}/${t.q}`;
+            counterHTML = `
+                <div class="counter-wrapper" onclick="event.stopPropagation()">
+                    <button class="icon-btn" onclick="updateCounter(${i}, -1)">-</button>
+                    <span class="counter-val" style="${t.r ? 'min-width:40px; color:var(--accent);' : ''}">${countDisplay}</span>
+                    <button class="icon-btn" onclick="updateCounter(${i}, 1)">+</button>
+                </div>`;
+        }
+
+        // Иконка
+        let iconHTML = '';
+        if(t.img) {
+            iconHTML = `<div class="bp-icon-container"><img src="${t.img}" class="bp-img"></div>`;
+        } else if (t.i) { 
+             iconHTML = `<div class="bp-icon-container"><span class="bp-emoji">${t.i}</span></div>`;
+        }
+
+        // Таймер
+        let timerHTML = '';
+        if (t.timer) {
+            let lt = BP.localTimers[i];
+            if(!lt) { lt = { rm: t.timer, run: false }; } else {
+                if(lt.run && lt.et) {
+                     const diff = Math.ceil((lt.et - Date.now()) / 1000);
+                     lt.rm = diff > 0 ? diff : 0; if(lt.rm === 0) lt.run = false;
+                }
+            }
+            const isFinished = lt.rm <= 0;
+            const displayTime = isFinished ? "ГОТОВО" : fmtTime(lt.rm);
+            const playIcon = lt.run ? '⏸' : '▶'; 
+            const colorClass = isFinished ? 'done' : '';
+
+            timerHTML = `
+            <div class="inline-timer-box" onclick="event.stopPropagation()">
+                <button class="it-btn" onclick="toggleLocalTimer(${i}, ${t.timer})">${playIcon}</button>
+                <div class="it-val ${colorClass}" id="loc_timer_${i}">${displayTime}</div>
+                <div class="it-sep"></div>
+                <button class="it-btn" style="color:var(--text-sub);" onclick="resetLocalTimer(${i}, ${t.timer})">↺</button>
+            </div>`;
+        }
+
+        const item = document.createElement('div');
+        // Добавляем класс completed, если выполнено на Основе ИЛИ на Твинке
+        // Если твинк - добавляем доп стиль (прозрачность или цвет рамки)
+        let doneClass = (done && !t.r) ? 'completed' : '';
+        if (isTwink) doneClass = 'completed twink-done'; // Новый класс для твинка
+
+        item.className = `task-item ${doneClass}`;
+        item.setAttribute('data-id', i);
+        
+        // Клик по карточке ставит "Основу"
+        if(!t.r) item.onclick = () => toggleTask(i);
+
+        let rightAction = !t.r ? `<div class="checkbox">${done?'✔':''}</div>` : '';
+
+        // --- КНОПКА ТВИНКА ---
+        // Если задача выполнена на твинке, красим кнопку в фиолетовый или делаем активной
+        let twinkBtnStyle = isTwink ? 'color: #c084fc; background: rgba(192, 132, 252, 0.15); border: 1px solid rgba(192, 132, 252, 0.3);' : '';
+        
+        const twinkBtn = !t.r ? `
+            <button class="icon-btn" style="width:28px; height:28px; margin-left:4px; ${twinkBtnStyle}" onclick="toggleTwink(${i}, event)">
+                👻
+            </button>
+        ` : '';
+        // ---------------------
+
+        item.innerHTML = `
+            <div class="drag-handle" style="margin-right:8px;">⋮⋮</div>
+            ${iconHTML} 
+            <div class="task-content">
+                <div class="task-text">${t.t} ${t.r ? '<span style="font-size:10px; background:rgba(255,255,255,0.1); padding:2px 5px; border-radius:4px;">∞</span>' : ''}</div>
+                <div class="task-sub">
+                    Награда: <span style="color:var(--gold)">+${rw}</span> 
+                    ${done ? '| '+BP.times[i] : (isTwink ? '| <span style="color:#c084fc">Твинк</span>' : '')}
                 </div>
-                <div class="cat-content">
-        `;
-        
-        tasks.forEach(t => {
-            const i = t.id;
-            const done = BP.done.includes(i);
-            const twink = BP.doneTwink.includes(i);
-            let rw = BP.vip ? t.v : t.b; if(BP.x2) rw *= 2;
+                ${counterHTML}
+            </div>
+            <div class="task-actions-right">
+                <div style="display:flex; align-items:center;">
+                    ${timerHTML}
+                    ${twinkBtn} <div style="width:6px"></div> ${rightAction}
+                </div>
+                <button class="icon-btn del" onclick="hideBP(${i},event)">✕</button>
+            </div>`;
+        list.appendChild(item);
+    });
+}
 
-            // Счетчик
-            let counterHTML = '';
-            if(t.q > 1) {
-                let curr = BP.counters[i] || 0;
-                counterHTML = `<button class="btn-act" style="width:auto; padding:0 8px; font-size:11px;" onclick="updCount(${i}, 1, event)">${curr}/${t.q}</button>`;
+        // --- DRAG & DROP SETUP ---
+        function setupDragAndDrop() {
+            const list = document.getElementById('listBP');
+            Sortable.create(list, {
+                handle: '.drag-handle',
+                animation: 150,
+                onEnd: function (evt) {
+                    const newOrder = [];
+                    list.querySelectorAll('.task-item').forEach(el => {
+                        newOrder.push(parseInt(el.getAttribute('data-id')));
+                    });
+                    const hiddenItems = BP.sortOrder.filter(id => !newOrder.includes(id));
+                    BP.sortOrder = [...newOrder, ...hiddenItems];
+                    saveBP();
+                }
+            });
+        }
+
+        // --- TIMERS ---
+        function saveTm() { 
+            const json = JSON.stringify(TIMERS);
+            Cloud.setItem('gta_tm_22', json);
+        }
+
+function renderTimers() {
+    const list = document.getElementById('activeTimersList'); 
+    if(!list) return;
+    list.innerHTML = '';
+    
+    let all = []; 
+    if(TIMERS.custom) all = [...TIMERS.custom];
+    
+    if(all.length === 0) {
+        list.innerHTML = '<div style="padding:10px; color:#555; font-size:13px;">Нет активных таймеров</div>';
+    }
+
+    all.forEach(t => {
+        if(t.run) {
+            const now = Date.now();
+            if (t.et) {
+                const diff = Math.ceil((t.et - now) / 1000);
+                t.rm = diff;
+            } else {
+                const passed = Math.floor((now - t.ts)/1000);
+                if(passed > 0) t.rm -= passed;
+                t.et = now + (t.rm * 1000);
+            }
+            if(t.rm <= 0) { t.rm = 0; t.run = false; }
+            t.ts = now;
+        }
+
+        const isRunning = t.run;
+        const statusText = isRunning ? 'Активен' : 'Пауза';
+        const displayTime = fmtTime(t.rm);
+        
+        // Visual for active (Gold border, Stop button)
+        list.innerHTML += `
+            <div class="timer-card ${isRunning ? 'running' : ''}">
+                <div class="tc-header">
+                    <div class="tc-title">
+                        <span style="color:var(--accent)">::</span> ${t.l}
+                    </div>
+                    <div class="tc-status">${statusText}</div>
+                </div>
+                <div class="tc-time" id="disp_${t.id}">${displayTime}</div>
+                <div class="tc-footer">
+                    <button class="tc-btn ${isRunning ? 'stop' : 'start'}" onclick="togTime('${t.id}')">
+                        ${isRunning ? '|| Стоп' : '▶ Старт'}
+                    </button>
+                    <button class="tc-btn-icon" onclick="rstTime('${t.id}')">↺</button>
+                    <button class="tc-btn-icon del" onclick="delTime('${t.id}')">✕</button>
+                </div>
+            </div>`;
+            
+        if(t.run) runInterval(t.id);
+    });
+    saveTm();
+}
+
+        function fmtTime(s) { const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60; return (h>0?h+':':'')+pad(m)+':'+pad(sec); }
+        function pad(n) { return n<10?'0'+n:n; }
+
+        function addQuickTimer(min) { addTimerRaw(min, min+' мин'); }
+        function addGameTimer(key) { 
+            const t = DB.timers.find(x => x.id === key);
+            if(t) addTimerRaw(t.s/60, t.l); 
+        }
+        function addCustomTimer() { 
+    const m = parseInt(document.getElementById('customMin').value);
+    const nameInput = document.getElementById('customName').value;
+    // Если имя пустое, ставим дефолтное
+    const label = nameInput.trim() ? nameInput : (m + ' мин');
+    
+    if(m) addTimerRaw(m, label); 
+    
+    // Очищаем поля
+    document.getElementById('customMin').value = ''; 
+    document.getElementById('customName').value = '';
+}
+function addTimerRaw(min, label) {
+    if(!TIMERS.custom) TIMERS.custom = [];
+    const now = Date.now();
+    const durationSec = min * 60;
+    
+    TIMERS.custom.push({
+        id: 't_' + now, 
+        l: label, 
+        s: durationSec, 
+        rm: durationSec, 
+        run: true, 
+        ts: now,
+        et: now + (durationSec * 1000) // et = End Time (время финиша)
+    });
+    saveTm(); 
+    renderTimers();
+}
+function togTime(id) { 
+    const t = TIMERS.custom.find(x => x.id === id);
+    if(t) { 
+        t.run = !t.run; 
+        if(t.run) {
+            // Если включили: устанавливаем новое время финиша исходя из остатка
+            if(t.rm <= 0) t.rm = t.s;
+            t.et = Date.now() + (t.rm * 1000);
+        } else {
+            // Если поставили на паузу: ничего не делаем, t.rm уже сохранен
+        }
+        saveTm(); 
+        renderTimers(); 
+    }
+}
+        function rstTime(id) { 
+            const t = TIMERS.custom.find(x=>x.id===id);
+            if(t) { t.rm = t.s; t.run = false; t.ts = Date.now(); clearInterval(TIMER_INT[id]); saveTm(); renderTimers(); }
+        }
+        function delTime(id) {
+            TIMERS.custom = TIMERS.custom.filter(t=>t.id!==id); clearInterval(TIMER_INT[id]); saveTm(); renderTimers();
+        }
+function runInterval(id) {
+    if(TIMER_INT[id]) clearInterval(TIMER_INT[id]);
+    
+    // Запускаем интервал
+    TIMER_INT[id] = setInterval(() => {
+        const t = TIMERS.custom.find(x => x.id === id);
+        
+        // Если таймер удален или на паузе — останавливаем
+        if(!t || !t.run) { 
+            clearInterval(TIMER_INT[id]); 
+            return; 
+        }
+
+        // --- FIX: Миграция для старых таймеров ---
+        // Если таймер был создан до обновления кода, у него нет 'et'. Создадим его.
+        if(!t.et) {
+            t.et = Date.now() + (t.rm * 1000);
+        }
+        // -----------------------------------------
+
+        const now = Date.now();
+        // Считаем разницу между Финишем и Сейчас
+        const diff = Math.ceil((t.et - now) / 1000);
+
+        if (diff <= 0) {
+            // Таймер кончился
+            t.rm = 0; 
+            t.run = false; 
+            clearInterval(TIMER_INT[id]); 
+            renderTimers();
+            
+            // Воспроизводим звук или вибрацию (если нужно)
+            if(window.navigator && window.navigator.vibrate) window.navigator.vibrate([200, 100, 200]);
+        } else {
+            // Таймер идет
+            // Обновляем значение остатка только для отображения
+            if (t.rm !== diff) {
+                t.rm = diff;
+                const el = document.getElementById('disp_' + id);
+                if(el) el.innerText = fmtTime(t.rm);
+            }
+        }
+        
+        // Сохраняем не каждый тик, а реже (опционально), чтобы не спамить в Cloud,
+        // но здесь оставим для надежности, так как у тебя там debounce стоит.
+        saveTm();
+
+    }, 1000);
+}
+        
+        function addPay(t) { const d = prompt(`Оплата ${t}. Через сколько дней?`, "10"); if(d) addEvent(parseInt(d), `Оплата: ${t}`); }
+
+// --- CALENDAR ---
+        let calDate = new Date();
+
+        // Функция сохранения событий (вынесли отдельно)
+        function saveEv() {
+            Cloud.setItem('gta_ev_22', JSON.stringify(EVENTS));
+        }
+
+        function renderCal() {
+            const y = calDate.getFullYear(), m = calDate.getMonth();
+            document.getElementById('calTitle').innerText = calDate.toLocaleDateString('ru',{month:'long',year:'numeric'});
+            
+            const grid = document.getElementById('calGrid'); grid.innerHTML = '';
+            ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].forEach(d => grid.innerHTML+=`<div style="font-size:11px; color:#666; text-align:center;">${d}</div>`);
+            
+            const first = new Date(y, m, 1).getDay() || 7, days = new Date(y, m+1, 0).getDate(), today = new Date().toISOString().split('T')[0];
+            for(let i=1; i<first; i++) grid.innerHTML += `<div></div>`;
+            for(let d=1; d<=days; d++) {
+                const dt = `${y}-${pad(m+1)}-${pad(d)}`;
+                const hasEv = EVENTS.some(e => e.d === dt);
+                const isToday = dt === today;
+                grid.innerHTML += `<div class="cal-day ${isToday?'today':''} ${hasEv?'event':''}">${d}</div>`;
+            }
+            
+            // Отрисовка списка событий с кнопкой удаления
+            const list = document.getElementById('eventList'); list.innerHTML = '';
+            
+            // Фильтруем, сортируем и рисуем
+            EVENTS.filter(e => e.d >= today).sort((a,b)=>a.d.localeCompare(b.d)).slice(0,5).forEach(e => {
+                // Миграция старых событий: если нет id, создаем его "на лету" и сохраняем
+                if(!e.id) { e.id = Date.now() + Math.floor(Math.random()*1000); saveEv(); }
+                
+                const dateStr = e.d.split('-').reverse().slice(0,2).join('.');
+                list.innerHTML += `
+                    <div class="event-item" style="align-items:center;">
+                        <div style="flex:1; padding-right:10px;">
+                            <span style="color:var(--accent); font-weight:bold; margin-right:6px;">${dateStr}</span>
+                            <span>${e.t}</span>
+                        </div>
+                        <button class="icon-btn" style="width:28px; height:28px; min-width:28px; color:var(--red);" onclick="delEvent(${e.id})">✕</button>
+                    </div>`;
+            });
+        }
+
+        function moveMonth(v) { calDate.setMonth(calDate.getMonth()+v); renderCal(); }
+
+        function addEvent(d, t) {
+            const date = new Date(); date.setDate(date.getDate() + d);
+            // Теперь добавляем событие с уникальным ID
+            EVENTS.push({
+                id: Date.now(), 
+                d: date.toISOString().split('T')[0], 
+                t: t
+            });
+            saveEv();
+            renderCal();
+        }
+
+        // Новая функция удаления
+        function delEvent(id) {
+            if(confirm('Удалить это событие?')) {
+                EVENTS = EVENTS.filter(e => e.id !== id);
+                saveEv();
+                renderCal();
+            }
+        }
+        // --- CARS ---
+        let carCat = 'platinum';
+        function setCarCat(c, btn) {
+            carCat = c; document.querySelectorAll('#tab-cars .seg-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+            if(c==='tuning') {
+                document.getElementById('listCars').style.display='none'; document.getElementById('tuningBlock').style.display='block';
+                document.getElementById('tuningBlock').innerHTML = `<div class="table-wrap"><table><thead><tr><th>Деталь</th><th>Эконом</th><th>Стандарт</th><th>Комфорт</th><th>Бизнес</th><th>Элит</th></tr></thead><tbody><tr><td>Двиг 1</td><td>5000</td><td>7000</td><td>13000</td><td>20000</td><td>24000</td></tr><tr><td>Двиг 2</td><td>8750</td><td>12250</td><td>22750</td><td>35000</td><td>42000</td></tr><tr><td>Двиг 3</td><td>10000</td><td>14000</td><td>26000</td><td>40000</td><td>48000</td></tr><tr><td>Двиг 4</td><td>16250</td><td>22750</td><td>42250</td><td>65000</td><td>78000</td></tr><tr><td>Торм 1</td><td>2500</td><td>3500</td><td>6500</td><td>10000</td><td>12000</td></tr><tr><td>Торм 2</td><td>4750</td><td>6650</td><td>12350</td><td>19000</td><td>22800</td></tr><tr><td>Торм 3</td><td>7500</td><td>10500</td><td>19500</td><td>30000</td><td>36000</td></tr><tr><td>Турбо</td><td>15000</td><td>21000</td><td>39000</td><td>60000</td><td>72000</td></tr></tbody></table></div>`;
+            } else {
+                document.getElementById('listCars').style.display='block'; document.getElementById('tuningBlock').style.display='none';
+                renderCars();
+            }
+        }
+        function renderCars() {
+            const list = document.getElementById('listCars'); list.innerHTML = '';
+            const s = document.getElementById('searchCar').value.toLowerCase();
+            const data = DB.cars[carCat];
+            data.forEach(c => {
+                if(s && !c.realName.toLowerCase().includes(s) && !c.gameName.toLowerCase().includes(s)) return;
+                const p = c.price > 0 ? new Intl.NumberFormat().format(c.price)+'$' : (carCat==='container'?'📦':'🎉');
+                const season = c.season ? `<div style="font-size:11px; color:var(--purple); margin-top:2px;">${c.season}</div>` : '';
+                list.innerHTML += `<div class="card"><div class="card-icon">🚗</div><div class="card-body"><div class="card-title">${c.realName}</div><div class="card-sub">${c.gameName}</div>${season}</div><div class="card-end"><div class="price ${c.price===0?'free':''}">${p}</div><div style="color:#666; margin-top:4px;">🚀 ${c.speed}</div><div style="color:#666;">📦 ${c.trunk} | 👤 ${c.st || 2}</div></div></div>`;
+            });
+        }
+
+        // --- FOOD ---
+        function renderFood() {
+            const list = document.getElementById('listFood'); list.innerHTML = '';
+            const s = document.getElementById('searchFood').value.toLowerCase();
+            DB.kitchen.forEach(f => {
+                if(s && !f.name.toLowerCase().includes(s)) return;
+                list.innerHTML += `
+                    <div class="card" onclick='openModal(${JSON.stringify(f)})'>
+                        <div class="card-icon">${f.icon}</div>
+                        <div class="card-body">
+                            <div class="card-title">${f.name}</div>
+                            <div class="food-stats-mini">
+                                <span class="fs-i" style="color:var(--green)">🍖 ${f.sat}</span>
+                                <span class="fs-i" style="color:var(--gold)">😎 ${f.mood}</span>
+                                <span class="fs-i" style="color:var(--red)">💪 ${f.str}</span>
+                            </div>
+                        </div>
+                        <div class="card-end" style="font-size:20px; color:var(--text-sub)">›</div>
+                    </div>`;
+            });
+        }
+        function openModal(f) {
+            document.getElementById('mTitle').innerText = f.name;
+            document.getElementById('mContent').innerHTML = `
+                <div style="text-align:center; font-size:60px; margin-bottom:20px;">${f.icon}</div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:20px; text-align:center; background:rgba(255,255,255,0.05); padding:15px; border-radius:16px;">
+                    <div><div style="color:var(--green); font-size:20px; font-weight:bold;">+${f.sat}</div><div style="font-size:10px; color:#666;">СЫТОСТЬ</div></div>
+                    <div><div style="color:var(--gold); font-size:20px; font-weight:bold;">+${f.mood}</div><div style="font-size:10px; color:#666;">НАСТР</div></div>
+                    <div><div style="color:var(--red); font-size:20px; font-weight:bold;">${f.str}</div><div style="font-size:10px; color:#666;">СИЛА</div></div>
+                </div>
+                <div style="margin-bottom:15px;"><div style="font-size:12px; color:#666; margin-bottom:5px;">ИНГРЕДИЕНТЫ</div><div>${f.ing.map(i=>`<span class="tag">${i}</span>`).join('')}</div></div>
+                <div><div style="font-size:12px; color:#666; margin-bottom:5px;">ТРЕБОВАНИЯ</div><span class="tag" style="background:rgba(255,69,58,0.2); color:var(--red)">${f.tool}</span> <span class="tag" style="background:rgba(255,214,10,0.2); color:var(--gold)">Навык: ${f.skill}</span></div>
+            `;
+            document.getElementById('modal').style.display = 'flex';
+        }
+        function closeModal(e) { if(e.target.id === 'modal') document.getElementById('modal').style.display = 'none'; }
+
+        // --- GUIDES ---
+function setGuide(id, btn) {
+    document.querySelectorAll('#tab-guides .seg-btn').forEach(b => b.classList.remove('active')); 
+    btn.classList.add('active');
+    const c = document.getElementById('guideContent'); 
+    c.innerHTML = '';
+    
+    // 1. Оплата и животные
+    if(id==='payment') {
+        c.innerHTML += `<div class="guide-section-title">Животные</div>` + buildTable(DB.guides.payment.animals.r, DB.guides.payment.animals.h);
+        c.innerHTML += `<div class="guide-section-title" style="margin-top:20px">Сокровища</div>` + buildTable(DB.guides.payment.treasures.r, DB.guides.payment.treasures.h);
+        return;
+    }
+
+    // 2. Медицина (Карточки)
+// Внутри setGuide, заменяем блок if(id==='med')
+
+if(id==='med') {
+    c.innerHTML = '<div style="padding:10px; display:flex; flex-direction:column; gap:8px;">';
+    
+    // Если вдруг данных нет (защита от ошибок)
+    if(!DB.guides.med || !DB.guides.med.r) {
+        c.innerHTML += '<div style="text-align:center;color:#666;">Данные не загружены</div>'; 
+        return;
+    }
+
+    DB.guides.med.r.forEach(item => {
+        // 1. Настройка цветов
+        let bgClass = '#3a5c8a'; // синий (blue) по умолчанию
+        let txtClass = '#ccddff';
+        
+        if (item.type === 'red') { bgClass = '#8a3a3a'; txtClass = '#ffcccc'; }
+        if (item.type === 'brown') { bgClass = '#8a5c3a'; txtClass = '#ffddcc'; }
+        if (item.type === 'yellow') { bgClass = '#8a7a3a'; txtClass = '#ffeecc'; }
+
+        // 2. Логика картинок (Левая и Правая)
+        // Если в тексте есть точка (.), считаем это путем к картинке
+        const iconLeft = item.i.includes('.') 
+            ? `<img src="${item.i}" class="med-img">` 
+            : `<span style="font-size:20px;">${item.i}</span>`;
+            
+        const iconRight = item.ci.includes('.') 
+            ? `<img src="${item.ci}" class="med-img">` 
+            : `<span style="font-size:20px;">${item.ci}</span>`;
+
+        // 3. Верстка карточки
+        c.innerHTML += `
+            <div style="display:flex; width:100%; gap:4px;">
+                <div style="flex:1; background:${bgClass}; color:${txtClass}; padding:10px; border-radius:12px; display:flex; align-items:center; font-weight:600; font-size:13px; gap:10px;">
+                    ${iconLeft}
+                    <span style="line-height:1.2;">${item.t}</span>
+                </div>
+                <div style="flex:1; background:#1c1c1e; border:1px solid rgba(255,255,255,0.1); color:white; padding:10px; border-radius:12px; display:flex; align-items:center; justify-content:flex-start; font-weight:500; font-size:13px; gap:10px;">
+                    ${iconRight}
+                    <span style="line-height:1.2;">${item.c}</span>
+                </div>
+            </div>
+        `;
+    });
+    
+    c.innerHTML += '</div>';
+    return;
+}
+
+    // 3. Таро (Картинки)
+// 3. Таро (Новый стиль, как у таймеров)
+    if(id==='tarot') {
+        c.innerHTML = '<div class="tarot-grid-new">'; // Используем новый класс сетки
+        
+        DB.tarot.forEach(t => {
+            let visual = '';
+            if(t.img) {
+                // Картинка теперь — маленькая иконка, вписанная в квадрат
+                visual = `<img src="${t.img}" class="tarot-icon-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                          <div class="tarot-icon-box" style="display:none;">${t.i || '🃏'}</div>`;
+            } else {
+                // Если картинки нет, показываем эмодзи
+                visual = t.i || '🃏';
             }
 
-            html += `
-                <div class="task-item ${done?'completed':''} ${twink?'twink-done':''}" onclick="togTask(${i})">
-                    <div class="task-left">
-                        <div class="task-icon">${t.i}</div>
-                        <div>
-                            <div class="task-name">${t.t}</div>
-                            <div class="task-sub">Награда: <span style="color:var(--c-gold)">+${rw}</span></div>
-                        </div>
+            // Новая структура карточки
+            c.innerHTML += `
+                <div class="tarot-card-new">
+                    <div class="tarot-icon-box">
+                        ${visual}
                     </div>
-                    <div class="task-right">
-                        ${counterHTML}
-                        <button class="btn-act twink ${twink?'active':''}" onclick="togTwink(${i}, event)">👻</button>
-                        <button class="btn-act check ${done?'active':''}">${done?'✔':''}</button>
+                    <div class="tarot-text-box">
+                        <div class="tarot-card-title">${t.n}</div>
+                        <div class="tarot-card-desc">${t.d}</div>
                     </div>
+                </div>`;
+        });
+        c.innerHTML += '</div>';
+        return;
+    }
+
+    // 4. Все остальные гайды (Шансы, Ремонт, Шар 8 и т.д.)
+    // ВОТ ЭТОЙ ЧАСТИ У ТЕБЯ НЕ БЫЛО, ОНА БЫЛА ЗАКОММЕНТИРОВАНА
+    if(DB.guides[id]) {
+        const d = DB.guides[id]; 
+        c.innerHTML += buildTable(d.r, d.h); 
+    } else if (id === 'ball') {
+        // Логика для шара (если нужна таблица)
+        c.innerHTML += buildTable(DB.ball8.map(x=>[x.q, x.a]), ["Вопрос", "Ответ"]);
+    }
+}
+// ... дальше идет else { const d = DB.guides[id]; c.innerHTML += buildTable(d.r, d.h); }
+        function buildTable(rows, headers) {
+            let h = `<div class="table-wrap"><table><thead><tr>`;
+            headers.forEach(x=>h+=`<th>${x}</th>`);
+            h+='</tr></thead><tbody>';
+            rows.forEach((r, idx)=>{ h+=`<tr style="background:${idx%2===0?'rgba(255,255,255,0.02)':'transparent'}">`; r.forEach(ce=>h+=`<td>${ce}</td>`); h+='</tr>'; });
+            return h + `</tbody></table></div>`;
+        }
+async function forceSync() {
+            const loader = document.createElement('div');
+            loader.id = 'loader';
+            loader.innerHTML = '<div class="spinner"></div><div style="margin-top:10px;font-size:12px;">Обновление...</div>';
+            document.body.appendChild(loader);
+
+            await init(); // Перезапускает загрузку из облака
+
+            // Лоадер сам исчезнет, так как init() содержит логику его удаления
+        }
+        // INIT
+        if (window.Telegram && window.Telegram.WebApp) { 
+            window.Telegram.WebApp.ready(); 
+            window.Telegram.WebApp.expand();
+            try { window.Telegram.WebApp.disableVerticalSwipes(); } catch(e){}
+        }
+        
+        init();
+// --- ЛОГИКА ВОЗВРАТА СКРЫТЫХ ---
+function openUnhideModal() {
+    const modal = document.getElementById('modalUnhide');
+    const list = document.getElementById('unhideList');
+    list.innerHTML = '';
+
+    if(BP.hidden.length === 0) {
+        list.innerHTML = '<div style="padding:20px; text-align:center; color:#666;">Нет скрытых задач</div>';
+    } else {
+        BP.hidden.forEach(id => {
+            // Находим задачу в базе по ID (индексу)
+            let task = DB.bp[id]; 
+            if(!task) return;
+
+            list.innerHTML += `
+                <div class="unhide-item">
+                    <span>${task.t}</span>
+                    <button class="unhide-btn" onclick="restoreTask(${id})">Вернуть</button>
                 </div>
             `;
         });
-
-        html += `</div></div>`;
-        list.appendChild(document.createRange().createContextualFragment(html));
-    });
+    }
+    modal.style.display = 'flex';
 }
 
-function toggleCat(k) { CAT_STATE[k] = !CAT_STATE[k]; renderBP(); }
-function togTask(i) {
-    if(BP.done.includes(i)) BP.done = BP.done.filter(x=>x!==i);
-    else { BP.done.push(i); BP.doneTwink = BP.doneTwink.filter(x=>x!==i); }
-    saveBP(); updateBP(); renderBP();
+function restoreTask(id) {
+    // Удаляем id из списка hidden
+    BP.hidden = BP.hidden.filter(h => h !== id);
+    saveBP();      // Сохраняем
+    renderBP();    // Перерисовываем главный список
+    openUnhideModal(); // Обновляем список в модалке (задача исчезнет)
 }
-function togTwink(i, e) {
-    e.stopPropagation();
-    if(BP.doneTwink.includes(i)) BP.doneTwink = BP.doneTwink.filter(x=>x!==i);
-    else { BP.doneTwink.push(i); BP.done = BP.done.filter(x=>x!==i); }
-    saveBP(); updateBP(); renderBP();
+
+function closeUnhideModal(e) {
+    if(e.target.id === 'modalUnhide') {
+        document.getElementById('modalUnhide').style.display = 'none';
+    }
 }
-function updCount(i, d, e) {
-    e.stopPropagation();
-    let max = DB.bp[i].q;
-    if(!BP.counters[i]) BP.counters[i] = 0;
-    BP.counters[i] += d;
-    if(BP.counters[i] > max) BP.counters[i] = 0;
-    // Auto complete
-    if(BP.counters[i] === max && !BP.done.includes(i)) togTask(i);
-    saveBP(); updateBP(); renderBP();
+
+// ================= HEADER TIMER LOGIC (FINAL) =================
+let headerTimerIdx = 0;
+
+// Функция переключения стрелками
+function changeHeaderTimer(dir) {
+    headerTimerIdx += dir;
+    updateHeaderTimer(); // Сразу обновляем интерфейс
 }
-function newDay() {
-    if(confirm('Сбросить прогресс?')) {
-        BP.done=[]; BP.doneTwink=[]; BP.counters={}; BP.start=0;
+
+// Главная функция обновления виджета
+function updateHeaderTimer() {
+    // 1. Проверяем, есть ли база таймеров
+    if (!TIMERS || !TIMERS.custom) return;
+
+    // 2. Берем только ЗАПУЩЕННЫЕ таймеры (run == true)
+    const active = TIMERS.custom.filter(t => t.run);
+
+    const elLabel = document.getElementById('htLabel');
+    const elTime = document.getElementById('htTime');
+
+    // Если элементов HTML нет (мы на другой странице или ошибка), выходим
+    if (!elLabel || !elTime) return;
+
+    // 3. Если нет активных таймеров
+    if (active.length === 0) {
+        elLabel.innerText = "Нет активных";
+        elTime.innerText = "--:--";
+        elTime.style.color = "#555"; // Делаем серым
+        return;
+    }
+
+    // 4. Логика карусели (если индекс ушел за пределы)
+    if (headerTimerIdx >= active.length) headerTimerIdx = 0;
+    if (headerTimerIdx < 0) headerTimerIdx = active.length - 1;
+
+    // 5. Берем текущий таймер
+    const t = active[headerTimerIdx];
+    const now = Date.now();
+
+    // 6. Расчет времени (с защитой от NaN)
+    let timeLeft = 0;
+    
+    if (t.et) {
+        timeLeft = Math.ceil((t.et - now) / 1000);
+    } else {
+        timeLeft = t.rm || 0;
+        t.et = now + (timeLeft * 1000);
+    }
+
+    if (timeLeft < 0) timeLeft = 0;
+
+    // 7. Вывод на экран
+    let name = t.l || "Таймер";
+    if (name.length > 12) name = name.slice(0, 11) + "..";
+    
+    elLabel.innerText = name;
+    elTime.innerText = fmtTime(timeLeft); 
+    elTime.style.color = "#fff"; 
+}
+
+// Запускаем обновление каждую секунду
+setInterval(updateHeaderTimer, 1000);
+
+// Запускаем один раз сразу
+updateHeaderTimer();
+    // --- ЛОГИКА ЛОКАЛЬНЫХ ТАЙМЕРОВ (ВНУТРИ ЗАДАЧ) ---
+
+// Функция клика по кнопке Play/Pause/Reset
+function toggleLocalTimer(id, defaultSeconds) {
+    if(!BP.localTimers) BP.localTimers = {};
+    
+    // Если таймера еще нет в объекте, создаем
+    if(!BP.localTimers[id]) {
+        BP.localTimers[id] = { rm: defaultSeconds, run: false };
+    }
+    
+    let t = BP.localTimers[id];
+
+    // Если таймер закончился (0 сек), кнопка работает как Сброс
+    if(t.rm <= 0) {
+        t.rm = defaultSeconds;
+        t.run = false; // Сбросили и стоим ждем старта
+    } else {
+        // Иначе работаем как Play/Pause
+        t.run = !t.run;
+        if(t.run) {
+            // Старт: вычисляем время финиша (сейчас + остаток)
+            t.et = Date.now() + (t.rm * 1000);
+        } else {
+            // Пауза: et нам больше не нужен, rm (остаток) мы и так храним
+        }
+    }
+
+    saveBP();
+    renderBP(); // Перерисовываем, чтобы сменилась иконка
+}
+// Функция полного сброса локального таймера
+function resetLocalTimer(id, defaultSeconds) {
+    if(!BP.localTimers) return;
+    const t = BP.localTimers[id];
+    if(t) {
+        t.rm = defaultSeconds; // Возвращаем полное время
+        t.run = false;         // Ставим на паузу
+        delete t.et;           // Удаляем время финиша
+        
+        // Вибрация для тактильного отклика
+        if(window.Telegram.WebApp.HapticFeedback) {
+            window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+        }
+        
         saveBP();
-        location.reload();
+        renderBP();
     }
 }
-function saveBP() { localStorage.setItem('gta_bp_final', JSON.stringify(BP)); }
-
-// --- TIMERS (NEW GRID LOGIC) ---
-function renderTimers() {
-    const grid = document.getElementById('timerGrid'); 
-    grid.innerHTML = '';
+// Глобальный интервал для обновления циферок (тикает каждую секунду)
+setInterval(() => {
+    if(!BP.localTimers) return;
     
-    DB.timers.forEach(t => {
-        const active = ACTIVE_TIMERS[t.id];
-        let displayTime = fmt(t.s); // По дефолту время старта (напр 10:00)
-        let isRunning = false;
+    let changed = false;
+    const now = Date.now();
 
-        if (active) {
-            const left = Math.ceil((active.end - Date.now()) / 1000);
-            if (left > 0) {
-                displayTime = fmt(left);
-                isRunning = true;
-            } else {
-                displayTime = "ГОТОВО";
-                isRunning = true; 
-            }
-        }
-
-        grid.innerHTML += `
-            <div class="timer-card ${isRunning ? 'running' : ''}" id="card_${t.id}">
-                <div>
-                    <div class="tc-header">
-                        <span>::</span> ${t.i} ${t.l}
-                    </div>
-                    <div class="tc-status">● Активен</div>
-                    <div class="tc-time" id="time_${t.id}">${displayTime}</div>
-                </div>
-                
-                <div class="tc-footer">
-                    ${isRunning 
-                        ? `<button class="btn-main btn-stop" onclick="stopTimer('${t.id}')">❚❚ Стоп</button>` 
-                        : `<button class="btn-main btn-start" onclick="startTimer('${t.id}', ${t.s})">▷ Старт</button>`
-                    }
-                    <button class="btn-reset-mini" onclick="resetTimer('${t.id}', ${t.s})">↻</button>
-                </div>
-            </div>`;
-    });
-}
-
-function startTimer(id, seconds) {
-    ACTIVE_TIMERS[id] = { end: Date.now() + (seconds * 1000), total: seconds };
-    saveActiveTimers();
-    renderTimers();
-}
-function stopTimer(id) {
-    delete ACTIVE_TIMERS[id];
-    saveActiveTimers();
-    renderTimers();
-}
-function resetTimer(id, seconds) {
-    ACTIVE_TIMERS[id] = { end: Date.now() + (seconds * 1000), total: seconds };
-    saveActiveTimers();
-    renderTimers();
-}
-function addCustomTimer() {
-    const name = document.getElementById('custTmName').value || 'Таймер';
-    const min = parseInt(document.getElementById('custTmMin').value);
-    if(min) {
-        // Создаем уникальный ID
-        const id = 'cust_' + Date.now();
-        // Добавляем в базу временно
-        DB.timers.push({id: id, l: name, s: min * 60, i: '⏱'});
-        startTimer(id, min * 60);
-        document.getElementById('custTmName').value = '';
-        document.getElementById('custTmMin').value = '';
-    }
-}
-function saveActiveTimers() { localStorage.setItem('gta_timers_active_final', JSON.stringify(ACTIVE_TIMERS)); }
-
-function tickTimers() {
-    let hasChanges = false;
-    
-    DB.timers.forEach(t => {
-        const active = ACTIVE_TIMERS[t.id];
-        if (active) {
-            const left = Math.ceil((active.end - Date.now()) / 1000);
-            const el = document.getElementById(`time_${t.id}`);
+    // Пробегаемся по всем сохраненным таймерам
+    for (const [id, t] of Object.entries(BP.localTimers)) {
+        if(t.run) {
+            // Считаем сколько осталось
+            const diff = Math.ceil((t.et - now) / 1000);
             
-            if (left <= 0) {
-                 if(el) el.innerText = "ГОТОВО";
-                 if(!active.notified) {
-                     active.notified = true;
-                     if(window.Telegram.WebApp.showPopup) window.Telegram.WebApp.showPopup({title:'Таймер', message:`${t.l} завершен!`});
-                     if(navigator.vibrate) navigator.vibrate([200,100,200]);
-                     saveActiveTimers();
-                 }
+            if(diff <= 0) {
+                // Таймер дошел до 0
+                t.rm = 0;
+                t.run = false;
+                // Вибрация
+                if(window.navigator && window.navigator.vibrate) window.navigator.vibrate(200);
+                renderBP(); // Полная перерисовка, чтобы показать "ГОТОВО"
             } else {
-                 if(el) el.innerText = fmt(left);
+                // Таймер идет
+                t.rm = diff;
+                // Ищем элемент на экране и обновляем только текст (без полной перерисовки)
+                const el = document.getElementById(`loc_timer_${id}`);
+                if(el) el.innerText = fmtTime(t.rm);
             }
-            hasChanges = true;
+            changed = true;
         }
-    });
+    }
 
-    let min = Infinity;
-    Object.values(ACTIVE_TIMERS).forEach(a => {
-        let l = Math.ceil((a.end - Date.now())/1000);
-        if(l > 0 && l < min) min = l;
-    });
-    document.getElementById('headerTimer').innerText = min !== Infinity ? `⏳ ${fmt(min)}` : '';
-}
-
-// --- GUIDES ---
-function setGuide(type, btn) {
-    document.querySelectorAll('.g-tab').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-
-    const data = DB.guides[type];
-    const container = document.getElementById('guideContainer');
-    
-    let html = `<table class="custom-table t-${type}"><thead><tr>`;
-    data.h.forEach(h => html += `<th>${h}</th>`);
-    html += `</tr></thead><tbody>`;
-    
-    data.d.forEach(row => {
-        html += `<tr>`;
-        row.forEach(cell => html += `<td>${cell}</td>`);
-        html += `</tr>`;
-    });
-    html += `</tbody></table>`;
-    container.innerHTML = html;
-}
-
-// --- NAV ---
-function go(id, btn) {
-    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-    document.getElementById('tab-'+id).classList.add('active');
-    document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-    btn.classList.add('active');
-}
-function fmt(s) {
-    let h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
-    if(h>0) return `${pad(h)}:${pad(m)}:${pad(sec)}`;
-    return `${pad(m)}:${pad(sec)}`;
-}
-function pad(n) { return n<10?'0'+n:n; }
-
-// Start
-init();
-if(window.Telegram.WebApp) {
-    window.Telegram.WebApp.ready();
-    window.Telegram.WebApp.expand();
-    try { window.Telegram.WebApp.setHeaderColor('#000000'); } catch(e){}
-}
-</script>
+    // Сохраняем не каждый тик, а раз в 5 секунд (оптимизация), 
+    // но если таймер остановился, сохраним сразу в блоке выше
+    if(changed && now % 5000 < 1000) {
+        saveBP();
+    }
+}, 1000);
+    </script>
 </body>
 </html>
