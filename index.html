@@ -364,6 +364,55 @@ td { padding: 12px 10px; border-bottom: 1px solid var(--border); color: var(--te
 .tab-content { display: none; animation: fadeIn 0.2s ease-out; }
 .tab-content.active { display: block; }
 @keyframes fadeIn { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+/* --- ИСПРАВЛЕНИЕ "СТРАШНЫХ" КНОПОК (ВСТАВИТЬ В КОНЕЦ СТИЛЕЙ) --- */
+
+/* 1. Кнопки оплаты (Напоминания) */
+.remind-btn {
+    background: var(--input-bg) !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text-sub) !important;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: 0.2s;
+}
+.remind-btn:active {
+    background: var(--accent) !important;
+    color: #fff !important;
+    border-color: var(--accent) !important;
+}
+
+/* 2. Форма добавления таймера */
+.custom-timer {
+    display: flex; gap: 8px; padding: 0 15px; margin-top: 15px; margin-bottom: 25px;
+}
+.custom-timer input {
+    background: var(--input-bg) !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text-main) !important;
+    height: 40px;
+    border-radius: 10px;
+}
+.custom-timer button {
+    background: var(--accent) !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 13px;
+    height: 40px;
+    padding: 0 20px;
+    box-shadow: 0 4px 15px var(--accent-glow);
+}
+.custom-timer button:active { transform: scale(0.96); }
+
+/* 3. Фикс таймера в хедере (чтобы был красивым по центру) */
+.header-timer-wrap {
+    background: var(--input-bg) !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: none;
+}
 </style>
 </head>
 <body>
@@ -429,37 +478,36 @@ td { padding: 12px 10px; border-bottom: 1px solid var(--border); color: var(--te
         </div>
 
 <div class="sticky-search">
-    <div class="mini-stats-row">
-        <div style="flex:1">
-            <div style="font-size:10px; color:#888">Итого:</div>
+    <div class="mini-stats-row" style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+        
+        <div style="flex:1; text-align:left;">
+            <div style="font-size:10px; color:var(--text-sub)">Итого:</div>
             <div class="mini-stat-val" style="color:var(--gold)" id="stickyTotal">0</div>
         </div>
 
-<div class="header-timer-wrap" id="headerTimerWidget">
-    <button class="ht-btn" onclick="changeHeaderTimer(-1)">◀</button>
-    <div class="ht-content" onclick="go('timers', document.querySelectorAll('.nav-btn')[1])">
-        <span id="htLabel" class="ht-label">Нет активных</span>
-        <span id="htTime" class="ht-time">--:--</span>
-    </div>
-    <button class="ht-btn" onclick="changeHeaderTimer(1)">▶</button>
-    
-    <div class="ht-progress-bg">
-        <div id="htProgressBar" class="ht-progress-bar"></div>
-    </div>
-</div>
+        <div style="flex:2; display:flex; justify-content:center;">
+            <div class="header-timer-wrap" id="headerTimerWidget" style="width:100%; max-width:160px; margin:0;">
+                <button class="ht-btn" onclick="changeHeaderTimer(-1)">◀</button>
+                <div class="ht-content" onclick="go('timers', document.querySelectorAll('.nav-btn')[1])">
+                    <span id="htLabel" class="ht-label">Нет активных</span>
+                    <span id="htTime" class="ht-time">--:--</span>
+                </div>
+                <button class="ht-btn" onclick="changeHeaderTimer(1)">▶</button>
+                
+                <div class="ht-progress-bg">
+                    <div id="htProgressBar" class="ht-progress-bar"></div>
+                </div>
+            </div>
+        </div>
 
         <div style="flex:1; text-align:right;">
-            <div style="font-size:10px; color:#888">Нафармлено:</div>
+            <div style="font-size:10px; color:var(--text-sub)">Нафармлено:</div>
             <div class="mini-stat-val" style="color:var(--green)" id="stickyFarmed">+0</div>
         </div>
     </div>
     
-    <input type="text" class="search-input" id="searchBp" placeholder="🔍 Найти задание..." oninput="renderBP()">
+    <input type="text" class="search-input" id="searchBp" placeholder="🔍 Найти задание..." oninput="renderBP()" style="margin-top:10px;">
 </div>
-
-        <div class="list-container" id="listBP"></div>
-    </div>
-
 <div id="tab-timers" class="tab-content">
     <div class="header">Таймеры</div>
 
