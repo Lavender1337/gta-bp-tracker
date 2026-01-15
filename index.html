@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GTA Helper v22 Lite</title>
+    <title>GTA Helper v22 Fix</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 <style>
@@ -54,7 +54,7 @@ input, select { background: var(--input-bg) !important; border: 1px solid var(--
 
 /* TASK LIST */
 .list-container { padding: 0 15px; display: flex; flex-direction: column; gap: 8px; }
-.task-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; transition: background 0.2s; }
+.task-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; transition: background 0.2s; position: relative; }
 .task-item.completed { border-color: #333; opacity: 0.6; background: #080808; }
 .task-item.twink-done { border-color: var(--purple); opacity: 0.8; background: rgba(192, 132, 252, 0.05); }
 .task-top-row { display: flex; align-items: center; gap: 12px; width: 100%; }
@@ -88,13 +88,17 @@ input, select { background: var(--input-bg) !important; border: 1px solid var(--
 .timer-progress-bg { position: absolute; bottom: 0; left: 0; height: 4px; width: 100%; background: rgba(255,255,255,0.05); border-radius: 0 0 12px 12px; overflow: hidden; }
 .timer-progress-bar { height: 100%; background: var(--gold); width: 0%; transition: width 1s linear; }
 
-/* HEADER WIDGET */
+/* HEADER WIDGET (FIXED) */
 .sticky-search { position: sticky; top: 0; z-index: 100; background: rgba(5,5,5,0.95); padding: 10px 15px; border-bottom: 1px solid #222; backdrop-filter: blur(10px); }
-.header-timer-wrap { display: flex; align-items: center; background: #111; padding: 4px; border-radius: 20px; border: 1px solid #333; position: relative; overflow: hidden; }
+.mini-stats-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.stat-side { flex: 0 0 70px; font-size: 10px; color: #888; text-align: center; }
+.mini-stat-val { font-size: 14px; font-weight: 800; display: block; margin-top: 2px; }
+
+.header-timer-wrap { flex: 1; display: flex; align-items: center; justify-content: center; background: #111; padding: 4px; border-radius: 20px; border: 1px solid #333; position: relative; overflow: hidden; height: 32px; margin: 0 8px; }
 .ht-progress-bg { position: absolute; bottom: 0; left: 0; width: 100%; height: 2px; background: rgba(255,255,255,0.1); }
 .ht-progress-bar { height: 100%; background: var(--green); width: 0%; transition: width 1s linear; }
-.ht-btn { background: none; border: none; color: #555; font-size: 10px; cursor: pointer; padding: 0 8px; z-index: 2; }
-.ht-content { text-align: center; width: 80px; z-index: 2; }
+.ht-btn { background: none; border: none; color: #555; font-size: 10px; cursor: pointer; padding: 0 8px; z-index: 2; height: 100%; display: flex; align-items: center; }
+.ht-content { text-align: center; width: 100%; z-index: 2; overflow: hidden; }
 .ht-label { font-size: 9px; color: var(--text-main); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ht-time { font-size: 13px; font-weight: bold; color: var(--text-main); font-family: monospace; }
 
@@ -126,7 +130,9 @@ th { background: #1a1a1a; color: var(--accent); text-align: left; padding: 12px 
 
 /* MODALS */
 .modal-wrap { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-.modal { background: #151515; width: 90%; max-width: 350px; border-radius: 20px; padding: 20px; border: 1px solid #333; }
+.modal { background: #151515; width: 90%; max-width: 350px; border-radius: 20px; padding: 20px; border: 1px solid #333; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+.theme-btn { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #333; cursor: pointer; margin: 5px; display: inline-block; transition: transform 0.2s; position: relative; }
+.theme-btn:active { transform: scale(0.9); }
 </style>
 </head>
 <body>
@@ -170,8 +176,13 @@ th { background: #1a1a1a; color: var(--accent); text-align: left; padding: 12px 
     </div>
 
     <div class="sticky-search">
-        <div class="mini-stats-row" style="display:flex; justify-content:space-between; margin-bottom:10px;">
-            <div class="header-timer-wrap" id="headerTimerWidget" style="flex:1; margin:0 10px;">
+        <div class="mini-stats-row">
+            <div class="stat-side">
+                Итого
+                <span class="mini-stat-val" style="color:var(--gold)" id="stickyTotal">0</span>
+            </div>
+            
+            <div class="header-timer-wrap" id="headerTimerWidget">
                 <button class="ht-btn" onclick="changeHeaderTimer(-1)">◀</button>
                 <div class="ht-content" onclick="go('timers', document.querySelectorAll('.nav-btn')[1])">
                     <span id="htLabel" class="ht-label">Нет активных</span>
@@ -180,7 +191,13 @@ th { background: #1a1a1a; color: var(--accent); text-align: left; padding: 12px 
                 <button class="ht-btn" onclick="changeHeaderTimer(1)">▶</button>
                 <div class="ht-progress-bg"><div id="htProgressBar" class="ht-progress-bar"></div></div>
             </div>
+
+            <div class="stat-side">
+                Нафармлено
+                <span class="mini-stat-val" style="color:var(--green)" id="stickyFarmed">+0</span>
+            </div>
         </div>
+        
         <input type="text" class="search-input" id="searchBp" placeholder="🔍 Найти задание..." oninput="renderBP()" style="width:100%; box-sizing:border-box;">
     </div>
     <div class="list-container" id="listBP"></div>
@@ -248,7 +265,7 @@ th { background: #1a1a1a; color: var(--accent); text-align: left; padding: 12px 
 <div id="modalTheme" class="modal-wrap" onclick="closeThemeModal(event)">
     <div class="modal">
         <div style="font-size:20px; font-weight:800; margin-bottom:15px; text-align:center; color:white;">Выберите тему</div>
-        <div style="display:flex; justify-content:center; gap:15px; flex-wrap:wrap;">
+        <div style="display:flex; justify-content:center; gap:15px; flex-wrap:wrap; padding:10px;">
             <div class="theme-btn" style="background:#050505; border-color:#f97316;" onclick="setTheme('default')"></div>
             <div class="theme-btn" style="background:#f2f2f7; border-color:#ff9500;" onclick="setTheme('theme-white-orange')"></div>
             <div class="theme-btn" style="background:#050505; border-color:#c084fc;" onclick="setTheme('theme-black-purple')"></div>
@@ -277,9 +294,8 @@ th { background: #1a1a1a; color: var(--accent); text-align: left; padding: 12px 
 </div>
 
 <script>
-// ================= DATA (FIXED & MINIFIED) =================
+// ================= DATA =================
 const DB = {
-    // CARS REMOVED
     kitchen: [
         {name:"Фруктовый салат",icon:"🥗",ing:["Фрукты"],sat:15,mood:40,str:-3,skill:0,tool:"Нож"},{name:"Овощной салат",icon:"🥗",ing:["Овощи"],sat:10,mood:5,str:0,skill:0,tool:"Нож"},{name:"Овощной смузи",icon:"🥤",ing:["Овощи","Вода"],sat:20,mood:35,str:0,skill:2,tool:"Венчик"},{name:"Фруктовый смузи",icon:"🍹",ing:["Фрукты","Вода"],sat:20,mood:50,str:-7,skill:2,tool:"Венчик"},{name:"Фруктовый лёд",icon:"🍧",ing:["Фрукты","Лед","Сахар"],sat:10,mood:65,str:-7,skill:2,tool:"Венчик"},{name:"Масло",icon:"🧈",ing:["Молоко"],sat:5,mood:0,str:-1,skill:2,tool:"Венчик"},{name:"Рыбный фарш",icon:"🥣",ing:["Любая рыба"],sat:0,mood:0,str:0,skill:2,tool:"Нож"},{name:"Сухая рыбная котлета",icon:"🍘",ing:["Рыбный фарш"],sat:10,mood:0,str:-3,skill:2,tool:"Огонь"},{name:"Рыбная котлета",icon:"🧆",ing:["Рыбный фарш","Масло"],sat:25,mood:10,str:-10,skill:2,tool:"Огонь"},{name:"Мясной фарш",icon:"🥩",ing:["Мясо"],sat:0,mood:0,str:0,skill:2,tool:"Нож"},{name:"Мясная котлета",icon:"🥩",ing:["Мясной фарш","Масло"],sat:25,mood:10,str:-10,skill:2,tool:"Огонь"},{name:"Сухая мясная котлета",icon:"🥩",ing:["Мясной фарш"],sat:10,mood:0,str:-3,skill:2,tool:"Огонь"},{name:"Картофельное пюре",icon:"🥣",ing:["Овощи","Масло","Молоко"],sat:10,mood:10,str:-5,skill:2,tool:"Венчик/Огонь"},{name:"Мясная котлета с пюре",icon:"🍛",ing:["Карт. пюре","Мясная котлета"],sat:50,mood:50,str:-20,skill:3,tool:"-"},{name:"Рыбная котлета с пюре",icon:"🍛",ing:["Карт. пюре","Рыбная котлета"],sat:50,mood:50,str:-20,skill:3,tool:"-"},{name:"Вареный рис",icon:"🍚",ing:["Рис","Вода"],sat:10,mood:0,str:-1,skill:2,tool:"Огонь"},{name:"Рыбная котлета с рисом",icon:"🍛",ing:["Рыбная котлета","Вареный рис"],sat:45,mood:40,str:-12,skill:2,tool:"-"},{name:"Котлета с рисом",icon:"🍛",ing:["Мясная котлета","Вареный рис"],sat:45,mood:40,str:-12,skill:2,tool:"-"},{name:"Ролл с лососем",icon:"🍣",ing:["Лосось","Вареный рис"],sat:25,mood:20,str:-3,skill:2,tool:"Нож"},{name:"Ролл с тунцом",icon:"🍣",ing:["Тунец","Вареный рис"],sat:25,mood:20,str:-3,skill:2,tool:"Нож"},{name:"Овощной ролл",icon:"🍣",ing:["Овощи","Вареный рис"],sat:20,mood:10,str:-2,skill:2,tool:"Нож"},{name:"Рыба с рисом",icon:"🍣",ing:["Любая рыба","Вареный рис"],sat:40,mood:10,str:-5,skill:2,tool:"Огонь"},{name:"Рыба с овощами",icon:"🥗",ing:["Любая рыба","Овощи"],sat:35,mood:15,str:-3,skill:2,tool:"Огонь"},{name:"Мясо с овощами",icon:"🍖",ing:["Мясо","Овощи"],sat:40,mood:10,str:-3,skill:2,tool:"Огонь"},{name:"Яичница",icon:"🍳",ing:["Яйцо"],sat:15,mood:5,str:-3,skill:2,tool:"Огонь"},{name:"Яичница с беконом",icon:"🍳",ing:["Яйцо","Мясо","Масло"],sat:25,mood:15,str:-6,skill:3,tool:"Огонь"},{name:"Омлет",icon:"🥚",ing:["Яйцо","Молоко"],sat:20,mood:10,str:-4,skill:2,tool:"Венчик/Огонь"},{name:"Крем-брюле",icon:"🍮",ing:["Молоко","Сахар","Яйцо"],sat:10,mood:80,str:-7,skill:4,tool:"Огонь"},{name:"Суфле",icon:"🧁",ing:["Яйцо","Сахар"],sat:20,mood:80,str:-2,skill:5,tool:"Венчик/Огонь"},{name:"Овощной омлет",icon:"🥚",ing:["Яйцо","Молоко","Овощи"],sat:25,mood:10,str:-4,skill:3,tool:"Венчик/Огонь"},{name:"Компот",icon:"🍹",ing:["Сахар","Вода","Фрукты"],sat:5,mood:50,str:-7,skill:3,tool:"Огонь"},{name:"Карамель",icon:"🍬",ing:["Сахар"],sat:5,mood:10,str:-5,skill:4,tool:"Огонь"},{name:"Оладьи",icon:"🥞",ing:["Яйцо","Молоко","Мука","Сахар"],sat:20,mood:20,str:-10,skill:3,tool:"Венчик/Огонь"},{name:"Оладьи с карамелью",icon:"🥞",ing:["Оладьи","Карамель"],sat:25,mood:40,str:-20,skill:0,tool:"-"},{name:"Тесто",icon:"🍞",ing:["Мука","Вода","Яйцо"],sat:0,mood:0,str:0,skill:0,tool:"Венчик"},{name:"Чизкейк",icon:"🍰",ing:["Тесто","Сыр","Сахар"],sat:30,mood:60,str:-15,skill:4,tool:"Венчик/Огонь"},{name:"Карамельный чизкейк",icon:"🍰",ing:["Чизкейк","Карамель"],sat:35,mood:85,str:-25,skill:5,tool:"-"},{name:"Фруктовый чизкейк",icon:"🍰",ing:["Чизкейк","Фрукты"],sat:35,mood:70,str:-20,skill:5,tool:"-"},{name:"Яблоко в карамели",icon:"🍎",ing:["Карамель","Фрукты"],sat:20,mood:55,str:-7,skill:4,tool:"-"},{name:"Фруктовый салат с карамелью",icon:"🥗",ing:["Карамель","Фруктовый салат"],sat:25,mood:60,str:-11,skill:0,tool:"-"},{name:"Мороженое",icon:"🍦",ing:["Яйцо","Сахар","Молоко","Лёд"],sat:10,mood:70,str:-15,skill:2,tool:"Венчик"},{name:"Карамельное мороженое",icon:"🍦",ing:["Карамель","Мороженое"],sat:15,mood:80,str:-20,skill:0,tool:"-"},{name:"Молочный коктейль",icon:"🥤",ing:["Мороженое","Молоко"],sat:20,mood:70,str:-15,skill:3,tool:"Венчик"},{name:"Карамельный коктейль",icon:"🥤",ing:["Карамель","Молочный коктейль"],sat:25,mood:80,str:-20,skill:0,tool:"-"},{name:"Бульон",icon:"🍲",ing:["Мясо","Вода"],sat:10,mood:0,str:-25,skill:0,tool:"Огонь"},{name:"Стейк с фруктовым соусом и рисом",icon:"🍛",ing:["Стейк с ф.с.","Вареный рис"],sat:80,mood:60,str:-13,skill:5,tool:"-"},{name:"Стейк с фруктовым соусом и пюре",icon:"🍛",ing:["Стейк с ф.с.","Картофельное пюре"],sat:80,mood:80,str:-15,skill:5,tool:"-"},{name:"Рыба с фруктовым соусом",icon:"🍲",ing:["Рыба","Фрукты","Сахар"],sat:60,mood:50,str:-10,skill:5,tool:"Огонь"},{name:"Рыба с фруктовым соусом и рисом",icon:"🍛",ing:["Рыба с ф.с","Вареный рис"],sat:80,mood:60,str:-13,skill:5,tool:"-"},{name:"Рыба с фруктовым соусом и пюре",icon:"🍛",ing:["Рыба с ф.с","Картофельное пюре"],sat:80,mood:80,str:-15,skill:5,tool:"-"},{name:"Лазанья",icon:"🍕",ing:["Молоко","Мука","Сыр","Овощи","Мясной фарш"],sat:65,mood:50,str:-20,skill:5,tool:"Огонь"},{name:"Бургер",icon:"🍔",ing:["Мясная котлета","Овощи","Хлеб"],sat:40,mood:0,str:-10,skill:2,tool:"-"},{name:"Ризотто",icon:"🍚",ing:["Бульон","Рисовая крупа","Сыр"],sat:40,mood:20,str:-20,skill:0,tool:"Огонь"},{name:"Тако с мясом",icon:"🌮",ing:["Хлеб","Мясной фарш","Сыр","Овощи"],sat:30,mood:30,str:-10,skill:3,tool:"Огонь"},{name:"Тако с рыбой",icon:"🌮",ing:["Хлеб","Рыбный фарш","Сыр","Овощи"],sat:30,mood:30,str:-10,skill:3,tool:"Огонь"},{name:"Буррито",icon:"🌯",ing:["Хлеб","Вареный рис","Мясной фарш","Овощи","Сыр"],sat:50,mood:50,str:-15,skill:3,tool:"Огонь"},{name:"Поке",icon:"🍲",ing:["Вареный рис","Сыр","Овощи","Лосось"],sat:70,mood:50,str:-15,skill:4,tool:"-"},{name:"Мальма в сливочном соусе",icon:"🐟",ing:["Мальма","Овощи","Молоко"],sat:75,mood:75,str:-13,skill:5,tool:"Огонь"},{name:"Мясо по-французски",icon:"🥩",ing:["Мясо","Овощи","Сыр"],sat:60,mood:40,str:-15,skill:5,tool:"Огонь"},{name:"Оливье",icon:"🥗",ing:["Мясо","Овощи","Яйца","Вода"],sat:60,mood:50,str:-25,skill:5,tool:"Нож/Огонь"},{name:"Сашими из фугу",icon:"🐡",ing:["Фугу"],sat:20,mood:60,str:0,skill:0,tool:"Нож"},{name:"Сашими из лосося",icon:"🍣",ing:["Лосось"],sat:10,mood:30,str:0,skill:4,tool:"Нож"},{name:"Сашими из тунца",icon:"🍣",ing:["Тунец"],sat:10,mood:30,str:0,skill:4,tool:"Нож"}
     ],
@@ -499,10 +515,16 @@ function updateBP() {
     BP.done.forEach(i => { let t = DB.bp[i]; if(t && !t.r) { let rw = BP.vip ? t.v : t.b; if(BP.x2) rw *= 2; total += rw; } });
     if(BP.counters) { Object.keys(BP.counters).forEach(i => { let t = DB.bp[i]; if(t && t.r) { let rw = BP.vip ? t.v : t.b; if(BP.x2) rw *= 2; total += (rw * BP.counters[i]); } }); }
 
+    // Update MAIN stats
     document.getElementById('totalBp').innerText = total;
     document.getElementById('doneCount').innerText = doneCount;
     document.getElementById('multiplierDisp').innerText = 'x' + ((BP.vip?2:1)*(BP.x2?2:1));
     
+    // Update STICKY stats
+    document.getElementById('stickyTotal').innerText = total;
+    let farmed = total - BP.start;
+    document.getElementById('stickyFarmed').innerText = (farmed >= 0 ? "+" : "") + farmed;
+
     // Hours logic
     let hCount = (BP.counters && BP.counters[0]) ? BP.counters[0] : 0;
     if(hCount === 0 && BP.done.includes(0)) hCount = 1;
@@ -633,7 +655,8 @@ function renderBP() {
         item.setAttribute('data-id', i);
         if(!t.r && t.q <= 1) item.onclick = () => toggleTask(i);
         
-        const icon = t.img ? `<img src="${t.img}" class="bp-img">` : `<span class="bp-emoji">${t.i||'🔹'}</span>`;
+        // FIXED IMAGE RENDERING
+        const icon = (t.img && t.img.includes('/')) ? `<img src="${t.img}" class="bp-img">` : `<span class="bp-emoji">${t.i||'🔹'}</span>`;
         const twinkBtn = !t.r ? `<button class="btn-mini" style="width:28px; height:28px; background:transparent; border:1px solid #333; color:#888;" onclick="toggleTwink(${i}, event)">👻</button>` : '';
 
         item.innerHTML = `
@@ -695,35 +718,54 @@ function renderTimers() {
                     <button onclick="delTime('${t.id}')" style="width:36px; background:#222; border:1px solid #333; color:#888; border-radius:8px;">✕</button>
                 </div>
             </div>`;
-        if(t.run) runInterval(t.id);
     });
+    // Global interval now handles updates, so we don't call runInterval per timer individually
     saveTm();
 }
 
-function runInterval(id) {
-    if(TIMER_INT[id]) clearInterval(TIMER_INT[id]);
-    TIMER_INT[id] = setInterval(() => {
-        const t = TIMERS.custom.find(x => x.id === id);
-        if(!t || !t.run) { clearInterval(TIMER_INT[id]); return; }
-        
-        if(!t.et) t.et = Date.now() + (t.rm * 1000);
-        const diff = Math.ceil((t.et - Date.now()) / 1000);
-        
-        if (diff <= 0) {
-            t.rm = 0; t.run = false; clearInterval(TIMER_INT[id]); renderTimers();
-            if(window.Telegram.WebApp) {
-                window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-                window.Telegram.WebApp.showPopup({title:'Таймер!', message: t.l});
+// REALTIME TIMER UPDATE LOOP
+setInterval(() => {
+    let ch = false;
+    const now = Date.now();
+    if(TIMERS.custom) {
+        TIMERS.custom.forEach(t => {
+            if(t.run) {
+                // Calculate
+                if(!t.et) t.et = now + (t.rm * 1000);
+                const diff = Math.ceil((t.et - now) / 1000);
+                if (diff <= 0) {
+                    t.rm = 0; t.run = false; renderTimers();
+                    if(window.Telegram.WebApp) {
+                        window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                        window.Telegram.WebApp.showPopup({title:'Таймер!', message: t.l});
+                    }
+                } else {
+                    t.rm = diff;
+                }
+                
+                // Update DOM directly
+                const elDisp = document.getElementById(`disp_${t.id}`);
+                const elBar = document.getElementById(`prog_bar_${t.id}`);
+                if(elDisp) elDisp.innerText = fmtTime(t.rm);
+                if(elBar) {
+                    const pct = t.s > 0 ? (t.rm / t.s)*100 : 0;
+                    elBar.style.width = pct + "%";
+                }
+                ch = true;
             }
-        }
-    }, 1000);
-}
+        });
+    }
+    if(ch && now % 5000 < 1000) saveTm();
+}, 1000);
 
 function renderTimerPresets() {
     const c = document.getElementById('timerGrid'); c.innerHTML = '';
     DB.timers.forEach(t => {
+        // FIXED IMAGE RENDERING
+        const icon = (t.i && t.i.includes('/')) ? `<img src="${t.i}" style="width:24px;height:24px;object-fit:contain">` : `<div style="font-size:24px;">${t.i||'⏱'}</div>`;
+        
         c.innerHTML += `<div class="timer-card" onclick="addGameTimer('${t.id}')" style="cursor:pointer; align-items:center; flex-direction:row;">
-            <div style="font-size:24px;">${t.i||'⏱'}</div>
+            ${icon}
             <div style="flex:1;"><div style="font-weight:bold; color:var(--text-main);">${t.l}</div><div style="color:var(--text-sub); font-size:12px;">${fmtTimeSimple(t.s)}</div></div>
             <div style="font-size:20px; color:var(--accent);">+</div>
         </div>`;
@@ -741,7 +783,7 @@ function addCustomTimer() { const m=parseInt(document.getElementById('customMin'
 function addGameTimer(id) { const t=DB.timers.find(x=>x.id===id); if(t) addTimerRaw(t.s/60, t.l); }
 function togTime(id) { const t=TIMERS.custom.find(x=>x.id===id); if(t) { t.run=!t.run; if(t.run) t.et=Date.now()+(t.rm*1000); saveTm(); renderTimers(); } }
 function rstTime(id) { const t=TIMERS.custom.find(x=>x.id===id); if(t) { t.rm=t.s; t.run=false; delete t.et; saveTm(); renderTimers(); } }
-function delTime(id) { TIMERS.custom=TIMERS.custom.filter(t=>t.id!==id); clearInterval(TIMER_INT[id]); saveTm(); renderTimers(); }
+function delTime(id) { TIMERS.custom=TIMERS.custom.filter(t=>t.id!==id); saveTm(); renderTimers(); }
 
 // --- CALENDAR & FOOD ---
 let calDate = new Date();
