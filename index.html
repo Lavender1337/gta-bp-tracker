@@ -158,12 +158,14 @@ select {
 }
 
 /* --- НОВЫЙ ДИЗАЙН HERO (ВЕРХНЯЯ ПАНЕЛЬ) --- */
+
 .bp-hero {
-    background: #0f0f11;
-    border: 1px solid #222;
+    background: var(--bg-card); /* Было #0f0f11 */
+    border: 1px solid var(--border); /* Было #222 */
     border-radius: 16px;
     padding: 15px;
-    margin: 15px 15px 20px; /* Отступы по бокам */
+    margin: 15px 15px 20px;
+    color: var(--text-main); /* Чтобы текст чернел в светлой теме */
 }
 
 /* Сетка 4 столбика */
@@ -709,6 +711,72 @@ input, select, textarea {
 /* Исправляем цвет иконок в нижнем меню */
 .nav-btn { color: var(--text-sub) !important; }
 .nav-btn.active { color: var(--accent) !important; }
+/* --- СТИЛИ ЗАДАЧ --- */
+.task-item {
+    background: var(--bg-card); 
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px; display: flex; align-items: center; gap: 12px; position: relative;
+    transition: background 0.2s, border-color 0.2s;
+    color: var(--text-main); /* Важно */
+}
+
+/* Текст задач и карточек */
+.task-text, .card-title, .stat-val { 
+    color: var(--text-main) !important; 
+}
+.task-sub, .card-sub, .stat-label { 
+    color: var(--text-sub) !important; 
+}
+/* 1. СТАНДАРТНАЯ ТЕМА (Черно-Оранжевая) и ТЕМА "DEFAULT" */
+    body:not([class*="theme-white"]):not(.theme-black-purple):not(.theme-black-red) .task-item,
+    body.theme-default .task-item {
+        border: 1px solid var(--accent); /* Оранжевая обводка */
+        box-shadow: 0 0 5px rgba(249, 115, 22, 0.1); /* Легкое свечение */
+    }
+
+    /* Выполненные в оранжевой теме */
+    body:not([class*="theme-white"]):not(.theme-black-purple):not(.theme-black-red) .task-item.completed,
+    body.theme-default .task-item.completed {
+        border-color: #333; /* Серая обводка */
+        background: rgba(249, 115, 22, 0.05); /* Еле заметный оранжевый фон */
+        opacity: 0.7;
+    }
+
+    /* 2. ЧЕРНО-КРАСНАЯ ТЕМА */
+    body.theme-black-red .task-item {
+        border: 1px solid var(--accent); /* Красная обводка */
+        box-shadow: 0 0 5px rgba(239, 68, 68, 0.1);
+    }
+    body.theme-black-red .task-item.completed {
+        border-color: #3f1a1a;
+        background: rgba(239, 68, 68, 0.05);
+        opacity: 0.7;
+    }
+
+    /* 3. ФИКСЫ ДЛЯ СВЕТЛОЙ ТЕМЫ */
+    body.theme-white-orange .task-item, 
+    body.theme-white-purple .task-item {
+        background: #ffffff;
+        border: 1px solid #e5e5ea;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* Тень вместо обводки для чистоты */
+    }
+    body.theme-white-orange .task-item.completed,
+    body.theme-white-purple .task-item.completed {
+        background: #f2f2f7; /* Светло-серый */
+        opacity: 0.6;
+    }
+
+    /* Фикс полоски поиска и липкого хедера в светлой теме */
+    body[class*="theme-white"] .sticky-search {
+        background: rgba(255,255,255,0.95);
+        border-bottom: 1px solid #e5e5ea;
+    }
+    body[class*="theme-white"] .search-input {
+        background: #e5e5ea !important;
+        color: #000 !important;
+        border: 1px solid #d1d1d6 !important;
+    }
 </style>
 </head>
 <body>
@@ -1273,16 +1341,37 @@ function fmtTimeSimple(s) {
         function toggleVip() { BP.vip = !BP.vip; document.getElementById('btnVip').classList.toggle('active'); saveBP(); renderBP(); updateBP(); }
         function toggleX2() { BP.x2 = !BP.x2; document.getElementById('btnX2').classList.toggle('active'); saveBP(); renderBP(); updateBP(); }
 function updateBP() {
+    // 1. Получаем стартовое значение
     BP.start = parseInt(document.getElementById('startBp').value) || 0;
     
-    let total = BP.start;
+    let farm = 0; // Чисто заработанные очки
     let doneCount = BP.done.length + (BP.doneTwink ? BP.doneTwink.length : 0);
     
-    // 1. Подсчет очков (стандартная логика)
-    BP.done.forEach(i => { let t = DB.bp[i]; if(t && !t.r) { let rw = BP.vip ? t.v : t.b; if(BP.x2) rw *= 2; total += rw; } });
-    if(BP.counters) { Object.keys(BP.counters).forEach(i => { let t = DB.bp[i]; if(t && t.r) { let rw = BP.vip ? t.v : t.b; if(BP.x2) rw *= 2; total += (rw * BP.counters[i]); } }); }
+    // 2. Считаем очки за обычные задания (галочки)
+    BP.done.forEach(i => { 
+        let t = DB.bp[i]; 
+        if(t && !t.r) { 
+            let rw = BP.vip ? t.v : t.b; 
+            if(BP.x2) rw *= 2; 
+            farm += rw; 
+        } 
+    });
 
-    // 2. Обновляем цифры в шапке
+    // 3. Считаем очки за задания со счетчиками
+    if(BP.counters) { 
+        Object.keys(BP.counters).forEach(i => { 
+            let t = DB.bp[i]; 
+            if(t && t.r) { 
+                let rw = BP.vip ? t.v : t.b; 
+                if(BP.x2) rw *= 2; 
+                farm += (rw * BP.counters[i]); 
+            } 
+        }); 
+    }
+
+    let total = BP.start + farm; // Итого = Старт + Фарм
+
+    // 4. Обновляем ГЛАВНУЮ панель (Hero)
     const elTotal = document.getElementById('totalBp');
     const elDone = document.getElementById('doneCount');
     const elMult = document.getElementById('multiplierDisp');
@@ -1297,30 +1386,27 @@ function updateBP() {
     if(BP.x2) mult *= 2;
     if(elMult) elMult.innerText = 'x' + mult;
 
-    // --- НОВАЯ ЛОГИКА ДЛЯ "ЧАСЫ" (СУММА ЧАСОВ) ---
-    if(elTime) {
-        // ID 0 — это задача "3 часа в онлайне"
-        const taskID = 0; 
-        
-        // Берем значение счетчика (сколько раз выполнено)
-        // Если счетчика нет, то 0
-        let count = (BP.counters && BP.counters[taskID]) ? BP.counters[taskID] : 0;
-        
-        // Если счетчик равен 0, но стоит галочка "Выполнено" (для старых сохранений), считаем как 1
-        if(count === 0 && BP.done.includes(taskID)) {
-            count = 1;
-        }
+    // 5. Обновляем ЛИПКУЮ панель (Sticky Header) и кнопку "Нафармлено"
+    // Вот этого у тебя не хватало:
+    const elStickyTotal = document.getElementById('stickyTotal');
+    const elStickyFarmed = document.getElementById('stickyFarmed');
+    const elFarmedMain = document.getElementById('farmedBpMain');
 
-        // Умножаем количество выполнений на 3 часа
+    if(elStickyTotal) elStickyTotal.innerText = total;
+    if(elStickyFarmed) elStickyFarmed.innerText = '+' + farm;
+    if(elFarmedMain) elFarmedMain.innerText = '+' + farm;
+
+    // 6. Логика "Часы в онлайне"
+    if(elTime) {
+        const taskID = 0; 
+        let count = (BP.counters && BP.counters[taskID]) ? BP.counters[taskID] : 0;
+        if(count === 0 && BP.done.includes(taskID)) count = 1; // Поддержка старого сохранения
         const totalHours = count * 3;
-        
         elTime.innerText = totalHours + 'ч';
-        
-        // Красим в золотой, если есть часы, иначе серый
-        elTime.style.color = totalHours > 0 ? "var(--gold)" : "#555";
+        elTime.style.color = totalHours > 0 ? "var(--gold)" : "var(--text-sub)";
     }
     
-    // Обновляем состояние кнопок
+    // Обновляем состояние кнопок VIP/X2
     document.getElementById('btnVip').classList.toggle('active', BP.vip);
     document.getElementById('btnX2').classList.toggle('active', BP.x2);
 
@@ -1783,7 +1869,6 @@ function togTime(id) {
 function runInterval(id) {
     if(TIMER_INT[id]) clearInterval(TIMER_INT[id]);
     
-    // Запускаем интервал
     TIMER_INT[id] = setInterval(() => {
         const t = TIMERS.custom.find(x => x.id === id);
         
@@ -1793,31 +1878,40 @@ function runInterval(id) {
             return; 
         }
 
-        // --- FIX: Миграция для старых таймеров ---
-        // Если таймер был создан до обновления кода, у него нет 'et'. Создадим его.
-        if(!t.et) {
-            t.et = Date.now() + (t.rm * 1000);
-        }
-        // -----------------------------------------
+        // Фикс для старых таймеров
+        if(!t.et) t.et = Date.now() + (t.rm * 1000);
 
         const now = Date.now();
-        // Считаем разницу между Финишем и Сейчас
         const diff = Math.ceil((t.et - now) / 1000);
 
-// Внутри runInterval...
+        // --- ВАЖНО: Обновляем DOM элементы в реальном времени ---
+        const elTime = document.getElementById(`disp_${id}`);
+        const elBar = document.getElementById(`prog_bar_${id}`);
+
+        if(diff >= 0) {
+            t.rm = diff;
+            
+            // 1. Обновляем цифры
+            if(elTime) elTime.innerText = fmtTime(t.rm);
+            
+            // 2. Обновляем полоску прогресса
+            if(elBar && t.s > 0) {
+                let pct = (t.rm / t.s) * 100;
+                if(pct > 100) pct = 100;
+                elBar.style.width = pct + '%';
+            }
+        }
+
+        // Если время вышло
         if (diff <= 0) {
-            // Таймер кончился
             t.rm = 0; 
             t.run = false; 
             clearInterval(TIMER_INT[id]); 
-            renderTimers();
+            renderTimers(); // Полная перерисовка, чтобы показать кнопки старта
             
-            // --- УВЕДОМЛЕНИЕ ---
-            if(window.Telegram.WebApp) {
-                // 1. Вибрация
+            // Уведомление
+            if(window.Telegram && window.Telegram.WebApp) {
                 window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-                
-                // 2. Системный алерт Телеграма (Красивое окно)
                 window.Telegram.WebApp.showPopup({
                     title: '⏰ Таймер завершен!',
                     message: `Время вышло: ${t.l}`,
@@ -1825,12 +1919,7 @@ function runInterval(id) {
                 });
             }
         }
-        
-        // Сохраняем не каждый тик, а реже (опционально), чтобы не спамить в Cloud,
-        // но здесь оставим для надежности, так как у тебя там debounce стоит.
-        saveTm();
-
-    }, 1000);
+    }, 1000); // Обновление каждую секунду
 }
         
         function addPay(t) { const d = prompt(`Оплата ${t}. Через сколько дней?`, "10"); if(d) addEvent(parseInt(d), `Оплата: ${t}`); }
