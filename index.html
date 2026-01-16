@@ -777,6 +777,185 @@ input, select, textarea {
         color: #000 !important;
         border: 1px solid #d1d1d6 !important;
     }
+/* === ФИНАЛЬНЫЕ ПРАВКИ СВЕТЛОЙ ТЕМЫ === */
+body[class*="theme-white"] {
+    --bg-deep: #f2f2f7;
+    --bg-card: #ffffff;
+    --input-bg: #e5e5ea;
+    --input-text: #000;
+    --border: #d1d1d6;
+}
+
+/* 1. Исправляем черные чекбоксы и кнопки в светлой теме */
+body[class*="theme-white"] .checkbox,
+body[class*="theme-white"] .bp-icon-container,
+body[class*="theme-white"] .tc-btn-icon,
+body[class*="theme-white"] .icon-btn {
+    background: #f0f0f6 !important; /* Светлый фон */
+    border-color: #d1d1d6 !important;
+    color: #555 !important;
+}
+
+/* Активный чекбокс */
+body[class*="theme-white"] .checkbox:active {
+    background: #e1e1e6 !important;
+}
+
+/* 2. Поля ввода (Таймеры, поиск) */
+body[class*="theme-white"] input,
+body[class*="theme-white"] select {
+    background: #e5e5ea !important;
+    color: #000 !important;
+    border: 1px solid #c7c7cc !important;
+}
+body[class*="theme-white"] ::placeholder { color: #8e8e93; }
+
+/* 3. Липкая шапка (Sticky Header) */
+body[class*="theme-white"] .sticky-search {
+    background: rgba(255,255,255,0.95) !important;
+    border-bottom: 1px solid #d1d1d6;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+}
+
+/* 4. Виджет таймера в шапке (светлая версия) */
+body[class*="theme-white"] .header-timer-wrap {
+    background: #fff !important;
+    border-color: #d1d1d6 !important;
+}
+body[class*="theme-white"] .ht-time { color: #000 !important; }
+/* Контейнер виджета */
+.header-timer-wrap { 
+    position: relative;
+    display: flex; align-items: center; justify-content: space-between;
+    background: #0f0f11; 
+    border-radius: 20px; /* Сильное скругление */
+    padding: 6px 10px; /* Чуть больше отступы */
+    min-width: 140px;
+    overflow: hidden; /* Чтобы SVG не вылезал */
+}
+
+/* SVG для обводки */
+.ht-progress-svg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none; /* Чтобы клики проходили сквозь него */
+    z-index: 1; 
+}
+
+/* Сама линия обводки */
+.ht-rect-path {
+    fill: none;
+    stroke: var(--green); /* Цвет линии */
+    stroke-width: 4px;    /* Толщина линии */
+    rx: 20px;             /* Скругление углов (должно совпадать с border-radius контейнера) */
+    
+    /* Магия анимации */
+    stroke-dasharray: 100; /* Длина всего пути = 100 условных единиц */
+    stroke-dashoffset: 0;  /* Смещение (насколько закрашено) */
+    transition: stroke-dashoffset 1s linear; /* Плавность */
+    vector-effect: non-scaling-stroke; /* Чтобы толщина не менялась при ресайзе */
+}
+
+/* Контент поверх SVG */
+.ht-btn, .ht-content {
+    position: relative; 
+    z-index: 2; /* Поднимаем текст над обводкой */
+}
+
+/* Старую полоску скрываем */
+.ht-progress-bg { display: none !important; }
+/* === SOFT UI: НЕЖНЫЕ СВЕТЛЫЕ ТЕМЫ === */
+
+/* ОБЩИЕ НАСТРОЙКИ ДЛЯ ВСЕХ СВЕТЛЫХ ТЕМ */
+body[class*="theme-white"] {
+    /* Текст не черный, а темно-серый (мягче для чтения) */
+    --text-main: #323236 !important; 
+    --text-sub: #8e8e93 !important;
+    
+    /* Границы очень легкие, почти незаметные */
+    --border: rgba(0, 0, 0, 0.06) !important;
+    
+    /* Поля ввода мягкие */
+    --input-bg: rgba(0, 0, 0, 0.04) !important;
+    --input-text: #323236 !important;
+}
+
+/* 1. ТЕМА: БЕЛО-ОРАНЖЕВАЯ (Peach / Cream) */
+body.theme-white-orange {
+    /* Фон не белый, а слегка "сливочный" */
+    --bg-deep: #fdfbf9 !important; 
+    --bg-card: #ffffff !important;
+    
+    /* Акцент: Мягкий коралл вместо кислотного оранжевого */
+    --accent: #fb923c !important; 
+    --accent-glow: rgba(251, 146, 60, 0.25) !important;
+    
+    /* Твинк: Нежно-фиолетовый */
+    --twink-bg: rgba(167, 139, 250, 0.1) !important;
+    --twink-text: #8b5cf6 !important;
+}
+
+/* 2. ТЕМА: БЕЛО-ФИОЛЕТОВАЯ (Lavender / Cloud) */
+body.theme-white-purple {
+    /* Фон очень светло-лавандовый, почти белый */
+    --bg-deep: #fbfbfe !important;
+    --bg-card: #ffffff !important;
+    
+    /* Акцент: Спокойный лиловый */
+    --accent: #a78bfa !important;
+    --accent-glow: rgba(167, 139, 250, 0.25) !important;
+    
+    /* Твинк: Нежно-розовый */
+    --twink-bg: rgba(251, 113, 133, 0.1) !important;
+    --twink-text: #f43f5e !important;
+}
+
+/* --- КРАСИВЫЕ КАРТОЧКИ ДЛЯ СВЕТЛЫХ ТЕМ --- */
+body[class*="theme-white"] .task-item,
+body[class*="theme-white"] .timer-card,
+body[class*="theme-white"] .bp-hero,
+body[class*="theme-white"] .card {
+    border: 1px solid rgba(0,0,0,0.04) !important; /* Еле заметная граница */
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03); /* Мягкая рассеянная тень */
+}
+
+/* Активные элементы (галочки, иконки) делаем пастельными */
+body[class*="theme-white"] .checkbox {
+    background: #f3f4f6 !important;
+    border: 2px solid #e5e7eb !important;
+}
+body[class*="theme-white"] .checkbox:active {
+    transform: scale(0.95);
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+    color: white !important;
+}
+
+/* Кнопки в светлой теме */
+body[class*="theme-white"] .btn-mini,
+body[class*="theme-white"] .action-btn {
+    background: #ffffff !important;
+    border: 1px solid rgba(0,0,0,0.08) !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02) !important;
+    color: var(--text-main) !important;
+}
+
+/* Исправляем цвет обводки таймера в шапке (Rim Progress) для светлой темы */
+body[class*="theme-white"] .ht-rect-path {
+    stroke-opacity: 0.8; /* Делаем линию чуть прозрачнее */
+}
+body[class*="theme-white"] .header-timer-wrap {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05); /* Тень для виджета */
+}
+
+/* Выполненные задачи - делаем их полупрозрачными, а не грязными */
+body[class*="theme-white"] .task-item.completed {
+    background: rgba(255,255,255,0.6) !important;
+    opacity: 0.5;
+    box-shadow: none;
+    border-color: transparent !important;
+}
 </style>
 </head>
 <body>
@@ -849,16 +1028,16 @@ input, select, textarea {
         </div>
 
 <div class="header-timer-wrap" id="headerTimerWidget">
+    <svg class="ht-progress-svg" preserveAspectRatio="none">
+        <rect class="ht-rect-path" x="0" y="0" width="100%" height="100%" pathLength="100" />
+    </svg>
+
     <button class="ht-btn" onclick="changeHeaderTimer(-1)">◀</button>
     <div class="ht-content" onclick="go('timers', document.querySelectorAll('.nav-btn')[1])">
         <span id="htLabel" class="ht-label">Нет активных</span>
         <span id="htTime" class="ht-time">--:--</span>
     </div>
     <button class="ht-btn" onclick="changeHeaderTimer(1)">▶</button>
-    
-    <div class="ht-progress-bg">
-        <div id="htProgressBar" class="ht-progress-bar"></div>
-    </div>
 </div>
 
         <div style="flex:1; text-align:right;">
@@ -879,11 +1058,12 @@ input, select, textarea {
     <div class="section-title">Активные</div>
     <div id="activeTimersList" class="timer-grid-new"></div>
 
-    <div class="custom-timer">
-        <input type="text" id="customName" placeholder="Название..." style="flex:2">
-        <input type="number" id="customMin" placeholder="Мин" style="flex:1">
-        <button onclick="addCustomTimer()">+ ДОБАВИТЬ</button>
-    </div>
+<div class="custom-timer">
+    <input type="text" id="customName" placeholder="Название..." style="flex:2">
+    <input type="number" id="customMin" placeholder="Мин" style="flex:0.8">
+    <input type="number" id="customSec" placeholder="Сек" style="flex:0.8">
+    <button onclick="addCustomTimer()">+ СТАРТ</button>
+</div>
 
     <div class="section-title">Шаблоны</div>
     <div id="timerGrid" class="timer-grid-new"></div>
@@ -1815,16 +1995,28 @@ function renderTimers() {
             const t = DB.timers.find(x => x.id === key);
             if(t) addTimerRaw(t.s/60, t.l); 
         }
-        function addCustomTimer() { 
-    const m = parseInt(document.getElementById('customMin').value);
+function addCustomTimer() { 
     const nameInput = document.getElementById('customName').value;
-    // Если имя пустое, ставим дефолтное
-    const label = nameInput.trim() ? nameInput : (m + ' мин');
+    // Получаем минуты и секунды, если пусто — считаем 0
+    let m = parseInt(document.getElementById('customMin').value) || 0;
+    let s = parseInt(document.getElementById('customSec').value) || 0;
     
-    if(m) addTimerRaw(m, label); 
+    // Если всё по нулям, ничего не делаем
+    if (m === 0 && s === 0) return;
+
+    // Считаем общее время в секундах
+    const totalSeconds = (m * 60) + s;
+    
+    // Формируем название, если его нет
+    const label = nameInput.trim() ? nameInput : fmtTimeSimple(totalSeconds);
+    
+    // addTimerRaw принимает минуты (так уж вышло исторически в коде), 
+    // поэтому делим на 60, чтобы сохранить совместимость
+    addTimerRaw(totalSeconds / 60, label); 
     
     // Очищаем поля
     document.getElementById('customMin').value = ''; 
+    document.getElementById('customSec').value = ''; 
     document.getElementById('customName').value = '';
 }
 function addTimerRaw(min, label) {
@@ -2238,7 +2430,7 @@ function updateHeaderTimer() {
     const active = TIMERS.custom.filter(t => t.run);
     const elLabel = document.getElementById('htLabel');
     const elTime = document.getElementById('htTime');
-    const elBar = document.getElementById('htProgressBar'); // Наша новая полоска
+    const elSvgPath = document.querySelector('.ht-rect-path'); // Наш SVG путь
 
     if (!elLabel || !elTime) return;
 
@@ -2246,7 +2438,7 @@ function updateHeaderTimer() {
         elLabel.innerText = "Нет активных";
         elTime.innerText = "--:--";
         elTime.style.color = "#555";
-        if(elBar) elBar.style.width = '0%';
+        if(elSvgPath) elSvgPath.style.strokeDashoffset = 100; // Скрываем рамку полностью
         return;
     }
 
@@ -2264,19 +2456,35 @@ function updateHeaderTimer() {
     }
     if (timeLeft < 0) timeLeft = 0;
 
-    // --- РАСЧЕТ ДЛЯ ХЕДЕРА ---
-    let pct = 0;
-    if(t.s > 0) pct = (timeLeft / t.s) * 100;
-    if(elBar) elBar.style.width = pct + '%';
+    // --- ЛОГИКА ОБВОДКИ ---
+    // pathLength="100" в HTML означает, что весь периметр = 100.
+    // Если offset = 0, линия полная. Если offset = 100, линии нет.
+    // Нам нужно, чтобы линия уменьшалась.
+    
+    let pct = 0; 
+    if(t.s > 0) pct = (timeLeft / t.s) * 100; // Процент оставшегося времени (0..100)
+    
+    // Инвертируем логику для dashoffset:
+    // 100% времени = 0 смещения (полная рамка)
+    // 0% времени = 100 смещения (пусто)
+    let offset = 100 - pct;
+
+    if(elSvgPath) {
+        elSvgPath.style.strokeDashoffset = offset;
+        
+        // Меняем цвет, если мало времени (опционально)
+        if(pct < 20) elSvgPath.style.stroke = 'var(--red)';
+        else elSvgPath.style.stroke = 'var(--green)';
+    }
 
     let name = t.l || "Таймер";
     if (name.length > 12) name = name.slice(0, 11) + "..";
     
     elLabel.innerText = name;
     elTime.innerText = fmtTime(timeLeft); 
+    // Цвет текста делаем зависящим от темы (черный на белом, белый на черном)
     elTime.style.color = "var(--text-main)"; 
 }
-
 // Запускаем обновление каждую секунду
 setInterval(updateHeaderTimer, 1000);
 
