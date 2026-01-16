@@ -1155,6 +1155,70 @@ body[class*="theme-white"] input:focus {
 .bp-icon-container {
     border-radius: 14px !important;
 }
+/* === СТРУКТУРА И ОБВОДКА ДЛЯ СВЕТЛЫХ ТЕМ === */
+
+/* 1. Усиливаем контраст фона и карточек */
+body[class*="theme-white"] {
+    --bg-deep: #f2f4f7 !important; /* Фон страницы чуть серее */
+    --bg-card: #ffffff !important; /* Карточки чисто белые */
+    --border-visible: #d1d5db;     /* Цвет новой обводки (серый) */
+}
+
+/* 2. Обводка для Заданий, Таймеров и Главного блока */
+body[class*="theme-white"] .task-item,
+body[class*="theme-white"] .bp-hero,
+body[class*="theme-white"] .card,
+body[class*="theme-white"] .timer-card,
+body[class*="theme-white"] .header-timer-wrap {
+    /* Возвращаем физическую границу */
+    border: 1px solid var(--border-visible) !important;
+    
+    /* Оставляем легкую тень для объема */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* 3. Кнопки: Добавляем четкие границы */
+/* (Верхние кнопки действий, сегменты, кнопки +/-) */
+body[class*="theme-white"] .action-btn,
+body[class*="theme-white"] .hero-btn,
+body[class*="theme-white"] .seg-btn,
+body[class*="theme-white"] .btn-mini,
+body[class*="theme-white"] .tc-btn-icon,
+body[class*="theme-white"] .remind-btn,
+body[class*="theme-white"] .icon-btn {
+    border: 1px solid var(--border-visible) !important;
+    background: #ffffff !important; /* Белый фон кнопок */
+    color: #4b5563 !important;      /* Темно-серый текст */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* Микро-тень */
+}
+
+/* Активная кнопка (выбранная категория) */
+body[class*="theme-white"] .seg-btn.active,
+body[class*="theme-white"] .hero-btn.active {
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+    color: #fff !important;
+}
+
+/* 4. Поля ввода (Input) и Поиск */
+body[class*="theme-white"] input,
+body[class*="theme-white"] select,
+body[class*="theme-white"] .sticky-search {
+    border-color: #c7c7cc !important; /* Стандартный серый контур */
+}
+
+/* 5. Чекбоксы (галочки) */
+body[class*="theme-white"] .checkbox {
+    border: 2px solid #d1d5db !important; /* Жирная обводка */
+    background: #fff !important;
+}
+
+/* 6. Разделитель внутри задачи (линия над кнопками) */
+body[class*="theme-white"] .task-bottom-row {
+    border-top: 1px solid #e5e7eb !important;
+    margin-top: 10px;
+    padding-top: 10px;
+}
 </style>
 </head>
 <body>
