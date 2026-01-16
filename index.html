@@ -956,6 +956,205 @@ body[class*="theme-white"] .task-item.completed {
     box-shadow: none;
     border-color: transparent !important;
 }
+/* === ФИНАЛЬНЫЙ UI-ПАКЕТ: ПОЗИЦИОНИРОВАНИЕ И ПОИСК === */
+
+/* 1. ПОИСК НА ВСЮ ШИРИНУ (FIX) */
+.sticky-search {
+    padding: 10px 15px 15px; /* Отступы снаружи */
+    display: flex; 
+    flex-direction: column; 
+    gap: 12px;
+}
+
+.search-input {
+    width: 100%; /* Растягиваем на всю доступную ширину */
+    box-sizing: border-box; /* Важно: чтобы padding не расширял блок */
+    height: 44px; /* Увеличенная высота для удобного нажатия */
+    font-size: 15px; /* Читаемый шрифт */
+    border-radius: 12px; /* Скругление */
+    padding: 0 15px; /* Отступ текста внутри */
+    margin: 0; /* Убираем стандартные отступы браузера */
+    
+    /* Тень при фокусе для красоты */
+    transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+/* Эффект фокуса на поиске */
+.search-input:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+
+/* 2. УЛУЧШЕНИЕ КАРТОЧЕК ЗАДАНИЙ (ВИЗУАЛ) */
+.task-item {
+    /* Добавляем "Воздух" между карточками */
+    margin-bottom: 10px; 
+    
+    /* "Визуальный якорь" - цветная полоска слева */
+    border-left: 4px solid var(--accent); 
+    
+    /* Компенсируем скругление слева, чтобы полоска была ровной */
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+    
+    /* Улучшенная тень */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06); 
+}
+
+/* Выполненные задания теряют цветную полоску (становятся серыми) */
+.task-item.completed {
+    border-left-color: #444; /* Серый якорь для готовых */
+    transform: scale(0.98); /* Чуть уменьшаем готовые */
+}
+/* В светлой теме готовые становятся совсем бледными */
+body[class*="theme-white"] .task-item.completed {
+    border-left-color: #d1d1d6;
+}
+
+/* 3. ТИПОГРАФИКА ВНУТРИ ЗАДАЧ */
+/* Заголовок задания делаем чуть выразительнее */
+.task-text {
+    font-size: 15px; /* Чуть крупнее */
+    font-weight: 700;
+    margin-bottom: 4px; /* Отступ до подзаголовка/прогрессбара */
+    letter-spacing: -0.3px; /* Модный "плотный" кернинг */
+}
+
+/* Нижний ряд (кнопки, таймеры) выравниваем красивее */
+.task-bottom-row {
+    padding-top: 8px; /* Отделяем верх от низа */
+    margin-top: 8px;
+    border-top: 1px solid rgba(255,255,255,0.05); /* Тонкая линия-разделитель внутри карточки */
+}
+/* В светлой теме линия-разделитель должна быть темнее */
+body[class*="theme-white"] .task-bottom-row {
+    border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+
+/* 4. ФИКС ИКОНОК */
+/* Делаем иконки чуть крупнее и аккуратнее */
+.bp-icon-container {
+    width: 44px; height: 44px; /* Чуть больше */
+    border-radius: 12px; /* Мягкий квадрат */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.bp-emoji { font-size: 24px; }
+/* === PREMIUM UI: ФИНАЛЬНАЯ ЦВЕТОКОРРЕКЦИЯ === */
+
+/* 1. ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ (Смягчаем базовые цвета) */
+:root {
+    /* Темная тема: Глубокий графит вместо чистого черного */
+    --bg-deep: #121214 !important;
+    --bg-card: #1c1c1e !important;
+    --border: #2c2c2e !important;
+    
+    /* Текст: Чуть приглушенный белый */
+    --text-main: #e4e4e7 !important;
+    --text-sub: #a1a1aa !important;
+}
+
+/* 2. СВЕТЛАЯ ТЕМА: "SOFT CLOUD" */
+body[class*="theme-white"] {
+    /* Фон: Сложный светло-серый с оттенком синего */
+    --bg-deep: #f4f5f8 !important;
+    --bg-card: #ffffff !important;
+    --border: rgba(0,0,0,0.06) !important;
+    
+    /* Текст: Темный сланец, а не черный */
+    --text-main: #27272a !important; 
+    --text-sub: #71717a !important;
+    
+    /* Тени для объема (вместо обводок) */
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+/* Применяем тени к карточкам в светлой теме */
+body[class*="theme-white"] .task-item,
+body[class*="theme-white"] .bp-hero {
+    box-shadow: var(--card-shadow) !important;
+    border: 1px solid white !important; /* Убираем серую рамку, оставляем только тень */
+}
+
+
+/* 3. ЭФФЕКТ "МАТОВОГО СТЕКЛА" ДЛЯ ПОИСКА (Glassmorphism) */
+/* Это дает ощущение, что контент проплывает под поиском */
+.sticky-search {
+    background: rgba(18, 18, 20, 0.85) !important; /* Полупрозрачный фон */
+    backdrop-filter: blur(12px); /* Размытие фона под ним */
+    -webkit-backdrop-filter: blur(12px); /* Для iPhone */
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    z-index: 1000;
+}
+/* Для светлой темы стекло светлое */
+body[class*="theme-white"] .sticky-search {
+    background: rgba(255, 255, 255, 0.85) !important;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+
+/* 4. АКЦЕНТЫ: ГРАДИЕНТЫ ВМЕСТО ПЛОСКОГО ЦВЕТА */
+/* Делает полоску слева и прогресс-бары "живыми" */
+
+/* Оранжевый градиент (Sunset) */
+body:not([class*="theme-white"]):not(.theme-black-purple):not(.theme-black-red) .progress-fill,
+body.theme-default .progress-fill {
+    background: linear-gradient(90deg, #f97316, #fbbf24) !important;
+}
+
+/* Фиолетовый градиент (Neon) */
+body.theme-black-purple .progress-fill,
+body.theme-white-purple .progress-fill {
+    background: linear-gradient(90deg, #a855f7, #d8b4fe) !important;
+}
+
+/* Красный градиент (Danger) */
+body.theme-black-red .progress-fill {
+    background: linear-gradient(90deg, #ef4444, #fca5a5) !important;
+}
+
+
+/* 5. ПОЛЯ ВВОДА (INPUTS) - ДЕЛАЕМ "ДОРОГО" */
+input, select {
+    border: 1px solid transparent !important; /* Убираем рамку по умолчанию */
+    background: rgba(255,255,255,0.07) !important; /* Полупрозрачный фон */
+    transition: all 0.3s ease;
+}
+/* При нажатии (фокусе) */
+input:focus, select:focus {
+    background: rgba(255,255,255,0.12) !important;
+    box-shadow: 0 0 0 2px var(--accent) !important; /* Цветное свечение */
+    transform: translateY(-1px); /* Легкое поднятие */
+}
+
+/* Светлая тема для полей */
+body[class*="theme-white"] input, 
+body[class*="theme-white"] select {
+    background: #f1f5f9 !important; /* Очень светлый серый */
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.03); /* Внутренняя тень */
+}
+body[class*="theme-white"] input:focus {
+    background: #ffffff !important;
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.05) !important;
+}
+
+
+/* 6. УЛУЧШЕНИЕ ЧИТАЕМОСТИ ТЕКСТА */
+.task-text {
+    line-height: 1.4; /* Больше воздуха между строками */
+}
+.task-sub {
+    opacity: 0.8; /* Чуть прозрачнее для иерархии */
+}
+
+/* Скругляем углы всему интерфейсу сильнее для мягкости */
+.task-item, .bp-hero, .card, .btn-mini, .action-btn {
+    border-radius: 16px !important;
+}
+.bp-icon-container {
+    border-radius: 14px !important;
+}
 </style>
 </head>
 <body>
