@@ -1312,6 +1312,52 @@ body.simple-mode .reward-badge { padding: 2px 4px; font-size: 10px; }
 body.simple-mode .status-badge { font-size: 9px; padding: 1px 4px; }
 body.simple-mode .inline-timer-box { height: 24px; padding: 0 4px; }
 body.simple-mode .it-val { font-size: 10px; min-width: 30px; }
+/* --- ИСПРАВЛЕНИЕ НАСТРОЕК И ТЕМ (Вставить в конец <style>) --- */
+
+/* 1. Добавляем переменную для фона элементов (--bg-element) */
+:root {
+    --bg-element: #1a1a1a; /* Темный фон для блоков в настройках */
+    --modal-bg: #151515;   /* Фон самого окна */
+}
+
+/* Для светлых тем меняем эти цвета на светлые */
+body[class*="theme-white"] {
+    --bg-element: #f2f2f7; 
+    --modal-bg: #ffffff;
+}
+
+/* 2. Исправляем само Модальное окно (чтобы оно белело в светлой теме) */
+.modal {
+    background: var(--modal-bg) !important; /* Используем переменную! */
+    border: 1px solid var(--border) !important;
+    color: var(--text-main) !important;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+
+/* 3. Исправляем Ползунок масштаба (Range Slider) */
+input[type=range]::-webkit-slider-runnable-track {
+    background: var(--bg-element) !important; /* Фон дорожки теперь адаптивный */
+}
+input[type=range]::-moz-range-track {
+    background: var(--bg-element) !important;
+}
+
+/* 4. Исправляем Переключатель (Switch) - чтобы он был цветным */
+/* Фон выключенного переключателя */
+.switch .slider {
+    background-color: var(--bg-element) !important; /* Серый/Темный в зависимости от темы */
+    border: 1px solid var(--border);
+}
+
+/* Фон ВКЛЮЧЕННОГО переключателя (Берет цвет темы: оранжевый, красный и т.д.) */
+.switch input:checked + .slider {
+    background-color: var(--accent) !important;
+}
+
+/* Кружочек внутри */
+.slider-circle {
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
 </style>
 </head>
 <body>
@@ -1499,22 +1545,19 @@ body.simple-mode .it-val { font-size: 10px; min-width: 30px; }
         
         <div class="section-title" style="margin: 0 0 10px 0; border:none;">Режим отображения</div>
         
-        <div style="background:var(--bg-element); padding:10px; border-radius:12px; margin-bottom:15px; display:flex; align-items:center; justify-content:space-between;">
+        <div style="background:var(--bg-element); padding:10px; border-radius:12px; margin-bottom:15px; display:flex; align-items:center; justify-content:space-between; border:1px solid var(--border);">
             <span style="font-weight:600;">Простой режим</span>
-<label class="switch" style="position:relative; display:inline-block; width:40px; height:24px;">
-    <input type="checkbox" id="simpleModeToggle" onchange="toggleSimpleMode()">
-    <span class="slider" style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#ccc; transition:.4s; border-radius:24px;">
-        <span class="slider-circle" style="position:absolute; content:''; height:18px; width:18px; left:3px; bottom:3px; background-color:white; transition:.4s; border-radius:50%;"></span>
-    </span> 
-    </label>
-            <style>
-                input:checked + .slider { background-color: var(--accent); }
-                input:checked + .slider .slider-circle { transform: translateX(16px); }
-            </style>
+            
+            <label class="switch" style="position:relative; display:inline-block; width:40px; height:24px;">
+                <input type="checkbox" id="simpleModeToggle" onchange="toggleSimpleMode()">
+                <span class="slider" style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; transition:.4s; border-radius:24px;">
+                    <span class="slider-circle" style="position:absolute; content:''; height:18px; width:18px; left:3px; bottom:3px; background-color:white; transition:.4s; border-radius:50%;"></span>
+                </span>
+            </label>
         </div>
 
         <div class="section-title" style="margin: 0 0 10px 0; border:none;">Масштаб интерфейса</div>
-        <div style="background:var(--bg-element); padding:15px; border-radius:12px; margin-bottom:15px;">
+        <div style="background:var(--bg-element); padding:15px; border-radius:12px; margin-bottom:15px; border:1px solid var(--border);">
             <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:12px; color:var(--text-sub);">
                 <span>Мелко</span>
                 <span id="scaleVal">100%</span>
@@ -1526,10 +1569,10 @@ body.simple-mode .it-val { font-size: 10px; min-width: 30px; }
         <div class="section-title" style="margin: 0 0 10px 0; border:none;">Темы</div>
         <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
             <div class="theme-btn" style="background:#050505; border-color:#f97316;" onclick="setTheme('default')"></div>
-            <div class="theme-btn" style="background:#f2f2f7; border-color:#ff9500;" onclick="setTheme('theme-white-orange')"></div>
+            <div class="theme-btn" style="background:#fdfbf9; border-color:#ff9500;" onclick="setTheme('theme-white-orange')"></div>
             <div class="theme-btn" style="background:#050505; border-color:#c084fc;" onclick="setTheme('theme-black-purple')"></div>
             <div class="theme-btn" style="background:#080202; border-color:#ef4444;" onclick="setTheme('theme-black-red')"></div>
-            <div class="theme-btn" style="background:#f5f3ff; border-color:#9333ea;" onclick="setTheme('theme-white-purple')"></div>
+            <div class="theme-btn" style="background:#fbfbfe; border-color:#9333ea;" onclick="setTheme('theme-white-purple')"></div>
         </div>
         
         <div style="text-align:center; margin-top:10px;">
@@ -1537,15 +1580,6 @@ body.simple-mode .it-val { font-size: 10px; min-width: 30px; }
         </div>
     </div>
 </div>
-    <div id="modal" class="modal-wrap" onclick="closeModal(event)">
-        <div class="modal">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <div style="font-size:22px; font-weight:800;" id="mTitle"></div>
-                <div style="font-size:26px; cursor:pointer; color:#888;" onclick="closeModal({target:{id:'modal'}})">✕</div>
-            </div>
-            <div id="mContent"></div>
-        </div>
-    </div>
 <div id="modalUnhide" class="modal-wrap" onclick="closeUnhideModal(event)">
     <div class="modal">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
