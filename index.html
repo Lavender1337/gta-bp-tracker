@@ -1274,6 +1274,44 @@ body[class*="theme-white"] .timer-add-btn {
     border: 1px solid rgba(0,0,0,0.1);
     color: #fff !important; /* Текст белый, так как фон акцентный */
 }
+/* --- НОВЫЕ СТИЛИ ДЛЯ НАСТРОЕК И ПРОСТОГО РЕЖИМА --- */
+
+/* 1. Резиновые кнопки сверху */
+.bp-actions-top {
+    display: flex; gap: 8px; padding: 0 15px; margin-bottom: 15px;
+}
+.bp-actions-top .action-btn {
+    flex: 1; justify-content: center; 
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    padding: 10px 4px;
+}
+
+/* 2. Масштабирование списка */
+#listBP {
+    transform-origin: top center;
+    transition: zoom 0.2s;
+}
+
+/* 3. ПРОСТОЙ РЕЖИМ (Compact Mode) */
+body.simple-mode .task-item {
+    flex-direction: row; align-items: center;
+    padding: 6px 10px; min-height: 40px; gap: 8px;
+}
+body.simple-mode .bp-icon-container { width: 32px; height: 32px; }
+body.simple-mode .bp-img { width: 20px; height: 20px; }
+body.simple-mode .bp-emoji { font-size: 18px; }
+body.simple-mode .task-text { font-size: 13px; margin: 0; }
+body.simple-mode .task-header-row { width: auto; }
+body.simple-mode .task-top-row { width: auto; flex: 1; }
+body.simple-mode .task-bottom-row { margin-top: 0; width: auto; margin-left: auto; }
+body.simple-mode .progress-track { display: none; }
+body.simple-mode .controls-new { padding: 2px; height: 24px; }
+body.simple-mode .btn-mini { width: 24px; height: 24px; font-size: 14px; }
+body.simple-mode .counter-val-new { font-size: 12px; min-width: 15px; }
+body.simple-mode .reward-badge { padding: 2px 4px; font-size: 10px; }
+body.simple-mode .status-badge { font-size: 9px; padding: 1px 4px; }
+body.simple-mode .inline-timer-box { height: 24px; padding: 0 4px; }
+body.simple-mode .it-val { font-size: 10px; min-width: 30px; }
 </style>
 </head>
 <body>
@@ -1304,12 +1342,12 @@ body[class*="theme-white"] .timer-add-btn {
         </div>
     </div>
 
-    <div class="hero-toggles" style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
+<div class="hero-toggles" style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
         <div style="display:flex; gap:10px; flex:1;">
             <button class="hero-btn" id="btnVip" onclick="toggleVip()">👑 VIP</button>
             <button class="hero-btn" id="btnX2" onclick="toggleX2()">⚡ X2</button>
         </div>
-        <button class="hero-btn" onclick="openThemeModal()" style="width:40px; padding:0; display:flex; align-items:center; justify-content:center; flex:none;">🎨</button>
+        <button class="hero-btn" onclick="openSettingsModal()" style="width:40px; padding:0; display:flex; align-items:center; justify-content:center; flex:none;">⚙️</button>
     </div>
     
     <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
@@ -1317,15 +1355,10 @@ body[class*="theme-white"] .timer-add-btn {
         <input type="number" id="startBp" value="0" oninput="updateBP()" style="width:60px; padding:4px; font-size:12px; text-align:center;">
     </div>
 </div>   
-        <div class="bp-actions-top">
+<div class="bp-actions-top">
             <button class="action-btn new-day" onclick="newDay()">🌅 Новый день</button>
-            <button class="action-btn" onclick="openUnhideModal()">👁 Вернуть скрытые</button>
+            <button class="action-btn" onclick="openUnhideModal()">👁 Вернуть</button>
             <button class="action-btn" onclick="forceSync()" style="border-color:var(--accent); color:var(--accent);">🔄 Обновить</button>
-            
-            <div class="action-btn" style="cursor:default; border-color:rgba(255,255,255,0.05); background: rgba(255,255,255,0.03);">
-                <span style="color:#888">Нафармлено:</span>
-                <span id="farmedBpMain" style="color:var(--green); font-weight:800; font-size:15px; margin-left:6px;">+0</span>
-            </div>
         </div>
         
         <div class="sort-container" style="padding: 0 15px 10px; display: flex; justify-content: space-between; color:#666; font-size: 12px; align-items: center;">
@@ -1460,18 +1493,46 @@ body[class*="theme-white"] .timer-add-btn {
         <button class="nav-btn" onclick="go('kitchen', this)"><div class="nav-icon">🍔</div><span class="nav-label">Еда</span></button>
         <button class="nav-btn" onclick="go('guides', this)"><div class="nav-icon">📚</div><span class="nav-label">Гайды</span></button>
     </nav>
-<div id="modalTheme" class="modal-wrap" onclick="closeThemeModal(event)">
+<div id="modalSettings" class="modal-wrap" onclick="closeSettingsModal(event)">
     <div class="modal">
-        <div style="font-size:20px; font-weight:800; margin-bottom:15px; text-align:center;">Выберите тему</div>
-        <div style="display:flex; justify-content:center; gap:15px; flex-wrap:wrap;">
+        <div style="font-size:20px; font-weight:800; margin-bottom:15px; text-align:center;">Настройки</div>
+        
+        <div class="section-title" style="margin: 0 0 10px 0; border:none;">Режим отображения</div>
+        
+        <div style="background:var(--bg-element); padding:10px; border-radius:12px; margin-bottom:15px; display:flex; align-items:center; justify-content:space-between;">
+            <span style="font-weight:600;">Простой режим</span>
+            <label class="switch" style="position:relative; display:inline-block; width:40px; height:24px;">
+                <input type="checkbox" id="simpleModeToggle" onchange="toggleSimpleMode()">
+                <span class="slider" style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#ccc; transition:.4s; border-radius:24px;"></span>
+                <span class="slider-circle" style="position:absolute; content:''; height:18px; width:18px; left:3px; bottom:3px; background-color:white; transition:.4s; border-radius:50%;"></span>
+            </label>
+            <style>
+                input:checked + .slider { background-color: var(--accent); }
+                input:checked + .slider .slider-circle { transform: translateX(16px); }
+            </style>
+        </div>
+
+        <div class="section-title" style="margin: 0 0 10px 0; border:none;">Масштаб интерфейса</div>
+        <div style="background:var(--bg-element); padding:15px; border-radius:12px; margin-bottom:15px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:12px; color:var(--text-sub);">
+                <span>Мелко</span>
+                <span id="scaleVal">100%</span>
+                <span>Крупно</span>
+            </div>
+            <input type="range" id="scaleRange" min="70" max="110" value="100" step="5" oninput="changeScale(this.value)">
+        </div>
+
+        <div class="section-title" style="margin: 0 0 10px 0; border:none;">Темы</div>
+        <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
             <div class="theme-btn" style="background:#050505; border-color:#f97316;" onclick="setTheme('default')"></div>
             <div class="theme-btn" style="background:#f2f2f7; border-color:#ff9500;" onclick="setTheme('theme-white-orange')"></div>
             <div class="theme-btn" style="background:#050505; border-color:#c084fc;" onclick="setTheme('theme-black-purple')"></div>
             <div class="theme-btn" style="background:#080202; border-color:#ef4444;" onclick="setTheme('theme-black-red')"></div>
             <div class="theme-btn" style="background:#f5f3ff; border-color:#9333ea;" onclick="setTheme('theme-white-purple')"></div>
         </div>
-        <div style="text-align:center; margin-top:20px; font-size:12px; color:var(--text-sub);">
-            Метка "Твинк" меняет цвет автоматически.
+        
+        <div style="text-align:center; margin-top:10px;">
+            <button class="action-btn" onclick="closeSettingsModal({target:{id:'modalSettings'}})" style="width:100%; justify-content:center;">Закрыть</button>
         </div>
     </div>
 </div>
@@ -1732,7 +1793,7 @@ const Cloud = {
                 ]);
 
                 if(bpData) BP = JSON.parse(bpData);
-if(!BP.doneTwink) BP.doneTwink = [];
+                if(!BP.doneTwink) BP.doneTwink = [];
                 if(tmData) TIMERS = JSON.parse(tmData);
                 if(evData) EVENTS = JSON.parse(evData);
 
@@ -1751,22 +1812,36 @@ if(!BP.doneTwink) BP.doneTwink = [];
                 loader.style.opacity = '0';
                 setTimeout(() => loader.remove(), 300);
             }
-const savedTheme = localStorage.getItem('gta_theme_22');
-    if(savedTheme) setTheme(savedTheme);
+            
+            // --- ЗАГРУЗКА НАСТРОЕК (ТЕМА, РЕЖИМ, МАСШТАБ) ---
+            const savedTheme = localStorage.getItem('gta_theme_22');
+            if(savedTheme) setTheme(savedTheme);
+
+            const savedSimple = localStorage.getItem('gta_simple_mode_22');
+            if(savedSimple === 'true') document.body.classList.add('simple-mode');
+
+            const savedScale = localStorage.getItem('gta_scale_22');
+            if(savedScale) {
+                const list = document.getElementById('listBP');
+                if(list) list.style.zoom = savedScale + '%';
+            }
+            // --------------------------------------------------
+
             document.getElementById('startBp').value = BP.start || '';
             document.getElementById('btnVip').classList.toggle('active', BP.vip);
             document.getElementById('btnX2').classList.toggle('active', BP.x2);
             
             renderBP(); updateBP();
             renderTimers(); renderTimerPresets(); renderCal(); renderCars(); renderFood(); 
-const activeGuideBtn = document.querySelector('#tab-guides .seg-btn.active');
+            
+            const activeGuideBtn = document.querySelector('#tab-guides .seg-btn.active');
             if(activeGuideBtn) setGuide('payment', activeGuideBtn);
             
             setupDragAndDrop();
-        } // <--- ВОТ ЭТА СКОБКА ОЧЕНЬ ВАЖНА! ОНА ЗАКРЫВАЕТ INIT()
-
-// Объект для хранения позиций скролла: { 'tab-bp': 500, 'tab-cars': 0, ... }
-let SCROLL_POS = {};
+            
+            // Запуск глобального цикла таймеров (ВАЖНО!)
+            startGlobalTimerLoop();
+        }
 
 function go(id, btn) {
     // 1. Находим текущую активную вкладку (откуда уходим)
@@ -2235,7 +2310,81 @@ function updateCounterSlider(i, val) {
             const json = JSON.stringify(TIMERS);
             Cloud.setItem('gta_tm_22', json);
         }
+// --- НОВАЯ ЛОГИКА ТАЙМЕРОВ (ОПТИМИЗИРОВАННАЯ) ---
 
+// 1. Функция точечного обновления (работает быстро, не трогает HTML структуру)
+function updateTimersVisuals() {
+    // А) Обновляем большие таймеры
+    if(TIMERS.custom) {
+        const now = Date.now();
+        TIMERS.custom.forEach(t => {
+            if(t.run) {
+                // Логика расчета
+                if (t.et) {
+                    const diff = Math.ceil((t.et - now) / 1000);
+                    t.rm = diff;
+                }
+                
+                // Если время вышло
+                if(t.rm <= 0) {
+                    t.rm = 0; t.run = false;
+                    renderTimers(); // Перерисовываем, чтобы сменилась кнопка
+                    if(window.Telegram && window.Telegram.WebApp) {
+                        window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                    }
+                }
+
+                // ТОЧЕЧНОЕ ОБНОВЛЕНИЕ DOM
+                const elDisp = document.getElementById(`disp_${t.id}`);
+                const elBar = document.getElementById(`prog_bar_${t.id}`);
+                
+                if(elDisp) elDisp.innerText = fmtTime(t.rm);
+                if(elBar && t.s > 0) {
+                    let pct = (t.rm / t.s) * 100;
+                    elBar.style.width = `${pct}%`;
+                }
+            }
+        });
+    }
+
+    // Б) Обновляем локальные таймеры (в задачах)
+    if(BP.localTimers) {
+        const now = Date.now();
+        let changed = false;
+        for (const [id, t] of Object.entries(BP.localTimers)) {
+            if(t.run) {
+                const diff = Math.ceil((t.et - now) / 1000);
+                if(diff <= 0) {
+                    t.rm = 0; t.run = false;
+                    renderBP(); // Полная перерисовка задачи
+                } else {
+                    t.rm = diff;
+                    const el = document.getElementById(`loc_timer_${id}`);
+                    if(el) el.innerText = fmtTime(t.rm);
+                }
+                changed = true;
+            }
+        }
+        // Сохраняем локальные таймеры редко
+        if(changed && now % 5000 < 1000) saveBP();
+    }
+}
+
+// 2. Глобальный цикл (запускается из init)
+let GLOBAL_TIMER_INT = null;
+
+function startGlobalTimerLoop() {
+    if(GLOBAL_TIMER_INT) return; // Уже запущен
+    
+    GLOBAL_TIMER_INT = setInterval(() => {
+        // 1. Виджет в шапке
+        if(typeof updateHeaderTimer === 'function') updateHeaderTimer();
+        
+        // 2. Все таймеры (большие и маленькие)
+        updateTimersVisuals();
+
+    }, 1000);
+}
 function renderTimers() {
     const list = document.getElementById('activeTimersList'); 
     if(!list) return;
@@ -2298,9 +2447,7 @@ function renderTimers() {
                     <button class="tc-btn-icon" onclick="rstTime('${t.id}')">↺</button>
                     <button class="tc-btn-icon del" onclick="delTime('${t.id}')">✕</button>
                 </div>
-            </div>`;
-            
-        if(t.run) runInterval(t.id);
+            </div>`;   
     });
     saveTm();
 }
@@ -2376,62 +2523,7 @@ function togTime(id) {
         function delTime(id) {
             TIMERS.custom = TIMERS.custom.filter(t=>t.id!==id); clearInterval(TIMER_INT[id]); saveTm(); renderTimers();
         }
-function runInterval(id) {
-    if(TIMER_INT[id]) clearInterval(TIMER_INT[id]);
-    
-    TIMER_INT[id] = setInterval(() => {
-        const t = TIMERS.custom.find(x => x.id === id);
-        
-        // Если таймер удален или на паузе — останавливаем
-        if(!t || !t.run) { 
-            clearInterval(TIMER_INT[id]); 
-            return; 
-        }
-
-        // Фикс для старых таймеров
-        if(!t.et) t.et = Date.now() + (t.rm * 1000);
-
-        const now = Date.now();
-        const diff = Math.ceil((t.et - now) / 1000);
-
-        // --- ВАЖНО: Обновляем DOM элементы в реальном времени ---
-        const elTime = document.getElementById(`disp_${id}`);
-        const elBar = document.getElementById(`prog_bar_${id}`);
-
-        if(diff >= 0) {
-            t.rm = diff;
-            
-            // 1. Обновляем цифры
-            if(elTime) elTime.innerText = fmtTime(t.rm);
-            
-            // 2. Обновляем полоску прогресса
-            if(elBar && t.s > 0) {
-                let pct = (t.rm / t.s) * 100;
-                if(pct > 100) pct = 100;
-                elBar.style.width = pct + '%';
-            }
-        }
-
-        // Если время вышло
-        if (diff <= 0) {
-            t.rm = 0; 
-            t.run = false; 
-            clearInterval(TIMER_INT[id]); 
-            renderTimers(); // Полная перерисовка, чтобы показать кнопки старта
-            
-            // Уведомление
-            if(window.Telegram && window.Telegram.WebApp) {
-                window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-                window.Telegram.WebApp.showPopup({
-                    title: '⏰ Таймер завершен!',
-                    message: `Время вышло: ${t.l}`,
-                    buttons: [{type: 'ok', text: 'Понял'}]
-                });
-            }
-        }
-    }, 1000); // Обновление каждую секунду
-}
-        
+      
         function addPay(t) { const d = prompt(`Оплата ${t}. Через сколько дней?`, "10"); if(d) addEvent(parseInt(d), `Оплата: ${t}`); }
 
 // --- CALENDAR ---
@@ -2804,7 +2896,6 @@ function updateHeaderTimer() {
     elTime.style.color = "var(--text-main)"; 
 }
 // Запускаем обновление каждую секунду
-setInterval(updateHeaderTimer, 1000);
 
 // Запускаем один раз сразу
 updateHeaderTimer();
@@ -2858,60 +2949,49 @@ function resetLocalTimer(id, defaultSeconds) {
     }
 }
 // Глобальный интервал для обновления циферок (тикает каждую секунду)
-setInterval(() => {
-    if(!BP.localTimers) return;
-    
-    let changed = false;
-    const now = Date.now();
-
-    // Пробегаемся по всем сохраненным таймерам
-    for (const [id, t] of Object.entries(BP.localTimers)) {
-        if(t.run) {
-            // Считаем сколько осталось
-            const diff = Math.ceil((t.et - now) / 1000);
-            
-            if(diff <= 0) {
-                // Таймер дошел до 0
-                t.rm = 0;
-                t.run = false;
-                // Вибрация
-                if(window.navigator && window.navigator.vibrate) window.navigator.vibrate(200);
-                renderBP(); // Полная перерисовка, чтобы показать "ГОТОВО"
-            } else {
-                // Таймер идет
-                t.rm = diff;
-                // Ищем элемент на экране и обновляем только текст (без полной перерисовки)
-                const el = document.getElementById(`loc_timer_${id}`);
-                if(el) el.innerText = fmtTime(t.rm);
-            }
-            changed = true;
-        }
-    }
-
-    // Сохраняем не каждый тик, а раз в 5 секунд (оптимизация), 
-    // но если таймер остановился, сохраним сразу в блоке выше
-    if(changed && now % 5000 < 1000) {
-        saveBP();
-    }
-}, 1000);
 // --- THEMES LOGIC ---
-function openThemeModal() { document.getElementById('modalTheme').style.display = 'flex'; }
-function closeThemeModal(e) { if(e.target.id === 'modalTheme') document.getElementById('modalTheme').style.display = 'none'; }
+// --- ЛОГИКА НАСТРОЕК (ВСТАВИТЬ В КОНЕЦ СКРИПТА) ---
 
-function setTheme(themeName) {
-    document.body.className = ''; // Сброс
-    if(themeName !== 'default') {
-        document.body.classList.add(themeName);
-    }
-    localStorage.setItem('gta_theme_22', themeName);
-    // Вибрация для подтверждения
-    if(window.Telegram.WebApp.HapticFeedback) window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
-    closeThemeModal({target:{id:'modalTheme'}}); // Закрыть модалку (эмуляция)
+function openSettingsModal() { 
+    document.getElementById('modalSettings').style.display = 'flex'; 
+    document.getElementById('simpleModeToggle').checked = document.body.classList.contains('simple-mode');
+    
+    const savedScale = localStorage.getItem('gta_scale_22') || 100;
+    document.getElementById('scaleRange').value = savedScale;
+    document.getElementById('scaleVal').innerText = savedScale + '%';
 }
 
-// Вставь это в функцию init(), чтобы тема загружалась при старте:
-// const savedTheme = localStorage.getItem('gta_theme_22');
-// if(savedTheme) setTheme(savedTheme);
+function closeSettingsModal(e) { 
+    if(e.target.id === 'modalSettings') document.getElementById('modalSettings').style.display = 'none'; 
+}
+
+function toggleSimpleMode() {
+    const isSimple = document.getElementById('simpleModeToggle').checked;
+    if(isSimple) {
+        document.body.classList.add('simple-mode');
+        localStorage.setItem('gta_simple_mode_22', 'true');
+    } else {
+        document.body.classList.remove('simple-mode');
+        localStorage.setItem('gta_simple_mode_22', 'false');
+    }
+}
+
+function changeScale(val) {
+    const list = document.getElementById('listBP');
+    list.style.zoom = val + '%';
+    document.getElementById('scaleVal').innerText = val + '%';
+    localStorage.setItem('gta_scale_22', val);
+}
+
+function setTheme(themeName) {
+    const isSimple = document.body.classList.contains('simple-mode');
+    document.body.className = ''; 
+    if(themeName !== 'default') document.body.classList.add(themeName);
+    if(isSimple) document.body.classList.add('simple-mode');
+
+    localStorage.setItem('gta_theme_22', themeName);
+    if(window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+}
     </script>
 </body>
 </html>
