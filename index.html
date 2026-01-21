@@ -1374,6 +1374,82 @@ input[type=range]::-moz-range-track {
     margin: 10px 0 0 0;     /* Немного отступа сверху, убираем боковые */
     display: block;         /* Гарантирует, что он встанет с новой строки */
 }
+    /* --- ФИНАЛЬНЫЕ ПОПРАВКИ ИНТЕРФЕЙСА --- */
+
+/* 1. Исправление движения переключателя (чтобы ездил вправо) */
+.switch input:checked + .slider .slider-circle {
+    transform: translateX(16px);
+}
+
+/* 2. Исправление вылезающего ползунка масштаба */
+#scaleRange {
+    width: 100%;           
+    box-sizing: border-box; 
+    margin: 10px 0 0 0;     
+    display: block;         
+}
+
+/* 3. КОМПАКТНОЕ НИЖНЕЕ МЕНЮ */
+:root {
+    --nav-height: 58px !important; /* Уменьшаем высоту (было 85px) */
+}
+
+.bottom-nav {
+    padding-top: 6px !important;   /* Уменьшаем отступ внутри */
+    height: var(--nav-height) !important;
+    /* Учитываем безопасную зону для iPhone (полоска снизу) */
+    padding-bottom: env(safe-area-inset-bottom); 
+    box-sizing: content-box; /* Важно для правильного расчета высоты на iPhone */
+}
+
+/* Иконки в меню чуть поднимем, чтобы влезли */
+.nav-btn {
+    gap: 2px !important; /* Меньше расстояние между иконкой и текстом */
+}
+.nav-icon {
+    font-size: 20px !important; /* Чуть меньше иконка */
+}
+
+/* Корректировка отступа страницы, чтобы контент не прятался за новым меню */
+body {
+    padding-bottom: calc(var(--nav-height) + 30px) !important;
+}
+/* --- КРАСИВЫЕ УВЕДОМЛЕНИЯ (TOAST) --- */
+#toast-container {
+    position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+    z-index: 9999; display: flex; flex-direction: column; gap: 8px;
+    width: 90%; max-width: 400px; pointer-events: none;
+}
+
+.toast {
+    background: rgba(20, 20, 20, 0.95); backdrop-filter: blur(10px);
+    color: #fff; padding: 12px 16px; border-radius: 12px;
+    border: 1px solid #333; box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 12px;
+    animation: toastIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: auto;
+}
+
+.toast.success { border-left: 4px solid var(--green); }
+.toast.error { border-left: 4px solid var(--red); }
+.toast.info { border-left: 4px solid var(--accent); }
+
+/* Иконка внутри */
+.toast-icon { font-size: 18px; }
+
+/* Светлая тема */
+body[class*="theme-white"] .toast {
+    background: rgba(255, 255, 255, 0.95); color: #000; border: 1px solid #e5e5ea;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+@keyframes toastIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.9); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes toastOut {
+    to { opacity: 0; transform: translateY(-20px) scale(0.9); }
+}
 </style>
 </head>
 <body>
@@ -2365,24 +2441,36 @@ function updateCounterSlider(i, val) {
 // --- НОВАЯ ЛОГИКА ТАЙМЕРОВ (ОПТИМИЗИРОВАННАЯ) ---
 
 // 1. Функция точечного обновления (работает быстро, не трогает HTML структуру)
+// 1. Функция точечного обновления (работает быстро, не трогает HTML структуру)
 function updateTimersVisuals() {
     // А) Обновляем большие таймеры
     if(TIMERS.custom) {
         const now = Date.now();
         TIMERS.custom.forEach(t => {
             if(t.run) {
-                // Логика расчета
                 if (t.et) {
                     const diff = Math.ceil((t.et - now) / 1000);
                     t.rm = diff;
                 }
                 
-                // Если время вышло
+                // --- ЕСЛИ ВРЕМЯ ВЫШЛО ---
                 if(t.rm <= 0) {
                     t.rm = 0; t.run = false;
-                    renderTimers(); // Перерисовываем, чтобы сменилась кнопка
+                    renderTimers(); // Меняем кнопку на "Старт"
+                    
+                    // 1. Показываем красивый Toast снизу
+                    showToast(`Таймер "${t.l}" завершен!`, 'success');
+
+                    // 2. Включаем сильную вибрацию
                     if(window.Telegram && window.Telegram.WebApp) {
                         window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                        
+                        // 3. ПОКАЗЫВАЕМ ОКНО С КНОПКОЙ "ОК" (Нативное Телеграм окно)
+                        window.Telegram.WebApp.showPopup({
+                            title: '⏰ Время вышло!',
+                            message: `Таймер "${t.l}" завершил работу.`,
+                            buttons: [{type: 'ok', text: 'Понял, спасибо'}]
+                        });
                     }
                 }
 
@@ -2408,7 +2496,23 @@ function updateTimersVisuals() {
                 const diff = Math.ceil((t.et - now) / 1000);
                 if(diff <= 0) {
                     t.rm = 0; t.run = false;
-                    renderBP(); // Полная перерисовка задачи
+                    renderBP(); 
+                    
+                    // Получаем название задачи для уведомления
+                    let taskName = "Задача";
+                    if(DB.bp[id]) taskName = DB.bp[id].t;
+
+                    showToast(`Задача "${taskName}" готова!`, 'success');
+                    
+                    // Нативное окно с кнопкой ОК
+                    if(window.Telegram && window.Telegram.WebApp) {
+                        window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                        window.Telegram.WebApp.showPopup({
+                            title: '✅ Задача готова!',
+                            message: `Таймер в задаче "${taskName}" истек.`,
+                            buttons: [{type: 'ok', text: 'ОК'}]
+                        });
+                    }
                 } else {
                     t.rm = diff;
                     const el = document.getElementById(`loc_timer_${id}`);
@@ -2417,11 +2521,9 @@ function updateTimersVisuals() {
                 changed = true;
             }
         }
-        // Сохраняем локальные таймеры редко
         if(changed && now % 5000 < 1000) saveBP();
     }
 }
-
 // 2. Глобальный цикл (запускается из init)
 let GLOBAL_TIMER_INT = null;
 
@@ -3044,6 +3146,40 @@ function setTheme(themeName) {
     localStorage.setItem('gta_theme_22', themeName);
     if(window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
 }
+// --- СИСТЕМА УВЕДОМЛЕНИЙ ---
+function showToast(msg, type='info') {
+    let container = document.getElementById('toast-container');
+    if(!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    // Выбор иконки
+    let icon = '🔔';
+    if(type === 'success') icon = '✅';
+    if(type === 'error') icon = '❌';
+    if(type === 'info') icon = 'ℹ️';
+    
+    toast.innerHTML = `<div class="toast-icon">${icon}</div><div>${msg}</div>`;
+    
+    container.appendChild(toast);
+
+    // Вибрация (Haptic)
+    if(window.Telegram && window.Telegram.WebApp) {
+        window.Telegram.WebApp.HapticFeedback.notificationOccurred(type);
+    }
+
+    // Автоудаление через 3 секунды
+    setTimeout(() => {
+        toast.style.animation = 'toastOut 0.3s forwards';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
     </script>
 </body>
 </html>
+
