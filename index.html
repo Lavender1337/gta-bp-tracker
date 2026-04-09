@@ -500,7 +500,15 @@ tr:nth-child(even) { background: rgba(255,255,255,0.02); }
     background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
     z-index: 2000; display: none; align-items: center; justify-content: center;
 }
-.modal { background: #151515; width: 90%; max-width: 350px; border-radius: 20px; padding: 20px; border: 1px solid #333; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+.modal { 
+    background: var(--modal-bg) !important; 
+    width: 90%; max-width: 350px; 
+    max-height: 90vh; overflow-y: auto; /* Добавлен скролл для длинных настроек */
+    border-radius: 20px; padding: 20px; 
+    border: 1px solid var(--border) !important; 
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5); 
+    color: var(--text-main) !important;
+}
 .tag { background: #222; padding: 4px 8px; border-radius: 4px; font-size: 11px; color: #ccc; margin-right: 4px; display: inline-block; margin-bottom: 4px; }
 .unhide-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #222; color: #ccc; align-items: center; }
 .unhide-btn { background: var(--accent); border: none; color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: bold; }
@@ -1634,14 +1642,56 @@ body[class*="theme-white"] .toast {
 <div id="modalSettings" class="modal-wrap" onclick="closeSettingsModal(event)">
     <div class="modal">
         <div style="font-size:20px; font-weight:800; margin-bottom:15px; text-align:center;">Настройки</div>
+
+        <div class="section-title" style="margin: 0 0 10px 0; border:none;">Зарплаты на работах</div>
+        <div style="background:var(--bg-element); padding:15px; border-radius:12px; margin-bottom:15px; border:1px solid var(--border); display:flex; flex-direction:column; gap:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:13px; font-weight:600;">Бонус Rednecks</span>
+                <select id="setRednecks" onchange="saveSkills()" style="width: 115px; padding: 6px 12px; font-size: 13px; background: var(--bg-deep);">
+                    <option value="0">Нет (0%)</option>
+                    <option value="2">2 ранг (4%)</option>
+                    <option value="3">3 ранг (8%)</option>
+                    <option value="4">4 ранг (12%)</option>
+                    <option value="5">5 ранг (16%)</option>
+                </select>
+            </div>
+            <div style="width:100%; height:1px; background:var(--border);"></div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:13px;">🏗 Стройка</span>
+                <select id="setBuild" onchange="saveSkills()" style="width: 115px; padding: 6px 12px; font-size: 13px; background: var(--bg-deep);">
+                    <option value="0">0 lvl</option><option value="1">1 lvl</option><option value="2">2 lvl</option><option value="3">3 lvl</option><option value="4">4 lvl</option><option value="5">5 lvl</option>
+                </select>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:13px;">🚢 Порт</span>
+                <select id="setPort" onchange="saveSkills()" style="width: 115px; padding: 6px 12px; font-size: 13px; background: var(--bg-deep);">
+                    <option value="0">0 lvl</option><option value="1">1 lvl</option><option value="2">2 lvl</option><option value="3">3 lvl</option><option value="4">4 lvl</option><option value="5">5 lvl</option>
+                </select>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:13px;">⛏ Шахта</span>
+                <select id="setMine" onchange="saveSkills()" style="width: 115px; padding: 6px 12px; font-size: 13px; background: var(--bg-deep);">
+                    <option value="0">0 lvl</option><option value="1">1 lvl</option><option value="2">2 lvl</option><option value="3">3 lvl</option><option value="4">4 lvl</option><option value="5">5 lvl</option>
+                </select>
+            </div>
+        </div>
         
         <div class="section-title" style="margin: 0 0 10px 0; border:none;">Режим отображения</div>
         
-        <div style="background:var(--bg-element); padding:10px; border-radius:12px; margin-bottom:15px; display:flex; align-items:center; justify-content:space-between; border:1px solid var(--border);">
+        <div style="background:var(--bg-element); padding:10px; border-radius:12px; margin-bottom:10px; display:flex; align-items:center; justify-content:space-between; border:1px solid var(--border);">
             <span style="font-weight:600;">Простой режим</span>
-            
             <label class="switch" style="position:relative; display:inline-block; width:40px; height:24px;">
                 <input type="checkbox" id="simpleModeToggle" onchange="toggleSimpleMode()">
+                <span class="slider" style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; transition:.4s; border-radius:24px;">
+                    <span class="slider-circle" style="position:absolute; content:''; height:18px; width:18px; left:3px; bottom:3px; background-color:white; transition:.4s; border-radius:50%;"></span>
+                </span>
+            </label>
+        </div>
+
+        <div style="background:var(--bg-element); padding:10px; border-radius:12px; margin-bottom:15px; display:flex; align-items:center; justify-content:space-between; border:1px solid var(--border);">
+            <span style="font-weight:600;">Скрывать выполненные</span>
+            <label class="switch" style="position:relative; display:inline-block; width:40px; height:24px;">
+                <input type="checkbox" id="hideCompletedToggle" onchange="toggleHideCompleted()">
                 <span class="slider" style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; transition:.4s; border-radius:24px;">
                     <span class="slider-circle" style="position:absolute; content:''; height:18px; width:18px; left:3px; bottom:3px; background-color:white; transition:.4s; border-radius:50%;"></span>
                 </span>
@@ -1683,7 +1733,34 @@ body[class*="theme-white"] .toast {
     </div>
 </div>
 <script>
+        // === ИНТЕГРАЦИЯ GOOGLE APPS SCRIPT (ФОНОВЫЕ УВЕДОМЛЕНИЯ) ===
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwRFgpmggWgN04sF4ICcPNCHYp8IMC5kzYT5V33bNz0EFD-N1O9yUuYIS5WvVW8kLn4/exec";
+
+        function scheduleNotification(delaySeconds, message) {
+            // Получаем ID текущего пользователя Telegram
+            const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+            if (!userId) return; // Если не в телеграме - не отправляем
+
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    text: message,
+                    delay: delaySeconds,
+                    chat_id: userId
+                })
+            }).catch(err => console.error("Ошибка отправки в Google:", err));
+        }
+
         // ================= FULL DATA =================
+        const WORK_RATES = {
+            build: [7, 20, 41, 60, 80, 99],
+            port: [11, 26, 53, 79, 106, 132],
+            mine: [21, 40, 80, 120, 160, 201]
+        };
+        const REDNECK_BONUS = {0: 0, 2: 0.04, 3: 0.08, 4: 0.12, 5: 0.16};
+        
+        let USER_WORK_SKILLS = { build: 5, port: 5, mine: 5, rednecks: 5 };
+
         const DB = {
             cars: {
                 platinum: [
@@ -1768,12 +1845,9 @@ body[class*="theme-white"] .toast {
                 {t:"Принять участие в 2 аирдропах",q:2,b:4,v:8, img:"img/airdrop.png"}
             ],
 timers: [
-    // Новый таймер на 1 минуту (60 секунд)
     {id:'q1', l:'Для 1-мин квестов', s:60, i:'⏱'}, 
-
-    // Твои основные игровые таймеры (пути к иконкам проверь, если менял)
     {id:'mail', l:'Почта (10м)', s:600, i:'img/poshta.png'},
-    {id:'mech', l:'Механик (5м)', s:300, i:'img/autougon.png'}, // Или путь к картинке
+    {id:'mech', l:'Механик (5м)', s:300, i:'img/autougon.png'}, 
     {id:'taxi', l:'Таксист (5м)', s:300, i:'img/autougon.png'},
     {id:'train', l:'Дрессировка (15м)', s:900, i:'img/paw.png'},
     {id:'theft', l:'Автоугон (1.5ч)', s:5400, i:'img/autougon.png'},
@@ -1789,23 +1863,15 @@ timers: [
                     treasures: { h: ["Название","Скуп 0","Скуп 5","Red 0","Red 5"], r: [["Дублон","1-3к","1.5-4.5к","1.1-3.4к","1.7-5.2к"],["Самородок","2-5к","3-7.5к","2.3-5.8к","3.4-8.7к"],["Инструмент","6-10к","9-15к","6.9-11.6к","10.4-17.4к"],["Медаль","9-15к","13.5-22.5к","10.4-17.4к","15.6-26.1к"],["Украшение","12-18к","18-27к","13.9-20.8к","20.8-31.3к"],["Метеорит","22-28к","33-42к","25.5-32.4к","38.2-48.7к"]] }
                 },
                 pet: { h: ["Питомец","Еда / Лакомство","Навык"], r: [["🐱 Кот","Еда: Нормяу<br>Лак: Лакомкот","1. Восстанавливает настроение (на руках)<br>2. Восстанавливает здоровье (на руках)"],["🐵 Обезьяна","Еда: Овощи и фрукты<br>Лак: Похвалобез","1. Ворует еду и рыбу из инвентаря других игроков.<br>2. Рыбачит вместе с вами и периодически отдает улов."],["🦁 Пума","Еда: Мясо<br>Лак: Лакомкот","1. Режим охоты: бежит к животным в радиусе 100м.<br>2. Режим атаки: нападает на игроков, которые атаковали вы."],["🐀 Крыса","Еда: Хрумкажуй<br>Лак: Лакомгрыз","1. С вероятностью 50% заменяет хлам на сокровище при их поиске.<br>2. Увеличивает шанс найти обезболивающее на стартовых работах."],["🐗 Кабан","Еда: Любые блюда и отходы<br>Лак: Умнисвин","1. С вероятностью 50% заменяет хлам на сокровище при их поиске.<br>2. Режим атаки: нападает на игроков, которых атаковали вы."],["🐰 Заяц","Еда: Хрумкажуй<br>Лак: Лакомгрыз","1. Увеличивает шанс найти семена на ферме, если следует за игроком.<br>2. Восстанавливает здоровье, если взять его на руки."],["🐶 Собака","Еда: Нормалай<br>Лак: Молодог","1. В режиме охоты бежит к животным в радиусе 100 метров.<br>2. В режиме атаки нападает на игроков, которых атаковали вы."]] },
-                // Внутри DB.guides:
 med: { 
     r: [
-        // type: "red" (Красный - Кровотечение)
         { t: "Артериал. кровотеч.", i: "img/art.png", c: "Жгут выше", ci: "img/zhjutvishe.png", type: "red" },
         { t: "Венозное кровотеч.", i: "img/venoznoe.png", c: "Жгут ниже", ci: "img/jgutnishe.png", type: "red" },
-        
-        // type: "brown" (Коричневый - Раны/Огнестрел)
         { t: "Огнестрел", i: "img/ognestrel.png", c: "Повязка", ci: "img/povyazka.png", type: "brown" },
         { t: "Рваная рана", i: "img/rana.png", c: "Повязка", ci: "img/povyazka.png", type: "brown" },
-
-        // type: "yellow" (Желтый - Ожоги)
         { t: "Ожог кислотой", i: "img/kislotaoshoj.png", c: "Щелочной р-р", ci: "img/shelosh.png", type: "yellow" },
         { t: "Ожог щелочью", i: "img/ojogsheloch.png", c: "Кислый р-р", ci: "img/kislyrasvor.png", type: "yellow" },
         { t: "Ожог термический", i: "img/ojhogterm.png", c: "Холод. компресс", ci: "img/holodniycompres.png", type: "yellow" },
-
-        // type: "blue" (Синий - Переломы/Ушибы/Таблетки)
         { t: "Обморожение", i: "img/obmorojenie.png", c: "Грелка (Тепло)", ci: "img/teplo.png", type: "blue" },
         { t: "Недостаточность", i: "img/nedostatoch.png", c: "Таблетки", ci: "img/tabletka.png", type: "blue" },
         { t: "Перелом", i: "img/perelom.png", c: "Шина", ci: "img/shina.png", type: "blue" },
@@ -1855,39 +1921,34 @@ tarot: [
         };
         
         // ================= LOGIC & CLOUD =================
-let BP = { start:0, done:[], times:{}, hidden:[], counters:{}, vip:false, x2:false, sortOrder:[] };
+        let BP = { start:0, done:[], times:{}, hidden:[], counters:{}, vip:false, x2:false, sortOrder:[] };
         let TIMERS = {}; 
         let EVENTS = []; 
         let TIMER_INT = {};
-        let SCROLL_POS = {}; // <--- ДОБАВЬ ЭТУ СТРОКУ, ИНАЧЕ ВКЛАДКИ БУДУТ РУГАТЬСЯ
-// Обёртка для удобной работы с CloudStorage
-let saveTimers = {}; // Хранилище таймеров для каждого ключа
+        let SCROLL_POS = {}; 
+        let saveTimers = {}; 
+        let HIDE_COMPLETED = false; // ГЛОБАЛЬНАЯ ПЕРЕМЕННАЯ ДЛЯ СКРЫТИЯ
         
-const Cloud = {
+        const Cloud = {
             isAvailable: () => window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.CloudStorage,
             
             getItem: (key) => {
                 return new Promise((resolve) => {
-                    // Если облако недоступно — сразу берем из LocalStorage
                     if (!Cloud.isAvailable()) {
                         return resolve(localStorage.getItem(key));
                     }
 
-                    // --- ФИКС ДЛЯ ПК: СТРАХОВКА ---
-                    // Если Telegram не ответит через 2 секунды, берем данные из LocalStorage
                     const safetyTimeout = setTimeout(() => {
                         console.warn(`Cloud timeout for ${key}, using LocalStorage`);
                         resolve(localStorage.getItem(key));
                     }, 2000);
 
                     window.Telegram.WebApp.CloudStorage.getItem(key, (err, val) => {
-                        // Телеграм ответил, отменяем таймер страховки
                         clearTimeout(safetyTimeout);
                         
                         if (err || !val) {
                             resolve(localStorage.getItem(key));
                         } else {
-                            // Обновляем и локальную копию
                             localStorage.setItem(key, val);
                             resolve(val);
                         }
@@ -1896,7 +1957,6 @@ const Cloud = {
             },
 
             setItem: (key, value) => {
-                // 1. МГНОВЕННО сохраняем в localStorage
                 localStorage.setItem(key, value);
                 
                 if (Cloud.isAvailable()) {
@@ -1912,7 +1972,6 @@ const Cloud = {
         };
 
         async function init() {
-            // Загружаем данные из облака (или локально)
             try {
                 const [bpData, tmData, evData] = await Promise.all([
                     Cloud.getItem('gta_bp_22'),
@@ -1929,19 +1988,16 @@ const Cloud = {
                 console.error("Error loading data", e);
             }
 
-            // Init sort order if missing
             if(!BP.sortOrder || BP.sortOrder.length !== DB.bp.length) {
                 BP.sortOrder = DB.bp.map((_, i) => i);
             }
 
-            // Убираем лоадер
             const loader = document.getElementById('loader');
             if(loader) {
                 loader.style.opacity = '0';
                 setTimeout(() => loader.remove(), 300);
             }
             
-            // --- ЗАГРУЗКА НАСТРОЕК (ТЕМА, РЕЖИМ, МАСШТАБ) ---
             const savedTheme = localStorage.getItem('gta_theme_22');
             if(savedTheme) setTheme(savedTheme);
 
@@ -1953,7 +2009,15 @@ const Cloud = {
                 const list = document.getElementById('listBP');
                 if(list) list.style.zoom = savedScale + '%';
             }
-            // --------------------------------------------------
+            
+            // --- ЗАГРУЗКА НАСТРОЕК ЗАРПЛАТЫ ---
+            const savedSkills = localStorage.getItem('gta_work_skills_22');
+            if(savedSkills) {
+                USER_WORK_SKILLS = JSON.parse(savedSkills);
+            }
+
+            // --- ЗАГРУЗКА СКРЫТИЯ ВЫПОЛНЕННЫХ ---
+            HIDE_COMPLETED = localStorage.getItem('gta_hide_completed_22') === 'true';
 
             document.getElementById('startBp').value = BP.start || '';
             document.getElementById('btnVip').classList.toggle('active', BP.vip);
@@ -1967,72 +2031,80 @@ const Cloud = {
             
             setupDragAndDrop();
             
-            // Запуск глобального цикла таймеров (ВАЖНО!)
             startGlobalTimerLoop();
         }
+        
+        function saveSkills() {
+            USER_WORK_SKILLS.rednecks = parseInt(document.getElementById('setRednecks').value);
+            USER_WORK_SKILLS.build = parseInt(document.getElementById('setBuild').value);
+            USER_WORK_SKILLS.port = parseInt(document.getElementById('setPort').value);
+            USER_WORK_SKILLS.mine = parseInt(document.getElementById('setMine').value);
+            
+            localStorage.setItem('gta_work_skills_22', JSON.stringify(USER_WORK_SKILLS));
+            renderBP(); 
+        }
 
-function go(id, btn) {
-    // 1. Находим текущую активную вкладку (откуда уходим)
-    const currentTab = document.querySelector('.tab-content.active');
-    if (currentTab) {
-        // Запоминаем, насколько она была прокручена
-        SCROLL_POS[currentTab.id] = window.scrollY;
-    }
+        function go(id, btn) {
+            const currentTab = document.querySelector('.tab-content.active');
+            if (currentTab) {
+                SCROLL_POS[currentTab.id] = window.scrollY;
+                
+                if (currentTab.id === 'tab-bp') {
+                    const searchInput = document.getElementById('searchBp');
+                    if (searchInput && searchInput.value !== '') {
+                        searchInput.value = '';
+                        renderBP();
+                    }
+                }
+            }
 
-    // 2. Стандартное переключение (твой старый код)
-    document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
-    document.getElementById('tab-'+id).classList.add('active');
-    
-    document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active'));
-    btn.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
+            document.getElementById('tab-'+id).classList.add('active');
+            
+            document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active'));
+            btn.classList.add('active');
 
-    // 3. Восстанавливаем скролл для новой вкладки
-    // Если мы уже были здесь — берем сохраненное значение, иначе — 0 (верх)
-    const savedScroll = SCROLL_POS['tab-'+id] || 0;
-    
-    // Мгновенно перематываем страницу
-    window.scrollTo(0, savedScroll);
-}
-// --- ИСПРАВЛЕННАЯ ФУНКЦИЯ ---
-function renderTimerPresets() {
-    const container = document.getElementById('timerGrid');
-    if (!container) return;
-    container.innerHTML = '';
+            const savedScroll = SCROLL_POS['tab-'+id] || 0;
+            setTimeout(() => {
+                window.scrollTo(0, savedScroll);
+            }, 10);
+        }
+        
+        function renderTimerPresets() {
+            const container = document.getElementById('timerGrid');
+            if (!container) return;
+            container.innerHTML = '';
 
-    DB.timers.forEach(t => {
-        const timeStr = fmtTimeSimple(t.s);
-        // Visual for preset (Grey, Start button)
-        container.innerHTML += `
-            <div class="timer-card">
-                <div class="tc-header">
-                    <div class="tc-title">
-                        <span style="color:#666">::</span> ${t.l}
+            DB.timers.forEach(t => {
+                const timeStr = fmtTimeSimple(t.s);
+                container.innerHTML += `
+                    <div class="timer-card">
+                        <div class="tc-header">
+                            <div class="tc-title">
+                                <span style="color:#666">::</span> ${t.l}
+                            </div>
+                        </div>
+                        <div class="tc-time">${timeStr}</div>
+                        <div class="tc-footer">
+                            <button class="tc-btn start" onclick="addGameTimer('${t.id}')">
+                                ▶ Старт
+                            </button>
+                        </div>
                     </div>
-                </div>
-                <div class="tc-time">${timeStr}</div>
-                <div class="tc-footer">
-                    <button class="tc-btn start" onclick="addGameTimer('${t.id}')">
-                        ▶ Старт
-                    </button>
-                </div>
-            </div>
-        `;
-    });
-}
-
-// --- ЭТОЙ ФУНКЦИИ У ТЕБЯ ТОЖЕ НЕ БЫЛО, ДОБАВЬ ЕЁ СЮДА ---
-function fmtTimeSimple(s) {
-    const h = Math.floor(s / 3600);
-    const m = Math.floor((s % 3600) / 60);
-    const sec = s % 60;
-    
-    // Функция pad() у тебя уже есть ниже в коде, она сработает
-    if (h > 0) {
-        return `${h}:${pad(m)}:${pad(sec)}`;
-    } else {
-        return `${m}:${pad(sec)}`;
-    }
-}
+                `;
+            });
+        }
+        
+        function fmtTimeSimple(s) {
+            const h = Math.floor(s / 3600);
+            const m = Math.floor((s % 3600) / 60);
+            const sec = s % 60;
+            if (h > 0) {
+                return `${h}:${pad(m)}:${pad(sec)}`;
+            } else {
+                return `${m}:${pad(sec)}`;
+            }
+        }
 
         // --- BP LOGIC ---
         function saveBP() { 
@@ -2041,379 +2113,341 @@ function fmtTimeSimple(s) {
         }
         function toggleVip() { BP.vip = !BP.vip; document.getElementById('btnVip').classList.toggle('active'); saveBP(); renderBP(); updateBP(); }
         function toggleX2() { BP.x2 = !BP.x2; document.getElementById('btnX2').classList.toggle('active'); saveBP(); renderBP(); updateBP(); }
-function updateBP() {
-    // 1. Получаем стартовое значение
-    BP.start = parseInt(document.getElementById('startBp').value) || 0;
-    
-    let farm = 0; // Чисто заработанные очки
-    let doneCount = BP.done.length + (BP.doneTwink ? BP.doneTwink.length : 0);
-    
-    // 2. Считаем очки за обычные задания (галочки)
-    BP.done.forEach(i => { 
-        let t = DB.bp[i]; 
-        if(t && !t.r) { 
-            let rw = BP.vip ? t.v : t.b; 
-            if(BP.x2) rw *= 2; 
-            farm += rw; 
-        } 
-    });
-
-    // 3. Считаем очки за задания со счетчиками
-    if(BP.counters) { 
-        Object.keys(BP.counters).forEach(i => { 
-            let t = DB.bp[i]; 
-            if(t && t.r) { 
-                let rw = BP.vip ? t.v : t.b; 
-                if(BP.x2) rw *= 2; 
-                farm += (rw * BP.counters[i]); 
-            } 
-        }); 
-    }
-
-    let total = BP.start + farm; // Итого = Старт + Фарм
-
-    // 4. Обновляем ГЛАВНУЮ панель (Hero)
-    const elTotal = document.getElementById('totalBp');
-    const elDone = document.getElementById('doneCount');
-    const elMult = document.getElementById('multiplierDisp');
-    const elTime = document.getElementById('totalTime'); 
-
-    if(elTotal) elTotal.innerText = total;
-    if(elDone) elDone.innerText = doneCount;
-    
-    // Множитель
-    let mult = 1;
-    if(BP.vip) mult *= 2; 
-    if(BP.x2) mult *= 2;
-    if(elMult) elMult.innerText = 'x' + mult;
-
-    // 5. Обновляем ЛИПКУЮ панель (Sticky Header) и кнопку "Нафармлено"
-    // Вот этого у тебя не хватало:
-    const elStickyTotal = document.getElementById('stickyTotal');
-    const elStickyFarmed = document.getElementById('stickyFarmed');
-    const elFarmedMain = document.getElementById('farmedBpMain');
-
-    if(elStickyTotal) elStickyTotal.innerText = total;
-    if(elStickyFarmed) elStickyFarmed.innerText = '+' + farm;
-    if(elFarmedMain) elFarmedMain.innerText = '+' + farm;
-
-    // 6. Логика "Часы в онлайне"
-    if(elTime) {
-        const taskID = 0; 
-        let count = (BP.counters && BP.counters[taskID]) ? BP.counters[taskID] : 0;
-        if(count === 0 && BP.done.includes(taskID)) count = 1; // Поддержка старого сохранения
-        const totalHours = count * 3;
-        elTime.innerText = totalHours + 'ч';
-        elTime.style.color = totalHours > 0 ? "var(--gold)" : "var(--text-sub)";
-    }
-    
-    // Обновляем состояние кнопок VIP/X2
-    document.getElementById('btnVip').classList.toggle('active', BP.vip);
-    document.getElementById('btnX2').classList.toggle('active', BP.x2);
-
-    saveBP();
-}
-function toggleTask(i, event) {
-    // Если передан event (событие клика), останавливаем его всплытие
-    if (event) {
-        event.stopPropagation();
-    }
-
-    if(BP.done.includes(i)) { 
-        BP.done = BP.done.filter(x=>x!==i); 
-        delete BP.times[i]; 
-        if(BP.counters && BP.counters[i]) BP.counters[i] = 0;
-    } else { 
-        BP.done.push(i);
-        // Если это была основа, убираем из твинков
-        if(BP.doneTwink) BP.doneTwink = BP.doneTwink.filter(x => x !== i);
         
-        BP.times[i] = new Date().toLocaleTimeString().slice(0,5); 
-        // Если у задачи есть счетчик, ставим на максимум
-        if(DB.bp[i].q > 1) BP.counters[i] = DB.bp[i].q;
-    }
-    saveBP(); renderBP(); updateBP();
-}
-
-function toggleTwink(i, e) {
-    e.stopPropagation(); // Чтобы не срабатывал клик по самой карточке
-
-    if(!BP.doneTwink) BP.doneTwink = [];
-
-    // Если уже отмечено как твинк — снимаем отметку
-    if(BP.doneTwink.includes(i)) {
-        BP.doneTwink = BP.doneTwink.filter(x => x !== i);
-    } else {
-        // Если отмечаем как твинк:
-        BP.doneTwink.push(i);
-        // Убираем из "Основы", если оно там было (чтобы не считались очки)
-        BP.done = BP.done.filter(x => x !== i);
-        
-        // Можем сохранить время выполнения
-        BP.times[i] = new Date().toLocaleTimeString().slice(0,5);
-    }
-    saveBP(); renderBP(); updateBP();
-}
-
-function updateCounter(id, delta) {
-    if(!BP.counters) BP.counters = {};
-    if(typeof BP.counters[id] === 'undefined') BP.counters[id] = 0;
-    
-    // Запоминаем старое состояние выполнения
-    const wasDone = BP.done.includes(id);
-    const max = DB.bp[id].q;
-
-    // Меняем значение
-    BP.counters[id] += delta;
-    if(BP.counters[id] < 0) BP.counters[id] = 0;
-    
-    // Если задача обычная (не бесконечная)
-    if (!DB.bp[id].r) {
-        if(BP.counters[id] > max) BP.counters[id] = max;
-
-        // Проверяем выполнение
-        if(BP.counters[id] >= max) {
-            if(!BP.done.includes(id)) { 
-                BP.done.push(id); 
-                BP.times[id] = new Date().toLocaleTimeString().slice(0,5); 
-            }
-        } else {
-            if(BP.done.includes(id)) { 
-                BP.done = BP.done.filter(x => x !== id); 
-                delete BP.times[id]; 
-            }
-        }
-    }
-
-    const isDoneNow = BP.done.includes(id);
-
-    // СОХРАНЯЕМ ДАННЫЕ
-    saveBP();
-    updateBP(); // Обновляем шапку (цифры сверху)
-
-    // --- МАГИЯ ПЛАВНОЙ АНИМАЦИИ ---
-    // Если статус задачи (Выполнено/Не выполнено) изменился — нужна полная перерисовка, 
-    // чтобы появилась галочка или изменился цвет карточки.
-    if (wasDone !== isDoneNow) {
-        renderBP();
-    } else {
-        // Если статус не изменился, мы просто двигаем полоску БЕЗ перерисовки всего списка!
-        // Это и дает плавную анимацию, так как элемент остается тем же самым.
-        
-        const elBar = document.getElementById(`prog_${id}`);
-        const elTxt = document.getElementById(`cnt_${id}`);
-        
-        if (elBar && elTxt) {
-            // Считаем новый процент
-            let newPct = (BP.counters[id] / max) * 100;
-            if(newPct > 100) newPct = 100;
+        function updateBP() {
+            BP.start = parseInt(document.getElementById('startBp').value) || 0;
             
-            // Применяем новые значения напрямую к элементам
-            elBar.style.width = newPct + '%';
-            elTxt.innerText = BP.counters[id];
-        } else {
-            // Если вдруг элемент не найден (например, был скрыт фильтром), перерисовываем
-            renderBP();
-        }
-    }
-}
-        function hideBP(i,e) { e.stopPropagation(); BP.hidden.push(i); saveBP(); renderBP(); }
-        function resetHiddenBP() { BP.hidden = []; saveBP(); renderBP(); }
-function newDay() {
-    if(confirm("Начать новый день? Сбросится прогресс.")) {
-        // --- ЗАМЕНИТЬ СТРОКУ СБРОСА НА ЭТУ: ---
-        BP.done = []; BP.doneTwink = []; BP.times = {}; BP.counters = {}; BP.start = 0;
-        // --------------------------------------
-        document.getElementById('startBp').value = '';
-        saveBP(); renderBP(); updateBP();
-    }
-}
-
-function renderBP() {
-    const list = document.getElementById('listBP'); 
-    const search = document.getElementById('searchBp').value.toLowerCase();
-    const sortMode = document.getElementById('bpSort').value;
-    
-    if(!BP.localTimers) BP.localTimers = {};
-    if(!BP.doneTwink) BP.doneTwink = [];
-
-    let tasks = BP.sortOrder.map(id => ({...DB.bp[id], id: id}));
-
-    if(sortMode === 'max') tasks.sort((a, b) => b.q - a.q);
-    if(sortMode === 'min') tasks.sort((a, b) => a.q - b.q);
-
-    list.innerHTML = '';
-    
-    tasks.forEach(t => {
-        const i = t.id;
-        if(BP.hidden.includes(i) || (search && !t.t.toLowerCase().includes(search))) return;
-        
-        const done = BP.done.includes(i);
-        const isTwink = BP.doneTwink.includes(i);
-        let rw = BP.vip ? t.v : t.b; if(BP.x2) rw *= 2;
-        
-        // Метки
-        let statusBadgeHTML = '';
-        if (done && BP.times[i]) {
-            statusBadgeHTML = `<div class="status-badge time">${BP.times[i]}</div>`;
-        } else if (isTwink) {
-            statusBadgeHTML = `<div class="status-badge twink">ТВИНК</div>`;
-        }
-
-        let controlHTML = '';
-        let progressBarHTML = '';
-        let instantDoneBtn = '';
-        
-        if(t.q > 1 || t.r) {
-            // --- СЛОЖНЫЕ ЗАДАЧИ (Счетчик) ---
-            const curr = BP.counters && BP.counters[i] ? BP.counters[i] : 0;
-            const max = t.q;
+            let farm = 0; 
+            let doneCount = BP.done.length + (BP.doneTwink ? BP.doneTwink.length : 0);
             
-            let pct = max > 0 ? (curr / max) * 100 : 0;
-            if(pct > 100) pct = 100;
+            BP.done.forEach(i => { 
+                let t = DB.bp[i]; 
+                if(t && !t.r) { 
+                    let rw = BP.vip ? t.v : t.b; 
+                    if(BP.x2) rw *= 2; 
+                    farm += rw; 
+                } 
+            });
 
-            if(!t.r) {
-                progressBarHTML = `
-                    <div class="progress-track">
-                        <div id="prog_${i}" class="progress-fill" style="width: ${pct}%"></div>
-                    </div>
-                `;
+            if(BP.counters) { 
+                Object.keys(BP.counters).forEach(i => { 
+                    let t = DB.bp[i]; 
+                    if(t && t.r) { 
+                        let rw = BP.vip ? t.v : t.b; 
+                        if(BP.x2) rw *= 2; 
+                        farm += (rw * BP.counters[i]); 
+                    } 
+                }); 
+            }
+
+            let total = BP.start + farm; 
+
+            const elTotal = document.getElementById('totalBp');
+            const elDone = document.getElementById('doneCount');
+            const elMult = document.getElementById('multiplierDisp');
+            const elTime = document.getElementById('totalTime'); 
+
+            if(elTotal) elTotal.innerText = total;
+            if(elDone) elDone.innerText = doneCount;
+            
+            let mult = 1;
+            if(BP.vip) mult *= 2; 
+            if(BP.x2) mult *= 2;
+            if(elMult) elMult.innerText = 'x' + mult;
+
+            const elStickyTotal = document.getElementById('stickyTotal');
+            const elStickyFarmed = document.getElementById('stickyFarmed');
+            const elFarmedMain = document.getElementById('farmedBpMain');
+
+            if(elStickyTotal) elStickyTotal.innerText = total;
+            if(elStickyFarmed) elStickyFarmed.innerText = '+' + farm;
+            if(elFarmedMain) elFarmedMain.innerText = '+' + farm;
+
+            if(elTime) {
+                const taskID = 0; 
+                let count = (BP.counters && BP.counters[taskID]) ? BP.counters[taskID] : 0;
+                if(count === 0 && BP.done.includes(taskID)) count = 1; 
+                const totalHours = count * 3;
+                elTime.innerText = totalHours + 'ч';
+                elTime.style.color = totalHours > 0 ? "var(--gold)" : "var(--text-sub)";
+            }
+            
+            document.getElementById('btnVip').classList.toggle('active', BP.vip);
+            document.getElementById('btnX2').classList.toggle('active', BP.x2);
+
+            saveBP();
+        }
+        
+        function toggleTask(i, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+
+            if(BP.done.includes(i)) { 
+                BP.done = BP.done.filter(x=>x!==i); 
+                delete BP.times[i]; 
+                if(BP.counters && BP.counters[i]) BP.counters[i] = 0;
+            } else { 
+                BP.done.push(i);
+                if(BP.doneTwink) BP.doneTwink = BP.doneTwink.filter(x => x !== i);
                 
-                // Кнопка MAX
-                if(!done) {
-                    instantDoneBtn = `<button class="btn-instant-done" onclick="completeInstant(${i})">MAX</button>`;
+                BP.times[i] = new Date().toLocaleTimeString().slice(0,5); 
+                if(DB.bp[i].q > 1) BP.counters[i] = DB.bp[i].q;
+            }
+            saveBP(); renderBP(); updateBP();
+        }
+
+        function toggleTwink(i, e) {
+            e.stopPropagation(); 
+
+            if(!BP.doneTwink) BP.doneTwink = [];
+
+            if(BP.doneTwink.includes(i)) {
+                BP.doneTwink = BP.doneTwink.filter(x => x !== i);
+            } else {
+                BP.doneTwink.push(i);
+                BP.done = BP.done.filter(x => x !== i);
+                
+                BP.times[i] = new Date().toLocaleTimeString().slice(0,5);
+            }
+            saveBP(); renderBP(); updateBP();
+        }
+
+        function updateCounter(id, delta) {
+            if(!BP.counters) BP.counters = {};
+            if(typeof BP.counters[id] === 'undefined') BP.counters[id] = 0;
+            
+            const wasDone = BP.done.includes(id);
+            const max = DB.bp[id].q;
+
+            BP.counters[id] += delta;
+            if(BP.counters[id] < 0) BP.counters[id] = 0;
+            
+            if (!DB.bp[id].r) {
+                if(BP.counters[id] > max) BP.counters[id] = max;
+
+                if(BP.counters[id] >= max) {
+                    if(!BP.done.includes(id)) { 
+                        BP.done.push(id); 
+                        BP.times[id] = new Date().toLocaleTimeString().slice(0,5); 
+                    }
+                } else {
+                    if(BP.done.includes(id)) { 
+                        BP.done = BP.done.filter(x => x !== id); 
+                        delete BP.times[id]; 
+                    }
                 }
             }
 
-            controlHTML = `
-            <div class="controls-new" onclick="event.stopPropagation()">
-                <button class="btn-mini minus" onclick="updateCounter(${i}, -1)">−</button>
-                <span id="cnt_${i}" class="counter-val-new">${curr}</span>
-                <button class="btn-mini plus" onclick="updateCounter(${i}, 1)">+</button>
-            </div>
-            <div class="reward-badge">+${rw}</div>
-            `;
-        } else {
-             // --- ПРОСТЫЕ ЗАДАЧИ (КВАДРАТИК) ---
-             // ИСПРАВЛЕНИЕ: передаем 'event' в функцию
-             controlHTML = `
-                <div class="checkbox" onclick="toggleTask(${i}, event)">${done?'✔':''}</div>
-                <div class="reward-badge" style="margin-left:6px;">+${rw}</div>
-             `;
-        }
+            const isDoneNow = BP.done.includes(id);
 
-        // Иконка
-        let iconHTML = '';
-        if(t.img) {
-            iconHTML = `<div class="bp-icon-container"><img src="${t.img}" class="bp-img"></div>`;
-        } else if (t.i) { 
-             iconHTML = `<div class="bp-icon-container"><span class="bp-emoji">${t.i}</span></div>`;
-        }
+            saveBP();
+            updateBP(); 
 
-        // Таймер
-        let timerHTML = '';
-        if (t.timer) {
-            let lt = BP.localTimers[i] || { rm: t.timer, run: false };
-            if(lt.run && lt.et) {
-                 const diff = Math.ceil((lt.et - Date.now()) / 1000);
-                 lt.rm = diff > 0 ? diff : 0; if(lt.rm === 0) lt.run = false;
+            if (wasDone !== isDoneNow) {
+                renderBP();
+            } else {
+                const elBar = document.getElementById(`prog_${id}`);
+                const elTxt = document.getElementById(`cnt_${id}`);
+                
+                if (elBar && elTxt) {
+                    let newPct = (BP.counters[id] / max) * 100;
+                    if(newPct > 100) newPct = 100;
+                    
+                    elBar.style.width = newPct + '%';
+                    elTxt.innerText = BP.counters[id];
+                } else {
+                    renderBP();
+                }
             }
-            const displayTime = lt.rm <= 0 ? "ГОТОВО" : fmtTime(lt.rm);
-            const playStyle = lt.run ? 'color:var(--gold); border-color:var(--gold);' : '';
-            
-            timerHTML = `
-            <div class="inline-timer-box" onclick="event.stopPropagation()">
-                <button class="it-btn" style="${playStyle}" onclick="toggleLocalTimer(${i}, ${t.timer})">
-                    ${lt.run ? '⏸' : '▶'}
-                </button>
-                <div class="it-val ${lt.rm<=0?'done':''}" id="loc_timer_${i}">${displayTime}</div>
-                <button class="it-btn" onclick="resetLocalTimer(${i}, ${t.timer})">↺</button>
-            </div>`;
         }
-
-        const item = document.createElement('div');
-        let doneClass = (done && !t.r) ? 'completed' : '';
-        if (isTwink) doneClass = 'completed twink-done';
-
-        item.className = `task-item ${doneClass}`;
-        item.setAttribute('data-id', i);
         
-        // Клик по всей карточке тоже работает (но теперь не конфликтует с квадратиком)
-        if(!t.r && t.q <= 1) item.onclick = () => toggleTask(i);
+        function hideBP(i,e) { e.stopPropagation(); BP.hidden.push(i); saveBP(); renderBP(); }
+        function resetHiddenBP() { BP.hidden = []; saveBP(); renderBP(); }
+        
+        function newDay() {
+            if(confirm("Начать новый день? Сбросится прогресс.")) {
+                BP.done = []; BP.doneTwink = []; BP.times = {}; BP.counters = {}; BP.start = 0;
+                const startInput = document.getElementById('startBp');
+                startInput.value = '';
+                startInput.blur();
+                saveBP(); renderBP(); updateBP();
+            }
+        }
 
-        let twinkBtnStyle = isTwink ? 'color: #c084fc; background: rgba(192, 132, 252, 0.15); border: 1px solid rgba(192, 132, 252, 0.3);' : '';
-        const twinkBtn = !t.r ? `<button class="icon-btn" style="width:28px; height:28px; border-radius:6px; ${twinkBtnStyle}" onclick="toggleTwink(${i}, event)">👻</button>` : '';
-
-        item.innerHTML = `
-            <div class="task-top-row">
-                <div class="drag-handle" style="margin-right:4px; color:#444;">⋮⋮</div>
-                ${iconHTML}
-                <div class="task-content">
-                    <div class="task-header-row">
-                        <div class="task-text">${t.t} ${t.r ? '<span class="tag">∞</span>' : ''}</div>
-                        ${statusBadgeHTML}
-                    </div>
-                    ${progressBarHTML} 
-                </div>
-            </div>
+        function renderBP() {
+            const list = document.getElementById('listBP'); 
+            const search = document.getElementById('searchBp').value.toLowerCase();
+            const sortMode = document.getElementById('bpSort').value;
             
-            <div class="task-bottom-row">
-                 <div style="display:flex;">${timerHTML}</div>
-                 
-                 <div class="task-actions-group">
-                    ${controlHTML}
-                    ${instantDoneBtn}
-                    ${twinkBtn}
-                    <button class="icon-btn del" style="width:28px; height:28px; border-radius:6px; border:1px solid #333;" onclick="hideBP(${i},event)">✕</button>
-                 </div>
-            </div>
-        `;
-        list.appendChild(item);
-    });
-}
-function completeInstant(id) {
-    const max = DB.bp[id].q;
-    const current = BP.counters && BP.counters[id] ? BP.counters[id] : 0;
-    const diff = max - current;
-    
-    if (diff > 0) {
-        updateCounter(id, diff); // Добавляем столько, сколько не хватает до максимума
-    }
-}
-// --- НОВАЯ ФУНКЦИЯ ДЛЯ ПОЛЗУНКА ---
-function updateCounterSlider(i, val) {
-    if(!BP.counters) BP.counters = {};
-    const intVal = parseInt(val);
-    BP.counters[i] = intVal;
-    
-    const max = DB.bp[i].q;
-    
-    // Если ползунок дотянули до максимума - отмечаем как выполнено
-    if(intVal >= max) {
-        if(!BP.done.includes(i)) { 
-            BP.done.push(i); 
-            BP.times[i] = new Date().toLocaleTimeString().slice(0,5); 
+            if(!BP.localTimers) BP.localTimers = {};
+            if(!BP.doneTwink) BP.doneTwink = [];
+
+            let tasks = BP.sortOrder.map(id => ({...DB.bp[id], id: id}));
+
+            if(sortMode === 'max') tasks.sort((a, b) => b.q - a.q);
+            if(sortMode === 'min') tasks.sort((a, b) => a.q - b.q);
+
+            list.innerHTML = '';
+            
+            tasks.forEach(t => {
+                const i = t.id;
+                const done = BP.done.includes(i);
+                const isTwink = BP.doneTwink.includes(i);
+                
+                // === ПРИМЕНЕНИЕ ФИЛЬТРА СКРЫТИЯ ВЫПОЛНЕННЫХ ===
+                if (HIDE_COMPLETED && (done || isTwink)) return;
+
+                if(BP.hidden.includes(i) || (search && !t.t.toLowerCase().includes(search))) return;
+                
+                let rw = BP.vip ? t.v : t.b; if(BP.x2) rw *= 2;
+                
+                let statusBadgeHTML = '';
+                if (done && BP.times[i]) {
+                    statusBadgeHTML = `<div class="status-badge time">${BP.times[i]}</div>`;
+                } else if (isTwink) {
+                    statusBadgeHTML = `<div class="status-badge twink">ТВИНК</div>`;
+                }
+
+                // --- РАСЧЕТ ЗАРПЛАТЫ ДЛЯ 25 ДЕЙСТВИЙ ---
+                let payoutText = '';
+                let isWorkTask = false;
+                let basePay = 0;
+                
+                if (t.t.includes("действий на стройке")) { 
+                    isWorkTask = true; basePay = WORK_RATES.build[USER_WORK_SKILLS.build]; 
+                } else if (t.t.includes("действий в порту")) { 
+                    isWorkTask = true; basePay = WORK_RATES.port[USER_WORK_SKILLS.port]; 
+                } else if (t.t.includes("действий в шахте")) { 
+                    isWorkTask = true; basePay = WORK_RATES.mine[USER_WORK_SKILLS.mine]; 
+                }
+
+                if (isWorkTask) {
+                    const bonusMultiplier = REDNECK_BONUS[USER_WORK_SKILLS.rednecks];
+                    const bonusValue = Math.round(basePay * bonusMultiplier);
+                    const perAction = basePay + bonusValue;
+                    const totalPay = perAction * 25;
+                    payoutText = `<div class="task-sub" style="color:var(--green); font-weight:700; margin-top:3px;">💵 Ожидается: ${totalPay.toLocaleString('ru-RU')}$</div>`;
+                }
+                // ----------------------------------------
+
+                let controlHTML = '';
+                let progressBarHTML = '';
+                let instantDoneBtn = '';
+                
+                if(t.q > 1 || t.r) {
+                    const curr = BP.counters && BP.counters[i] ? BP.counters[i] : 0;
+                    const max = t.q;
+                    
+                    let pct = max > 0 ? (curr / max) * 100 : 0;
+                    if(pct > 100) pct = 100;
+
+                    if(!t.r) {
+                        progressBarHTML = `
+                            <div class="progress-track">
+                                <div id="prog_${i}" class="progress-fill" style="width: ${pct}%"></div>
+                            </div>
+                        `;
+                        
+                        if(!done) {
+                            instantDoneBtn = `<button class="btn-instant-done" onclick="completeInstant(${i})">MAX</button>`;
+                        }
+                    }
+
+                    controlHTML = `
+                    <div class="controls-new" onclick="event.stopPropagation()">
+                        <button class="btn-mini minus" onclick="updateCounter(${i}, -1)">−</button>
+                        <span id="cnt_${i}" class="counter-val-new">${curr}</span>
+                        <button class="btn-mini plus" onclick="updateCounter(${i}, 1)">+</button>
+                    </div>
+                    <div class="reward-badge">+${rw}</div>
+                    `;
+                } else {
+                     controlHTML = `
+                        <div class="checkbox" onclick="toggleTask(${i}, event)">${done?'✔':''}</div>
+                        <div class="reward-badge" style="margin-left:6px;">+${rw}</div>
+                     `;
+                }
+
+                let iconHTML = '';
+                if(t.img) {
+                    iconHTML = `<div class="bp-icon-container"><img src="${t.img}" class="bp-img"></div>`;
+                } else if (t.i) { 
+                     iconHTML = `<div class="bp-icon-container"><span class="bp-emoji">${t.i}</span></div>`;
+                }
+
+                let timerHTML = '';
+                if (t.timer) {
+                    let lt = BP.localTimers[i] || { rm: t.timer, run: false };
+                    if(lt.run && lt.et) {
+                         const diff = Math.ceil((lt.et - Date.now()) / 1000);
+                         lt.rm = diff > 0 ? diff : 0; if(lt.rm === 0) lt.run = false;
+                    }
+                    const displayTime = lt.rm <= 0 ? "ГОТОВО" : fmtTime(lt.rm);
+                    const playStyle = lt.run ? 'color:var(--gold); border-color:var(--gold);' : '';
+                    
+                    timerHTML = `
+                    <div class="inline-timer-box" onclick="event.stopPropagation()">
+                        <button class="it-btn" style="${playStyle}" onclick="toggleLocalTimer(${i}, ${t.timer})">
+                            ${lt.run ? '⏸' : '▶'}
+                        </button>
+                        <div class="it-val ${lt.rm<=0?'done':''}" id="loc_timer_${i}">${displayTime}</div>
+                        <button class="it-btn" onclick="resetLocalTimer(${i}, ${t.timer})">↺</button>
+                    </div>`;
+                }
+
+                const item = document.createElement('div');
+                let doneClass = (done && !t.r) ? 'completed' : '';
+                if (isTwink) doneClass = 'completed twink-done';
+
+                item.className = `task-item ${doneClass}`;
+                item.setAttribute('data-id', i);
+                
+                if(!t.r && t.q <= 1) item.onclick = () => toggleTask(i);
+
+                let twinkBtnStyle = isTwink ? 'color: #c084fc; background: rgba(192, 132, 252, 0.15); border: 1px solid rgba(192, 132, 252, 0.3);' : '';
+                const twinkBtn = !t.r ? `<button class="icon-btn" style="width:28px; height:28px; border-radius:6px; ${twinkBtnStyle}" onclick="toggleTwink(${i}, event)">👻</button>` : '';
+
+                item.innerHTML = `
+                    <div class="task-top-row">
+                        <div class="drag-handle" style="margin-right:4px; color:#444;">⋮⋮</div>
+                        ${iconHTML}
+                        <div class="task-content">
+                            <div class="task-header-row">
+                                <div style="display:flex; flex-direction:column;">
+                                    <div class="task-text">${t.t} ${t.r ? '<span class="tag">∞</span>' : ''}</div>
+                                    ${payoutText}
+                                </div>
+                                ${statusBadgeHTML}
+                            </div>
+                            ${progressBarHTML} 
+                        </div>
+                    </div>
+                    
+                    <div class="task-bottom-row">
+                         <div style="display:flex;">${timerHTML}</div>
+                         
+                         <div class="task-actions-group">
+                            ${controlHTML}
+                            ${instantDoneBtn}
+                            ${twinkBtn}
+                            <button class="icon-btn del" style="width:28px; height:28px; border-radius:6px; border:1px solid #333;" onclick="hideBP(${i},event)">✕</button>
+                         </div>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
         }
-    } else {
-        // Если оттянули назад - снимаем выполнение
-        if(BP.done.includes(i)) { 
-            BP.done = BP.done.filter(x=>x!==i); 
-            delete BP.times[i]; 
+        
+        function completeInstant(id) {
+            const max = DB.bp[id].q;
+            const current = BP.counters && BP.counters[id] ? BP.counters[id] : 0;
+            const diff = max - current;
+            
+            if (diff > 0) {
+                updateCounter(id, diff); 
+            }
         }
-    }
-    
-    // Обновляем только цифры, чтобы не дергался ползунок
-    // Но так как у нас renderBP перерисовывает все, мы пока просто вызываем обновление
-    // Для идеальной плавности можно обновлять только DOM элемент, но для простоты перерендерим с задержкой
-    // В данном случае лучше обновить логику и сохранить, а рендер дернуть при отпускании (onchange) или сразу
-    // Для мгновенного отклика лучше просто обновить визуально, но сделаем через полную перерисовку для надежности:
-    
-    saveBP();
-    updateBP(); // Обновляет только шапку с очками
-    
-    // Визуальное обновление текста рядом с ползунком без перерисовки всего списка (чтобы ползунок не сбрасывался из-под пальца)
-    // Но для надежности пока оставим так. Если будет лагать, скажи.
-}
 
         // --- DRAG & DROP SETUP ---
         function setupDragAndDrop() {
@@ -2438,252 +2472,217 @@ function updateCounterSlider(i, val) {
             const json = JSON.stringify(TIMERS);
             Cloud.setItem('gta_tm_22', json);
         }
-// --- НОВАЯ ЛОГИКА ТАЙМЕРОВ (ОПТИМИЗИРОВАННАЯ) ---
-
-// 1. Функция точечного обновления (работает быстро, не трогает HTML структуру)
-// 1. Функция точечного обновления (работает быстро, не трогает HTML структуру)
-function updateTimersVisuals() {
-    // А) Обновляем большие таймеры
-    if(TIMERS.custom) {
-        const now = Date.now();
-        TIMERS.custom.forEach(t => {
-            if(t.run) {
-                if (t.et) {
-                    const diff = Math.ceil((t.et - now) / 1000);
-                    t.rm = diff;
-                }
-                
-                // --- ЕСЛИ ВРЕМЯ ВЫШЛО ---
-                if(t.rm <= 0) {
-                    t.rm = 0; t.run = false;
-                    renderTimers(); // Меняем кнопку на "Старт"
-                    
-                    // 1. Показываем красивый Toast снизу
-                    showToast(`Таймер "${t.l}" завершен!`, 'success');
-
-                    // 2. Включаем сильную вибрацию
-                    if(window.Telegram && window.Telegram.WebApp) {
-                        window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+        
+        function updateTimersVisuals() {
+            if(TIMERS.custom) {
+                const now = Date.now();
+                TIMERS.custom.forEach(t => {
+                    if(t.run) {
+                        if (t.et) {
+                            const diff = Math.ceil((t.et - now) / 1000);
+                            t.rm = diff;
+                        }
                         
-                        // 3. ПОКАЗЫВАЕМ ОКНО С КНОПКОЙ "ОК" (Нативное Телеграм окно)
-                        window.Telegram.WebApp.showPopup({
-                            title: '⏰ Время вышло!',
-                            message: `Таймер "${t.l}" завершил работу.`,
-                            buttons: [{type: 'ok', text: 'Понял, спасибо'}]
-                        });
+                        if(t.rm <= 0) {
+                            t.rm = 0; t.run = false;
+                            renderTimers(); 
+                            
+                            showToast(`Таймер "${t.l}" завершен!`, 'success');
+
+                            if(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
+                                window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                                
+                            }
+                        }
+
+                        const elDisp = document.getElementById(`disp_${t.id}`);
+                        const elBar = document.getElementById(`prog_bar_${t.id}`);
+                        
+                        if(elDisp) elDisp.innerText = fmtTime(t.rm);
+                        if(elBar && t.s > 0) {
+                            let pct = (t.rm / t.s) * 100;
+                            elBar.style.width = `${pct}%`;
+                        }
+                    }
+                });
+            }
+
+            if(BP.localTimers) {
+                const now = Date.now();
+                let changed = false;
+                for (const [id, t] of Object.entries(BP.localTimers)) {
+                    if(t.run) {
+                        const diff = Math.ceil((t.et - now) / 1000);
+                        if(diff <= 0) {
+                            t.rm = 0; t.run = false;
+                            renderBP(); 
+                            
+                            let taskName = "Задача";
+                            if(DB.bp[id]) taskName = DB.bp[id].t;
+
+                            showToast(`Задача "${taskName}" готова!`, 'success');
+                            
+                            if(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
+                                window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                            }
+                        } else {
+                            t.rm = diff;
+                            const el = document.getElementById(`loc_timer_${id}`);
+                            if(el) el.innerText = fmtTime(t.rm);
+                        }
+                        changed = true;
                     }
                 }
-
-                // ТОЧЕЧНОЕ ОБНОВЛЕНИЕ DOM
-                const elDisp = document.getElementById(`disp_${t.id}`);
-                const elBar = document.getElementById(`prog_bar_${t.id}`);
-                
-                if(elDisp) elDisp.innerText = fmtTime(t.rm);
-                if(elBar && t.s > 0) {
-                    let pct = (t.rm / t.s) * 100;
-                    elBar.style.width = `${pct}%`;
-                }
+                if(changed && now % 5000 < 1000) saveBP();
             }
-        });
-    }
+        }
+        
+        let GLOBAL_TIMER_INT = null;
 
-    // Б) Обновляем локальные таймеры (в задачах)
-    if(BP.localTimers) {
-        const now = Date.now();
-        let changed = false;
-        for (const [id, t] of Object.entries(BP.localTimers)) {
-            if(t.run) {
-                const diff = Math.ceil((t.et - now) / 1000);
-                if(diff <= 0) {
-                    t.rm = 0; t.run = false;
-                    renderBP(); 
-                    
-                    // Получаем название задачи для уведомления
-                    let taskName = "Задача";
-                    if(DB.bp[id]) taskName = DB.bp[id].t;
+        function startGlobalTimerLoop() {
+            if(GLOBAL_TIMER_INT) return; 
+            
+            GLOBAL_TIMER_INT = setInterval(() => {
+                if(typeof updateHeaderTimer === 'function') updateHeaderTimer();
+                updateTimersVisuals();
+            }, 1000);
+        }
+        
+        function renderTimers() {
+            const list = document.getElementById('activeTimersList'); 
+            if(!list) return;
+            list.innerHTML = '';
+            
+            let all = []; 
+            if(TIMERS.custom) all = [...TIMERS.custom];
+            
+            if(all.length === 0) {
+                list.innerHTML = '<div style="padding:10px; color:#555; font-size:13px;">Нет активных таймеров</div>';
+            }
 
-                    showToast(`Задача "${taskName}" готова!`, 'success');
-                    
-                    // Нативное окно с кнопкой ОК
-                    if(window.Telegram && window.Telegram.WebApp) {
-                        window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-                        window.Telegram.WebApp.showPopup({
-                            title: '✅ Задача готова!',
-                            message: `Таймер в задаче "${taskName}" истек.`,
-                            buttons: [{type: 'ok', text: 'ОК'}]
-                        });
+            all.forEach(t => {
+                if(t.run) {
+                    const now = Date.now();
+                    if (t.et) {
+                        const diff = Math.ceil((t.et - now) / 1000);
+                        t.rm = diff;
+                    } else {
+                        const passed = Math.floor((now - t.ts)/1000);
+                        if(passed > 0) t.rm -= passed;
+                        t.et = now + (t.rm * 1000);
                     }
-                } else {
-                    t.rm = diff;
-                    const el = document.getElementById(`loc_timer_${id}`);
-                    if(el) el.innerText = fmtTime(t.rm);
+                    if(t.rm <= 0) { t.rm = 0; t.run = false; }
+                    t.ts = now;
                 }
-                changed = true;
-            }
-        }
-        if(changed && now % 5000 < 1000) saveBP();
-    }
-}
-// 2. Глобальный цикл (запускается из init)
-let GLOBAL_TIMER_INT = null;
 
-function startGlobalTimerLoop() {
-    if(GLOBAL_TIMER_INT) return; // Уже запущен
-    
-    GLOBAL_TIMER_INT = setInterval(() => {
-        // 1. Виджет в шапке
-        if(typeof updateHeaderTimer === 'function') updateHeaderTimer();
-        
-        // 2. Все таймеры (большие и маленькие)
-        updateTimersVisuals();
-
-    }, 1000);
-}
-function renderTimers() {
-    const list = document.getElementById('activeTimersList'); 
-    if(!list) return;
-    list.innerHTML = '';
-    
-    let all = []; 
-    if(TIMERS.custom) all = [...TIMERS.custom];
-    
-    if(all.length === 0) {
-        list.innerHTML = '<div style="padding:10px; color:#555; font-size:13px;">Нет активных таймеров</div>';
-    }
-
-    all.forEach(t => {
-        // --- ЛОГИКА ТАЙМЕРА (как и была) ---
-        if(t.run) {
-            const now = Date.now();
-            if (t.et) {
-                const diff = Math.ceil((t.et - now) / 1000);
-                t.rm = diff;
-            } else {
-                const passed = Math.floor((now - t.ts)/1000);
-                if(passed > 0) t.rm -= passed;
-                t.et = now + (t.rm * 1000);
-            }
-            if(t.rm <= 0) { t.rm = 0; t.run = false; }
-            t.ts = now;
-        }
-
-        const isRunning = t.run;
-        const statusText = isRunning ? 'Активен' : 'Пауза';
-        const displayTime = fmtTime(t.rm);
-        
-        // --- РАСЧЕТ ПРОГРЕССА ДЛЯ ПОЛОСКИ ---
-        // t.s - исходная длительность в секундах
-        // t.rm - осталось
-        // Прогресс (убывающий): (t.rm / t.s) * 100
-        let pct = 0;
-        if(t.s > 0) pct = (t.rm / t.s) * 100;
-        if(pct > 100) pct = 100; if(pct < 0) pct = 0;
-        
-        // --- HTML ---
-        list.innerHTML += `
-            <div class="timer-card ${isRunning ? 'running' : ''}">
-                <div class="tc-header">
-                    <div class="tc-title">
-                        <span style="color:var(--accent)">::</span> ${t.l}
-                    </div>
-                    <div class="tc-status">${statusText}</div>
-                </div>
-                <div class="tc-time" id="disp_${t.id}">${displayTime}</div>
+                const isRunning = t.run;
+                const statusText = isRunning ? 'Активен' : 'Пауза';
+                const displayTime = fmtTime(t.rm);
                 
-                <div class="timer-progress-bg">
-                    <div id="prog_bar_${t.id}" class="timer-progress-bar" style="width: ${pct}%"></div>
-                </div>
+                let pct = 0;
+                if(t.s > 0) pct = (t.rm / t.s) * 100;
+                if(pct > 100) pct = 100; if(pct < 0) pct = 0;
+                
+                list.innerHTML += `
+                    <div class="timer-card ${isRunning ? 'running' : ''}">
+                        <div class="tc-header">
+                            <div class="tc-title">
+                                <span style="color:var(--accent)">::</span> ${t.l}
+                            </div>
+                            <div class="tc-status">${statusText}</div>
+                        </div>
+                        <div class="tc-time" id="disp_${t.id}">${displayTime}</div>
+                        
+                        <div class="timer-progress-bg">
+                            <div id="prog_bar_${t.id}" class="timer-progress-bar" style="width: ${pct}%"></div>
+                        </div>
 
-                <div class="tc-footer" style="margin-top:10px;">
-                    <button class="tc-btn ${isRunning ? 'stop' : 'start'}" onclick="togTime('${t.id}')">
-                        ${isRunning ? '|| Стоп' : '▶ Старт'}
-                    </button>
-                    <button class="tc-btn-icon" onclick="rstTime('${t.id}')">↺</button>
-                    <button class="tc-btn-icon del" onclick="delTime('${t.id}')">✕</button>
-                </div>
-            </div>`;   
-    });
-    saveTm();
-}
+                        <div class="tc-footer" style="margin-top:10px;">
+                            <button class="tc-btn ${isRunning ? 'stop' : 'start'}" onclick="togTime('${t.id}')">
+                                ${isRunning ? '|| Стоп' : '▶ Старт'}
+                            </button>
+                            <button class="tc-btn-icon" onclick="rstTime('${t.id}')">↺</button>
+                            <button class="tc-btn-icon del" onclick="delTime('${t.id}')">✕</button>
+                        </div>
+                    </div>`;   
+            });
+            saveTm();
+        }
 
         function fmtTime(s) { const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60; return (h>0?h+':':'')+pad(m)+':'+pad(sec); }
         function pad(n) { return n<10?'0'+n:n; }
 
-        function addQuickTimer(min) { addTimerRaw(min, min+' мин'); }
         function addGameTimer(key) { 
             const t = DB.timers.find(x => x.id === key);
             if(t) addTimerRaw(t.s/60, t.l); 
         }
-function addCustomTimer() { 
-    const nameInput = document.getElementById('customName').value;
-    // Получаем минуты и секунды, если пусто — считаем 0
-    let m = parseInt(document.getElementById('customMin').value) || 0;
-    let s = parseInt(document.getElementById('customSec').value) || 0;
-    
-    // Если всё по нулям, ничего не делаем
-    if (m === 0 && s === 0) return;
+        
+        function addCustomTimer() { 
+            const nameInput = document.getElementById('customName').value;
+            let m = parseInt(document.getElementById('customMin').value) || 0;
+            let s = parseInt(document.getElementById('customSec').value) || 0;
+            
+            if (m === 0 && s === 0) return;
 
-    // Считаем общее время в секундах
-    const totalSeconds = (m * 60) + s;
-    
-    // Формируем название, если его нет
-    const label = nameInput.trim() ? nameInput : fmtTimeSimple(totalSeconds);
-    
-    // addTimerRaw принимает минуты (так уж вышло исторически в коде), 
-    // поэтому делим на 60, чтобы сохранить совместимость
-    addTimerRaw(totalSeconds / 60, label); 
-    
-    // Очищаем поля
-    document.getElementById('customMin').value = ''; 
-    document.getElementById('customSec').value = ''; 
-    document.getElementById('customName').value = '';
-}
-function addTimerRaw(min, label) {
-    if(!TIMERS.custom) TIMERS.custom = [];
-    const now = Date.now();
-    const durationSec = min * 60;
-    
-    TIMERS.custom.push({
-        id: 't_' + now, 
-        l: label, 
-        s: durationSec, 
-        rm: durationSec, 
-        run: true, 
-        ts: now,
-        et: now + (durationSec * 1000) // et = End Time (время финиша)
-    });
-    saveTm(); 
-    renderTimers();
-}
-function togTime(id) { 
-    const t = TIMERS.custom.find(x => x.id === id);
-    if(t) { 
-        t.run = !t.run; 
-        if(t.run) {
-            // Если включили: устанавливаем новое время финиша исходя из остатка
-            if(t.rm <= 0) t.rm = t.s;
-            t.et = Date.now() + (t.rm * 1000);
-        } else {
-            // Если поставили на паузу: ничего не делаем, t.rm уже сохранен
+            const totalSeconds = (m * 60) + s;
+            const label = nameInput.trim() ? nameInput : fmtTimeSimple(totalSeconds);
+            
+            addTimerRaw(totalSeconds / 60, label); 
+            
+            document.getElementById('customMin').value = ''; 
+            document.getElementById('customSec').value = ''; 
+            document.getElementById('customName').value = '';
         }
-        saveTm(); 
-        renderTimers(); 
-    }
-}
+        
+        function addTimerRaw(min, label) {
+            if(!TIMERS.custom) TIMERS.custom = [];
+            const now = Date.now();
+            const durationSec = min * 60;
+            
+            TIMERS.custom.push({
+                id: 't_' + now, 
+                l: label, 
+                s: durationSec, 
+                rm: durationSec, 
+                run: true, 
+                ts: now,
+                et: now + (durationSec * 1000) 
+            });
+            
+            // ОТПРАВЛЯЕМ КОМАНДУ В GOOGLE НА УВЕДОМЛЕНИЕ
+            scheduleNotification(durationSec, `⏰ Таймер <b>${label}</b> завершен!`);
+
+            saveTm(); 
+            renderTimers();
+        }
+        
+        function togTime(id) { 
+            const t = TIMERS.custom.find(x => x.id === id);
+            if(t) { 
+                t.run = !t.run; 
+                if(t.run) {
+                    if(t.rm <= 0) t.rm = t.s;
+                    t.et = Date.now() + (t.rm * 1000);
+                }
+                saveTm(); 
+                renderTimers(); 
+            }
+        }
+        
         function rstTime(id) { 
             const t = TIMERS.custom.find(x=>x.id===id);
             if(t) { t.rm = t.s; t.run = false; t.ts = Date.now(); clearInterval(TIMER_INT[id]); saveTm(); renderTimers(); }
         }
+        
         function delTime(id) {
             TIMERS.custom = TIMERS.custom.filter(t=>t.id!==id); clearInterval(TIMER_INT[id]); saveTm(); renderTimers();
         }
       
         function addPay(t) { const d = prompt(`Оплата ${t}. Через сколько дней?`, "10"); if(d) addEvent(parseInt(d), `Оплата: ${t}`); }
 
-// --- CALENDAR ---
+        // --- CALENDAR ---
         let calDate = new Date();
 
-        // Функция сохранения событий (вынесли отдельно)
         function saveEv() {
             Cloud.setItem('gta_ev_22', JSON.stringify(EVENTS));
         }
@@ -2704,12 +2703,9 @@ function togTime(id) {
                 grid.innerHTML += `<div class="cal-day ${isToday?'today':''} ${hasEv?'event':''}">${d}</div>`;
             }
             
-            // Отрисовка списка событий с кнопкой удаления
             const list = document.getElementById('eventList'); list.innerHTML = '';
             
-            // Фильтруем, сортируем и рисуем
             EVENTS.filter(e => e.d >= today).sort((a,b)=>a.d.localeCompare(b.d)).slice(0,5).forEach(e => {
-                // Миграция старых событий: если нет id, создаем его "на лету" и сохраняем
                 if(!e.id) { e.id = Date.now() + Math.floor(Math.random()*1000); saveEv(); }
                 
                 const dateStr = e.d.split('-').reverse().slice(0,2).join('.');
@@ -2728,7 +2724,6 @@ function togTime(id) {
 
         function addEvent(d, t) {
             const date = new Date(); date.setDate(date.getDate() + d);
-            // Теперь добавляем событие с уникальным ID
             EVENTS.push({
                 id: Date.now(), 
                 d: date.toISOString().split('T')[0], 
@@ -2738,7 +2733,6 @@ function togTime(id) {
             renderCal();
         }
 
-        // Новая функция удаления
         function delEvent(id) {
             if(confirm('Удалить это событие?')) {
                 EVENTS = EVENTS.filter(e => e.id !== id);
@@ -2746,6 +2740,7 @@ function togTime(id) {
                 renderCal();
             }
         }
+        
         // --- CARS ---
         let carCat = 'platinum';
         function setCarCat(c, btn) {
@@ -2808,112 +2803,95 @@ function togTime(id) {
         function closeModal(e) { if(e.target.id === 'modal') document.getElementById('modal').style.display = 'none'; }
 
         // --- GUIDES ---
-function setGuide(id, btn) {
-    document.querySelectorAll('#tab-guides .seg-btn').forEach(b => b.classList.remove('active')); 
-    btn.classList.add('active');
-    const c = document.getElementById('guideContent'); 
-    c.innerHTML = '';
-    
-    // 1. Оплата и животные
-    if(id==='payment') {
-        c.innerHTML += `<div class="guide-section-title">Животные</div>` + buildTable(DB.guides.payment.animals.r, DB.guides.payment.animals.h);
-        c.innerHTML += `<div class="guide-section-title" style="margin-top:20px">Сокровища</div>` + buildTable(DB.guides.payment.treasures.r, DB.guides.payment.treasures.h);
-        return;
-    }
-
-    // 2. Медицина (Карточки)
-// Внутри setGuide, заменяем блок if(id==='med')
-
-if(id==='med') {
-    c.innerHTML = '<div style="padding:10px; display:flex; flex-direction:column; gap:8px;">';
-    
-    // Если вдруг данных нет (защита от ошибок)
-    if(!DB.guides.med || !DB.guides.med.r) {
-        c.innerHTML += '<div style="text-align:center;color:#666;">Данные не загружены</div>'; 
-        return;
-    }
-
-    DB.guides.med.r.forEach(item => {
-        // 1. Настройка цветов
-        let bgClass = '#3a5c8a'; // синий (blue) по умолчанию
-        let txtClass = '#ccddff';
-        
-        if (item.type === 'red') { bgClass = '#8a3a3a'; txtClass = '#ffcccc'; }
-        if (item.type === 'brown') { bgClass = '#8a5c3a'; txtClass = '#ffddcc'; }
-        if (item.type === 'yellow') { bgClass = '#8a7a3a'; txtClass = '#ffeecc'; }
-
-        // 2. Логика картинок (Левая и Правая)
-        // Если в тексте есть точка (.), считаем это путем к картинке
-        const iconLeft = item.i.includes('.') 
-            ? `<img src="${item.i}" class="med-img">` 
-            : `<span style="font-size:20px;">${item.i}</span>`;
+        function setGuide(id, btn) {
+            document.querySelectorAll('#tab-guides .seg-btn').forEach(b => b.classList.remove('active')); 
+            btn.classList.add('active');
+            const c = document.getElementById('guideContent'); 
+            c.innerHTML = '';
             
-        const iconRight = item.ci.includes('.') 
-            ? `<img src="${item.ci}" class="med-img">` 
-            : `<span style="font-size:20px;">${item.ci}</span>`;
-
-        // 3. Верстка карточки
-        c.innerHTML += `
-            <div style="display:flex; width:100%; gap:4px;">
-                <div style="flex:1; background:${bgClass}; color:${txtClass}; padding:10px; border-radius:12px; display:flex; align-items:center; font-weight:600; font-size:13px; gap:10px;">
-                    ${iconLeft}
-                    <span style="line-height:1.2;">${item.t}</span>
-                </div>
-                <div style="flex:1; background:#1c1c1e; border:1px solid rgba(255,255,255,0.1); color:white; padding:10px; border-radius:12px; display:flex; align-items:center; justify-content:flex-start; font-weight:500; font-size:13px; gap:10px;">
-                    ${iconRight}
-                    <span style="line-height:1.2;">${item.c}</span>
-                </div>
-            </div>
-        `;
-    });
-    
-    c.innerHTML += '</div>';
-    return;
-}
-
-    // 3. Таро (Картинки)
-// 3. Таро (Новый стиль, как у таймеров)
-    if(id==='tarot') {
-        c.innerHTML = '<div class="tarot-grid-new">'; // Используем новый класс сетки
-        
-        DB.tarot.forEach(t => {
-            let visual = '';
-            if(t.img) {
-                // Картинка теперь — маленькая иконка, вписанная в квадрат
-                visual = `<img src="${t.img}" class="tarot-icon-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-                          <div class="tarot-icon-box" style="display:none;">${t.i || '🃏'}</div>`;
-            } else {
-                // Если картинки нет, показываем эмодзи
-                visual = t.i || '🃏';
+            if(id==='payment') {
+                c.innerHTML += `<div class="guide-section-title">Животные</div>` + buildTable(DB.guides.payment.animals.r, DB.guides.payment.animals.h);
+                c.innerHTML += `<div class="guide-section-title" style="margin-top:20px">Сокровища</div>` + buildTable(DB.guides.payment.treasures.r, DB.guides.payment.treasures.h);
+                return;
             }
 
-            // Новая структура карточки
-            c.innerHTML += `
-                <div class="tarot-card-new">
-                    <div class="tarot-icon-box">
-                        ${visual}
-                    </div>
-                    <div class="tarot-text-box">
-                        <div class="tarot-card-title">${t.n}</div>
-                        <div class="tarot-card-desc">${t.d}</div>
-                    </div>
-                </div>`;
-        });
-        c.innerHTML += '</div>';
-        return;
-    }
+            if(id==='med') {
+                c.innerHTML = '<div style="padding:10px; display:flex; flex-direction:column; gap:8px;">';
+                
+                if(!DB.guides.med || !DB.guides.med.r) {
+                    c.innerHTML += '<div style="text-align:center;color:#666;">Данные не загружены</div>'; 
+                    return;
+                }
 
-    // 4. Все остальные гайды (Шансы, Ремонт, Шар 8 и т.д.)
-    // ВОТ ЭТОЙ ЧАСТИ У ТЕБЯ НЕ БЫЛО, ОНА БЫЛА ЗАКОММЕНТИРОВАНА
-    if(DB.guides[id]) {
-        const d = DB.guides[id]; 
-        c.innerHTML += buildTable(d.r, d.h); 
-    } else if (id === 'ball') {
-        // Логика для шара (если нужна таблица)
-        c.innerHTML += buildTable(DB.ball8.map(x=>[x.q, x.a]), ["Вопрос", "Ответ"]);
-    }
-}
-// ... дальше идет else { const d = DB.guides[id]; c.innerHTML += buildTable(d.r, d.h); }
+                DB.guides.med.r.forEach(item => {
+                    let bgClass = '#3a5c8a'; 
+                    let txtClass = '#ccddff';
+                    
+                    if (item.type === 'red') { bgClass = '#8a3a3a'; txtClass = '#ffcccc'; }
+                    if (item.type === 'brown') { bgClass = '#8a5c3a'; txtClass = '#ffddcc'; }
+                    if (item.type === 'yellow') { bgClass = '#8a7a3a'; txtClass = '#ffeecc'; }
+
+                    const iconLeft = item.i.includes('.') 
+                        ? `<img src="${item.i}" class="med-img">` 
+                        : `<span style="font-size:20px;">${item.i}</span>`;
+                        
+                    const iconRight = item.ci.includes('.') 
+                        ? `<img src="${item.ci}" class="med-img">` 
+                        : `<span style="font-size:20px;">${item.ci}</span>`;
+
+                    c.innerHTML += `
+                        <div style="display:flex; width:100%; gap:4px;">
+                            <div style="flex:1; background:${bgClass}; color:${txtClass}; padding:10px; border-radius:12px; display:flex; align-items:center; font-weight:600; font-size:13px; gap:10px;">
+                                ${iconLeft}
+                                <span style="line-height:1.2;">${item.t}</span>
+                            </div>
+                            <div style="flex:1; background:#1c1c1e; border:1px solid rgba(255,255,255,0.1); color:white; padding:10px; border-radius:12px; display:flex; align-items:center; justify-content:flex-start; font-weight:500; font-size:13px; gap:10px;">
+                                ${iconRight}
+                                <span style="line-height:1.2;">${item.c}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                c.innerHTML += '</div>';
+                return;
+            }
+
+            if(id==='tarot') {
+                c.innerHTML = '<div class="tarot-grid-new">'; 
+                
+                DB.tarot.forEach(t => {
+                    let visual = '';
+                    if(t.img) {
+                        visual = `<img src="${t.img}" class="tarot-icon-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                                  <div class="tarot-icon-box" style="display:none;">${t.i || '🃏'}</div>`;
+                    } else {
+                        visual = t.i || '🃏';
+                    }
+
+                    c.innerHTML += `
+                        <div class="tarot-card-new">
+                            <div class="tarot-icon-box">
+                                ${visual}
+                            </div>
+                            <div class="tarot-text-box">
+                                <div class="tarot-card-title">${t.n}</div>
+                                <div class="tarot-card-desc">${t.d}</div>
+                            </div>
+                        </div>`;
+                });
+                c.innerHTML += '</div>';
+                return;
+            }
+
+            if(DB.guides[id]) {
+                const d = DB.guides[id]; 
+                c.innerHTML += buildTable(d.r, d.h); 
+            } else if (id === 'ball') {
+                c.innerHTML += buildTable(DB.ball8.map(x=>[x.q, x.a]), ["Вопрос", "Ответ"]);
+            }
+        }
+
         function buildTable(rows, headers) {
             let h = `<div class="table-wrap"><table><thead><tr>`;
             headers.forEach(x=>h+=`<th>${x}</th>`);
@@ -2921,16 +2899,16 @@ if(id==='med') {
             rows.forEach((r, idx)=>{ h+=`<tr style="background:${idx%2===0?'rgba(255,255,255,0.02)':'transparent'}">`; r.forEach(ce=>h+=`<td>${ce}</td>`); h+='</tr>'; });
             return h + `</tbody></table></div>`;
         }
-async function forceSync() {
+
+        async function forceSync() {
             const loader = document.createElement('div');
             loader.id = 'loader';
             loader.innerHTML = '<div class="spinner"></div><div style="margin-top:10px;font-size:12px;">Обновление...</div>';
             document.body.appendChild(loader);
 
-            await init(); // Перезапускает загрузку из облака
-
-            // Лоадер сам исчезнет, так как init() содержит логику его удаления
+            await init(); 
         }
+
         // INIT
         if (window.Telegram && window.Telegram.WebApp) { 
             window.Telegram.WebApp.ready(); 
@@ -2939,247 +2917,237 @@ async function forceSync() {
         }
         
         init();
-// --- ЛОГИКА ВОЗВРАТА СКРЫТЫХ ---
-function openUnhideModal() {
-    const modal = document.getElementById('modalUnhide');
-    const list = document.getElementById('unhideList');
-    list.innerHTML = '';
 
-    if(BP.hidden.length === 0) {
-        list.innerHTML = '<div style="padding:20px; text-align:center; color:#666;">Нет скрытых задач</div>';
-    } else {
-        BP.hidden.forEach(id => {
-            // Находим задачу в базе по ID (индексу)
-            let task = DB.bp[id]; 
-            if(!task) return;
+        // --- ЛОГИКА ВОЗВРАТА СКРЫТЫХ ---
+        function openUnhideModal() {
+            const modal = document.getElementById('modalUnhide');
+            const list = document.getElementById('unhideList');
+            list.innerHTML = '';
 
-            list.innerHTML += `
-                <div class="unhide-item">
-                    <span>${task.t}</span>
-                    <button class="unhide-btn" onclick="restoreTask(${id})">Вернуть</button>
-                </div>
-            `;
-        });
-    }
-    modal.style.display = 'flex';
-}
+            if(BP.hidden.length === 0) {
+                list.innerHTML = '<div style="padding:20px; text-align:center; color:#666;">Нет скрытых задач</div>';
+            } else {
+                BP.hidden.forEach(id => {
+                    let task = DB.bp[id]; 
+                    if(!task) return;
 
-function restoreTask(id) {
-    // Удаляем id из списка hidden
-    BP.hidden = BP.hidden.filter(h => h !== id);
-    saveBP();      // Сохраняем
-    renderBP();    // Перерисовываем главный список
-    openUnhideModal(); // Обновляем список в модалке (задача исчезнет)
-}
-
-function closeUnhideModal(e) {
-    if(e.target.id === 'modalUnhide') {
-        document.getElementById('modalUnhide').style.display = 'none';
-    }
-}
-
-// ================= HEADER TIMER LOGIC (FINAL) =================
-let headerTimerIdx = 0;
-
-// Функция переключения стрелками
-function changeHeaderTimer(dir) {
-    headerTimerIdx += dir;
-    updateHeaderTimer(); // Сразу обновляем интерфейс
-}
-
-// Главная функция обновления виджета
-function updateHeaderTimer() {
-    if (!TIMERS || !TIMERS.custom) return;
-
-    const active = TIMERS.custom.filter(t => t.run);
-    const elLabel = document.getElementById('htLabel');
-    const elTime = document.getElementById('htTime');
-    const elSvgPath = document.querySelector('.ht-rect-path'); // Наш SVG путь
-
-    if (!elLabel || !elTime) return;
-
-    if (active.length === 0) {
-        elLabel.innerText = "Нет активных";
-        elTime.innerText = "--:--";
-        elTime.style.color = "#555";
-        if(elSvgPath) elSvgPath.style.strokeDashoffset = 100; // Скрываем рамку полностью
-        return;
-    }
-
-    if (headerTimerIdx >= active.length) headerTimerIdx = 0;
-    if (headerTimerIdx < 0) headerTimerIdx = active.length - 1;
-
-    const t = active[headerTimerIdx];
-    const now = Date.now();
-
-    let timeLeft = 0;
-    if (t.et) {
-        timeLeft = Math.ceil((t.et - now) / 1000);
-    } else {
-        timeLeft = t.rm || 0;
-    }
-    if (timeLeft < 0) timeLeft = 0;
-
-    // --- ЛОГИКА ОБВОДКИ ---
-    // pathLength="100" в HTML означает, что весь периметр = 100.
-    // Если offset = 0, линия полная. Если offset = 100, линии нет.
-    // Нам нужно, чтобы линия уменьшалась.
-    
-    let pct = 0; 
-    if(t.s > 0) pct = (timeLeft / t.s) * 100; // Процент оставшегося времени (0..100)
-    
-    // Инвертируем логику для dashoffset:
-    // 100% времени = 0 смещения (полная рамка)
-    // 0% времени = 100 смещения (пусто)
-    let offset = 100 - pct;
-
-    if(elSvgPath) {
-        elSvgPath.style.strokeDashoffset = offset;
-        
-        // Меняем цвет, если мало времени (опционально)
-        if(pct < 20) elSvgPath.style.stroke = 'var(--red)';
-        else elSvgPath.style.stroke = 'var(--green)';
-    }
-
-    let name = t.l || "Таймер";
-    if (name.length > 12) name = name.slice(0, 11) + "..";
-    
-    elLabel.innerText = name;
-    elTime.innerText = fmtTime(timeLeft); 
-    // Цвет текста делаем зависящим от темы (черный на белом, белый на черном)
-    elTime.style.color = "var(--text-main)"; 
-}
-// Запускаем обновление каждую секунду
-
-// Запускаем один раз сразу
-updateHeaderTimer();
-    // --- ЛОГИКА ЛОКАЛЬНЫХ ТАЙМЕРОВ (ВНУТРИ ЗАДАЧ) ---
-
-// Функция клика по кнопке Play/Pause/Reset
-function toggleLocalTimer(id, defaultSeconds) {
-    if(!BP.localTimers) BP.localTimers = {};
-    
-    // Если таймера еще нет в объекте, создаем
-    if(!BP.localTimers[id]) {
-        BP.localTimers[id] = { rm: defaultSeconds, run: false };
-    }
-    
-    let t = BP.localTimers[id];
-
-    // Если таймер закончился (0 сек), кнопка работает как Сброс
-    if(t.rm <= 0) {
-        t.rm = defaultSeconds;
-        t.run = false; // Сбросили и стоим ждем старта
-    } else {
-        // Иначе работаем как Play/Pause
-        t.run = !t.run;
-        if(t.run) {
-            // Старт: вычисляем время финиша (сейчас + остаток)
-            t.et = Date.now() + (t.rm * 1000);
-        } else {
-            // Пауза: et нам больше не нужен, rm (остаток) мы и так храним
+                    list.innerHTML += `
+                        <div class="unhide-item">
+                            <span>${task.t}</span>
+                            <button class="unhide-btn" onclick="restoreTask(${id})">Вернуть</button>
+                        </div>
+                    `;
+                });
+            }
+            modal.style.display = 'flex';
         }
-    }
 
-    saveBP();
-    renderBP(); // Перерисовываем, чтобы сменилась иконка
-}
-// Функция полного сброса локального таймера
-function resetLocalTimer(id, defaultSeconds) {
-    if(!BP.localTimers) return;
-    const t = BP.localTimers[id];
-    if(t) {
-        t.rm = defaultSeconds; // Возвращаем полное время
-        t.run = false;         // Ставим на паузу
-        delete t.et;           // Удаляем время финиша
+        function restoreTask(id) {
+            BP.hidden = BP.hidden.filter(h => h !== id);
+            saveBP();      
+            renderBP();    
+            openUnhideModal(); 
+        }
+
+        function closeUnhideModal(e) {
+            if(e.target.id === 'modalUnhide') {
+                document.getElementById('modalUnhide').style.display = 'none';
+            }
+        }
+
+        // ================= HEADER TIMER LOGIC (FINAL) =================
+        let headerTimerIdx = 0;
+
+        function changeHeaderTimer(dir) {
+            headerTimerIdx += dir;
+            updateHeaderTimer(); 
+        }
+
+        function updateHeaderTimer() {
+            if (!TIMERS || !TIMERS.custom) return;
+
+            const active = TIMERS.custom.filter(t => t.run);
+            const elLabel = document.getElementById('htLabel');
+            const elTime = document.getElementById('htTime');
+            const elSvgPath = document.querySelector('.ht-rect-path'); 
+
+            if (!elLabel || !elTime) return;
+
+            if (active.length === 0) {
+                elLabel.innerText = "Нет активных";
+                elTime.innerText = "--:--";
+                elTime.style.color = "#555";
+                if(elSvgPath) elSvgPath.style.strokeDashoffset = 100; 
+                return;
+            }
+
+            if (headerTimerIdx >= active.length) headerTimerIdx = 0;
+            if (headerTimerIdx < 0) headerTimerIdx = active.length - 1;
+
+            const t = active[headerTimerIdx];
+            const now = Date.now();
+
+            let timeLeft = 0;
+            if (t.et) {
+                timeLeft = Math.ceil((t.et - now) / 1000);
+            } else {
+                timeLeft = t.rm || 0;
+            }
+            if (timeLeft < 0) timeLeft = 0;
+            
+            let pct = 0; 
+            if(t.s > 0) pct = (timeLeft / t.s) * 100; 
+            
+            let offset = 100 - pct;
+
+            if(elSvgPath) {
+                elSvgPath.style.strokeDashoffset = offset;
+                
+                if(pct < 20) elSvgPath.style.stroke = 'var(--red)';
+                else elSvgPath.style.stroke = 'var(--green)';
+            }
+
+            let name = t.l || "Таймер";
+            if (name.length > 12) name = name.slice(0, 11) + "..";
+            
+            elLabel.innerText = name;
+            elTime.innerText = fmtTime(timeLeft); 
+            elTime.style.color = "var(--text-main)"; 
+        }
+
+        updateHeaderTimer();
         
-        // Вибрация для тактильного отклика
-        if(window.Telegram.WebApp.HapticFeedback) {
-            window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+        // --- ЛОГИКА ЛОКАЛЬНЫХ ТАЙМЕРОВ ---
+        function toggleLocalTimer(id, defaultSeconds) {
+            if(!BP.localTimers) BP.localTimers = {};
+            
+            if(!BP.localTimers[id]) {
+                BP.localTimers[id] = { rm: defaultSeconds, run: false };
+            }
+            
+            let t = BP.localTimers[id];
+
+            if(t.rm <= 0) {
+                t.rm = defaultSeconds;
+                t.run = false; 
+            } else {
+                t.run = !t.run;
+                if(t.run) {
+                    t.et = Date.now() + (t.rm * 1000);
+                    
+                    // ОТПРАВЛЯЕМ КОМАНДУ В GOOGLE ПРИ СТАРТЕ
+                    let taskName = DB.bp[id] ? DB.bp[id].t : "Задача";
+                    scheduleNotification(t.rm, `✅ Задача <b>${taskName}</b> готова!`);
+                }
+            }
+
+            saveBP();
+            renderBP(); 
+        }
+
+        function resetLocalTimer(id, defaultSeconds) {
+            if(!BP.localTimers) return;
+            const t = BP.localTimers[id];
+            if(t) {
+                t.rm = defaultSeconds; 
+                t.run = false;         
+                delete t.et;           
+                
+                if(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
+                    window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+                }
+                
+                saveBP();
+                renderBP();
+            }
+        }
+
+        // --- ЛОГИКА НАСТРОЕК ---
+        function openSettingsModal() { 
+            document.getElementById('modalSettings').style.display = 'flex'; 
+            document.getElementById('simpleModeToggle').checked = document.body.classList.contains('simple-mode');
+            
+            // Загружаем актуальное значение тумблера скрытия
+            document.getElementById('hideCompletedToggle').checked = HIDE_COMPLETED;
+            
+            const savedScale = localStorage.getItem('gta_scale_22') || 100;
+            document.getElementById('scaleRange').value = savedScale;
+            document.getElementById('scaleVal').innerText = savedScale + '%';
+
+            document.getElementById('setRednecks').value = USER_WORK_SKILLS.rednecks;
+            document.getElementById('setBuild').value = USER_WORK_SKILLS.build;
+            document.getElementById('setPort').value = USER_WORK_SKILLS.port;
+            document.getElementById('setMine').value = USER_WORK_SKILLS.mine;
+        }
+
+        function closeSettingsModal(e) { 
+            if(e.target.id === 'modalSettings') document.getElementById('modalSettings').style.display = 'none'; 
+        }
+
+        function toggleSimpleMode() {
+            const isSimple = document.getElementById('simpleModeToggle').checked;
+            if(isSimple) {
+                document.body.classList.add('simple-mode');
+                localStorage.setItem('gta_simple_mode_22', 'true');
+            } else {
+                document.body.classList.remove('simple-mode');
+                localStorage.setItem('gta_simple_mode_22', 'false');
+            }
         }
         
-        saveBP();
-        renderBP();
-    }
-}
-// Глобальный интервал для обновления циферок (тикает каждую секунду)
-// --- THEMES LOGIC ---
-// --- ЛОГИКА НАСТРОЕК (ВСТАВИТЬ В КОНЕЦ СКРИПТА) ---
+        function toggleHideCompleted() {
+            HIDE_COMPLETED = document.getElementById('hideCompletedToggle').checked;
+            localStorage.setItem('gta_hide_completed_22', HIDE_COMPLETED);
+            renderBP(); 
+        }
 
-function openSettingsModal() { 
-    document.getElementById('modalSettings').style.display = 'flex'; 
-    document.getElementById('simpleModeToggle').checked = document.body.classList.contains('simple-mode');
-    
-    const savedScale = localStorage.getItem('gta_scale_22') || 100;
-    document.getElementById('scaleRange').value = savedScale;
-    document.getElementById('scaleVal').innerText = savedScale + '%';
-}
+        function changeScale(val) {
+            const list = document.getElementById('listBP');
+            list.style.zoom = val + '%';
+            document.getElementById('scaleVal').innerText = val + '%';
+            localStorage.setItem('gta_scale_22', val);
+        }
 
-function closeSettingsModal(e) { 
-    if(e.target.id === 'modalSettings') document.getElementById('modalSettings').style.display = 'none'; 
-}
+        function setTheme(themeName) {
+            const isSimple = document.body.classList.contains('simple-mode');
+            document.body.className = ''; 
+            if(themeName !== 'default') document.body.classList.add(themeName);
+            if(isSimple) document.body.classList.add('simple-mode');
 
-function toggleSimpleMode() {
-    const isSimple = document.getElementById('simpleModeToggle').checked;
-    if(isSimple) {
-        document.body.classList.add('simple-mode');
-        localStorage.setItem('gta_simple_mode_22', 'true');
-    } else {
-        document.body.classList.remove('simple-mode');
-        localStorage.setItem('gta_simple_mode_22', 'false');
-    }
-}
+            localStorage.setItem('gta_theme_22', themeName);
+            if(window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+        }
 
-function changeScale(val) {
-    const list = document.getElementById('listBP');
-    list.style.zoom = val + '%';
-    document.getElementById('scaleVal').innerText = val + '%';
-    localStorage.setItem('gta_scale_22', val);
-}
+        // --- СИСТЕМА УВЕДОМЛЕНИЙ ---
+        function showToast(msg, type='info') {
+            let container = document.getElementById('toast-container');
+            if(!container) {
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                document.body.appendChild(container);
+            }
 
-function setTheme(themeName) {
-    const isSimple = document.body.classList.contains('simple-mode');
-    document.body.className = ''; 
-    if(themeName !== 'default') document.body.classList.add(themeName);
-    if(isSimple) document.body.classList.add('simple-mode');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            let icon = '🔔';
+            if(type === 'success') icon = '✅';
+            if(type === 'error') icon = '❌';
+            if(type === 'info') icon = 'ℹ️';
+            
+            toast.innerHTML = `<div class="toast-icon">${icon}</div><div>${msg}</div>`;
+            
+            container.appendChild(toast);
 
-    localStorage.setItem('gta_theme_22', themeName);
-    if(window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
-}
-// --- СИСТЕМА УВЕДОМЛЕНИЙ ---
-function showToast(msg, type='info') {
-    let container = document.getElementById('toast-container');
-    if(!container) {
-        container = document.createElement('div');
-        container.id = 'toast-container';
-        document.body.appendChild(container);
-    }
+            if(window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.HapticFeedback.notificationOccurred(type);
+            }
 
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    
-    // Выбор иконки
-    let icon = '🔔';
-    if(type === 'success') icon = '✅';
-    if(type === 'error') icon = '❌';
-    if(type === 'info') icon = 'ℹ️';
-    
-    toast.innerHTML = `<div class="toast-icon">${icon}</div><div>${msg}</div>`;
-    
-    container.appendChild(toast);
-
-    // Вибрация (Haptic)
-    if(window.Telegram && window.Telegram.WebApp) {
-        window.Telegram.WebApp.HapticFeedback.notificationOccurred(type);
-    }
-
-    // Автоудаление через 3 секунды
-    setTimeout(() => {
-        toast.style.animation = 'toastOut 0.3s forwards';
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
-}
-    </script>
+            setTimeout(() => {
+                toast.style.animation = 'toastOut 0.3s forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+</script>
 </body>
 </html>
-
