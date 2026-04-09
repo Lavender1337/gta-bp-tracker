@@ -2785,7 +2785,7 @@ function newDay() {
             });
             
             // ОТПРАВЛЯЕМ КОМАНДУ В GOOGLE НА УВЕДОМЛЕНИЕ
-            scheduleNotification(durationSec, `⏰ Таймер <b>${label}</b> завершен!`);
+            scheduleNotification(timerId, durationSec, `⏰ Таймер <b>${label}</b> завершен!`);
 
             saveTm(); 
             renderTimers();
