@@ -2678,27 +2678,28 @@ function newDay() {
             document.getElementById('customName').value = '';
         }
         
-        function addTimerRaw(min, label) {
-            if(!TIMERS.custom) TIMERS.custom = [];
-            const now = Date.now();
-            const durationSec = min * 60;
-            
-            TIMERS.custom.push({
-                id: 't_' + now, 
-                l: label, 
-                s: durationSec, 
-                rm: durationSec, 
-                run: true, 
-                ts: now,
-                et: now + (durationSec * 1000) 
-            });
-            
-            // ОТПРАВЛЯЕМ КОМАНДУ В GOOGLE НА УВЕДОМЛЕНИЕ
-            scheduleNotification(timerId, durationSec, `⏰ Таймер <b>${label}</b> завершен!`);
+function addTimerRaw(min, label) {
+    if(!TIMERS.custom) TIMERS.custom = [];
+    const now = Date.now();
+    const timerId = 't_' + now; // Объявляем ID переменной
+    const durationSec = min * 60;
+    
+    TIMERS.custom.push({
+        id: timerId, 
+        l: label, 
+        s: durationSec, 
+        rm: durationSec, 
+        run: true, 
+        ts: now,
+        et: now + (durationSec * 1000) 
+    });
+    
+    // Теперь передаем созданный timerId в функцию уведомления
+    scheduleNotification(timerId, durationSec, `⏰ Таймер <b>${label}</b> завершен!`);
 
-            saveTm(); 
-            renderTimers();
-        }
+    saveTm(); 
+    renderTimers(); // Теперь это сработает, и таймер появится в списке мгновенно
+}
         
         function togTime(id) { 
             const t = TIMERS.custom.find(x => x.id === id);
