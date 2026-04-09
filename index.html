@@ -1458,6 +1458,14 @@ body[class*="theme-white"] .toast {
 @keyframes toastOut {
     to { opacity: 0; transform: translateY(-20px) scale(0.9); }
 }
+/* Фикс для иконок в гайде Медицины */
+.med-img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
 </style>
 </head>
 <body>
@@ -1639,6 +1647,15 @@ body[class*="theme-white"] .toast {
         <button class="nav-btn" onclick="go('kitchen', this)"><div class="nav-icon">🍔</div><span class="nav-label">Еда</span></button>
         <button class="nav-btn" onclick="go('guides', this)"><div class="nav-icon">📚</div><span class="nav-label">Гайды</span></button>
     </nav>
+<div id="modal" class="modal-wrap" onclick="closeModal(event)">
+    <div class="modal">
+        <div style="font-size:20px; font-weight:800; margin-bottom:15px; text-align:center;" id="mTitle"></div>
+        <div id="mContent"></div>
+        <div style="text-align:center; margin-top:15px;">
+            <button class="action-btn" onclick="document.getElementById('modal').style.display='none'" style="width:100%; justify-content:center;">Закрыть</button>
+        </div>
+    </div>
+</div>
 <div id="modalSettings" class="modal-wrap" onclick="closeSettingsModal(event)">
     <div class="modal">
         <div style="font-size:20px; font-weight:800; margin-bottom:15px; text-align:center;">Настройки</div>
@@ -1733,22 +1750,126 @@ body[class*="theme-white"] .toast {
     </div>
 </div>
 <script>
-        // === ИНТЕГРАЦИЯ GOOGLE APPS SCRIPT (ФОНОВЫЕ УВЕДОМЛЕНИЯ) ===
+       // === ИНТЕГРАЦИЯ GOOGLE APPS SCRIPT (ОБНОВЛЕННАЯ) ===
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwRFgpmggWgN04sF4ICcPNCHYp8IMC5kzYT5V33bNz0EFD-N1O9yUuYIS5WvVW8kLn4/exec";
 
-        function scheduleNotification(delaySeconds, message) {
-            // Получаем ID текущего пользователя Telegram
+        // Функция старта таймера в Google
+        function scheduleNotification(id, delaySeconds, message) {
             const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
-            if (!userId) return; // Если не в телеграме - не отправляем
+            if (!userId) return;
 
             fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
-                body: JSON.stringify({
-                    text: message,
-                    delay: delaySeconds,
-                    chat_id: userId
-                })
-            }).catch(err => console.error("Ошибка отправки в Google:", err));
+                body: JSON.stringify({ action: "set", id: String(id), text: message, delay: delaySeconds, chat_id: userId })
+            }).catch(err => console.log(err));
+        }
+
+        // Функция отмены таймера в Google
+        function cancelNotification(id) {
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: "cancel", id: String(id) })
+            }).catch(err => console.log(err));
+        }
+
+
+        // ... пропускаем остальной код до функций таймеров ...
+
+        function addTimerRaw(min, label) {
+            if(!TIMERS.custom) TIMERS.custom = [];
+            const now = Date.now();
+            const durationSec = min * 60;
+            const timerId = 't_' + now; // Создаем уникальный ID
+            
+            TIMERS.custom.push({
+                id: timerId, 
+                l: label, 
+                s: durationSec, 
+                rm: durationSec, 
+                run: true, 
+                ts: now,
+                et: now + (durationSec * 1000) 
+            });
+            
+            // Заводим в Google
+            scheduleNotification(timerId, durationSec, `⏰ Таймер <b>${label}</b> завершен!`);
+
+            saveTm(); 
+            renderTimers();
+        }
+
+        function togTime(id) { 
+            const t = TIMERS.custom.find(x => x.id === id);
+            if(t) { 
+                t.run = !t.run; 
+                if(t.run) {
+                    if(t.rm <= 0) t.rm = t.s;
+                    t.et = Date.now() + (t.rm * 1000);
+                    // Сняли с паузы -> завели новый будильник на остаток времени
+                    scheduleNotification(t.id, t.rm, `⏰ Таймер <b>${t.l}</b> завершен!`);
+                } else {
+                    // Поставили на паузу -> отменили будильник в Google
+                    cancelNotification(t.id);
+                }
+                saveTm(); 
+                renderTimers(); 
+            }
+        }
+        
+        function rstTime(id) { 
+            const t = TIMERS.custom.find(x=>x.id===id);
+            if(t) { 
+                t.rm = t.s; t.run = false; t.ts = Date.now(); 
+                cancelNotification(t.id); // Отменили
+                saveTm(); renderTimers(); 
+            }
+        }
+        
+        function delTime(id) {
+            TIMERS.custom = TIMERS.custom.filter(t=>t.id!==id); 
+            cancelNotification(id); // Отменили при удалении
+            saveTm(); renderTimers();
+        }
+
+        // --- ЛОГИКА ЛОКАЛЬНЫХ ТАЙМЕРОВ (В BP) ---
+        function toggleLocalTimer(id, defaultSeconds) {
+            if(!BP.localTimers) BP.localTimers = {};
+            if(!BP.localTimers[id]) BP.localTimers[id] = { rm: defaultSeconds, run: false };
+            
+            let t = BP.localTimers[id];
+            const googleId = 'loc_' + id; // Делаем ID уникальным для Google
+
+            if(t.rm <= 0) {
+                t.rm = defaultSeconds;
+                t.run = false; 
+                cancelNotification(googleId);
+            } else {
+                t.run = !t.run;
+                if(t.run) {
+                    t.et = Date.now() + (t.rm * 1000);
+                    let taskName = DB.bp[id] ? DB.bp[id].t : "Задача";
+                    scheduleNotification(googleId, t.rm, `✅ Задача <b>${taskName}</b> готова!`);
+                } else {
+                    cancelNotification(googleId);
+                }
+            }
+            saveBP(); renderBP(); 
+        }
+
+        function resetLocalTimer(id, defaultSeconds) {
+            if(!BP.localTimers) return;
+            const t = BP.localTimers[id];
+            if(t) {
+                t.rm = defaultSeconds; 
+                t.run = false;         
+                delete t.et;           
+                cancelNotification('loc_' + id); // Отменили при сбросе
+                
+                if(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
+                    window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+                }
+                saveBP(); renderBP();
+            }
         }
 
         // ================= FULL DATA =================
