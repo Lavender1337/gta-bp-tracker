@@ -3172,7 +3172,7 @@ function newDay() {
                     
                     // ОТПРАВЛЯЕМ КОМАНДУ В GOOGLE ПРИ СТАРТЕ
                     let taskName = DB.bp[id] ? DB.bp[id].t : "Задача";
-                    scheduleNotification(t.rm, `✅ Задача <b>${taskName}</b> готова!`);
+                    scheduleNotification('loc_' + id, t.rm, `✅ Задача <b>${taskName}</b> готова!`);
                 }
             }
 
