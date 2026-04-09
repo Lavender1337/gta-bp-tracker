@@ -1504,9 +1504,9 @@ body[class*="theme-white"] .toast {
         <button class="hero-btn" onclick="openSettingsModal()" style="width:40px; padding:0; display:flex; align-items:center; justify-content:center; flex:none;">⚙️</button>
     </div>
     
-    <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
-        <span style="font-size:11px; color:var(--text-sub);">Коррекция старта:</span>
-        <input type="number" id="startBp" value="0" oninput="updateBP()" style="width:60px; padding:4px; font-size:12px; text-align:center;">
+<div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:11px; color:var(--text-sub);">Стартовые BP:</span>
+        <input type="number" id="startBp" value="" placeholder="0" oninput="updateBP()" style="width:60px; padding:4px; font-size:12px; text-align:center;">
     </div>
 </div>   
 <div class="bp-actions-top">
@@ -2386,13 +2386,27 @@ tarot: [
         function hideBP(i,e) { e.stopPropagation(); BP.hidden.push(i); saveBP(); renderBP(); }
         function resetHiddenBP() { BP.hidden = []; saveBP(); renderBP(); }
         
-        function newDay() {
-            if(confirm("Начать новый день? Сбросится прогресс.")) {
+function newDay() {
+            const msg = "Начать новый день? Сбросится прогресс.";
+            
+            const doReset = () => {
                 BP.done = []; BP.doneTwink = []; BP.times = {}; BP.counters = {}; BP.start = 0;
                 const startInput = document.getElementById('startBp');
-                startInput.value = '';
-                startInput.blur();
+                if(startInput) {
+                    startInput.value = '';
+                    startInput.blur();
+                }
                 saveBP(); renderBP(); updateBP();
+            };
+
+            // Используем нативное окно Telegram, чтобы не ломать фокус клавиатуры
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.showConfirm) {
+                window.Telegram.WebApp.showConfirm(msg, function(confirmed) {
+                    if (confirmed) doReset();
+                });
+            } else {
+                // Запасной вариант, если открыто в обычном браузере
+                if (confirm(msg)) doReset();
             }
         }
 
