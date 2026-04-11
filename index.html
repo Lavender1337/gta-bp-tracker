@@ -2683,13 +2683,10 @@ function addGameTimer(key) {
 function addTimerRaw(minutes, label) {
     if (!TIMERS.custom) TIMERS.custom = [];
 
-    const now = Date.now();
     const durationSec = minutes * 60;
+    const timerId = 't_' + Date.now();
 
-    // Генерируем УНИКАЛЬНЫЙ ID каждый раз при старте
-    const timerId = 't_' + now;
-
-    // Удаляем ВСЕ предыдущие таймеры с таким же названием (чтобы не было дублей)
+    // Удаляем все предыдущие таймеры с таким же названием
     TIMERS.custom = TIMERS.custom.filter(t => t.l !== label);
 
     TIMERS.custom.push({
@@ -2698,29 +2695,41 @@ function addTimerRaw(minutes, label) {
         s: durationSec,
         rm: durationSec,
         run: true,
-        ts: now,
-        et: now + (durationSec * 1000)
+        ts: Date.now(),
+        et: Date.now() + (durationSec * 1000)
     });
 
-    // Запускаем уведомление на Render
     scheduleNotification(timerId, durationSec, `⏰ Таймер <b>${label}</b> завершен!`);
 
     saveTm();
     renderTimers();
 }
         
-        function togTime(id) { 
-            const t = TIMERS.custom.find(x => x.id === id);
-            if(t) { 
-                t.run = !t.run; 
-                if(t.run) {
-                    if(t.rm <= 0) t.rm = t.s;
-                    t.et = Date.now() + (t.rm * 1000);
-                }
-                saveTm(); 
-                renderTimers(); 
-            }
-        }
+function togTime(id) {
+    const t = TIMERS.custom.find(x => x.id === id);
+    if (!t) return;
+
+    // === ЕСЛИ ТАЙМЕР ЗАВЕРШЁН ИЛИ НА ПАУЗЕ — ДЕЛАЕМ ПОЛНЫЙ РЕСТАРТ ===
+    if (!t.run || t.rm <= 0) {
+        t.rm = t.s;                    // сбрасываем на полное время
+        t.run = true;
+        t.et = Date.now() + (t.s * 1000);
+
+        // Отменяем старое уведомление и запускаем новое
+        cancelNotification(id);
+        scheduleNotification(id, t.s, `⏰ Таймер <b>${t.l}</b> завершен!`);
+
+        console.log(`🔄 Полный рестарт таймера ${t.l}`);
+    } 
+    // Если таймер просто на паузе — просто снимаем паузу
+    else {
+        t.run = false;
+        cancelNotification(id);
+    }
+
+    saveTm();
+    renderTimers();
+}
         
         function rstTime(id) { 
             const t = TIMERS.custom.find(x=>x.id===id);
