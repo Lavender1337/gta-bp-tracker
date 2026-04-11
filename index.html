@@ -2656,10 +2656,12 @@ function newDay() {
         function fmtTime(s) { const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60; return (h>0?h+':':'')+pad(m)+':'+pad(sec); }
         function pad(n) { return n<10?'0'+n:n; }
 
-        function addGameTimer(key) { 
-            const t = DB.timers.find(x => x.id === key);
-            if(t) addTimerRaw(t.s/60, t.l); 
-        }
+function addGameTimer(key) {
+    const t = DB.timers.find(x => x.id === key);
+    if (t) {
+        addTimerRaw(t.s / 60, t.l);   // теперь всегда уникальный ID
+    }
+}
         
         function addCustomTimer() { 
             const nameInput = document.getElementById('customName').value;
@@ -2678,27 +2680,33 @@ function newDay() {
             document.getElementById('customName').value = '';
         }
         
-function addTimerRaw(min, label) {
-    if(!TIMERS.custom) TIMERS.custom = [];
+function addTimerRaw(minutes, label) {
+    if (!TIMERS.custom) TIMERS.custom = [];
+
     const now = Date.now();
-    const timerId = 't_' + now; // Объявляем ID переменной
-    const durationSec = min * 60;
-    
+    const durationSec = minutes * 60;
+
+    // Генерируем УНИКАЛЬНЫЙ ID каждый раз при старте
+    const timerId = 't_' + now;
+
+    // Удаляем ВСЕ предыдущие таймеры с таким же названием (чтобы не было дублей)
+    TIMERS.custom = TIMERS.custom.filter(t => t.l !== label);
+
     TIMERS.custom.push({
-        id: timerId, 
-        l: label, 
-        s: durationSec, 
-        rm: durationSec, 
-        run: true, 
+        id: timerId,
+        l: label,
+        s: durationSec,
+        rm: durationSec,
+        run: true,
         ts: now,
-        et: now + (durationSec * 1000) 
+        et: now + (durationSec * 1000)
     });
-    
-    // Теперь передаем созданный timerId в функцию уведомления
+
+    // Запускаем уведомление на Render
     scheduleNotification(timerId, durationSec, `⏰ Таймер <b>${label}</b> завершен!`);
 
-    saveTm(); 
-    renderTimers(); // Теперь это сработает, и таймер появится в списке мгновенно
+    saveTm();
+    renderTimers();
 }
         
         function togTime(id) { 
