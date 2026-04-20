@@ -396,13 +396,6 @@ body[class*="theme-white"] .toast { background: rgba(255, 255, 255, 0.95); color
     </div>
     <div class="section-title">Шаблоны</div>
     <div id="timerGrid" class="timer-grid-new"></div>
-    <div class="section-title">Напоминания (Оплата)</div>
-    <div class="reminders-grid" style="padding-bottom: 20px;">
-        <button class="remind-btn" onclick="addPay('Квартира')">🏢 Квартира</button>
-        <button class="remind-btn" onclick="addPay('Дом')">🏠 Дом</button>
-        <button class="remind-btn" onclick="addPay('Склад')">📦 Склад</button>
-        <button class="remind-btn" onclick="addPay('Лаба')">🧪 Лаба</button>
-    </div>
 </div>
 
 <div id="tab-kitchen" class="tab-content">
@@ -577,7 +570,7 @@ let USER_WORK_SKILLS = { build: 5, port: 5, mine: 5, rednecks: 5 };
 
 const DB = {
     kitchen: [
-                {name:"Фруктовый салат",icon:"🥗",ing:["Фрукты"],sat:15,mood:40,str:-3,skill:0,tool:"Нож"},{name:"Овощной салат",icon:"🥗",ing:["Овощи"],sat:10,mood:5,str:0,skill:0,tool:"Нож"},{name:"Овощной смузи",icon:"🥤",ing:["Овощи","Вода"],sat:20,mood:35,str:0,skill:2,tool:"Венчик"},{name:"Фруктовый смузи",icon:"🍹",ing:["Фрукты","Вода"],sat:20,mood:50,str:-7,skill:2,tool:"Венчик"},{name:"Фруктовый лёд",icon:"🍧",ing:["Фрукты","Лед","Сахар"],sat:10,mood:65,str:-7,skill:2,tool:"Венчик"},{name:"Масло",icon:"🧈",ing:["Молоко"],sat:5,mood:0,str:-1,skill:2,tool:"Венчик"},{name:"Рыбный фарш",icon:"🥣",ing:["Любая рыба"],sat:0,mood:0,str:0,skill:2,tool:"Нож"},{name:"Сухая рыбная котлета",icon:"🍘",ing:["Рыбный фарш"],sat:10,mood:0,str:-3,skill:2,tool:"Огонь"},{name:"Рыбная котлета",icon:"🧆",ing:["Рыбный фарш","Масло"],sat:25,mood:10,str:-10,skill:2,tool:"Огонь"},{name:"Мясной фарш",icon:"🥩",ing:["Мясо"],sat:0,mood:0,str:0,skill:2,tool:"Нож"},{name:"Мясная котлета",icon:"🥩",ing:["Мясной фарш","Масло"],sat:25,mood:10,str:-10,skill:2,tool:"Огонь"},{name:"Сухая мясная котлета",icon:"🥩",ing:["Мясной фарш"],sat:10,mood:0,str:-3,skill:2,tool:"Огонь"},{name:"Картофельное пюре",icon:"🥣",ing:["Овощи","Масло","Молоко"],sat:10,mood:10,str:-5,skill:2,tool:"Венчик/Огонь"},{name:"Мясная котлета с пюре",icon:"🍛",ing:["Карт. пюре","Мясная котлета"],sat:50,mood:50,str:-20,skill:3,tool:"-"},{name:"Рыбная котлета с пюре",icon:"🍛",ing:["Карт. пюре","Рыбная котлета"],sat:50,mood:50,str:-20,skill:3,tool:"-"},{name:"Вареный рис",icon:"🍚",ing:["Рис","Вода"],sat:10,mood:0,str:-1,skill:2,tool:"Огонь"},{name:"Рыбная котлета с рисом",icon:"🍛",ing:["Рыбная котлета","Вареный рис"],sat:45,mood:40,str:-12,skill:2,tool:"-"},{name:"Котлета с рисом",icon:"🍛",ing:["Мясная котлета","Вареный рис"],sat:45,mood:40,str:-12,skill:2,tool:"-"},{name:"Ролл с лососем",icon:"🍣",ing:["Лосось","Вареный рис"],sat:25,mood:20,str:-3,skill:2,tool:"Нож"},{name:"Ролл с тунцом",icon:"🍣",ing:["Тунец","Вареный рис"],sat:25,mood:20,str:-3,skill:2,tool:"Нож"},{name:"Овощной ролл",icon:"🍣",ing:["Овощи","Вареный рис"],sat:20,mood:10,str:-2,skill:2,tool:"Нож"},{name:"Рыба с рисом",icon:"🍣",ing:["Любая рыба","Вареный рис"],sat:40,mood:10,str:-5,skill:2,tool:"Огонь"},{name:"Рыба с овощами",icon:"🥗",ing:["Любая рыба","Овощи"],sat:35,mood:15,str:-3,skill:2,tool:"Огонь"},{name:"Мясо с овощами",icon:"🍖",ing:["Мясо","Овощи"],sat:40,mood:10,str:-3,skill:2,tool:"Огонь"},{name:"Яичница",icon:"🍳",ing:["Яйцо"],sat:15,mood:5,str:-3,skill:2,tool:"Огонь"},{name:"Яичница с беконом",icon:"🍳",ing:["Яйцо","Мясо","Масло"],sat:25,mood:15,str:-6,skill:3,tool:"Огонь"},{name:"Омлет",icon:"🥚",ing:["Яйцо","Молоко"],sat:20,mood:10,str:-4,skill:2,tool:"Венчик/Огонь"},{name:"Крем-брюле",icon:"🍮",ing:["Молоко","Сахар","Яйцо"],sat:10,mood:80,str:-7,skill:4,tool:"Огонь"},{name:"Суфле",icon:"🧁",ing:["Яйцо","Сахар"],sat:20,mood:80,str:-2,skill:5,tool:"Венчик/Огонь"},{name:"Овощной омлет",icon:"🥚",ing:["Яйцо","Молоко","Овощи"],sat:25,mood:10,str:-4,skill:3,tool:"Венчик/Огонь"},{name:"Компот",icon:"🍹",ing:["Сахар","Вода","Фрукты"],sat:5,mood:50,str:-7,skill:3,tool:"Огонь"},{name:"Карамель",icon:"🍬",ing:["Сахар"],sat:5,mood:10,str:-5,skill:4,tool:"Огонь"},{name:"Оладьи",icon:"🥞",ing:["Яйцо","Молоко","Мука","Сахар"],sat:20,mood:20,str:-10,skill:3,tool:"Венчик/Огонь"},{name:"Оладьи с карамелью",icon:"🥞",ing:["Оладьи","Карамель"],sat:25,mood:40,str:-20,skill:0,tool:"-"},{name:"Тесто",icon:"🍞",ing:["Мука","Вода","Яйцо"],sat:0,mood:0,str:0,skill:0,tool:"Венчик"},{name:"Чизкейк",icon:"🍰",ing:["Тесто","Сыр","Сахар"],sat:30,mood:60,str:-15,skill:4,tool:"Венчик/Огонь"},{name:"Карамельный чизкейк",icon:"🍰",ing:["Чизкейк","Карамель"],sat:35,mood:85,str:-25,skill:5,tool:"-"},{name:"Фруктовый чизкейк",icon:"🍰",ing:["Чизкейк","Фрукты"],sat:35,mood:70,str:-20,skill:5,tool:"-"},{name:"Яблоко в карамели",icon:"🍎",ing:["Карамель","Фрукты"],sat:20,mood:55,str:-7,skill:4,tool:"-"},{name:"Фруктовый салат с карамелью",icon:"🥗",ing:["Карамель","Фруктовый салат"],sat:25,mood:60,str:-11,skill:0,tool:"-"},{name:"Мороженое",icon:"🍦",ing:["Яйцо","Сахар","Молоко","Лёд"],sat:10,mood:70,str:-15,skill:2,tool:"Венчик"},{name:"Карамельное мороженое",icon:"🍦",ing:["Карамель","Мороженое"],sat:15,mood:80,str:-20,skill:0,tool:"-"},{name:"Молочный коктейль",icon:"🥤",ing:["Мороженое","Молоко"],sat:20,mood:70,str:-15,skill:3,tool:"Венчик"},{name:"Карамельный коктейль",icon:"🥤",ing:["Карамель","Молочный коктейль"],sat:25,mood:80,str:-20,skill:0,tool:"-"},{name:"Бульон",icon:"🍲",ing:["Мясо","Вода"],sat:10,mood:0,str:-25,skill:0,tool:"Огонь"},{name:"Стейк с фруктовым соусом и рисом",icon:"🍛",ing:["Стейк с ф.с.","Вареный рис"],sat:80,mood:60,str:-13,skill:5,tool:"-"},{name:"Стейк с фруктовым соусом и пюре",icon:"🍛",ing:["Стейк с ф.с.","Картофельное пюре"],sat:80,mood:80,str:-15,skill:5,tool:"-"},{name:"Рыба с фруктовым соусом",icon:"🍲",ing:["Рыба","Фрукты","Сахар"],sat:60,mood:50,str:-10,skill:5,tool:"Огонь"},{name:"Рыба с фруктовым соусом и рисом",icon:"🍛",ing:["Рыба с ф.с","Вареный рис"],sat:80,mood:60,str:-13,skill:5,tool:"-"},{name:"Рыба с фруктовым соусом и пюре",icon:"🍛",ing:["Рыба с ф.с","Картофельное пюре"],sat:80,mood:80,str:-15,skill:5,tool:"-"},{name:"Лазанья",icon:"🍕",ing:["Молоко","Мука","Сыр","Овощи","Мясной фарш"],sat:65,mood:50,str:-20,skill:5,tool:"Огонь"},{name:"Бургер",icon:"🍔",ing:["Мясная котлета","Овощи","Хлеб"],sat:40,mood:0,str:-10,skill:2,tool:"-"},{name:"Ризотто",icon:"🍚",ing:["Бульон","Рисовая крупа","Сыр"],sat:40,mood:20,str:-20,skill:0,tool:"Огонь"},{name:"Тако с мясом",icon:"🌮",ing:["Хлеб","Мясной фарш","Сыр","Овощи"],sat:30,mood:30,str:-10,skill:3,tool:"Огонь"},{name:"Тако с рыбой",icon:"🌮",ing:["Хлеб","Рыбный фарш","Сыр","Овощи"],sat:30,mood:30,str:-10,skill:3,tool:"Огонь"},{name:"Буррито",icon:"🌯",ing:["Хлеб","Вареный рис","Мясной фарш","Овощи","Сыр"],sat:50,mood:50,str:-15,skill:3,tool:"Огонь"},{name:"Поке",icon:"🍲",ing:["Вареный рис","Сыр","Овощи","Лосось"],sat:70,mood:50,str:-15,skill:4,tool:"-"},{name:"Мальма в сливочном соусе",icon:"🐟",ing:["Мальма","Овощи","Молоко"],sat:75,mood:75,str:-13,skill:5,tool:"Огонь"},{name:"Мясо по-французски",icon:"🥩",ing:["Мясо","Овощи","Сыр"],sat:60,mood:40,str:-15,skill:5,tool:"Огонь"},{name:"Оливье",icon:"🥗",ing:["Мясо","Овощи","Яйца","Вода"],sat:60,mood:50,str:-25,skill:5,tool:"Нож/Огонь"},{name:"Сашими из фугу",icon:"🐡",ing:["Фугу"],sat:20,mood:60,str:0,skill:0,tool:"Нож"},{name:"Сашими из лосося",icon:"🍣",ing:["Лосось"],sat:10,mood:30,str:0,skill:4,tool:"Нож"},{name:"Сашими из тунца",icon:"🍣",ing:["Тунец"],sat:10,mood:30,str:0,skill:4,tool:"Нож"}
+                {name:"Фруктовый салат",icon:"🥗",ing:["Фрукты"],sat:15,mood:40,str:-3,skill:0,tool:"Нож"},{name:"Овощной салат",icon:"🥗",ing:["Овощи"],sat:10,mood:5,str:0,skill:0,tool:"Нож"},{name:"Овощной смузи",icon:"🥤",ing:["Овощи","Вода"],sat:20,mood:35,str:0,skill:2,tool:"Венчик"},{name:"Фруктовый смузи",icon:"🍹",ing:["Фрукты","Вода"],sat:20,mood:50,str:-7,skill:2,tool:"Венчик"},{name:"Фруктовый лёд",icon:"🍧",ing:["Фрукты","Лед","Сахар"],sat:10,mood:65,str:-7,skill:2,tool:"Венчик"},{name:"Масло",icon:"🧈",ing:["Молоко"],sat:5,mood:0,str:-1,skill:2,tool:"Венчик"},{name:"Рыбный фарш",icon:"🥣",ing:["Любая рыба"],sat:0,mood:0,str:0,skill:2,tool:"Нож"},{name:"Сухая рыбная котлета",icon:"🍘",ing:["Рыбный фарш"],sat:10,mood:0,str:-3,skill:2,tool:"Огонь"},{name:"Рыбная котлета",icon:"🧆",ing:["Рыбный фарш","Масло"],sat:25,mood:10,str:-10,skill:2,tool:"Огонь"},{name:"Мясной фарш",icon:"🥩",ing:["Мясо"],sat:0,mood:0,str:0,skill:2,tool:"Нож"},{name:"Мясная котлета",icon:"🥩",ing:["Мясной фарш","Масло"],sat:25,mood:10,str:-10,skill:2,tool:"Огонь"},{name:"Сухая мясная котлета",icon:"🥩",ing:["Мясной фарш"],sat:10,mood:0,str:-3,skill:2,tool:"Огонь"},{name:"Картофельное пюре",icon:"🥣",ing:["Овощи","Масло","Молоко"],sat:10,mood:10,str:-5,skill:2,tool:"Венчик/Огонь"},{name:"Мясная котлета с пюре",icon:"🍛",ing:["Карт. пюре","Мясная котлета"],sat:50,mood:50,str:-20,skill:3,tool:"-"},{name:"Рыбная котлета с пюре",icon:"🍛",ing:["Карт. пюре","Рыбная котлета"],sat:50,mood:50,str:-20,skill:3,tool:"-"},{name:"Вареный рис",icon:"🍚",ing:["Рис","Вода"],sat:10,mood:0,str:-1,skill:2,tool:"Огонь"},{name:"Рыбная котлета с рисом",icon:"🍛",ing:["Рыбная котлета","Вареный рис"],sat:45,mood:40,str:-12,skill:2,tool:"-"},{name:"Котлета с рисом",icon:"🍛",ing:["Мясная котлета","Вареный рис"],sat:45,mood:40,str:-12,skill:2,tool:"-"},{name:"Ролл с лососем",icon:"🍣",ing:["Лосось","Вареный рис"],sat:25,mood:20,str:-3,skill:2,tool:"Нож"},{name:"Ролл с тунцом",icon:"🍣",ing:["Тунец","Вареный рис"],sat:25,mood:20,str:-3,skill:2,tool:"Нож"},{name:"Овощной ролл",icon:"🍣",ing:["Овощи","Вареный рис"],sat:20,mood:10,str:-2,skill:2,tool:"Нож"},{name:"Рыба с рисом",icon:"🍣",ing:["Любая рыба","Вареный рис"],sat:40,mood:10,str:-5,skill:2,tool:"Огонь"},{name:"Рыба с овощами",icon:"🥗",ing:["Любая рыба","Овощи"],sat:35,mood:15,str:-3,skill:2,tool:"Огонь"},{name:"Мясо с овощами",icon:"🍖",ing:["Мясо","Овощи"],sat:40,mood:10,str:-3,skill:2,tool:"Огонь"},{name:"Яичница",icon:"🍳",ing:["Яйцо"],sat:15,mood:5,str:-3,skill:2,tool:"Огонь"},{name:"Яичница с беконом",icon:"🍳",ing:["Яйцо","Мясо","Масло"],sat:25,mood:15,str:-6,skill:3,tool:"Огонь"},{name:"Омлет",icon:"🥚",ing:["Яйцо","Молоко"],sat:20,mood:10,str:-4,skill:2,tool:"Венчик/Огонь"},{name:"Крем-брюле",icon:"🍮",ing:["Молоко","Сахар","Яйцо"],sat:10,mood:80,str:-7,skill:4,tool:"Огонь"},{name:"Суфле",icon:"🧁",ing:["Яйцо","Сахар"],sat:20,mood:80,str:-2,skill:5,tool:"Венчик/Огонь"},{name:"Овощной омлет",icon:"🥚",ing:["Яйцо","Молоко","Овощи"],sat:25,mood:10,str:-4,skill:3,tool:"Венчик/Огонь"},{name:"Компот",icon:"🍹",ing:["Сахар","Вода","Фрукты"],sat:5,mood:50,str:-7,skill:3,tool:"Огонь"},{name:"Карамель",icon:"🍬",ing:["Сахар"],sat:5,mood:10,str:-5,skill:4,tool:"Огонь"},{name:"Оладьи",icon:"🥞",ing:["Яйцо","Молоко","Мука","Сахар"],sat:20,mood:20,str:-10,skill:3,tool:"Венчик/Огонь"},{name:"Оладьи с карамелью",icon:"🥞",ing:["Оладьи","Карамель"]s,sat:25,mood:40,str:-20,skill:0,tool:"-"},{name:"Тесто",icon:"🍞",ing:["Мука","Вода","Яйцо"],sat:0,mood:0,str:0,skill:0,tool:"Венчик"},{name:"Чизкейк",icon:"🍰",ing:["Тесто","Сыр","Сахар"],sat:30,mood:60,str:-15,skill:4,tool:"Венчик/Огонь"},{name:"Карамельный чизкейк",icon:"🍰",ing:["Чизкейк","Карамель"],sat:35,mood:85,str:-25,skill:5,tool:"-"},{name:"Фруктовый чизкейк",icon:"🍰",ing:["Чизкейк","Фрукты"],sat:35,mood:70,str:-20,skill:5,tool:"-"},{name:"Яблоко в карамели",icon:"🍎",ing:["Карамель","Фрукты"],sat:20,mood:55,str:-7,skill:4,tool:"-"},{name:"Фруктовый салат с карамелью",icon:"🥗",ing:["Карамель","Фруктовый салат"],sat:25,mood:60,str:-11,skill:0,tool:"-"},{name:"Мороженое",icon:"🍦",ing:["Яйцо","Сахар","Молоко","Лёд"],sat:10,mood:70,str:-15,skill:2,tool:"Венчик"},{name:"Карамельное мороженое",icon:"🍦",ing:["Карамель","Мороженое"],sat:15,mood:80,str:-20,skill:0,tool:"-"},{name:"Молочный коктейль",icon:"🥤",ing:["Мороженое","Молоко"],sat:20,mood:70,str:-15,skill:3,tool:"Венчик"},{name:"Карамельный коктейль",icon:"🥤",ing:["Карамель","Молочный коктейль"],sat:25,mood:80,str:-20,skill:0,tool:"-"},{name:"Бульон",icon:"🍲",ing:["Мясо","Вода"],sat:10,mood:0,str:-25,skill:0,tool:"Огонь"},{name:"Стейк с фруктовым соусом и рисом",icon:"🍛",ing:["Стейк с ф.с.","Вареный рис"],sat:80,mood:60,str:-13,skill:5,tool:"-"},{name:"Стейк с фруктовым соусом и пюре",icon:"🍛",ing:["Стейк с ф.с.","Картофельное пюре"],sat:80,mood:80,str:-15,skill:5,tool:"-"},{name:"Рыба с фруктовым соусом",icon:"🍲",ing:["Рыба","Фрукты","Сахар"],sat:60,mood:50,str:-10,skill:5,tool:"Огонь"},{name:"Рыба с фруктовым соусом и рисом",icon:"🍛",ing:["Рыба с ф.с","Вареный рис"],sat:80,mood:60,str:-13,skill:5,tool:"-"},{name:"Рыба с фруктовым соусом и пюре",icon:"🍛",ing:["Рыба с ф.с","Картофельное пюре"],sat:80,mood:80,str:-15,skill:5,tool:"-"},{name:"Лазанья",icon:"🍕",ing:["Молоко","Мука","Сыр","Овощи","Мясной фарш"],sat:65,mood:50,str:-20,skill:5,tool:"Огонь"},{name:"Бургер",icon:"🍔",ing:["Мясная котлета","Овощи","Хлеб"],sat:40,mood:0,str:-10,skill:2,tool:"-"},{name:"Ризотто",icon:"🍚",ing:["Бульон","Рисовая крупа","Сыр"],sat:40,mood:20,str:-20,skill:0,tool:"Огонь"},{name:"Тако с мясом",icon:"🌮",ing:["Хлеб","Мясной фарш","Сыр","Овощи"],sat:30,mood:30,str:-10,skill:3,tool:"Огонь"},{name:"Тако с рыбой",icon:"🌮",ing:["Хлеб","Рыбный фарш","Сыр","Овощи"],sat:30,mood:30,str:-10,skill:3,tool:"Огонь"},{name:"Буррито",icon:"🌯",ing:["Хлеб","Вареный рис","Мясной фарш","Овощи","Сыр"],sat:50,mood:50,str:-15,skill:3,tool:"Огонь"},{name:"Поке",icon:"🍲",ing:["Вареный рис","Сыр","Овощи","Лосось"],sat:70,mood:50,str:-15,skill:4,tool:"-"},{name:"Мальма в сливочном соусе",icon:"🐟",ing:["Мальма","Овощи","Молоко"],sat:75,mood:75,str:-13,skill:5,tool:"Огонь"},{name:"Мясо по-французски",icon:"🥩",ing:["Мясо","Овощи","Сыр"],sat:60,mood:40,str:-15,skill:5,tool:"Огонь"},{name:"Оливье",icon:"🥗",ing:["Мясо","Овощи","Яйца","Вода"],sat:60,mood:50,str:-25,skill:5,tool:"Нож/Огонь"},{name:"Сашими из фугу",icon:"🐡",ing:["Фугу"],sat:20,mood:60,str:0,skill:0,tool:"Нож"},{name:"Сашими из лосося",icon:"🍣",ing:["Лосось"],sat:10,mood:30,str:0,skill:4,tool:"Нож"},{name:"Сашими из тунца",icon:"🍣",ing:["Тунец"],sat:10,mood:30,str:0,skill:4,tool:"Нож"}
             ],
             bp: [
                 {t:"3 часа в онлайне",q:1,b:2,v:4,r:1,c:0, i:"⏳", timer: 10800},
@@ -720,7 +713,7 @@ tarot: [
 // ====================== СОСТОЯНИЕ ======================
 let BP = { start:0, done:[], times:{}, hidden:[], counters:{}, vip:false, x2:false, sortOrder:[] };
 let TIMERS = {};
-let EVENTS = [];
+
 let TIMER_INT = {};
 let SCROLL_POS = {};
 let saveTimers = {};
@@ -732,9 +725,67 @@ const Cloud = {
     setItem: (key, value) => { /* ... без изменений ... */ }
 };
 
-async function init() { /* ... без изменений, но удалены вызовы renderCal и renderCars ... */ }
+async function init() {
+    try {
+const [bpData, tmData] = await Promise.all([
+            Cloud.getItem('gta_bp_22'),
+            Cloud.getItem('gta_tm_22')
+        ]);
 
-// ... все функции рендера, кроме удалённых ...
+        if(bpData) BP = JSON.parse(bpData);
+        if(!BP.doneTwink) BP.doneTwink = [];
+        if(tmData) TIMERS = JSON.parse(tmData);
+
+    } catch (e) {
+        console.error("Error loading data", e);
+    }
+
+    if(!BP.sortOrder || BP.sortOrder.length !== DB.bp.length) {
+        BP.sortOrder = DB.bp.map((_, i) => i);
+    }
+
+    const loader = document.getElementById('loader');
+    if(loader) {
+        loader.style.opacity = '0';
+        setTimeout(() => loader.remove(), 300);
+    }
+    
+    const savedTheme = localStorage.getItem('gta_theme_22');
+    if(savedTheme) setTheme(savedTheme);
+
+    const savedSimple = localStorage.getItem('gta_simple_mode_22');
+    if(savedSimple === 'true') document.body.classList.add('simple-mode');
+
+    const savedScale = localStorage.getItem('gta_scale_22');
+    if(savedScale) {
+        const list = document.getElementById('listBP');
+        if(list) list.style.zoom = savedScale + '%';
+    }
+    
+    const savedSkills = localStorage.getItem('gta_work_skills_22');
+    if(savedSkills) {
+        USER_WORK_SKILLS = JSON.parse(savedSkills);
+    }
+
+    HIDE_COMPLETED = localStorage.getItem('gta_hide_completed_22') === 'true';
+
+    document.getElementById('startBp').value = BP.start || '';
+    document.getElementById('btnVip').classList.toggle('active', BP.vip);
+    document.getElementById('btnX2').classList.toggle('active', BP.x2);
+    
+    // Запускаем отрисовку всех вкладок
+    renderBP(); 
+    updateBP();
+    renderTimers(); 
+    renderTimerPresets(); 
+    renderFood(); 
+    
+    const activeGuideBtn = document.querySelector('#tab-guides .seg-btn.active');
+    if(activeGuideBtn) setGuide('payment', activeGuideBtn);
+    
+    setupDragAndDrop();
+    startGlobalTimerLoop();
+}
 
 function go(id, btn) {
     const currentTab = document.querySelector('.tab-content.active');
@@ -844,8 +895,612 @@ function toggleGlobalNotify() {
     localStorage.setItem('gta_global_notify_22', GLOBAL_NOTIFY);
 }
 
-// ... остальные функции (updateBP, renderBP, saveSkills, setTheme, openSettingsModal и т.д.) остаются без изменений, кроме удаления функций для авто и планов ...
+function saveSkills() {
+    USER_WORK_SKILLS.rednecks = parseInt(document.getElementById('setRednecks').value);
+    USER_WORK_SKILLS.build = parseInt(document.getElementById('setBuild').value);
+    USER_WORK_SKILLS.port = parseInt(document.getElementById('setPort').value);
+    USER_WORK_SKILLS.mine = parseInt(document.getElementById('setMine').value);
+    localStorage.setItem('gta_work_skills_22', JSON.stringify(USER_WORK_SKILLS));
+    renderBP(); 
+}
 
+function renderTimerPresets() {
+    const container = document.getElementById('timerGrid');
+    if (!container) return;
+    container.innerHTML = '';
+    DB.timers.forEach(t => {
+        const timeStr = fmtTimeSimple(t.s);
+        container.innerHTML += `
+            <div class="timer-card">
+                <div class="tc-header">
+                    <div class="tc-title"><span style="color:#666">::</span> ${t.l}</div>
+                </div>
+                <div class="tc-time">${timeStr}</div>
+                <div class="tc-footer">
+                    <button class="tc-btn start" onclick="addGameTimer('${t.id}')">▶ Старт</button>
+                </div>
+            </div>`;
+    });
+}
+
+function fmtTimeSimple(s) {
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    if (h > 0) return `${h}:${pad(m)}:${pad(sec)}`;
+    return `${m}:${pad(sec)}`;
+}
+
+function saveBP() { Cloud.setItem('gta_bp_22', JSON.stringify(BP)); }
+function toggleVip() { BP.vip = !BP.vip; document.getElementById('btnVip').classList.toggle('active'); saveBP(); renderBP(); updateBP(); }
+function toggleX2() { BP.x2 = !BP.x2; document.getElementById('btnX2').classList.toggle('active'); saveBP(); renderBP(); updateBP(); }
+
+function updateBP() {
+BP.done = [...new Set(BP.done)];
+
+    BP.start = parseInt(document.getElementById('startBp').value) || 0;
+    let farm = 0; 
+    let doneCount = BP.done.length + (BP.doneTwink ? BP.doneTwink.length : 0);
+    
+    BP.done.forEach(i => { 
+        let t = DB.bp[i]; 
+        if(t && !t.r) { let rw = BP.vip ? t.v : t.b; if(BP.x2) rw *= 2; farm += rw; } 
+    });
+
+    if(BP.counters) { 
+        Object.keys(BP.counters).forEach(i => { 
+            let t = DB.bp[i]; 
+            if(t && t.r) { let rw = BP.vip ? t.v : t.b; if(BP.x2) rw *= 2; farm += (rw * BP.counters[i]); } 
+        }); 
+    }
+
+    let total = BP.start + farm; 
+
+    const elTotal = document.getElementById('totalBp');
+    const elDone = document.getElementById('doneCount');
+    const elMult = document.getElementById('multiplierDisp');
+    const elTime = document.getElementById('totalTime'); 
+
+    if(elTotal) elTotal.innerText = total;
+    if(elDone) elDone.innerText = doneCount;
+    
+    let mult = 1;
+    if(BP.vip) mult *= 2; 
+    if(BP.x2) mult *= 2;
+    if(elMult) elMult.innerText = 'x' + mult;
+
+    const elStickyTotal = document.getElementById('stickyTotal');
+    const elStickyFarmed = document.getElementById('stickyFarmed');
+
+    if(elStickyTotal) elStickyTotal.innerText = total;
+    if(elStickyFarmed) elStickyFarmed.innerText = '+' + farm;
+
+    if(elTime) {
+        const taskID = 0; 
+        let count = (BP.counters && BP.counters[taskID]) ? BP.counters[taskID] : 0;
+        if(count === 0 && BP.done.includes(taskID)) count = 1; 
+        const totalHours = count * 3;
+        elTime.innerText = totalHours + 'ч';
+        elTime.style.color = totalHours > 0 ? "var(--gold)" : "var(--text-sub)";
+    }
+    
+    document.getElementById('btnVip').classList.toggle('active', BP.vip);
+    document.getElementById('btnX2').classList.toggle('active', BP.x2);
+    saveBP();
+}
+
+function toggleTask(i, event) {
+    if (event) event.stopPropagation();
+    if(BP.done.includes(i)) { 
+        BP.done = BP.done.filter(x=>x!==i); 
+        delete BP.times[i]; 
+        if(BP.counters && BP.counters[i]) BP.counters[i] = 0;
+    } else { 
+        BP.done.push(i);
+        if(BP.doneTwink) BP.doneTwink = BP.doneTwink.filter(x => x !== i);
+        BP.times[i] = new Date().toLocaleTimeString().slice(0,5); 
+        if(DB.bp[i].q > 1) BP.counters[i] = DB.bp[i].q;
+    }
+    saveBP(); renderBP(); updateBP();
+}
+
+function toggleTwink(i, e) {
+    e.stopPropagation(); 
+    if(!BP.doneTwink) BP.doneTwink = [];
+    if(BP.doneTwink.includes(i)) {
+        BP.doneTwink = BP.doneTwink.filter(x => x !== i);
+    } else {
+        BP.doneTwink.push(i);
+        BP.done = BP.done.filter(x => x !== i);
+        BP.times[i] = new Date().toLocaleTimeString().slice(0,5);
+    }
+    saveBP(); renderBP(); updateBP();
+}
+
+function updateCounter(id, delta) {
+    if(!BP.counters) BP.counters = {};
+    if(typeof BP.counters[id] === 'undefined') BP.counters[id] = 0;
+    
+    const wasDone = BP.done.includes(id);
+    const max = DB.bp[id].q;
+    BP.counters[id] += delta;
+    if(BP.counters[id] < 0) BP.counters[id] = 0;
+    
+    if (!DB.bp[id].r) {
+        if(BP.counters[id] > max) BP.counters[id] = max;
+        if(BP.counters[id] >= max) {
+            if(!BP.done.includes(id)) { BP.done.push(id); BP.times[id] = new Date().toLocaleTimeString().slice(0,5); }
+        } else {
+            if(BP.done.includes(id)) { BP.done = BP.done.filter(x => x !== id); delete BP.times[id]; }
+        }
+    }
+    const isDoneNow = BP.done.includes(id);
+    saveBP(); updateBP(); 
+
+    if (wasDone !== isDoneNow) {
+        renderBP();
+    } else {
+        const elBar = document.getElementById(`prog_${id}`);
+        const elTxt = document.getElementById(`cnt_${id}`);
+        if (elBar && elTxt) {
+            let newPct = (BP.counters[id] / max) * 100;
+            if(newPct > 100) newPct = 100;
+            elBar.style.width = newPct + '%';
+            elTxt.innerText = BP.counters[id];
+        } else {
+            renderBP();
+        }
+    }
+}
+
+function hideBP(i,e) { e.stopPropagation(); BP.hidden.push(i); saveBP(); renderBP(); }
+function resetHiddenBP() { BP.hidden = []; saveBP(); renderBP(); }
+
+function newDay() {
+    const msg = "Начать новый день? Сбросится прогресс.";
+    const doReset = () => {
+        BP.done = []; BP.doneTwink = []; BP.times = {}; BP.counters = {}; BP.start = 0;
+        const startInput = document.getElementById('startBp');
+        if(startInput) { startInput.value = ''; startInput.blur(); }
+        saveBP(); renderBP(); updateBP();
+    };
+    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.showConfirm) {
+        window.Telegram.WebApp.showConfirm(msg, function(confirmed) { if (confirmed) doReset(); });
+    } else {
+        if (confirm(msg)) doReset();
+    }
+}
+
+function renderBP() {
+    const list = document.getElementById('listBP'); 
+    const search = document.getElementById('searchBp').value.toLowerCase();
+    const sortMode = document.getElementById('bpSort').value;
+    
+    if(!BP.localTimers) BP.localTimers = {};
+    if(!BP.doneTwink) BP.doneTwink = [];
+
+    let tasks = BP.sortOrder.map(id => ({...DB.bp[id], id: id}));
+    if(sortMode === 'max') tasks.sort((a, b) => b.q - a.q);
+    if(sortMode === 'min') tasks.sort((a, b) => a.q - b.q);
+
+    list.innerHTML = '';
+    
+    tasks.forEach(t => {
+        const i = t.id;
+        const done = BP.done.includes(i);
+        const isTwink = BP.doneTwink.includes(i);
+        
+        if (HIDE_COMPLETED && (done || isTwink)) return;
+        if(BP.hidden.includes(i) || (search && !t.t.toLowerCase().includes(search))) return;
+        
+        let rw = BP.vip ? t.v : t.b; if(BP.x2) rw *= 2;
+        
+        let statusBadgeHTML = '';
+        if (done && BP.times[i]) statusBadgeHTML = `<div class="status-badge time">${BP.times[i]}</div>`;
+        else if (isTwink) statusBadgeHTML = `<div class="status-badge twink">ТВИНК</div>`;
+
+        let payoutText = '';
+        let isWorkTask = false;
+        let basePay = 0;
+        
+        if (t.t.includes("действий на стройке")) { isWorkTask = true; basePay = WORK_RATES.build[USER_WORK_SKILLS.build]; } 
+        else if (t.t.includes("действий в порту")) { isWorkTask = true; basePay = WORK_RATES.port[USER_WORK_SKILLS.port]; } 
+        else if (t.t.includes("действий в шахте")) { isWorkTask = true; basePay = WORK_RATES.mine[USER_WORK_SKILLS.mine]; }
+
+        if (isWorkTask) {
+            const bonusMultiplier = REDNECK_BONUS[USER_WORK_SKILLS.rednecks];
+            const totalPay = Math.round((basePay + Math.round(basePay * bonusMultiplier)) * 25);
+            payoutText = `<div class="task-sub" style="color:var(--green); font-weight:700; margin-top:3px;">💵 Ожидается: ${totalPay.toLocaleString('ru-RU')}$</div>`;
+        }
+
+        let controlHTML = '', progressBarHTML = '', instantDoneBtn = '';
+        
+        if(t.q > 1 || t.r) {
+            const curr = BP.counters && BP.counters[i] ? BP.counters[i] : 0;
+            let pct = t.q > 0 ? (curr / t.q) * 100 : 0;
+            if(pct > 100) pct = 100;
+
+            if(!t.r) {
+                progressBarHTML = `<div class="progress-track"><div id="prog_${i}" class="progress-fill" style="width: ${pct}%"></div></div>`;
+                if(!done) instantDoneBtn = `<button class="btn-instant-done" onclick="completeInstant(${i})">MAX</button>`;
+            }
+
+            controlHTML = `
+            <div class="controls-new" onclick="event.stopPropagation()">
+                <button class="btn-mini minus" onclick="updateCounter(${i}, -1)">−</button>
+                <span id="cnt_${i}" class="counter-val-new">${curr}</span>
+                <button class="btn-mini plus" onclick="updateCounter(${i}, 1)">+</button>
+            </div>
+            <div class="reward-badge">+${rw}</div>`;
+        } else {
+             controlHTML = `<div class="checkbox" onclick="toggleTask(${i}, event)">${done?'✔':''}</div><div class="reward-badge" style="margin-left:6px;">+${rw}</div>`;
+        }
+
+        let iconHTML = t.img ? `<div class="bp-icon-container"><img src="${t.img}" class="bp-img"></div>` : `<div class="bp-icon-container"><span class="bp-emoji">${t.i||'•'}</span></div>`;
+
+        let timerHTML = '';
+        if (t.timer) {
+            let lt = BP.localTimers[i] || { rm: t.timer, run: false };
+            if(lt.run && lt.et) {
+                 const diff = Math.ceil((lt.et - Date.now()) / 1000);
+                 lt.rm = diff > 0 ? diff : 0; if(lt.rm === 0) lt.run = false;
+            }
+            const displayTime = lt.rm <= 0 ? "ГОТОВО" : fmtTime(lt.rm);
+            const playStyle = lt.run ? 'color:var(--gold); border-color:var(--gold);' : '';
+            
+            timerHTML = `
+            <div class="inline-timer-box" onclick="event.stopPropagation()">
+                <button class="it-btn" style="${playStyle}" onclick="toggleLocalTimer(${i}, ${t.timer})">${lt.run ? '⏸' : '▶'}</button>
+                <div class="it-val ${lt.rm<=0?'done':''}" id="loc_timer_${i}">${displayTime}</div>
+                <button class="it-btn" onclick="resetLocalTimer(${i}, ${t.timer})">↺</button>
+            </div>`;
+        }
+
+        const item = document.createElement('div');
+        let doneClass = (done && !t.r) ? 'completed' : '';
+        if (isTwink) doneClass = 'completed twink-done';
+        item.className = `task-item ${doneClass}`;
+        item.setAttribute('data-id', i);
+        if(!t.r && t.q <= 1) item.onclick = () => toggleTask(i);
+
+        let twinkBtnStyle = isTwink ? 'color: #c084fc; background: rgba(192, 132, 252, 0.15); border: 1px solid rgba(192, 132, 252, 0.3);' : '';
+        const twinkBtn = !t.r ? `<button class="icon-btn" style="width:28px; height:28px; border-radius:6px; ${twinkBtnStyle}" onclick="toggleTwink(${i}, event)">👻</button>` : '';
+
+        item.innerHTML = `
+            <div class="task-top-row">
+                <div class="drag-handle" style="margin-right:4px; color:#444;">⋮⋮</div>
+                ${iconHTML}
+                <div class="task-content">
+                    <div class="task-header-row"><div style="display:flex; flex-direction:column;"><div class="task-text">${t.t} ${t.r ? '<span class="tag">∞</span>' : ''}</div>${payoutText}</div>${statusBadgeHTML}</div>
+                    ${progressBarHTML} 
+                </div>
+            </div>
+            <div class="task-bottom-row">
+                 <div style="display:flex;">${timerHTML}</div>
+                 <div class="task-actions-group">
+                    ${controlHTML}${instantDoneBtn}${twinkBtn}
+                    <button class="icon-btn del" style="width:28px; height:28px; border-radius:6px; border:1px solid #333;" onclick="hideBP(${i},event)">✕</button>
+                 </div>
+            </div>`;
+        list.appendChild(item);
+    });
+}
+
+function completeInstant(id) {
+    const max = DB.bp[id].q;
+    const current = BP.counters && BP.counters[id] ? BP.counters[id] : 0;
+    const diff = max - current;
+    if (diff > 0) updateCounter(id, diff); 
+}
+
+function setupDragAndDrop() {
+    const list = document.getElementById('listBP');
+    Sortable.create(list, {
+        handle: '.drag-handle',
+        animation: 150,
+        onEnd: function (evt) {
+            const newOrder = [];
+            list.querySelectorAll('.task-item').forEach(el => newOrder.push(parseInt(el.getAttribute('data-id'))));
+            const hiddenItems = BP.sortOrder.filter(id => !newOrder.includes(id));
+            BP.sortOrder = [...newOrder, ...hiddenItems];
+            saveBP();
+        }
+    });
+}
+
+function saveTm() { Cloud.setItem('gta_tm_22', JSON.stringify(TIMERS)); }
+
+function updateTimersVisuals() {
+    if(TIMERS.custom) {
+        const now = Date.now();
+        TIMERS.custom.forEach(t => {
+            if(t.run) {
+                if (t.et) t.rm = Math.ceil((t.et - now) / 1000);
+                if(t.rm <= 0) {
+                    t.rm = 0; t.run = false; renderTimers(); 
+                    showToast(`Таймер "${t.l}" завершен!`, 'success');
+                    if(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                }
+                const elDisp = document.getElementById(`disp_${t.id}`);
+                const elBar = document.getElementById(`prog_bar_${t.id}`);
+                if(elDisp) elDisp.innerText = fmtTime(t.rm);
+                if(elBar && t.s > 0) {
+                    let pct = (t.rm / t.s) * 100;
+                    elBar.style.width = `${pct}%`;
+                }
+            }
+        });
+    }
+
+    if(BP.localTimers) {
+        const now = Date.now();
+        let changed = false;
+        for (const [id, t] of Object.entries(BP.localTimers)) {
+            if(t.run) {
+                const diff = Math.ceil((t.et - now) / 1000);
+                if(diff <= 0) {
+                    t.rm = 0; t.run = false; renderBP(); 
+                    let taskName = DB.bp[id] ? DB.bp[id].t : "Задача";
+                    showToast(`Задача "${taskName}" готова!`, 'success');
+                    if(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                } else {
+                    t.rm = diff;
+                    const el = document.getElementById(`loc_timer_${id}`);
+                    if(el) el.innerText = fmtTime(t.rm);
+                }
+                changed = true;
+            }
+        }
+        if(changed && now % 5000 < 1000) saveBP();
+    }
+}
+
+let GLOBAL_TIMER_INT = null;
+function startGlobalTimerLoop() {
+    if(GLOBAL_TIMER_INT) return; 
+    GLOBAL_TIMER_INT = setInterval(() => {
+        if(typeof updateHeaderTimer === 'function') updateHeaderTimer();
+        updateTimersVisuals();
+    }, 1000);
+}
+
+function fmtTime(s) { const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60; return (h>0?h+':':'')+pad(m)+':'+pad(sec); }
+function pad(n) { return n<10?'0'+n:n; }
+
+function togTime(id) {
+    const t = TIMERS.custom.find(x => x.id === id);
+    if (!t) return;
+    if (!t.run || t.rm <= 0) {
+        t.rm = t.s; t.run = true; t.et = Date.now() + (t.s * 1000);
+        cancelNotification(id);
+        scheduleNotification(id, t.s, `⏰ Таймер <b>${t.l}</b> завершен!`, t.notify);
+    } else {
+        t.run = false;
+        cancelNotification(id);
+    }
+    saveTm(); renderTimers();
+}
+
+function rstTime(id) { 
+    const t = TIMERS.custom.find(x=>x.id===id);
+    if(t) { t.rm = t.s; t.run = false; t.ts = Date.now(); saveTm(); renderTimers(); }
+}
+
+function delTime(id) {
+    TIMERS.custom = TIMERS.custom.filter(t=>t.id!==id); saveTm(); renderTimers();
+}
+
+function renderFood() {
+    const list = document.getElementById('listFood'); list.innerHTML = '';
+    const s = document.getElementById('searchFood').value.toLowerCase();
+    DB.kitchen.forEach(f => {
+        if(s && !f.name.toLowerCase().includes(s)) return;
+        list.innerHTML += `
+            <div class="card" onclick='openModal(${JSON.stringify(f)})'>
+                <div class="card-icon">${f.icon}</div>
+                <div class="card-body">
+                    <div class="card-title">${f.name}</div>
+                    <div class="food-stats-mini">
+                        <span class="fs-i" style="color:var(--green)">🍖 ${f.sat}</span>
+                        <span class="fs-i" style="color:var(--gold)">😎 ${f.mood}</span>
+                        <span class="fs-i" style="color:var(--red)">💪 ${f.str}</span>
+                    </div>
+                </div>
+                <div class="card-end" style="font-size:20px; color:var(--text-sub)">›</div>
+            </div>`;
+    });
+}
+
+function openModal(f) {
+    document.getElementById('mTitle').innerText = f.name;
+    document.getElementById('mContent').innerHTML = `
+        <div style="text-align:center; font-size:60px; margin-bottom:20px;">${f.icon}</div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:20px; text-align:center; background:rgba(255,255,255,0.05); padding:15px; border-radius:16px;">
+            <div><div style="color:var(--green); font-size:20px; font-weight:bold;">+${f.sat}</div><div style="font-size:10px; color:#666;">СЫТОСТЬ</div></div>
+            <div><div style="color:var(--gold); font-size:20px; font-weight:bold;">+${f.mood}</div><div style="font-size:10px; color:#666;">НАСТР</div></div>
+            <div><div style="color:var(--red); font-size:20px; font-weight:bold;">${f.str}</div><div style="font-size:10px; color:#666;">СИЛА</div></div>
+        </div>
+        <div style="margin-bottom:15px;"><div style="font-size:12px; color:#666; margin-bottom:5px;">ИНГРЕДИЕНТЫ</div><div>${f.ing.map(i=>`<span class="tag">${i}</span>`).join('')}</div></div>
+        <div><div style="font-size:12px; color:#666; margin-bottom:5px;">ТРЕБОВАНИЯ</div><span class="tag" style="background:rgba(255,69,58,0.2); color:var(--red)">${f.tool}</span> <span class="tag" style="background:rgba(255,214,10,0.2); color:var(--gold)">Навык: ${f.skill}</span></div>
+    `;
+    document.getElementById('modal').style.display = 'flex';
+}
+function closeModal(e) { if(e.target.id === 'modal') document.getElementById('modal').style.display = 'none'; }
+
+function setGuide(id, btn) {
+    document.querySelectorAll('#tab-guides .seg-btn').forEach(b => b.classList.remove('active')); 
+    btn.classList.add('active');
+    const c = document.getElementById('guideContent'); 
+    c.innerHTML = '';
+    
+    if(id==='payment') {
+        c.innerHTML += `<div class="guide-section-title">Животные</div>` + buildTable(DB.guides.payment.animals.r, DB.guides.payment.animals.h);
+        c.innerHTML += `<div class="guide-section-title" style="margin-top:20px">Сокровища</div>` + buildTable(DB.guides.payment.treasures.r, DB.guides.payment.treasures.h);
+        return;
+    }
+    if(id==='med') {
+        c.innerHTML = '<div style="padding:10px; display:flex; flex-direction:column; gap:8px;">';
+        DB.guides.med.r.forEach(item => {
+            let bgClass = '#3a5c8a', txtClass = '#ccddff';
+            if (item.type === 'red') { bgClass = '#8a3a3a'; txtClass = '#ffcccc'; }
+            if (item.type === 'brown') { bgClass = '#8a5c3a'; txtClass = '#ffddcc'; }
+            if (item.type === 'yellow') { bgClass = '#8a7a3a'; txtClass = '#ffeecc'; }
+            const iconLeft = item.i.includes('.') ? `<img src="${item.i}" class="med-img">` : `<span style="font-size:20px;">${item.i}</span>`;
+            const iconRight = item.ci.includes('.') ? `<img src="${item.ci}" class="med-img">` : `<span style="font-size:20px;">${item.ci}</span>`;
+            c.innerHTML += `
+                <div style="display:flex; width:100%; gap:4px;">
+                    <div style="flex:1; background:${bgClass}; color:${txtClass}; padding:10px; border-radius:12px; display:flex; align-items:center; font-weight:600; font-size:13px; gap:10px;">${iconLeft}<span style="line-height:1.2;">${item.t}</span></div>
+                    <div style="flex:1; background:#1c1c1e; border:1px solid rgba(255,255,255,0.1); color:white; padding:10px; border-radius:12px; display:flex; align-items:center; justify-content:flex-start; font-weight:500; font-size:13px; gap:10px;">${iconRight}<span style="line-height:1.2;">${item.c}</span></div>
+                </div>`;
+        });
+        c.innerHTML += '</div>';
+        return;
+    }
+    if(id==='tarot') {
+        c.innerHTML = '<div class="tarot-grid-new">'; 
+        DB.tarot.forEach(t => {
+            let visual = t.img ? `<img src="${t.img}" class="tarot-icon-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"><div class="tarot-icon-box" style="display:none;">${t.i || '🃏'}</div>` : t.i || '🃏';
+            c.innerHTML += `<div class="tarot-card-new"><div class="tarot-icon-box">${visual}</div><div class="tarot-text-box"><div class="tarot-card-title">${t.n}</div><div class="tarot-card-desc">${t.d}</div></div></div>`;
+        });
+        c.innerHTML += '</div>';
+        return;
+    }
+    if(DB.guides[id]) { c.innerHTML += buildTable(DB.guides[id].r, DB.guides[id].h); } 
+    else if (id === 'ball') { c.innerHTML += buildTable(DB.ball8.map(x=>[x.q, x.a]), ["Вопрос", "Ответ"]); }
+}
+
+function buildTable(rows, headers) {
+    let h = `<div class="table-wrap"><table><thead><tr>`;
+    headers.forEach(x=>h+=`<th>${x}</th>`);
+    h+='</tr></thead><tbody>';
+    rows.forEach((r, idx)=>{ h+=`<tr style="background:${idx%2===0?'rgba(255,255,255,0.02)':'transparent'}">`; r.forEach(ce=>h+=`<td>${ce}</td>`); h+='</tr>'; });
+    return h + `</tbody></table></div>`;
+}
+
+async function forceSync() {
+    const loader = document.createElement('div');
+    loader.id = 'loader';
+    loader.innerHTML = '<div class="spinner"></div><div style="margin-top:10px;font-size:12px;">Обновление...</div>';
+    document.body.appendChild(loader);
+    await init(); 
+}
+
+function openUnhideModal() {
+    const modal = document.getElementById('modalUnhide');
+    const list = document.getElementById('unhideList');
+    list.innerHTML = '';
+    if(BP.hidden.length === 0) {
+        list.innerHTML = '<div style="padding:20px; text-align:center; color:#666;">Нет скрытых задач</div>';
+    } else {
+        BP.hidden.forEach(id => {
+            let task = DB.bp[id]; 
+            if(task) list.innerHTML += `<div class="unhide-item"><span>${task.t}</span><button class="unhide-btn" onclick="restoreTask(${id})">Вернуть</button></div>`;
+        });
+    }
+    modal.style.display = 'flex';
+}
+
+function restoreTask(id) { BP.hidden = BP.hidden.filter(h => h !== id); saveBP(); renderBP(); openUnhideModal(); }
+function closeUnhideModal(e) { if(e.target.id === 'modalUnhide') document.getElementById('modalUnhide').style.display = 'none'; }
+
+let headerTimerIdx = 0;
+function changeHeaderTimer(dir) { headerTimerIdx += dir; updateHeaderTimer(); }
+
+function updateHeaderTimer() {
+    if (!TIMERS || !TIMERS.custom) return;
+    const active = TIMERS.custom.filter(t => t.run);
+    const elLabel = document.getElementById('htLabel'), elTime = document.getElementById('htTime'), elSvgPath = document.querySelector('.ht-rect-path'); 
+
+    if (active.length === 0) {
+        if(elLabel) elLabel.innerText = "Нет активных";
+        if(elTime) { elTime.innerText = "--:--"; elTime.style.color = "#555"; }
+        if(elSvgPath) elSvgPath.style.strokeDashoffset = 100; 
+        return;
+    }
+
+    if (headerTimerIdx >= active.length) headerTimerIdx = 0;
+    if (headerTimerIdx < 0) headerTimerIdx = active.length - 1;
+
+    const t = active[headerTimerIdx];
+    let timeLeft = t.et ? Math.ceil((t.et - Date.now()) / 1000) : t.rm || 0;
+    if (timeLeft < 0) timeLeft = 0;
+    
+    let pct = t.s > 0 ? (timeLeft / t.s) * 100 : 0; 
+    if(elSvgPath) {
+        elSvgPath.style.strokeDashoffset = 100 - pct;
+        elSvgPath.style.stroke = pct < 20 ? 'var(--red)' : 'var(--green)';
+    }
+
+    if(elLabel) { let n = t.l || "Таймер"; elLabel.innerText = n.length > 12 ? n.slice(0, 11) + ".." : n; }
+    if(elTime) { elTime.innerText = fmtTime(timeLeft); elTime.style.color = "var(--text-main)"; }
+}
+
+function toggleLocalTimer(id, defaultSeconds) {
+    if(!BP.localTimers) BP.localTimers = {};
+    if(!BP.localTimers[id]) BP.localTimers[id] = { rm: defaultSeconds, run: false };
+    
+    let t = BP.localTimers[id];
+    if(t.rm <= 0) { t.rm = defaultSeconds; t.run = false; } 
+    else {
+        t.run = !t.run;
+        if(t.run) {
+            t.et = Date.now() + (t.rm * 1000);
+            let taskName = DB.bp[id] ? DB.bp[id].t : "Задача";
+            scheduleNotification('loc_' + id, t.rm, `✅ Задача <b>${taskName}</b> готова!`, true);
+        }
+    }
+    saveBP(); renderBP(); 
+}
+
+function resetLocalTimer(id, defaultSeconds) {
+    if(!BP.localTimers) return;
+    const t = BP.localTimers[id];
+    if(t) {
+        t.rm = defaultSeconds; t.run = false; delete t.et;           
+        if(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+        saveBP(); renderBP();
+    }
+}
+
+function openSettingsModal() { 
+    document.getElementById('modalSettings').style.display = 'flex'; 
+    document.getElementById('simpleModeToggle').checked = document.body.classList.contains('simple-mode');
+    document.getElementById('hideCompletedToggle').checked = HIDE_COMPLETED;
+    const savedScale = localStorage.getItem('gta_scale_22') || 100;
+    document.getElementById('scaleRange').value = savedScale;
+    document.getElementById('scaleVal').innerText = savedScale + '%';
+    document.getElementById('setRednecks').value = USER_WORK_SKILLS.rednecks;
+    document.getElementById('setBuild').value = USER_WORK_SKILLS.build;
+    document.getElementById('setPort').value = USER_WORK_SKILLS.port;
+    document.getElementById('setMine').value = USER_WORK_SKILLS.mine;
+}
+
+function closeSettingsModal(e) { if(e.target.id === 'modalSettings') document.getElementById('modalSettings').style.display = 'none'; }
+function toggleSimpleMode() {
+    if(document.getElementById('simpleModeToggle').checked) { document.body.classList.add('simple-mode'); localStorage.setItem('gta_simple_mode_22', 'true'); } 
+    else { document.body.classList.remove('simple-mode'); localStorage.setItem('gta_simple_mode_22', 'false'); }
+}
+function toggleHideCompleted() { HIDE_COMPLETED = document.getElementById('hideCompletedToggle').checked; localStorage.setItem('gta_hide_completed_22', HIDE_COMPLETED); renderBP(); }
+function changeScale(val) { document.getElementById('listBP').style.zoom = val + '%'; document.getElementById('scaleVal').innerText = val + '%'; localStorage.setItem('gta_scale_22', val); }
+function setTheme(themeName) {
+    const isSimple = document.body.classList.contains('simple-mode');
+    document.body.className = ''; 
+    if(themeName !== 'default') document.body.classList.add(themeName);
+    if(isSimple) document.body.classList.add('simple-mode');
+    localStorage.setItem('gta_theme_22', themeName);
+    if(window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+}
+
+function showToast(msg, type='info') {
+    let container = document.getElementById('toast-container');
+    if(!container) { container = document.createElement('div'); container.id = 'toast-container'; document.body.appendChild(container); }
+    const toast = document.createElement('div'); toast.className = `toast ${type}`;
+    let icon = type === 'success' ? '✅' : (type === 'error' ? '❌' : 'ℹ️');
+    toast.innerHTML = `<div class="toast-icon">${icon}</div><div>${msg}</div>`;
+    container.appendChild(toast);
+    if(window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.HapticFeedback.notificationOccurred(type);
+    setTimeout(() => { toast.style.animation = 'toastOut 0.3s forwards'; setTimeout(() => toast.remove(), 300); }, 3000);
+}
 // Инициализация
 if (window.Telegram && window.Telegram.WebApp) {
     window.Telegram.WebApp.ready();
