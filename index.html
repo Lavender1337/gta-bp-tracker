@@ -319,6 +319,41 @@ body[class*="theme-white"] .toast { background: rgba(255, 255, 255, 0.95); color
 @keyframes toastIn { from { opacity: 0; transform: translateY(20px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
 @keyframes toastOut { to { opacity: 0; transform: translateY(-20px) scale(0.9); } }
 .med-img { width: 28px; height: 28px; object-fit: contain; border-radius: 4px; flex-shrink: 0; }
+/* --- ИСПРАВЛЕНИЕ ПУСТОГО ЧЕКБОКСА (ТАЙМЕРЫ) --- */
+.styled-checkbox {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    width: 22px !important;
+    height: 22px !important;
+    padding: 0 !important;
+    border-radius: 6px !important;
+    background: #111 !important;
+    border: 2px solid #444 !important;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+}
+.styled-checkbox:checked {
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+}
+.styled-checkbox:checked::after {
+    content: "✔";
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+}
+/* Поддержка светлой темы */
+body[class*="theme-white"] .styled-checkbox {
+    background: #f0f0f6 !important;
+    border-color: #d1d1d6 !important;
+}
+body[class*="theme-white"] .styled-checkbox:checked {
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+}
 </style>
 </head>
 <body>
@@ -389,9 +424,9 @@ body[class*="theme-white"] .toast { background: rgba(255, 255, 255, 0.95); color
         <input type="text" id="customName" class="timer-input-name" placeholder="Название...">
         <input type="number" id="customMin" class="timer-input-num" placeholder="М">
         <div style="font-weight:bold; color:#666;">:</div> <input type="number" id="customSec" class="timer-input-num" placeholder="С">
-        <label style="display:flex; align-items:center; gap:4px; margin:0 4px;">
-            <input type="checkbox" id="notifyCustom" checked> 🔔
-        </label>
+<label style="display:flex; align-items:center; gap:4px; margin:0 4px;">
+    <input type="checkbox" id="notifyCustom" class="styled-checkbox" checked> 🔔
+</label>
         <button class="timer-add-btn" onclick="addCustomTimer()">СТАРТ</button>
     </div>
     <div class="section-title">Шаблоны</div>
@@ -1174,7 +1209,7 @@ function renderBP() {
 
         let iconHTML = t.img ? `<div class="bp-icon-container"><img src="${t.img}" class="bp-img"></div>` : `<div class="bp-icon-container"><span class="bp-emoji">${t.i||'•'}</span></div>`;
 
-        let timerHTML = '';
+let timerHTML = '';
         if (t.timer) {
             let lt = BP.localTimers[i] || { rm: t.timer, run: false };
             if(lt.run && lt.et) {
@@ -1189,6 +1224,8 @@ function renderBP() {
                 <button class="it-btn" style="${playStyle}" onclick="toggleLocalTimer(${i}, ${t.timer})">${lt.run ? '⏸' : '▶'}</button>
                 <div class="it-val ${lt.rm<=0?'done':''}" id="loc_timer_${i}">${displayTime}</div>
                 <button class="it-btn" onclick="resetLocalTimer(${i}, ${t.timer})">↺</button>
+                <div class="it-sep"></div>
+                <button class="it-btn" onclick="toggleBPNotify(${i}, ${t.timer})">${lt.notify === false ? '🔕' : '🔔'}</button>
             </div>`;
         }
 
@@ -1471,18 +1508,43 @@ function updateHeaderTimer() {
     if(elTime) { elTime.innerText = fmtTime(timeLeft); elTime.style.color = "var(--text-main)"; }
 }
 
+function toggleBPNotify(id, defaultSeconds) {
+    if(!BP.localTimers) BP.localTimers = {};
+    if(!BP.localTimers[id]) BP.localTimers[id] = { rm: defaultSeconds, run: false };
+    
+    // Переключаем статус (по умолчанию считается включенным)
+    BP.localTimers[id].notify = !(BP.localTimers[id].notify !== false);
+    
+    if (BP.localTimers[id].notify === false) {
+        cancelNotification('loc_' + id); // Отменяем, если выключили
+    } else if (BP.localTimers[id].run) {
+        // Если таймер работает и мы включили уведы - заводим его снова
+        let taskName = DB.bp[id] ? DB.bp[id].t : "Задача";
+        scheduleNotification('loc_' + id, BP.localTimers[id].rm, `✅ Задача <b>${taskName}</b> готова!`, true);
+    }
+    
+    saveBP(); renderBP();
+}
+
 function toggleLocalTimer(id, defaultSeconds) {
     if(!BP.localTimers) BP.localTimers = {};
     if(!BP.localTimers[id]) BP.localTimers[id] = { rm: defaultSeconds, run: false };
     
     let t = BP.localTimers[id];
-    if(t.rm <= 0) { t.rm = defaultSeconds; t.run = false; } 
-    else {
+
+    if(t.rm <= 0) { 
+        t.rm = defaultSeconds; 
+        t.run = false; 
+    } else {
         t.run = !t.run;
         if(t.run) {
             t.et = Date.now() + (t.rm * 1000);
             let taskName = DB.bp[id] ? DB.bp[id].t : "Задача";
-            scheduleNotification('loc_' + id, t.rm, `✅ Задача <b>${taskName}</b> готова!`, true);
+            // Передаем флаг уведомлений
+            scheduleNotification('loc_' + id, t.rm, `✅ Задача <b>${taskName}</b> готова!`, t.notify !== false);
+        } else {
+            // ВАЖНО: Отменяем уведомление, если поставили на паузу
+            cancelNotification('loc_' + id); 
         }
     }
     saveBP(); renderBP(); 
@@ -1492,8 +1554,14 @@ function resetLocalTimer(id, defaultSeconds) {
     if(!BP.localTimers) return;
     const t = BP.localTimers[id];
     if(t) {
-        t.rm = defaultSeconds; t.run = false; delete t.et;           
-        if(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+        t.rm = defaultSeconds; 
+        t.run = false; 
+        delete t.et;           
+        cancelNotification('loc_' + id); // Отменяем уведомление при сбросе
+        
+        if(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
+            window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+        }
         saveBP(); renderBP();
     }
 }
