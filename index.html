@@ -504,60 +504,96 @@ body[class*="theme-white"] .bottom-nav {
     border: 1px solid rgba(0, 0, 0, 0.08) !important;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
-/* --- ОБНОВЛЕННЫЙ ЛИПКИЙ ПОИСК И МИНИ-СТАТИСТИКА (GLASSMORPHISM) --- */
+/* --- ПЛАВАЮЩИЙ STICKY SEARCH (ОСТРОВОК С ВЫЕЗЖАЮЩЕЙ ЛУПОЙ) --- */
 .sticky-search {
-    background: rgba(15, 15, 17, 0.75) !important; /* Усиленный эффект прозрачности */
+    background: rgba(15, 15, 17, 0.8) !important;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-    padding: 10px 15px 12px !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-}
-
-/* Красивая строка поиска */
-.search-input {
-    height: 40px !important; /* Сделали чуть тоньше и аккуратнее */
-    background: rgba(255, 255, 255, 0.05) !important; /* Полупрозрачный фон */
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    border-radius: 14px !important;
-    color: var(--text-main) !important;
-    padding: 0 16px !important;
-    font-size: 14px !important;
-    transition: all 0.3s ease;
-}
-
-.search-input:focus {
-    background: rgba(255, 255, 255, 0.08) !important;
-    border-color: var(--accent) !important;
-    box-shadow: 0 0 0 3px var(--accent-glow) !important;
-}
-
-.search-input::placeholder {
-    color: rgba(255, 255, 255, 0.3) !important;
+    border-radius: 24px !important; /* Закругляем как нижнее меню */
+    margin: 10px 15px 15px !important; /* Отлепляем от краев экрана */
+    top: 10px !important; /* Плавает сверху при скролле */
+    padding: 12px 16px !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.05) !important;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1000;
 }
 
 .mini-stats-row {
-    margin-bottom: 12px !important; /* Ровный отступ до поиска */
+    margin-bottom: 0 !important; /* Убираем лишние отступы */
     align-items: center;
 }
 
-/* Адаптация для светлых тем */
-body[class*="theme-white"] .sticky-search {
-    background: rgba(255, 255, 255, 0.85) !important;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+/* Обновленный фон мини-таймера (подогнан под общую тему) */
+.header-timer-wrap {
+    background: rgba(0, 0, 0, 0.4) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.3) !important;
+    border-radius: 16px !important;
+    padding: 6px 12px !important;
+    transition: 0.3s;
 }
-body[class*="theme-white"] .search-input {
-    background: rgba(0, 0, 0, 0.04) !important;
-    border: 1px solid rgba(0, 0, 0, 0.05) !important;
-    color: #000 !important;
+
+/* Выезжающая строка поиска (Умная Лупа) */
+.search-input {
+    width: 40px !important; /* По умолчанию это круглая кнопка */
+    height: 40px !important;
+    border-radius: 20px !important;
+    padding: 0 !important;
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    /* Рисуем иконку лупы */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23aaaaaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>') !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: 18px !important;
+    color: transparent !important; /* Прячем текст плейсхолдера */
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important; /* Пружинистая анимация */
+    margin: 0 auto; /* Центрируем лупу */
 }
-body[class*="theme-white"] .search-input:focus {
-    background: #fff !important;
+
+/* Плейсхолдер прозрачный, пока лупа не нажата */
+.search-input::placeholder {
+    color: transparent !important;
+}
+
+/* Состояние при клике (Фокус) или когда уже введен текст */
+.search-input:focus, .search-input:not(:placeholder-shown) {
+    width: 100% !important; /* Выезжает на всю ширину */
+    padding: 0 16px 0 42px !important;
+    background-position: 14px center !important;
+    color: var(--text-main) !important;
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
     border-color: var(--accent) !important;
 }
-body[class*="theme-white"] .search-input::placeholder {
-    color: rgba(0, 0, 0, 0.4) !important;
+
+.search-input:focus::placeholder {
+    color: rgba(255, 255, 255, 0.3) !important; /* Проявляем текст подсказки */
+}
+
+/* Адаптация под светлую тему */
+body[class*="theme-white"] .sticky-search {
+    background: rgba(255, 255, 255, 0.85) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+}
+body[class*="theme-white"] .header-timer-wrap {
+    background: rgba(0, 0, 0, 0.04) !important;
+    border-color: rgba(0, 0, 0, 0.05) !important;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05) !important;
+}
+body[class*="theme-white"] .search-input {
+    background-color: rgba(0, 0, 0, 0.04) !important;
+    border-color: rgba(0, 0, 0, 0.05) !important;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>') !important;
+}
+body[class*="theme-white"] .search-input:focus, body[class*="theme-white"] .search-input:not(:placeholder-shown) {
+    background-color: #fff !important;
+    color: #000 !important;
 }
 /* --- УЛЬТРА-КОМПАКТНЫЙ ДАШБОРД BP --- */
 .start-bp-box { display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 4px 6px; flex: 1; max-width: 65px; height: 34px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
@@ -1978,8 +2014,16 @@ function showToast(msg, type='info') {
     let icon = type === 'success' ? '✅' : (type === 'error' ? '❌' : 'ℹ️');
     toast.innerHTML = `<div class="toast-icon">${icon}</div><div>${msg}</div>`;
     container.appendChild(toast);
-    if(window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.HapticFeedback.notificationOccurred(type);
-    setTimeout(() => { toast.style.animation = 'toastOut 0.3s forwards'; setTimeout(() => toast.remove(), 300); }, 3000);
+    
+    // БЕЗОПАСНАЯ ПРОВЕРКА ВИБРАЦИИ (Защита от зависаний на ПК)
+    if(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
+        try { window.Telegram.WebApp.HapticFeedback.notificationOccurred(type); } catch(e){}
+    }
+    
+    setTimeout(() => { 
+        toast.style.animation = 'toastOut 0.3s forwards'; 
+        setTimeout(() => toast.remove(), 300); 
+    }, 3000);
 }
 
 // Инициализация
