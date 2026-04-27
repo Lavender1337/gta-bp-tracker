@@ -504,98 +504,99 @@ body[class*="theme-white"] .bottom-nav {
     border: 1px solid rgba(0, 0, 0, 0.08) !important;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
-/* --- ПЛАВАЮЩИЙ STICKY SEARCH (В ОДНУ СТРОКУ) --- */
-.sticky-search {
+/* --- ПЛАВАЮЩИЙ STICKY SEARCH (С ВЫЕЗЖАЮЩИМ ВНИЗ ПОИСКОМ) --- */
+.sticky-wrapper {
+    position: sticky !important; /* Возвращаем липкость! */
+    top: 10px !important;
+    margin: 10px 15px 15px !important;
+    z-index: 1000;
+}
+
+.sticky-main-row {
     background: rgba(15, 15, 17, 0.8) !important;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
     border-radius: 20px !important;
-    margin: 10px 15px 15px !important;
-    top: 10px !important;
     padding: 10px 15px !important;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5) !important;
-    position: relative;
-    display: block !important; /* Убрали колонку, теперь всё в одну линию */
-    z-index: 1000;
-}
-
-.mini-stats-row {
-    margin: 0 !important;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    /* Освобождаем место справа специально для лупы */
-    padding-right: 42px !important; 
+    position: relative;
+    z-index: 2; /* Панель находится над выпадающим поиском */
 }
 
 /* Прозрачный фон таймера и тонкие линии */
 .header-timer-wrap {
-    background: transparent !important; /* Теперь он сливается с общим стеклом */
+    background: transparent !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    box-shadow: none !important; /* Убрали темную тень внутри */
+    box-shadow: none !important;
     border-radius: 16px !important;
     padding: 4px 10px !important;
+    margin: 0 auto;
 }
+.ht-rect-path { stroke-width: 2px !important; }
 
-.ht-rect-path {
-    stroke-width: 2px !important; /* Сделали линию таймера тонкой и изящной */
-}
-
-/* Умная Лупа (Находится справа на одном уровне со статами) */
-.search-input {
-    position: absolute !important;
-    right: 12px !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-    width: 36px !important;
-    height: 36px !important;
-    border-radius: 18px !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    background-color: rgba(255, 255, 255, 0.05) !important;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23aaaaaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>') !important;
-    background-repeat: no-repeat !important;
-    background-position: center !important;
-    background-size: 16px !important;
-    color: transparent !important;
-    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+/* Кнопка лупы (чистая иконка) */
+.search-toggle-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 18px;
+    background-color: rgba(255, 255, 255, 0.05);
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23aaaaaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
     cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-    z-index: 10;
+    transition: 0.2s;
+}
+.search-toggle-btn:active { transform: scale(0.9); }
+
+/* Выпадающее вниз поле поиска */
+.sticky-search-dropdown {
+    background: rgba(15, 15, 17, 0.9) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 16px !important;
+    margin-top: 6px;
+    padding: 0 10px;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+    transform: translateY(-10px);
 }
 
-.search-input::placeholder { color: transparent !important; }
+.sticky-search-dropdown.active {
+    max-height: 60px;
+    opacity: 1;
+    padding: 8px 10px;
+    transform: translateY(0);
+}
 
-/* При нажатии - лупа расширяется на всю панель и перекрывает стату */
-.search-input:focus, .search-input:not(:placeholder-shown) {
-    width: calc(100% - 24px) !important;
-    padding: 0 16px 0 40px !important;
-    background-position: 12px center !important;
+.search-input-drop {
+    width: 100% !important;
+    height: 38px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 12px !important;
     color: var(--text-main) !important;
-    /* Делаем фон плотным, чтобы перекрыть текст Итого и Таймер */
-    background-color: rgba(20, 20, 22, 0.95) !important; 
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
-    border-color: var(--accent) !important;
+    padding: 0 12px !important;
+    font-size: 14px !important;
+    box-sizing: border-box;
 }
-.search-input:focus::placeholder { color: rgba(255, 255, 255, 0.3) !important; }
+.search-input-drop:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 2px var(--accent-glow) !important; outline: none; }
 
 /* Светлая тема */
-body[class*="theme-white"] .sticky-search {
-    background: rgba(255, 255, 255, 0.85) !important;
-    border: 1px solid rgba(0, 0, 0, 0.05) !important;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
-}
-body[class*="theme-white"] .header-timer-wrap {
-    border-color: rgba(0, 0, 0, 0.08) !important;
-}
-body[class*="theme-white"] .search-input {
-    background-color: rgba(0, 0, 0, 0.04) !important;
-    border-color: rgba(0, 0, 0, 0.05) !important;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>') !important;
-}
-body[class*="theme-white"] .search-input:focus, body[class*="theme-white"] .search-input:not(:placeholder-shown) {
-    background-color: #fff !important;
-    color: #000 !important;
-}
+body[class*="theme-white"] .sticky-main-row, body[class*="theme-white"] .sticky-search-dropdown { background: rgba(255, 255, 255, 0.85) !important; border: 1px solid rgba(0, 0, 0, 0.08) !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important; }
+body[class*="theme-white"] .header-timer-wrap { border-color: rgba(0, 0, 0, 0.08) !important; }
+body[class*="theme-white"] .search-toggle-btn { background-color: rgba(0, 0, 0, 0.04); border-color: rgba(0, 0, 0, 0.05); background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>'); }
+body[class*="theme-white"] .search-input-drop { background: rgba(0, 0, 0, 0.04) !important; border-color: rgba(0, 0, 0, 0.05) !important; color: #000 !important; }
+body[class*="theme-white"] .search-input-drop:focus { background: #fff !important; }
 /* --- УЛЬТРА-КОМПАКТНЫЙ ДАШБОРД BP --- */
 .start-bp-box { display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 4px 6px; flex: 1; max-width: 65px; height: 34px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
 .glass-input-mini { width: 100%; background: transparent !important; border: none !important; color: var(--gold) !important; font-size: 16px !important; font-weight: 800 !important; text-align: center; padding: 0 !important; outline: none; margin-top: -2px; }
@@ -635,38 +636,56 @@ body[class*="theme-white"] option {
 
 <div id="tab-bp" class="tab-content active">
 <div class="bp-hero glass-hero" style="margin-bottom: 12px;">
-        <div class="hero-stats-grid">
+<div class="hero-stats-grid">
             <div class="stat-box"><div class="stat-val" id="totalBp">0</div><div class="stat-label">BP</div></div>
             <div class="stat-box"><div class="stat-val" id="totalTime">0</div><div class="stat-label">Часы</div></div>
             <div class="stat-box"><div class="stat-val" id="multiplierDisp">x1</div><div class="stat-label">Множ.</div></div>
-            <div class="stat-box"><div class="stat-val" id="doneCount">0</div><div class="stat-label">Готово</div></div>
+            <div class="stat-box"><div class="stat-val" id="farmedVal" style="color:var(--green)">+0</div><div class="stat-label">Нафарм.</div></div>
         </div>
-        
-        <div class="glass-toggles" style="align-items: center;">
+        <div class="glass-toggles">
             <button class="neo-btn" id="btnVip" onclick="toggleVip()">👑 VIP</button>
             <button class="neo-btn" id="btnX2" onclick="toggleX2()">⚡ X2</button>
-            
-            <div class="start-bp-box">
-                <span style="font-size:8px; font-weight:800; color:#888; letter-spacing:0.5px;">СТАРТ BP</span>
-                <input type="number" id="startBp" value="" placeholder="0" oninput="updateBP()" class="glass-input-mini">
-            </div>
-            
             <button class="neo-btn" onclick="openSettingsModal()" style="max-width: 45px; padding: 0;">⚙️</button>
         </div>
+        <div class="hero-footer">
+            <span>Стартовые BP:</span>
+            <input type="number" id="startBp" value="" placeholder="0" oninput="updateBP()" class="glass-input">
+        </div>
     </div>
-
-    <div class="quick-actions-row">
-        <select id="bpSort" class="glass-select" onchange="renderBP()">
+    
+    <div class="bp-actions-top">
+        <button class="action-btn new-day" onclick="newDay()">🌅 Новый день</button>
+        <button class="action-btn" onclick="openUnhideModal()">👁 Вернуть</button>
+        <button class="action-btn" onclick="forceSync()" style="border-color:var(--accent); color:var(--accent);">🔄 Обновить</button>
+    </div>
+    <div class="sort-container" style="padding: 0 15px 10px; display: flex; justify-content: space-between; color:#666; font-size: 12px; align-items: center;">
+        <span>Удерживайте <b style="color:#aaa">⋮⋮</b> для перемещения</span>
+        <select id="bpSort" class="sort-select" onchange="renderBP()">
             <option value="user">Сорт: Своя (Drag)</option>
             <option value="def">Сорт: По списку</option>
-            <option value="max">Сорт: Дорогие</option>
-            <option value="min">Сорт: Дешевые</option>
+            <option value="max">Сорт: Кол-во (Много)</option>
+            <option value="min">Сорт: Кол-во (Мало)</option>
         </select>
-        
-        <div style="display:flex; gap:6px;">
-            <button class="quick-btn" onclick="newDay()" title="Новый день">🌅</button>
-            <button class="quick-btn" onclick="openUnhideModal()" title="Вернуть скрытые">👁</button>
-            <button class="quick-btn sync-btn" onclick="forceSync()" title="Синхронизация">🔄</button>
+    </div>
+
+    <div class="sticky-wrapper" id="stickySearchWrap">
+        <div class="sticky-main-row">
+            <div style="flex:1"><div style="font-size:10px; color:#888">Итого:</div><div class="mini-stat-val" style="color:var(--gold)" id="stickyTotal">0</div></div>
+            <div class="header-timer-wrap" id="headerTimerWidget">
+                <svg class="ht-progress-svg" preserveAspectRatio="none"><rect class="ht-rect-path" x="0" y="0" width="100%" height="100%" pathLength="100" /></svg>
+                <button class="ht-btn" onclick="changeHeaderTimer(-1)">◀</button>
+                <div class="ht-content" onclick="go('timers', document.querySelectorAll('.nav-btn')[1])">
+                    <span id="htLabel" class="ht-label">Нет активных</span>
+                    <span id="htTime" class="ht-time">--:--</span>
+                </div>
+                <button class="ht-btn" onclick="changeHeaderTimer(1)">▶</button>
+            </div>
+            <div style="flex:1; display:flex; justify-content:flex-end; align-items:center;">
+                <button class="search-toggle-btn" onclick="toggleSearch()"></button>
+            </div>
+        </div>
+        <div class="sticky-search-dropdown" id="searchDropdown">
+            <input type="text" class="search-input-drop" id="searchBp" placeholder="🔍 Найти задание..." oninput="renderBP()">
         </div>
     </div>
     <div class="sticky-search">
@@ -1401,11 +1420,10 @@ function toggleVip() { BP.vip = !BP.vip; document.getElementById('btnVip').class
 function toggleX2() { BP.x2 = !BP.x2; document.getElementById('btnX2').classList.toggle('active'); saveBP(); renderBP(); updateBP(); }
 
 function updateBP() {
-BP.done = [...new Set(BP.done)];
+    BP.done = [...new Set(BP.done)];
 
     BP.start = parseInt(document.getElementById('startBp').value) || 0;
     let farm = 0; 
-    let doneCount = BP.done.length + (BP.doneTwink ? BP.doneTwink.length : 0);
     
     BP.done.forEach(i => { 
         let t = DB.bp[i]; 
@@ -1422,12 +1440,12 @@ BP.done = [...new Set(BP.done)];
     let total = BP.start + farm; 
 
     const elTotal = document.getElementById('totalBp');
-    const elDone = document.getElementById('doneCount');
+    const elFarmed = document.getElementById('farmedVal'); // Выводим Нафармлено наверх
     const elMult = document.getElementById('multiplierDisp');
     const elTime = document.getElementById('totalTime'); 
 
     if(elTotal) elTotal.innerText = total;
-    if(elDone) elDone.innerText = doneCount;
+    if(elFarmed) elFarmed.innerText = '+' + farm;
     
     let mult = 1;
     if(BP.vip) mult *= 2; 
@@ -1435,10 +1453,7 @@ BP.done = [...new Set(BP.done)];
     if(elMult) elMult.innerText = 'x' + mult;
 
     const elStickyTotal = document.getElementById('stickyTotal');
-    const elStickyFarmed = document.getElementById('stickyFarmed');
-
     if(elStickyTotal) elStickyTotal.innerText = total;
-    if(elStickyFarmed) elStickyFarmed.innerText = '+' + farm;
 
     if(elTime) {
         const taskID = 0; 
@@ -1453,7 +1468,15 @@ BP.done = [...new Set(BP.done)];
     document.getElementById('btnX2').classList.toggle('active', BP.x2);
     saveBP();
 }
-
+function toggleSearch() {
+    const drop = document.getElementById('searchDropdown');
+    drop.classList.toggle('active');
+    if (drop.classList.contains('active')) {
+        document.getElementById('searchBp').focus(); // Автоматически ставит курсор
+    } else {
+        document.getElementById('searchBp').blur();
+    }
+}
 function toggleTask(i, event) {
     if (event) event.stopPropagation();
     if(BP.done.includes(i)) { 
