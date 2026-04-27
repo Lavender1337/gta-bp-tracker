@@ -434,13 +434,18 @@ body[class*="theme-white"] .circle-bg { stroke: rgba(0,0,0,0.05); }
     <div class="section-title">Активные</div>
     <div id="activeTimersList" class="active-timers-grid"></div>
 
-    <div class="custom-timer">
+<div class="custom-timer">
         <input type="text" id="customName" class="timer-input-name" placeholder="Название...">
         <input type="number" id="customMin" class="timer-input-num" placeholder="М">
         <div style="font-weight:bold; color:#666;">:</div> <input type="number" id="customSec" class="timer-input-num" placeholder="С">
-        <label style="display:flex; align-items:center; gap:4px; margin:0 4px;">
+        
+        <label style="display:flex; align-items:center; gap:2px; margin:0 2px;">
             <input type="checkbox" id="notifyCustom" class="styled-checkbox" checked> 🔔
         </label>
+        <label style="display:flex; align-items:center; gap:2px; margin:0 2px;">
+            <input type="checkbox" id="saveCustom" class="styled-checkbox"> ⭐
+        </label>
+        
         <button class="timer-add-btn" onclick="addCustomTimer()">СТАРТ</button>
     </div>
 
@@ -954,16 +959,51 @@ function addCustomTimer() {
     let m = parseInt(document.getElementById('customMin').value) || 0;
     let s = parseInt(document.getElementById('customSec').value) || 0;
     if (m === 0 && s === 0) return;
+    
     const totalSeconds = (m * 60) + s;
     const label = nameInput.trim() ? nameInput : fmtTimeSimple(totalSeconds);
     const notify = document.getElementById('notifyCustom').checked;
+    const saveFav = document.getElementById('saveCustom').checked; // Проверяем галочку Избранного
+
+    // Запускаем таймер
     addTimerRaw(totalSeconds, label, notify);
-    document.getElementById('customMin').value = ''; document.getElementById('customSec').value = ''; document.getElementById('customName').value = '';
+    
+    // Если стоит галочка ⭐ - сохраняем как шаблон
+    if (saveFav) {
+        if (!TIMERS.userPresets) TIMERS.userPresets = [];
+        if (!TIMERS.fav) TIMERS.fav = [];
+        
+        const presetId = 'u_' + Date.now();
+        TIMERS.userPresets.push({ id: presetId, l: label, s: totalSeconds });
+        TIMERS.fav.push(presetId); // Сразу кидаем в избранное
+        
+        saveTm();
+        renderTimerPresets(); // Перерисовываем шаблоны
+        
+        // Снимаем галочку, чтобы случайно не насоздавать клонов
+        document.getElementById('saveCustom').checked = false;
+    }
+
+    // Очищаем поля
+    document.getElementById('customMin').value = ''; 
+    document.getElementById('customSec').value = ''; 
+    document.getElementById('customName').value = '';
 }
 
+// Обновляем запуск из шаблона, чтобы бот видел и кастомные тоже
 function addGameTimer(key) {
-    const t = DB.timers.find(x => x.id === key);
+    let t = DB.timers.find(x => x.id === key);
+    if (!t && TIMERS.userPresets) t = TIMERS.userPresets.find(x => x.id === key);
     if (t) addTimerRaw(t.s, t.l, true); 
+}
+
+// Новая функция для удаления своих шаблонов
+function delPreset(id) {
+    if (!TIMERS.userPresets) return;
+    TIMERS.userPresets = TIMERS.userPresets.filter(t => t.id !== id);
+    if (TIMERS.fav) TIMERS.fav = TIMERS.fav.filter(favId => favId !== id);
+    saveTm();
+    renderTimerPresets();
 }
 
 function renderTimers() {
@@ -1008,11 +1048,22 @@ function renderTimerPresets() {
     gridContainer.innerHTML = '';
     if (!TIMERS.fav) TIMERS.fav = [];
 
-    DB.timers.forEach(t => {
+    // Объединяем базовые шаблоны и пользовательские
+    let allPresets = [...DB.timers];
+    if (TIMERS.userPresets) {
+        allPresets = allPresets.concat(TIMERS.userPresets);
+    }
+
+    allPresets.forEach(t => {
         const timeStr = fmtTimeSimple(t.s);
-        // HTML в стиле баббла (кружка)
+        const isUserCustom = t.id.startsWith('u_');
+        
+        // Крестик удаления рисуем ТОЛЬКО для твоих созданных шаблонов
+        const delBtnHTML = isUserCustom ? `<button class="bubble-close" style="z-index:10; right:-2px; top:-2px;" onclick="event.stopPropagation(); delPreset('${t.id}')">✕</button>` : '';
+
         const cardHTML = `
             <div class="timer-card drag-template" data-id="${t.id}">
+                ${delBtnHTML}
                 <div class="tc-header">
                     <div style="color: #444; font-size: 12px; font-weight: bold; margin-right:4px;">⋮⋮</div>
                 </div>
