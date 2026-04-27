@@ -504,87 +504,88 @@ body[class*="theme-white"] .bottom-nav {
     border: 1px solid rgba(0, 0, 0, 0.08) !important;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
-/* --- ПЛАВАЮЩИЙ STICKY SEARCH (ОСТРОВОК С ВЫЕЗЖАЮЩЕЙ ЛУПОЙ) --- */
+/* --- ПЛАВАЮЩИЙ STICKY SEARCH (В ОДНУ СТРОКУ) --- */
 .sticky-search {
     background: rgba(15, 15, 17, 0.8) !important;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    border-radius: 24px !important; /* Закругляем как нижнее меню */
-    margin: 10px 15px 15px !important; /* Отлепляем от краев экрана */
-    top: 10px !important; /* Плавает сверху при скролле */
-    padding: 12px 16px !important;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.05) !important;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    border-radius: 20px !important;
+    margin: 10px 15px 15px !important;
+    top: 10px !important;
+    padding: 10px 15px !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5) !important;
+    position: relative;
+    display: block !important; /* Убрали колонку, теперь всё в одну линию */
     z-index: 1000;
 }
 
 .mini-stats-row {
-    margin-bottom: 0 !important; /* Убираем лишние отступы */
+    margin: 0 !important;
     align-items: center;
+    /* Освобождаем место справа специально для лупы */
+    padding-right: 42px !important; 
 }
 
-/* Обновленный фон мини-таймера (подогнан под общую тему) */
+/* Прозрачный фон таймера и тонкие линии */
 .header-timer-wrap {
-    background: rgba(0, 0, 0, 0.4) !important;
-    border: 1px solid rgba(255, 255, 255, 0.06) !important;
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.3) !important;
+    background: transparent !important; /* Теперь он сливается с общим стеклом */
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: none !important; /* Убрали темную тень внутри */
     border-radius: 16px !important;
-    padding: 6px 12px !important;
-    transition: 0.3s;
+    padding: 4px 10px !important;
 }
 
-/* Выезжающая строка поиска (Умная Лупа) */
+.ht-rect-path {
+    stroke-width: 2px !important; /* Сделали линию таймера тонкой и изящной */
+}
+
+/* Умная Лупа (Находится справа на одном уровне со статами) */
 .search-input {
-    width: 40px !important; /* По умолчанию это круглая кнопка */
-    height: 40px !important;
-    border-radius: 20px !important;
+    position: absolute !important;
+    right: 12px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 18px !important;
     padding: 0 !important;
+    margin: 0 !important;
     background-color: rgba(255, 255, 255, 0.05) !important;
-    /* Рисуем иконку лупы */
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23aaaaaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>') !important;
     background-repeat: no-repeat !important;
     background-position: center !important;
-    background-size: 18px !important;
-    color: transparent !important; /* Прячем текст плейсхолдера */
+    background-size: 16px !important;
+    color: transparent !important;
     border: 1px solid rgba(255, 255, 255, 0.05) !important;
     cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important; /* Пружинистая анимация */
-    margin: 0 auto; /* Центрируем лупу */
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    z-index: 10;
 }
 
-/* Плейсхолдер прозрачный, пока лупа не нажата */
-.search-input::placeholder {
-    color: transparent !important;
-}
+.search-input::placeholder { color: transparent !important; }
 
-/* Состояние при клике (Фокус) или когда уже введен текст */
+/* При нажатии - лупа расширяется на всю панель и перекрывает стату */
 .search-input:focus, .search-input:not(:placeholder-shown) {
-    width: 100% !important; /* Выезжает на всю ширину */
-    padding: 0 16px 0 42px !important;
-    background-position: 14px center !important;
+    width: calc(100% - 24px) !important;
+    padding: 0 16px 0 40px !important;
+    background-position: 12px center !important;
     color: var(--text-main) !important;
-    background-color: rgba(255, 255, 255, 0.08) !important;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+    /* Делаем фон плотным, чтобы перекрыть текст Итого и Таймер */
+    background-color: rgba(20, 20, 22, 0.95) !important; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
     border-color: var(--accent) !important;
 }
+.search-input:focus::placeholder { color: rgba(255, 255, 255, 0.3) !important; }
 
-.search-input:focus::placeholder {
-    color: rgba(255, 255, 255, 0.3) !important; /* Проявляем текст подсказки */
-}
-
-/* Адаптация под светлую тему */
+/* Светлая тема */
 body[class*="theme-white"] .sticky-search {
     background: rgba(255, 255, 255, 0.85) !important;
-    border: 1px solid rgba(0, 0, 0, 0.08) !important;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+    border: 1px solid rgba(0, 0, 0, 0.05) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
 }
 body[class*="theme-white"] .header-timer-wrap {
-    background: rgba(0, 0, 0, 0.04) !important;
-    border-color: rgba(0, 0, 0, 0.05) !important;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05) !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
 }
 body[class*="theme-white"] .search-input {
     background-color: rgba(0, 0, 0, 0.04) !important;
@@ -611,6 +612,18 @@ body[class*="theme-white"] .start-bp-box { background: rgba(0,0,0,0.03); border-
 body[class*="theme-white"] .glass-input-mini { color: var(--accent) !important; }
 body[class*="theme-white"] .glass-select { background: rgba(255,255,255,0.8) !important; border-color: rgba(0,0,0,0.1) !important; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
 body[class*="theme-white"] .quick-btn { background: #ffffff; border-color: rgba(0,0,0,0.1); color: #000; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+/* --- ФИКС ВЫПАДАЮЩИХ СПИСКОВ (OPTION) --- */
+option {
+    background-color: #1c1c1e !important; /* Темный фон списка */
+    color: #ffffff !important; /* Белый текст */
+    font-weight: 600 !important;
+}
+
+/* Фикс для светлых тем */
+body[class*="theme-white"] option {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+}
 </style>
 </head>
 <body>
