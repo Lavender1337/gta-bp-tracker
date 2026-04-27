@@ -101,20 +101,19 @@ select { background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xml
 .completed .checkbox { border-color: var(--green); background: rgba(16, 185, 129, 0.2); color: var(--green); }
 .timer-grid-new { display: grid; grid-template-columns: 1fr; gap: 10px; padding: 0 15px; }
 @media(min-width: 600px) { .timer-grid-new { grid-template-columns: 1fr 1fr; } }
-.timer-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 10px; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-.timer-card.running { border-color: var(--gold); background: rgba(251, 191, 36, 0.05); }
-.tc-header { display: flex; justify-content: space-between; align-items: center; }
-.tc-title { font-weight: 700; color: #ccc; font-size: 14px; display: flex; gap: 6px; align-items: center; }
-.tc-status { font-size: 10px; text-transform: uppercase; color: var(--gold); opacity: 0; }
-.timer-card.running .tc-status { opacity: 1; }
-.tc-time { font-size: 28px; font-weight: 800; font-family: monospace; color: #555; margin: 5px 0; letter-spacing: 1px; }
-.timer-card.running .tc-time { color: var(--gold); text-shadow: 0 0 15px rgba(251, 191, 36, 0.3); }
-.tc-footer { display: flex; gap: 8px; }
-.tc-btn { flex: 1; height: 36px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; text-transform: uppercase; color: #000; }
-.tc-btn.start { background: var(--green); box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2); }
-.tc-btn.stop { background: var(--red); color: white; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2); }
-.tc-btn-icon { width: 36px; height: 36px; background: #111; border: 1px solid #333; border-radius: 8px; color: #888; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-.custom-timer { display: flex; gap: 8px; padding: 0 15px; margin-top: 10px; margin-bottom: 20px;}
+/* Круглый стиль для шаблонов и избранного */
+.timer-card.drag-template { display: flex; flex-direction: column; align-items: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px; padding: 12px 8px; position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: grab; width: 85px; gap: 0; box-sizing: border-box; }
+.tc-header { width: 100%; display: flex; justify-content: flex-end; margin-bottom: -5px; z-index: 2; }
+.tc-time { font-size: 11px !important; font-weight: 800; color: var(--text-main); margin: 0 !important; font-family: monospace; }
+.tc-footer { width: 100%; margin-top: 5px; }
+.tc-btn.start { width: 100%; background: var(--accent) !important; color: white !important; font-size: 9px !important; height: 24px !important; border-radius: 8px !important; box-shadow: none !important; border: none; font-weight: bold; cursor: pointer; }
+
+/* Стили для сворачивания разделов */
+.section-header-toggle { display: flex; align-items: center; justify-content: space-between; margin: 25px 15px 8px; cursor: pointer; }
+.section-header-toggle .section-title { margin: 0; border: none; }
+.toggle-icon { font-size: 12px; color: var(--text-sub); transition: transform 0.3s; }
+.collapsed .toggle-icon { transform: rotate(-90deg); }
+.collapsed-content { display: none !important; }.custom-timer { display: flex; gap: 8px; padding: 0 15px; margin-top: 10px; margin-bottom: 20px;}
 .custom-timer button { background: var(--accent); color: white; border: none; border-radius: 8px; font-weight: bold; flex: 1; box-shadow: 0 0 15px var(--accent-glow); }
 .cal-header { display: flex; justify-content: space-between; align-items: center; padding: 0 15px 15px; }
 .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; background: #0f0f11; padding: 15px; border-radius: 16px; border: 1px solid #222; margin-bottom: 15px; }
@@ -445,17 +444,25 @@ body[class*="theme-white"] .circle-bg { stroke: rgba(0,0,0,0.05); }
         <button class="timer-add-btn" onclick="addCustomTimer()">СТАРТ</button>
     </div>
 
-    <div class="section-title" style="color:var(--red)">Деморган</div>
-    <div class="reminders-grid" style="padding: 0 15px 15px;">
+    <div class="section-header-toggle" onclick="toggleWrapper('demorganWrapper', this)">
+        <div class="section-title" style="color:var(--red)">Деморган</div>
+        <div class="toggle-icon">▼</div>
+    </div>
+    <div id="demorganWrapper" class="reminders-grid" style="padding: 0 15px 15px;">
         <button class="remind-btn" onclick="addTimerRaw(68, 'Ящики', false)">📦 Ящики (68с)</button>
         <button class="remind-btn" onclick="addTimerRaw(89, 'Швейка', false)">🧵 Швейка (89с)</button>
     </div>
 
-    <div class="section-title">⭐ Избранные шаблоны</div>
-    <div id="favoriteTimers" class="timer-grid-new" style="min-height: 50px; padding: 0 15px 15px;"></div>
+    <div class="section-title">⭐ Избранное</div>
+    <div id="favoriteTimers" class="active-timers-grid" style="min-height: 50px; padding: 0 15px 15px;"></div>
 
-    <div class="section-title">Все шаблоны (перетяните вверх)</div>
-    <div id="timerGrid" class="timer-grid-new"></div>
+    <div class="section-header-toggle" onclick="toggleWrapper('allTemplatesWrapper', this)">
+        <div class="section-title">Все шаблоны</div>
+        <div class="toggle-icon">▼</div>
+    </div>
+    <div id="allTemplatesWrapper" class="active-timers-grid" style="padding: 0 15px 15px;">
+        <div id="timerGrid" class="active-timers-grid" style="padding:0; width:100%; grid-column: 1/-1;"></div>
+    </div>
 </div>
 
 <div id="tab-kitchen" class="tab-content">
@@ -997,28 +1004,37 @@ function renderTimerPresets() {
     const gridContainer = document.getElementById('timerGrid');
     if (!favContainer || !gridContainer) return;
 
-    favContainer.innerHTML = ''; gridContainer.innerHTML = '';
+    favContainer.innerHTML = ''; 
+    gridContainer.innerHTML = '';
     if (!TIMERS.fav) TIMERS.fav = [];
 
     DB.timers.forEach(t => {
         const timeStr = fmtTimeSimple(t.s);
+        // HTML в стиле баббла (кружка)
         const cardHTML = `
-            <div class="timer-card drag-template" data-id="${t.id}" style="cursor: grab;">
+            <div class="timer-card drag-template" data-id="${t.id}">
                 <div class="tc-header">
-                    <div class="tc-title"><span style="color:#666">::</span> ${t.l}</div>
-                    <div style="color: #444; font-size: 14px; font-weight: bold;">⋮⋮</div>
+                    <div style="color: #444; font-size: 12px; font-weight: bold; margin-right:4px;">⋮⋮</div>
                 </div>
-                <div class="tc-time">${timeStr}</div>
-                <div class="tc-footer"><button class="tc-btn start" onclick="addGameTimer('${t.id}')">▶ Старт</button></div>
+                <div class="circle-wrap" style="margin-bottom:2px;">
+                    <svg><circle class="circle-bg" cx="26" cy="26" r="24"/></svg>
+                    <div class="circle-time">${timeStr}</div>
+                </div>
+                <div class="bubble-title" style="margin-bottom:4px;">${t.l}</div>
+                <div class="tc-footer">
+                    <button class="tc-btn start" onclick="addGameTimer('${t.id}')">СТАРТ</button>
+                </div>
             </div>`;
 
-        if (TIMERS.fav.includes(t.id)) favContainer.innerHTML += cardHTML;
-        else gridContainer.innerHTML += cardHTML;
+        if (TIMERS.fav.includes(t.id)) {
+            favContainer.innerHTML += cardHTML;
+        } else {
+            gridContainer.innerHTML += cardHTML;
+        }
     });
 
-    if (TIMERS.fav.length === 0) favContainer.innerHTML = '<div class="empty-fav-msg">Перетяните шаблоны сюда</div>';
+    if (TIMERS.fav.length === 0) favContainer.innerHTML = '<div class="empty-fav-msg">Тяни шаблоны сюда</div>';
 }
-
 let timersSortableInit = false;
 function setupTimersDragAndDrop() {
     if (timersSortableInit) return;
@@ -1032,14 +1048,13 @@ function setupTimersDragAndDrop() {
             favEl.querySelectorAll('.drag-template').forEach(el => newFavs.push(el.getAttribute('data-id')));
             TIMERS.fav = newFavs; saveTm();
             const emptyMsg = favEl.querySelector('.empty-fav-msg');
-            if (TIMERS.fav.length === 0 && !emptyMsg) favEl.innerHTML = '<div class="empty-fav-msg">Перетяните шаблоны сюда</div>';
+            if (TIMERS.fav.length === 0 && !emptyMsg) favEl.innerHTML = '<div class="empty-fav-msg">Тяни шаблоны сюда</div>';
             else if (TIMERS.fav.length > 0 && emptyMsg) emptyMsg.remove();
         }
     };
     Sortable.create(favEl, sortableOptions); Sortable.create(gridEl, sortableOptions);
     timersSortableInit = true;
 }
-
 function fmtTimeSimple(s) { const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60; if (h > 0) return `${h}:${pad(m)}:${pad(sec)}`; return `${m}:${pad(sec)}`; }
 
 function saveBP() { Cloud.setItem('gta_bp_22', JSON.stringify(BP)); }
@@ -1647,7 +1662,17 @@ function setTheme(themeName) {
     localStorage.setItem('gta_theme_22', themeName);
     if(window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
 }
-
+function toggleWrapper(id, headerEl) {
+    const wrapper = document.getElementById(id);
+    if (wrapper) {
+        wrapper.classList.toggle('collapsed-content');
+        headerEl.classList.toggle('collapsed');
+        
+        // Сохраняем состояние, чтобы не разворачивалось само (опционально)
+        const isCollapsed = wrapper.classList.contains('collapsed-content');
+        localStorage.setItem('collapsed_' + id, isCollapsed);
+    }
+}
 function showToast(msg, type='info') {
     let container = document.getElementById('toast-container');
     if(!container) { container = document.createElement('div'); container.id = 'toast-container'; document.body.appendChild(container); }
