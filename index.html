@@ -635,8 +635,8 @@ body[class*="theme-white"] option {
 </div>
 
 <div id="tab-bp" class="tab-content active">
-<div class="bp-hero glass-hero" style="margin-bottom: 12px;">
-<div class="hero-stats-grid">
+    <div class="bp-hero glass-hero" style="margin-bottom: 12px;">
+        <div class="hero-stats-grid">
             <div class="stat-box"><div class="stat-val" id="totalBp">0</div><div class="stat-label">BP</div></div>
             <div class="stat-box"><div class="stat-val" id="totalTime">0</div><div class="stat-label">Часы</div></div>
             <div class="stat-box"><div class="stat-val" id="multiplierDisp">x1</div><div class="stat-label">Множ.</div></div>
@@ -663,8 +663,8 @@ body[class*="theme-white"] option {
         <select id="bpSort" class="sort-select" onchange="renderBP()">
             <option value="user">Сорт: Своя (Drag)</option>
             <option value="def">Сорт: По списку</option>
-            <option value="max">Сорт: Кол-во (Много)</option>
-            <option value="min">Сорт: Кол-во (Мало)</option>
+            <option value="max">Сорт: Дорогие</option>
+            <option value="min">Сорт: Дешевые</option>
         </select>
     </div>
 
@@ -688,22 +688,7 @@ body[class*="theme-white"] option {
             <input type="text" class="search-input-drop" id="searchBp" placeholder="🔍 Найти задание..." oninput="renderBP()">
         </div>
     </div>
-    <div class="sticky-search">
-        <div class="mini-stats-row">
-            <div style="flex:1"><div style="font-size:10px; color:#888">Итого:</div><div class="mini-stat-val" style="color:var(--gold)" id="stickyTotal">0</div></div>
-            <div class="header-timer-wrap" id="headerTimerWidget">
-                <svg class="ht-progress-svg" preserveAspectRatio="none"><rect class="ht-rect-path" x="0" y="0" width="100%" height="100%" pathLength="100" /></svg>
-                <button class="ht-btn" onclick="changeHeaderTimer(-1)">◀</button>
-                <div class="ht-content" onclick="go('timers', document.querySelectorAll('.nav-btn')[1])">
-                    <span id="htLabel" class="ht-label">Нет активных</span>
-                    <span id="htTime" class="ht-time">--:--</span>
-                </div>
-                <button class="ht-btn" onclick="changeHeaderTimer(1)">▶</button>
-            </div>
-            <div style="flex:1; text-align:right;"><div style="font-size:10px; color:#888">Нафармлено:</div><div class="mini-stat-val" style="color:var(--green)" id="stickyFarmed">+0</div></div>
-        </div>
-        <input type="text" class="search-input" id="searchBp" placeholder="🔍 Найти задание..." oninput="renderBP()">
-    </div>
+
     <div class="list-container" id="listBP"></div>
 </div>
 
@@ -1911,7 +1896,10 @@ function updateHeaderTimer() {
     if (active.length === 0) {
         if(elLabel) elLabel.innerText = "Нет активных";
         if(elTime) { elTime.innerText = "--:--"; elTime.style.color = "#555"; }
-        if(elSvgPath) elSvgPath.style.strokeDashoffset = 100; 
+        if(elSvgPath) { 
+            elSvgPath.style.strokeDashoffset = 100; 
+            elSvgPath.style.stroke = 'var(--green)'; // Сбрасываем цвет на зеленый
+        } 
         return;
     }
 
@@ -1923,9 +1911,18 @@ function updateHeaderTimer() {
     if (timeLeft < 0) timeLeft = 0;
     
     let pct = t.s > 0 ? (timeLeft / t.s) * 100 : 0; 
+    
     if(elSvgPath) {
         elSvgPath.style.strokeDashoffset = 100 - pct;
-        elSvgPath.style.stroke = pct < 20 ? 'var(--red)' : 'var(--green)';
+        
+        // Логика перехода цветов: Зеленый -> Оранжевый -> Красный
+        if (pct > 50) {
+            elSvgPath.style.stroke = 'var(--green)';
+        } else if (pct > 20) {
+            elSvgPath.style.stroke = 'var(--accent)'; // Оранжевый цвет
+        } else {
+            elSvgPath.style.stroke = 'var(--red)';
+        }
     }
 
     if(elLabel) { let n = t.l || "Таймер"; elLabel.innerText = n.length > 12 ? n.slice(0, 11) + ".." : n; }
