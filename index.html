@@ -354,6 +354,19 @@ body[class*="theme-white"] .styled-checkbox:checked {
     background: var(--accent) !important;
     border-color: var(--accent) !important;
 }
+/* --- НОВЫЕ СТИЛИ ДЛЯ ТАЙМЕРОВ --- */
+.active-timers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 12px; padding: 0 15px 15px; }
+.timer-bubble { display: flex; flex-direction: column; align-items: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px; padding: 12px 8px; position: relative; transition: transform 0.2s, border-color 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer; }
+.timer-bubble.running { border-color: var(--accent); }
+.circle-wrap { position: relative; width: 52px; height: 52px; margin-bottom: 8px; }
+.circle-wrap svg { transform: rotate(-90deg); width: 52px; height: 52px; }
+.circle-bg { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 4; }
+body[class*="theme-white"] .circle-bg { stroke: rgba(0,0,0,0.05); }
+.circle-progress { fill: none; stroke: var(--accent); stroke-width: 4; stroke-dasharray: 150.8; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear; stroke-linecap: round; }
+.circle-time { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 11px; font-weight: 800; font-family: monospace; color: var(--text-main); }
+.bubble-title { font-size: 10px; font-weight: 700; color: var(--text-sub); text-align: center; max-width: 70px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bubble-close { position: absolute; top: -6px; right: -6px; width: 20px; height: 20px; background: var(--red); color: white; border: none; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10; }
+.empty-fav-msg { grid-column: 1 / -1; text-align: center; color: #666; font-size: 12px; padding: 10px; border: 1px dashed var(--border); border-radius: 12px; margin-bottom: 10px; }
 </style>
 </head>
 <body>
@@ -418,18 +431,30 @@ body[class*="theme-white"] .styled-checkbox:checked {
 
 <div id="tab-timers" class="tab-content">
     <div class="header">Таймеры</div>
+    
     <div class="section-title">Активные</div>
-    <div id="activeTimersList" class="timer-grid-new"></div>
+    <div id="activeTimersList" class="active-timers-grid"></div>
+
     <div class="custom-timer">
         <input type="text" id="customName" class="timer-input-name" placeholder="Название...">
         <input type="number" id="customMin" class="timer-input-num" placeholder="М">
         <div style="font-weight:bold; color:#666;">:</div> <input type="number" id="customSec" class="timer-input-num" placeholder="С">
-<label style="display:flex; align-items:center; gap:4px; margin:0 4px;">
-    <input type="checkbox" id="notifyCustom" class="styled-checkbox" checked> 🔔
-</label>
+        <label style="display:flex; align-items:center; gap:4px; margin:0 4px;">
+            <input type="checkbox" id="notifyCustom" class="styled-checkbox" checked> 🔔
+        </label>
         <button class="timer-add-btn" onclick="addCustomTimer()">СТАРТ</button>
     </div>
-    <div class="section-title">Шаблоны</div>
+
+    <div class="section-title" style="color:var(--red)">Деморган</div>
+    <div class="reminders-grid" style="padding: 0 15px 15px;">
+        <button class="remind-btn" onclick="addTimerRaw(68, 'Ящики', false)">📦 Ящики (68с)</button>
+        <button class="remind-btn" onclick="addTimerRaw(89, 'Швейка', false)">🧵 Швейка (89с)</button>
+    </div>
+
+    <div class="section-title">⭐ Избранные шаблоны</div>
+    <div id="favoriteTimers" class="timer-grid-new" style="min-height: 50px; padding: 0 15px 15px;"></div>
+
+    <div class="section-title">Все шаблоны (перетяните вверх)</div>
     <div id="timerGrid" class="timer-grid-new"></div>
 </div>
 
@@ -849,6 +874,7 @@ const [bpData, tmData] = await Promise.all([
     updateBP();
     renderTimers(); 
     renderTimerPresets(); 
+setupTimersDragAndDrop();
     renderFood(); 
     
     const activeGuideBtn = document.querySelector('#tab-guides .seg-btn.active');
@@ -878,25 +904,42 @@ function go(id, btn) {
     setTimeout(() => window.scrollTo(0, savedScroll), 10);
 }
 
-// ====================== ТАЙМЕРЫ (ИЗМЕНЕНИЯ) ======================
-function addTimerRaw(minutes, label, notify = true) {
+// Звук и Пуш для таймеров
+function playDing() {
+    const audio = new Audio('https://notificationsounds.com/storage/sounds/file-sounds-1150-pristine.mp3');
+    audio.play().catch(e => console.log("Звук заблокирован"));
+}
+
+function showNativePopup(title) {
+    if (window.Telegram?.WebApp?.showPopup) {
+        window.Telegram.WebApp.showPopup({ title: "⏳ Таймер готов!", message: `Время вышло: ${title}`, buttons: [{ type: "ok", text: "ОК" }] });
+    }
+}
+
+// ВАЖНО: теперь функция принимает СЕКУНДЫ
+function addTimerRaw(seconds, label, notify = true) {
     if (!TIMERS.custom) TIMERS.custom = [];
-    const durationSec = minutes * 60;
-    const timerId = 't_' + Date.now();
-    TIMERS.custom = TIMERS.custom.filter(t => t.l !== label);
-    TIMERS.custom.push({
-        id: timerId,
-        l: label,
-        s: durationSec,
-        rm: durationSec,
-        run: true,
-        ts: Date.now(),
-        et: Date.now() + (durationSec * 1000),
-        notify: notify
-    });
-    scheduleNotification(timerId, durationSec, `⏰ Таймер <b>${label}</b> завершен!`, notify);
-    saveTm();
-    renderTimers();
+    
+    // Слияние: обновляем существующий таймер вместо дублирования
+    let existing = TIMERS.custom.find(t => t.l === label);
+    if (existing) {
+        existing.rm = seconds; existing.s = seconds;
+        existing.ts = Date.now(); existing.et = Date.now() + (seconds * 1000);
+        existing.run = true;
+    } else {
+        const timerId = 't_' + Date.now();
+        TIMERS.custom.push({
+            id: timerId, l: label, s: seconds, rm: seconds,
+            run: true, ts: Date.now(), et: Date.now() + (seconds * 1000),
+            notify: notify, inApp: true
+        });
+    }
+    
+    if (notify) {
+        let existingId = existing ? existing.id : TIMERS.custom[TIMERS.custom.length-1].id;
+        scheduleNotification(existingId, seconds, `⏰ Таймер <b>${label}</b> завершен!`, notify);
+    }
+    saveTm(); renderTimers();
 }
 
 function addCustomTimer() {
@@ -907,100 +950,97 @@ function addCustomTimer() {
     const totalSeconds = (m * 60) + s;
     const label = nameInput.trim() ? nameInput : fmtTimeSimple(totalSeconds);
     const notify = document.getElementById('notifyCustom').checked;
-    addTimerRaw(totalSeconds / 60, label, notify);
-    document.getElementById('customMin').value = '';
-    document.getElementById('customSec').value = '';
-    document.getElementById('customName').value = '';
+    addTimerRaw(totalSeconds, label, notify);
+    document.getElementById('customMin').value = ''; document.getElementById('customSec').value = ''; document.getElementById('customName').value = '';
 }
 
 function addGameTimer(key) {
     const t = DB.timers.find(x => x.id === key);
-    if (t) addTimerRaw(t.s / 60, t.l, true);
+    if (t) addTimerRaw(t.s, t.l, true); 
 }
 
 function renderTimers() {
     const list = document.getElementById('activeTimersList');
     if (!list) return;
-    list.innerHTML = '';
-    let all = [];
-    if (TIMERS.custom) all = [...TIMERS.custom];
-    if (all.length === 0) {
-        list.innerHTML = '<div style="padding:10px; color:#555; font-size:13px;">Нет активных таймеров</div>';
+    
+    if (!TIMERS.custom || TIMERS.custom.length === 0) {
+        list.innerHTML = '<div style="padding:0 15px; color:#555; font-size:12px;">Активных задач нет</div>';
+        list.className = "timer-grid-new";
+        return;
     }
-    all.forEach(t => {
-        // ... расчет времени и процента ...
-        const isRunning = t.run;
-        const displayTime = fmtTime(t.rm);
-        let pct = t.s > 0 ? (t.rm / t.s) * 100 : 0;
+
+    // Умная сортировка (по времени до конца)
+    let sorted = [...TIMERS.custom].sort((a, b) => a.rm - b.rm);
+    list.innerHTML = '';
+    list.className = "active-timers-grid";
+    
+    sorted.forEach(t => {
+        const pct = t.s > 0 ? (t.rm / t.s) * 150.8 : 0;
         list.innerHTML += `
-            <div class="timer-card ${isRunning ? 'running' : ''}">
-                <div class="tc-header">
-                    <div class="tc-title"><span style="color:var(--accent)">::</span> ${t.l}</div>
-                    <div class="tc-status">${isRunning ? 'Активен' : 'Пауза'}</div>
+            <div class="timer-bubble ${t.run ? 'running' : ''}" onclick="togTime('${t.id}')">
+                <button class="bubble-close" onclick="event.stopPropagation(); delTime('${t.id}')">✕</button>
+                <div class="circle-wrap">
+                    <svg><circle class="circle-bg" cx="26" cy="26" r="24"/><circle class="circle-progress" cx="26" cy="26" r="24" style="stroke-dashoffset: ${150.8 - pct}"/></svg>
+                    <div class="circle-time" id="disp_${t.id}">${fmtTime(t.rm)}</div>
                 </div>
-                <div class="tc-time" id="disp_${t.id}">${displayTime}</div>
-                <div class="timer-progress-bg"><div id="prog_bar_${t.id}" class="timer-progress-bar" style="width: ${pct}%"></div></div>
-                <div class="tc-footer" style="margin-top:10px;">
-                    <button class="tc-btn ${isRunning ? 'stop' : 'start'}" onclick="togTime('${t.id}')">${isRunning ? '|| Стоп' : '▶ Старт'}</button>
-                    <button class="tc-btn-icon" onclick="rstTime('${t.id}')">↺</button>
-                    <button class="tc-btn-icon" onclick="toggleNotifyTimer('${t.id}')">${t.notify ? '🔔' : '🔕'}</button>
-                    <button class="tc-btn-icon del" onclick="delTime('${t.id}')">✕</button>
-                </div>
+                <div class="bubble-title">${t.l}</div>
             </div>`;
     });
-    saveTm();
 }
 
-function toggleNotifyTimer(id) {
-    const t = TIMERS.custom.find(x => x.id === id);
-    if (t) {
-        t.notify = !t.notify;
-        if (!t.notify) cancelNotification(id);
-        saveTm();
-        renderTimers();
-    }
-}
-
-function toggleGlobalNotify() {
-    GLOBAL_NOTIFY = document.getElementById('globalNotifyToggle').checked;
-    localStorage.setItem('gta_global_notify_22', GLOBAL_NOTIFY);
-}
-
-function saveSkills() {
-    USER_WORK_SKILLS.rednecks = parseInt(document.getElementById('setRednecks').value);
-    USER_WORK_SKILLS.build = parseInt(document.getElementById('setBuild').value);
-    USER_WORK_SKILLS.port = parseInt(document.getElementById('setPort').value);
-    USER_WORK_SKILLS.mine = parseInt(document.getElementById('setMine').value);
-    localStorage.setItem('gta_work_skills_22', JSON.stringify(USER_WORK_SKILLS));
-    renderBP(); 
-}
+function toggleNotifyTimer(id) { /* Заглушка, чтобы не ломался старый код */ }
+function toggleGlobalNotify() { GLOBAL_NOTIFY = document.getElementById('globalNotifyToggle').checked; localStorage.setItem('gta_global_notify_22', GLOBAL_NOTIFY); }
+function saveSkills() { USER_WORK_SKILLS.rednecks = parseInt(document.getElementById('setRednecks').value); USER_WORK_SKILLS.build = parseInt(document.getElementById('setBuild').value); USER_WORK_SKILLS.port = parseInt(document.getElementById('setPort').value); USER_WORK_SKILLS.mine = parseInt(document.getElementById('setMine').value); localStorage.setItem('gta_work_skills_22', JSON.stringify(USER_WORK_SKILLS)); renderBP(); }
 
 function renderTimerPresets() {
-    const container = document.getElementById('timerGrid');
-    if (!container) return;
-    container.innerHTML = '';
+    const favContainer = document.getElementById('favoriteTimers');
+    const gridContainer = document.getElementById('timerGrid');
+    if (!favContainer || !gridContainer) return;
+
+    favContainer.innerHTML = ''; gridContainer.innerHTML = '';
+    if (!TIMERS.fav) TIMERS.fav = [];
+
     DB.timers.forEach(t => {
         const timeStr = fmtTimeSimple(t.s);
-        container.innerHTML += `
-            <div class="timer-card">
+        const cardHTML = `
+            <div class="timer-card drag-template" data-id="${t.id}" style="cursor: grab;">
                 <div class="tc-header">
                     <div class="tc-title"><span style="color:#666">::</span> ${t.l}</div>
+                    <div style="color: #444; font-size: 14px; font-weight: bold;">⋮⋮</div>
                 </div>
                 <div class="tc-time">${timeStr}</div>
-                <div class="tc-footer">
-                    <button class="tc-btn start" onclick="addGameTimer('${t.id}')">▶ Старт</button>
-                </div>
+                <div class="tc-footer"><button class="tc-btn start" onclick="addGameTimer('${t.id}')">▶ Старт</button></div>
             </div>`;
+
+        if (TIMERS.fav.includes(t.id)) favContainer.innerHTML += cardHTML;
+        else gridContainer.innerHTML += cardHTML;
     });
+
+    if (TIMERS.fav.length === 0) favContainer.innerHTML = '<div class="empty-fav-msg">Перетяните шаблоны сюда</div>';
 }
 
-function fmtTimeSimple(s) {
-    const h = Math.floor(s / 3600);
-    const m = Math.floor((s % 3600) / 60);
-    const sec = s % 60;
-    if (h > 0) return `${h}:${pad(m)}:${pad(sec)}`;
-    return `${m}:${pad(sec)}`;
+let timersSortableInit = false;
+function setupTimersDragAndDrop() {
+    if (timersSortableInit) return;
+    const favEl = document.getElementById('favoriteTimers'), gridEl = document.getElementById('timerGrid');
+    if (!favEl || !gridEl) return;
+
+    const sortableOptions = {
+        group: 'shared-timers', animation: 150, handle: '.drag-template',
+        onEnd: function () {
+            const newFavs = [];
+            favEl.querySelectorAll('.drag-template').forEach(el => newFavs.push(el.getAttribute('data-id')));
+            TIMERS.fav = newFavs; saveTm();
+            const emptyMsg = favEl.querySelector('.empty-fav-msg');
+            if (TIMERS.fav.length === 0 && !emptyMsg) favEl.innerHTML = '<div class="empty-fav-msg">Перетяните шаблоны сюда</div>';
+            else if (TIMERS.fav.length > 0 && emptyMsg) emptyMsg.remove();
+        }
+    };
+    Sortable.create(favEl, sortableOptions); Sortable.create(gridEl, sortableOptions);
+    timersSortableInit = true;
 }
+
+function fmtTimeSimple(s) { const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60; if (h > 0) return `${h}:${pad(m)}:${pad(sec)}`; return `${m}:${pad(sec)}`; }
 
 function saveBP() { Cloud.setItem('gta_bp_22', JSON.stringify(BP)); }
 function toggleVip() { BP.vip = !BP.vip; document.getElementById('btnVip').classList.toggle('active'); saveBP(); renderBP(); updateBP(); }
@@ -1286,23 +1326,34 @@ function saveTm() { Cloud.setItem('gta_tm_22', JSON.stringify(TIMERS)); }
 function updateTimersVisuals() {
     if(TIMERS.custom) {
         const now = Date.now();
-        TIMERS.custom.forEach(t => {
+        let changed = false;
+        
+        // Проходим с конца, чтобы безопасно удалять завершенные таймеры
+        for (let i = TIMERS.custom.length - 1; i >= 0; i--) {
+            let t = TIMERS.custom[i];
             if(t.run) {
                 if (t.et) t.rm = Math.ceil((t.et - now) / 1000);
                 if(t.rm <= 0) {
-                    t.rm = 0; t.run = false; renderTimers(); 
-                    showToast(`Таймер "${t.l}" завершен!`, 'success');
-                    if(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-                }
-                const elDisp = document.getElementById(`disp_${t.id}`);
-                const elBar = document.getElementById(`prog_bar_${t.id}`);
-                if(elDisp) elDisp.innerText = fmtTime(t.rm);
-                if(elBar && t.s > 0) {
-                    let pct = (t.rm / t.s) * 100;
-                    elBar.style.width = `${pct}%`;
+                    t.rm = 0; t.run = false;
+                    playDing();
+                    showNativePopup(t.l);
+                    TIMERS.custom.splice(i, 1); // Автоудаление
+                    changed = true;
+                } else {
+                    // Обновляем кружки
+                    const elDisp = document.getElementById(`disp_${t.id}`);
+                    if(elDisp) {
+                        elDisp.innerText = fmtTime(t.rm);
+                        const svgCircle = elDisp.parentElement.querySelector('.circle-progress');
+                        if(svgCircle) {
+                            const pct = t.s > 0 ? (t.rm / t.s) * 150.8 : 0;
+                            svgCircle.style.strokeDashoffset = 150.8 - pct;
+                        }
+                    }
                 }
             }
-        });
+        }
+        if(changed) { renderTimers(); saveTm(); }
     }
 
     if(BP.localTimers) {
@@ -1315,7 +1366,7 @@ function updateTimersVisuals() {
                     t.rm = 0; t.run = false; renderBP(); 
                     let taskName = DB.bp[id] ? DB.bp[id].t : "Задача";
                     showToast(`Задача "${taskName}" готова!`, 'success');
-                    if(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                    if(window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
                 } else {
                     t.rm = diff;
                     const el = document.getElementById(`loc_timer_${id}`);
@@ -1344,23 +1395,25 @@ function togTime(id) {
     const t = TIMERS.custom.find(x => x.id === id);
     if (!t) return;
     if (!t.run || t.rm <= 0) {
-        t.rm = t.s; t.run = true; t.et = Date.now() + (t.s * 1000);
-        cancelNotification(id);
-        scheduleNotification(id, t.s, `⏰ Таймер <b>${t.l}</b> завершен!`, t.notify);
+        t.run = true; 
+        t.et = Date.now() + (t.rm * 1000); // Снятие с паузы
+        // Снова отправляем задачу на сервер бота при снятии с паузы
+        if (t.notify) scheduleNotification(t.id, t.rm, `⏰ Таймер <b>${t.l}</b> завершен!`, true); 
     } else {
-        t.run = false;
-        cancelNotification(id);
+        t.run = false; // Пауза
+        // Отменяем отправку сообщения от бота, пока таймер на паузе
+        if (t.notify) cancelNotification(t.id); 
     }
     saveTm(); renderTimers();
 }
 
-function rstTime(id) { 
-    const t = TIMERS.custom.find(x=>x.id===id);
-    if(t) { t.rm = t.s; t.run = false; t.ts = Date.now(); saveTm(); renderTimers(); }
-}
+function rstTime(id) { /* Заглушка */ }
 
-function delTime(id) {
-    TIMERS.custom = TIMERS.custom.filter(t=>t.id!==id); saveTm(); renderTimers();
+function delTime(id) { 
+    // Отменяем пуш от бота перед удалением
+    cancelNotification(id); 
+    TIMERS.custom = TIMERS.custom.filter(t=>t.id!==id); 
+    saveTm(); renderTimers(); 
 }
 
 function renderFood() {
