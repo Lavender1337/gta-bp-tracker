@@ -468,7 +468,7 @@ body[class*="theme-white"] .task-item.high-reward { background: linear-gradient(
     <div class="section-title">Активные</div>
     <div id="activeTimersList" class="active-timers-grid"></div>
 
-<div class="custom-timer">
+    <div class="custom-timer">
         <input type="text" id="customName" class="timer-input-name" placeholder="Название...">
         <input type="number" id="customMin" class="timer-input-num" placeholder="М">
         <div style="font-weight:bold; color:#666;">:</div> <input type="number" id="customSec" class="timer-input-num" placeholder="С">
@@ -483,19 +483,22 @@ body[class*="theme-white"] .task-item.high-reward { background: linear-gradient(
         <button class="timer-add-btn" onclick="addCustomTimer()">СТАРТ</button>
     </div>
 
-    <div class="section-header-toggle" onclick="toggleWrapper('demorganWrapper', this)">
-        <div class="section-title" style="color:var(--red)">Деморган</div>
-        <div class="toggle-icon">▼</div>
-    </div>
-    <div id="demorganWrapper" class="reminders-grid" style="padding: 0 15px 15px;">
-        <button class="remind-btn" onclick="addTimerRaw(68, 'Ящики', false)">📦 Ящики (68с)</button>
-        <button class="remind-btn" onclick="addTimerRaw(89, 'Швейка', false)">🧵 Швейка (89с)</button>
-    </div>
-
     <div class="section-title">⭐ Избранное</div>
     <div id="favoriteTimers" class="active-timers-grid" style="min-height: 50px; padding: 0 15px 15px;"></div>
 
-    <div class="section-header-toggle" onclick="toggleWrapper('allTemplatesWrapper', this)">
+    <div class="section-header-toggle" id="dmHeader" onclick="toggleWrapper('demorganWrapper', this)">
+        <div class="section-title" style="color:var(--red)">Деморган</div>
+        <div class="toggle-icon">▼</div>
+    </div>
+    <div id="demorganWrapper" style="padding: 0 15px 15px;">
+        <div id="dmActiveList" class="active-timers-grid" style="padding: 0 0 10px 0;"></div>
+        <div class="reminders-grid" style="padding: 0;">
+            <button class="remind-btn" onclick="addTimerRaw(68, 'Ящики', false, 'dm')">📦 Ящики (68с)</button>
+            <button class="remind-btn" onclick="addTimerRaw(89, 'Швейка', false, 'dm')">🧵 Швейка (89с)</button>
+        </div>
+    </div>
+
+    <div class="section-header-toggle" id="allTemplatesHeader" onclick="toggleWrapper('allTemplatesWrapper', this)">
         <div class="section-title">Все шаблоны</div>
         <div class="toggle-icon">▼</div>
     </div>
@@ -935,6 +938,7 @@ const [bpData, tmData] = await Promise.all([
     renderTimers(); 
     renderTimerPresets(); 
 setupTimersDragAndDrop();
+applyCollapsedState();
     renderFood(); 
     
     const activeGuideBtn = document.querySelector('#tab-guides .seg-btn.active');
@@ -977,21 +981,20 @@ function showNativePopup(title) {
 }
 
 // ВАЖНО: теперь функция принимает СЕКУНДЫ
-function addTimerRaw(seconds, label, notify = true) {
+function addTimerRaw(seconds, label, notify = true, type = 'gen') {
     if (!TIMERS.custom) TIMERS.custom = [];
     
-    // Слияние: обновляем существующий таймер вместо дублирования
     let existing = TIMERS.custom.find(t => t.l === label);
     if (existing) {
         existing.rm = seconds; existing.s = seconds;
         existing.ts = Date.now(); existing.et = Date.now() + (seconds * 1000);
-        existing.run = true;
+        existing.run = true; existing.type = type; // Обновляем тип
     } else {
         const timerId = 't_' + Date.now();
         TIMERS.custom.push({
             id: timerId, l: label, s: seconds, rm: seconds,
             run: true, ts: Date.now(), et: Date.now() + (seconds * 1000),
-            notify: notify, inApp: true
+            notify: notify, inApp: true, type: type // Добавляем тип
         });
     }
     
@@ -1056,22 +1059,22 @@ function delPreset(id) {
 
 function renderTimers() {
     const list = document.getElementById('activeTimersList');
-    if (!list) return;
+    const dmList = document.getElementById('dmActiveList');
+    if (!list || !dmList) return;
     
+    list.innerHTML = '';
+    dmList.innerHTML = '';
+
     if (!TIMERS.custom || TIMERS.custom.length === 0) {
         list.innerHTML = '<div style="padding:0 15px; color:#555; font-size:12px;">Активных задач нет</div>';
-        list.className = "timer-grid-new";
         return;
     }
 
-    // Умная сортировка (по времени до конца)
     let sorted = [...TIMERS.custom].sort((a, b) => a.rm - b.rm);
-    list.innerHTML = '';
-    list.className = "active-timers-grid";
     
     sorted.forEach(t => {
         const pct = t.s > 0 ? (t.rm / t.s) * 150.8 : 0;
-        list.innerHTML += `
+        const html = `
             <div class="timer-bubble ${t.run ? 'running' : ''}" onclick="togTime('${t.id}')">
                 <button class="bubble-close" onclick="event.stopPropagation(); delTime('${t.id}')">✕</button>
                 <div class="circle-wrap">
@@ -1080,7 +1083,18 @@ function renderTimers() {
                 </div>
                 <div class="bubble-title">${t.l}</div>
             </div>`;
+        
+        // Распределяем по спискам в зависимости от типа
+        if (t.type === 'dm') {
+            dmList.innerHTML += html;
+        } else {
+            list.innerHTML += html;
+        }
     });
+    
+    if (list.innerHTML === '') {
+        list.innerHTML = '<div style="padding:0 15px; color:#555; font-size:12px;">Активных задач нет</div>';
+    }
 }
 
 function toggleNotifyTimer(id) { /* Заглушка, чтобы не ломался старый код */ }
@@ -1793,6 +1807,7 @@ function showToast(msg, type='info') {
     if(window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.HapticFeedback.notificationOccurred(type);
     setTimeout(() => { toast.style.animation = 'toastOut 0.3s forwards'; setTimeout(() => toast.remove(), 300); }, 3000);
 }
+
 // Инициализация
 if (window.Telegram && window.Telegram.WebApp) {
     window.Telegram.WebApp.ready();
@@ -1800,6 +1815,17 @@ if (window.Telegram && window.Telegram.WebApp) {
     try { window.Telegram.WebApp.disableVerticalSwipes(); } catch(e){}
 }
 init();
+function applyCollapsedState() {
+    ['demorganWrapper', 'allTemplatesWrapper'].forEach(id => {
+        const isCollapsed = localStorage.getItem('collapsed_' + id) === 'true';
+        if (isCollapsed) {
+            const wrapper = document.getElementById(id);
+            const header = document.querySelector(`[onclick*="${id}"]`);
+            if (wrapper) wrapper.classList.add('collapsed-content');
+            if (header) header.classList.add('collapsed');
+        }
+    });
+}
 </script>
 </body>
 </html>
