@@ -387,9 +387,9 @@ body[class*="theme-white"] .circle-bg { stroke: rgba(0,0,0,0.05); }
 .task-item.compact .task-content { display: flex; flex-direction: column; justify-content: flex-start; flex: none; width: 100%; }
 .task-item.compact .task-text { font-size: 14px !important; white-space: normal; line-height: 1.3; margin-bottom: 4px !important; word-wrap: break-word; }
 
-/* Нижний ряд с кнопками теперь может переноситься, если не влезает */
-.task-item.compact .task-bottom-row { margin: 0 !important; padding: 0 !important; border: none !important; width: 100% !important; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; justify-content: flex-start; }
-.task-item.compact .task-actions-group { margin-left: 0 !important; gap: 6px !important; display: flex; align-items: center; flex-wrap: wrap; }
+/* Нижний ряд с кнопками жестко зафиксирован в одну линию */
+.task-item.compact .task-bottom-row { margin: 0 !important; padding: 0 !important; border: none !important; width: 100% !important; display: flex; align-items: center; flex-wrap: nowrap !important; gap: 6px !important; justify-content: space-between; }
+.task-item.compact .task-actions-group { margin-left: auto !important; gap: 4px !important; display: flex; align-items: center; flex-wrap: nowrap !important; }
 
 /* 3. Круговой прогресс вокруг иконки */
 .icon-ring-wrap { position: relative; width: 44px; height: 44px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-right: 2px; }
