@@ -642,30 +642,33 @@ body[class*="theme-white"] option {
             <div class="stat-box"><div class="stat-val" id="multiplierDisp">x1</div><div class="stat-label">Множ.</div></div>
             <div class="stat-box"><div class="stat-val" id="farmedVal" style="color:var(--green)">+0</div><div class="stat-label">Нафарм.</div></div>
         </div>
-        <div class="glass-toggles">
+        
+        <div class="glass-toggles" style="align-items: center;">
             <button class="neo-btn" id="btnVip" onclick="toggleVip()">👑 VIP</button>
             <button class="neo-btn" id="btnX2" onclick="toggleX2()">⚡ X2</button>
+            
+            <div class="start-bp-box">
+                <span style="font-size:8px; font-weight:800; color:#888; letter-spacing:0.5px;">СТАРТ BP</span>
+                <input type="number" id="startBp" value="" placeholder="0" oninput="updateBP()" class="glass-input-mini">
+            </div>
+            
             <button class="neo-btn" onclick="openSettingsModal()" style="max-width: 45px; padding: 0;">⚙️</button>
         </div>
-        <div class="hero-footer">
-            <span>Стартовые BP:</span>
-            <input type="number" id="startBp" value="" placeholder="0" oninput="updateBP()" class="glass-input">
-        </div>
     </div>
-    
-    <div class="bp-actions-top">
-        <button class="action-btn new-day" onclick="newDay()">🌅 Новый день</button>
-        <button class="action-btn" onclick="openUnhideModal()">👁 Вернуть</button>
-        <button class="action-btn" onclick="forceSync()" style="border-color:var(--accent); color:var(--accent);">🔄 Обновить</button>
-    </div>
-    <div class="sort-container" style="padding: 0 15px 10px; display: flex; justify-content: space-between; color:#666; font-size: 12px; align-items: center;">
-        <span>Удерживайте <b style="color:#aaa">⋮⋮</b> для перемещения</span>
-        <select id="bpSort" class="sort-select" onchange="renderBP()">
+
+    <div class="quick-actions-row">
+        <select id="bpSort" class="glass-select" onchange="renderBP()">
             <option value="user">Сорт: Своя (Drag)</option>
             <option value="def">Сорт: По списку</option>
             <option value="max">Сорт: Дорогие</option>
             <option value="min">Сорт: Дешевые</option>
         </select>
+        
+        <div style="display:flex; gap:6px;">
+            <button class="quick-btn" onclick="newDay()" title="Новый день">🌅</button>
+            <button class="quick-btn" onclick="openUnhideModal()" title="Вернуть скрытые">👁</button>
+            <button class="quick-btn sync-btn" onclick="forceSync()" title="Синхронизация">🔄</button>
+        </div>
     </div>
 
     <div class="sticky-wrapper" id="stickySearchWrap">
@@ -1182,13 +1185,7 @@ function go(id, btn) {
     const currentTab = document.querySelector('.tab-content.active');
     if (currentTab) {
         SCROLL_POS[currentTab.id] = window.scrollY;
-        if (currentTab.id === 'tab-bp') {
-            const searchInput = document.getElementById('searchBp');
-            if (searchInput && searchInput.value !== '') {
-                searchInput.value = '';
-                renderBP();
-            }
-        }
+        // Мы убрали отсюда код, который стирал поиск (searchInput.value = '')
     }
     document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
     document.getElementById('tab-'+id).classList.add('active');
@@ -1579,7 +1576,7 @@ function renderBP() {
             let basePay = t.t.includes("стройке") ? WORK_RATES.build[USER_WORK_SKILLS.build] : (t.t.includes("порту") ? WORK_RATES.port[USER_WORK_SKILLS.port] : WORK_RATES.mine[USER_WORK_SKILLS.mine]);
             const bonusMultiplier = REDNECK_BONUS[USER_WORK_SKILLS.rednecks];
             const totalPay = Math.round((basePay + Math.round(basePay * bonusMultiplier)) * 25);
-            payoutText = `<span style="color:var(--green); font-weight:700; font-size:11px; margin-left:6px;">[${totalPay.toLocaleString('ru-RU')}$]</span>`;
+payoutText = `<span style="color:var(--green); font-weight:700; font-size:11px; margin-left:6px;">Выплата: ${totalPay.toLocaleString('ru-RU')}$</span>`;
         }
 
         let controlHTML = '', ringHTML = '', instantDoneBtn = '';
@@ -1890,22 +1887,28 @@ function changeHeaderTimer(dir) { headerTimerIdx += dir; updateHeaderTimer(); }
 
 function updateHeaderTimer() {
     if (!TIMERS || !TIMERS.custom) return;
-    const active = TIMERS.custom.filter(t => t.run);
+    
+    // 1. Фильтруем и СОРТИРУЕМ таймеры (наименьшее оставшееся время = первый)
+    let active = TIMERS.custom.filter(t => t.run);
+    active.sort((a, b) => {
+        let aLeft = a.et ? Math.ceil((a.et - Date.now()) / 1000) : (a.rm || 0);
+        let bLeft = b.et ? Math.ceil((b.et - Date.now()) / 1000) : (b.rm || 0);
+        return aLeft - bLeft;
+    });
+
     const elLabel = document.getElementById('htLabel'), elTime = document.getElementById('htTime'), elSvgPath = document.querySelector('.ht-rect-path'); 
 
     if (active.length === 0) {
         if(elLabel) elLabel.innerText = "Нет активных";
         if(elTime) { elTime.innerText = "--:--"; elTime.style.color = "#555"; }
-        if(elSvgPath) { 
-            elSvgPath.style.strokeDashoffset = 100; 
-            elSvgPath.style.stroke = 'var(--green)'; // Сбрасываем цвет на зеленый
-        } 
+        if(elSvgPath) { elSvgPath.style.strokeDashoffset = 100; elSvgPath.style.stroke = 'var(--green)'; } 
         return;
     }
 
     if (headerTimerIdx >= active.length) headerTimerIdx = 0;
     if (headerTimerIdx < 0) headerTimerIdx = active.length - 1;
 
+    // Так как массив отсортирован, active[0] ВСЕГДА будет таймером, который закончится раньше всех
     const t = active[headerTimerIdx];
     let timeLeft = t.et ? Math.ceil((t.et - Date.now()) / 1000) : t.rm || 0;
     if (timeLeft < 0) timeLeft = 0;
@@ -1914,15 +1917,9 @@ function updateHeaderTimer() {
     
     if(elSvgPath) {
         elSvgPath.style.strokeDashoffset = 100 - pct;
-        
-        // Логика перехода цветов: Зеленый -> Оранжевый -> Красный
-        if (pct > 50) {
-            elSvgPath.style.stroke = 'var(--green)';
-        } else if (pct > 20) {
-            elSvgPath.style.stroke = 'var(--accent)'; // Оранжевый цвет
-        } else {
-            elSvgPath.style.stroke = 'var(--red)';
-        }
+        if (pct > 50) elSvgPath.style.stroke = 'var(--green)';
+        else if (pct > 20) elSvgPath.style.stroke = 'var(--accent)';
+        else elSvgPath.style.stroke = 'var(--red)';
     }
 
     if(elLabel) { let n = t.l || "Таймер"; elLabel.innerText = n.length > 12 ? n.slice(0, 11) + ".." : n; }
