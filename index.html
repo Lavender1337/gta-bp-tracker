@@ -504,6 +504,77 @@ body[class*="theme-white"] .bottom-nav {
     border: 1px solid rgba(0, 0, 0, 0.08) !important;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
+/* --- ОБНОВЛЕННЫЙ ЛИПКИЙ ПОИСК И МИНИ-СТАТИСТИКА (GLASSMORPHISM) --- */
+.sticky-search {
+    background: rgba(15, 15, 17, 0.75) !important; /* Усиленный эффект прозрачности */
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    padding: 10px 15px 12px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Красивая строка поиска */
+.search-input {
+    height: 40px !important; /* Сделали чуть тоньше и аккуратнее */
+    background: rgba(255, 255, 255, 0.05) !important; /* Полупрозрачный фон */
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 14px !important;
+    color: var(--text-main) !important;
+    padding: 0 16px !important;
+    font-size: 14px !important;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 3px var(--accent-glow) !important;
+}
+
+.search-input::placeholder {
+    color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.mini-stats-row {
+    margin-bottom: 12px !important; /* Ровный отступ до поиска */
+    align-items: center;
+}
+
+/* Адаптация для светлых тем */
+body[class*="theme-white"] .sticky-search {
+    background: rgba(255, 255, 255, 0.85) !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+body[class*="theme-white"] .search-input {
+    background: rgba(0, 0, 0, 0.04) !important;
+    border: 1px solid rgba(0, 0, 0, 0.05) !important;
+    color: #000 !important;
+}
+body[class*="theme-white"] .search-input:focus {
+    background: #fff !important;
+    border-color: var(--accent) !important;
+}
+body[class*="theme-white"] .search-input::placeholder {
+    color: rgba(0, 0, 0, 0.4) !important;
+}
+/* --- УЛЬТРА-КОМПАКТНЫЙ ДАШБОРД BP --- */
+.start-bp-box { display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 4px 6px; flex: 1; max-width: 65px; height: 34px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
+.glass-input-mini { width: 100%; background: transparent !important; border: none !important; color: var(--gold) !important; font-size: 16px !important; font-weight: 800 !important; text-align: center; padding: 0 !important; outline: none; margin-top: -2px; }
+.glass-input-mini::placeholder { color: rgba(255,255,255,0.2); }
+
+.quick-actions-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 15px 12px; }
+.glass-select { flex: 1; height: 38px; background: rgba(255,255,255,0.03) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: var(--text-main) !important; border-radius: 12px; font-size: 12px; font-weight: 600; padding: 0 12px !important; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23888888%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E") !important; background-repeat: no-repeat !important; background-position: right 10px top 50% !important; background-size: 10px auto !important; }
+.quick-btn { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; font-size: 16px; cursor: pointer; transition: 0.2s; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+.quick-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.1); }
+.quick-btn.sync-btn { border-color: rgba(249, 115, 22, 0.3); color: var(--accent); background: rgba(249, 115, 22, 0.05); }
+
+/* Адаптация под светлые темы */
+body[class*="theme-white"] .start-bp-box { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.1); box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); }
+body[class*="theme-white"] .glass-input-mini { color: var(--accent) !important; }
+body[class*="theme-white"] .glass-select { background: rgba(255,255,255,0.8) !important; border-color: rgba(0,0,0,0.1) !important; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+body[class*="theme-white"] .quick-btn { background: #ffffff; border-color: rgba(0,0,0,0.1); color: #000; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 </style>
 </head>
 <body>
@@ -514,36 +585,40 @@ body[class*="theme-white"] .bottom-nav {
 </div>
 
 <div id="tab-bp" class="tab-content active">
-<div class="bp-hero glass-hero">
+<div class="bp-hero glass-hero" style="margin-bottom: 12px;">
         <div class="hero-stats-grid">
             <div class="stat-box"><div class="stat-val" id="totalBp">0</div><div class="stat-label">BP</div></div>
             <div class="stat-box"><div class="stat-val" id="totalTime">0</div><div class="stat-label">Часы</div></div>
             <div class="stat-box"><div class="stat-val" id="multiplierDisp">x1</div><div class="stat-label">Множ.</div></div>
             <div class="stat-box"><div class="stat-val" id="doneCount">0</div><div class="stat-label">Готово</div></div>
         </div>
-        <div class="glass-toggles">
+        
+        <div class="glass-toggles" style="align-items: center;">
             <button class="neo-btn" id="btnVip" onclick="toggleVip()">👑 VIP</button>
             <button class="neo-btn" id="btnX2" onclick="toggleX2()">⚡ X2</button>
+            
+            <div class="start-bp-box">
+                <span style="font-size:8px; font-weight:800; color:#888; letter-spacing:0.5px;">СТАРТ BP</span>
+                <input type="number" id="startBp" value="" placeholder="0" oninput="updateBP()" class="glass-input-mini">
+            </div>
+            
             <button class="neo-btn" onclick="openSettingsModal()" style="max-width: 45px; padding: 0;">⚙️</button>
         </div>
-        <div class="hero-footer">
-            <span>Стартовые BP:</span>
-            <input type="number" id="startBp" value="" placeholder="0" oninput="updateBP()" class="glass-input">
-        </div>
     </div>
-    <div class="bp-actions-top">
-        <button class="action-btn new-day" onclick="newDay()">🌅 Новый день</button>
-        <button class="action-btn" onclick="openUnhideModal()">👁 Вернуть</button>
-        <button class="action-btn" onclick="forceSync()" style="border-color:var(--accent); color:var(--accent);">🔄 Обновить</button>
-    </div>
-    <div class="sort-container" style="padding: 0 15px 10px; display: flex; justify-content: space-between; color:#666; font-size: 12px; align-items: center;">
-        <span>Удерживайте <b style="color:#aaa">⋮⋮</b> для перемещения</span>
-        <select id="bpSort" class="sort-select" onchange="renderBP()">
+
+    <div class="quick-actions-row">
+        <select id="bpSort" class="glass-select" onchange="renderBP()">
             <option value="user">Сорт: Своя (Drag)</option>
             <option value="def">Сорт: По списку</option>
-            <option value="max">Сорт: Кол-во (Много)</option>
-            <option value="min">Сорт: Кол-во (Мало)</option>
+            <option value="max">Сорт: Дорогие</option>
+            <option value="min">Сорт: Дешевые</option>
         </select>
+        
+        <div style="display:flex; gap:6px;">
+            <button class="quick-btn" onclick="newDay()" title="Новый день">🌅</button>
+            <button class="quick-btn" onclick="openUnhideModal()" title="Вернуть скрытые">👁</button>
+            <button class="quick-btn sync-btn" onclick="forceSync()" title="Синхронизация">🔄</button>
+        </div>
     </div>
     <div class="sticky-search">
         <div class="mini-stats-row">
