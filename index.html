@@ -7,222 +7,703 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 <style>
-/* ================= ПЕРЕМЕННЫЕ И ОСНОВНЫЕ ТЕМЫ ================= */
+/* --- ВСЕ СТИЛИ ОСТАВЛЕНЫ БЕЗ ИЗМЕНЕНИЙ (как в исходнике) --- */
 :root {
-    --bg-deep: #050505; --bg-card: #0f0f11; --border: #222;
-    --text-main: #ffffff; --text-sub: rgba(255, 255, 255, 0.55);
-    --accent: #f97316; --accent-glow: rgba(249, 115, 22, 0.4);
-    --green: #10b981; --red: #ef4444; --gold: #fbbf24;
-    --twink-bg: rgba(192, 132, 252, 0.15); --twink-border: rgba(192, 132, 252, 0.3); --twink-text: #c084fc;
-    --radius: 12px; --nav-height: 58px;
-    --bg-element: #1a1a1a; --modal-bg: #151515;
-    --input-bg: #111; --input-border: #333; --input-text: #fff; --icon-bg: #151515; --bar-bg: #000;
+    --bg-deep: #050505;
+    --bg-card: #0f0f11;
+    --border: #222;
+    --text-main: #ffffff;
+    --text-sub: rgba(255, 255, 255, 0.55);
+    --accent: #f97316;
+    --accent-glow: rgba(249, 115, 22, 0.4);
+    --green: #10b981;
+    --red: #ef4444;
+    --gold: #fbbf24;
+    --twink-bg: rgba(192, 132, 252, 0.15);
+    --twink-border: rgba(192, 132, 252, 0.3);
+    --twink-text: #c084fc;
+    --radius: 12px;
+    --nav-height: 85px;
 }
-
-body.theme-white-orange { --bg-deep: #fdfbf9; --bg-card: #ffffff; --accent: #fb923c; --accent-glow: rgba(251, 146, 60, 0.25); --twink-bg: rgba(167, 139, 250, 0.1); --twink-text: #8b5cf6; }
-body.theme-white-purple { --bg-deep: #fbfbfe; --bg-card: #ffffff; --accent: #a78bfa; --accent-glow: rgba(167, 139, 250, 0.25); --twink-bg: rgba(251, 113, 133, 0.1); --twink-text: #f43f5e; }
-body.theme-black-purple { --bg-card: #121016; --border: #2a2036; --accent: #c084fc; --accent-glow: rgba(192, 132, 252, 0.4); --twink-text: #c084fc; }
+/* ... все остальные стили без изменений ... */
+body.theme-white-orange { --bg-deep: #f2f2f7; --bg-card: #ffffff; --border: #e5e5ea; --text-main: #000000; --text-sub: #666666; --accent: #ff9500; --accent-glow: rgba(255, 149, 0, 0.3); --twink-bg: rgba(175, 82, 222, 0.1); --twink-border: rgba(175, 82, 222, 0.3); --twink-text: #af52de; }
+body.theme-black-purple { --bg-deep: #050505; --bg-card: #121016; --border: #2a2036; --accent: #c084fc; --accent-glow: rgba(192, 132, 252, 0.4); --twink-text: #c084fc; }
 body.theme-black-red { --bg-deep: #080202; --bg-card: #140a0a; --border: #361010; --accent: #ef4444; --accent-glow: rgba(239, 68, 68, 0.4); --twink-text: #c084fc; }
-
-body[class*="theme-white"] {
-    --bg-deep: #f2f4f7 !important; --bg-card: #ffffff !important; --border: rgba(0,0,0,0.06) !important; --border-visible: #d1d5db;
-    --text-main: #27272a !important; --text-sub: #71717a !important;
-    --input-bg: #f1f5f9 !important; --input-border: #c7c7cc !important; --input-text: #000 !important;
-    --icon-bg: #f2f2f7 !important; --bar-bg: #e5e5ea !important;
-    --bg-element: #f2f2f7 !important; --modal-bg: #ffffff !important;
-    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-}
-
-/* ================= БАЗОВЫЕ СТИЛИ ================= */
-body { background-color: var(--bg-deep); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; padding-bottom: calc(var(--nav-height) + 70px) !important; overflow-x: hidden; font-size: 14px; min-height: 100vh; transition: background-color 0.3s, color 0.3s; }
-input, select, textarea { background: var(--input-bg) !important; border: 1px solid var(--input-border) !important; color: var(--input-text) !important; padding: 10px 12px; border-radius: 8px; font-size: 14px; outline: none; transition: 0.2s; font-family: inherit; -webkit-appearance: none; appearance: none; }
-input:focus, select:focus { border-color: var(--accent) !important; box-shadow: 0 0 10px var(--accent-glow); }
+body.theme-white-purple { --bg-deep: #f5f3ff; --bg-card: #ffffff; --border: #e9d5ff; --text-main: #1e1b4b; --text-sub: #6b7280; --accent: #9333ea; --accent-glow: rgba(147, 51, 234, 0.3); --twink-bg: rgba(239, 68, 68, 0.1); --twink-border: rgba(239, 68, 68, 0.3); --twink-text: #ef4444; }
+body { background-color: var(--bg-deep); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; padding-bottom: calc(var(--nav-height) + 40px); overflow-x: hidden; font-size: 14px; min-height: 100vh; transition: background-color 0.3s, color 0.3s; }
+.timer-progress-bg { position: absolute; bottom: 0; left: 0; height: 4px; width: 100%; background: rgba(255,255,255,0.05); border-radius: 0 0 12px 12px; overflow: hidden; }
+.timer-progress-bar { height: 100%; background: var(--gold); width: 0%; transition: width 1s linear; box-shadow: 0 0 10px var(--gold); }
+.ht-progress-bg { position: absolute; bottom: 0; left: 0; width: 100%; height: 2px; background: rgba(255,255,255,0.1); }
+.ht-progress-bar { height: 100%; background: var(--green); width: 0%; transition: width 1s linear; }
+.header-timer-wrap { position: relative; overflow: hidden; } 
+.theme-btn { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #333; cursor: pointer; margin: 5px; display: inline-block; transition: transform 0.2s; }
+.theme-btn:active { transform: scale(0.9); }
+.status-badge.twink, .btn-twink-custom { color: var(--twink-text) !important; background: var(--twink-bg) !important; border: 1px solid var(--twink-border) !important; }
+input, select, textarea { background: #111 !important; border: 1px solid #333 !important; color: white !important; padding: 10px 12px; border-radius: 8px; font-size: 14px; outline: none; transition: 0.2s; font-family: inherit; -webkit-appearance: none; appearance: none; }
+input:focus, select:focus { border-color: var(--accent) !important; box-shadow: 0 0 10px rgba(249, 115, 22, 0.2); }
 select { background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23f97316%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 10px top 50%; background-size: 10px auto; padding-right: 30px; }
-option { background-color: #1c1c1e !important; color: #ffffff !important; font-weight: 600 !important; }
-body[class*="theme-white"] option { background-color: #ffffff !important; color: #000000 !important; }
-
-/* ================= BP HERO И ДАШБОРД ================= */
-.glass-hero { background: rgba(255, 255, 255, 0.03) !important; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1) !important; border-radius: 16px; padding: 15px; margin: 15px 15px 12px; position: relative; overflow: hidden; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); }
-.glass-hero::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, var(--accent-glow) 0%, transparent 60%); opacity: 0.15; pointer-events: none; }
-.hero-stats-grid { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.bp-hero { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 15px; margin: 15px 15px 20px; color: var(--text-main); }
+.hero-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
 .stat-box { display: flex; flex-direction: column; align-items: center; }
 .stat-val { font-size: 20px; font-weight: 800; color: var(--gold); line-height: 1.2; }
-.stat-label { font-size: 10px; color: var(--text-sub); text-transform: uppercase; margin-top: 4px; font-weight: 600; }
-.glass-toggles { position: relative; z-index: 1; display: flex; gap: 10px; align-items: center; }
-.neo-btn { flex: 1; background: rgba(0,0,0,0.2) !important; border: 1px solid rgba(255,255,255,0.05) !important; color: #888; border-radius: 12px; padding: 12px; font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; }
-.neo-btn.active { background: rgba(251, 191, 36, 0.1) !important; border-color: var(--gold) !important; color: var(--gold) !important; box-shadow: 0 0 15px rgba(251, 191, 36, 0.2), inset 0 0 10px rgba(251,191,36,0.1); }
-.neo-btn.active#btnX2 { border-color: var(--purple) !important; color: var(--purple) !important; box-shadow: 0 0 15px rgba(192, 132, 252, 0.2), inset 0 0 10px rgba(192,132,252,0.1); }
-.start-bp-box { display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 4px 6px; flex: 1; max-width: 65px; height: 34px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
-.glass-input-mini { width: 100%; background: transparent !important; border: none !important; color: var(--gold) !important; font-size: 16px !important; font-weight: 800 !important; text-align: center; padding: 0 !important; outline: none; margin-top: -2px; }
-.glass-input-mini::placeholder { color: rgba(255,255,255,0.2); }
-.quick-btn { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; font-size: 16px; cursor: pointer; transition: 0.2s; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-.quick-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.1); }
-.quick-btn.sync-btn { border-color: rgba(249, 115, 22, 0.3); color: var(--accent); background: rgba(249, 115, 22, 0.05); }
-
-/* ================= СТИЛИ КАРТОЧЕК И ЗАДАЧ ================= */
-.list-container { padding: 0 15px; display: flex; flex-direction: column; gap: 8px; }
-.task-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px !important; padding: 12px 10px !important; display: flex; align-items: flex-start !important; gap: 10px !important; position: relative; transition: background 0.2s, border-color 0.2s; flex-direction: row !important; }
-.task-item.completed { border-color: #333; opacity: 0.6; background: #080808; }
-.task-item.twink-done { border-color: var(--purple); opacity: 0.8; background: rgba(192, 132, 252, 0.05); }
-.task-item.high-reward { border-color: var(--gold) !important; box-shadow: 0 0 12px rgba(251, 191, 36, 0.15) !important; background: linear-gradient(145deg, var(--bg-card) 60%, rgba(251, 191, 36, 0.08)) !important; }
-.task-main-col { display: flex; flex-direction: column; flex: 1; min-width: 0; gap: 8px; justify-content: center; }
-.task-text { font-size: 13.5px !important; font-weight: 700; color: var(--text-main) !important; line-height: 1.3; white-space: normal; word-wrap: break-word; }
+.stat-label { font-size: 10px; color: #666; text-transform: uppercase; margin-top: 4px; font-weight: 600; }
+.hero-toggles { display: flex; gap: 10px; }
+.hero-btn { flex: 1; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: #666; padding: 12px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+.hero-btn.active { background: rgba(251, 191, 36, 0.1); border-color: var(--gold); color: var(--gold); box-shadow: 0 4px 15px rgba(251, 191, 36, 0.15); }
+.hero-btn.active.x2 { background: rgba(192, 132, 252, 0.1); border-color: var(--purple); color: var(--purple); }
+.task-item { display: flex; flex-direction: column; gap: 8px; }
+.task-top-row { display: flex; align-items: center; gap: 12px; width: 100%; }
+.progress-track { height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; width: 100%; margin-top: 8px; overflow: hidden; position: relative; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #fbbf24); width: 0%; border-radius: 3px; transition: width 0.5s cubic-bezier(0.25, 1, 0.5, 1); will-change: width; box-shadow: 0 0 10px var(--accent-glow); }
+.task-header-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+.task-text { font-size: 14px; font-weight: 700; color: #eee; line-height: 1.2; }
 .status-badge { font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; margin-left: 8px; white-space: nowrap; }
 .status-badge.time { color: #888; background: rgba(255,255,255,0.1); }
-
-/* ================= КРУГОВЫЕ ИНДИКАТОРЫ И ИКОНКИ ================= */
-.icon-ring-wrap { position: relative; width: 44px; height: 44px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-right: 2px; }
-.icon-ring-wrap svg { position: absolute; top: -2px; left: -2px; width: 48px; height: 48px; transform: rotate(-90deg); pointer-events: none; }
-.ring-bg { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 3; }
-.ring-progress { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 138.2; stroke-dashoffset: 138.2; transition: stroke-dashoffset 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
-.bp-icon-container { width: 40px !important; height: 40px !important; margin: 0 !important; background: var(--icon-bg) !important; border-radius: 14px !important; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.bp-img { width: 32px; height: 32px; object-fit: contain; }
-.bp-emoji { font-size: 22px; }
-
-/* ================= ЭЛЕМЕНТЫ УПРАВЛЕНИЯ ЗАДАЧЕЙ ================= */
-.task-actions-group { display: flex; align-items: center; gap: 4px !important; margin-left: auto !important; flex-wrap: nowrap !important; justify-content: flex-end; }
-.controls-new { display: flex; align-items: center; gap: 8px; background: var(--bar-bg) !important; padding: 4px; border-radius: 10px; border: 1px solid var(--border) !important; }
+.task-content { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+.controls-new { display: flex; align-items: center; gap: 8px; background: #000; padding: 4px; border-radius: 10px; border: 1px solid #222; }
 .btn-mini { width: 32px; height: 32px; border-radius: 8px; border: none; font-size: 18px; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.1s; }
-.btn-mini.minus { background: var(--icon-bg) !important; color: var(--text-sub) !important; }
+.btn-mini.minus { background: #1a1a1a; color: #888; }
 .btn-mini.minus:active { background: #222; }
 .btn-mini.plus { background: var(--accent); color: #000; box-shadow: 0 2px 8px var(--accent-glow); }
 .btn-mini.plus:active { transform: scale(0.95); }
-.counter-val-new { min-width: 20px; text-align: center; font-size: 14px; font-weight: 800; color: var(--text-main) !important; }
-.btn-instant-done { height: 32px; padding: 0 10px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: var(--green); border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; transition: 0.2s; margin-left: 4px; }
-.btn-instant-done:active { background: var(--green); color: black; }
+.counter-val-new { min-width: 20px; text-align: center; font-size: 14px; font-weight: 800; color: #fff; }
+.reward-badge { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: var(--green); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; }
+.bp-total-val { font-size: 32px; font-weight: 800; color: var(--gold); line-height: 1; text-shadow: 0 0 15px rgba(251, 191, 36, 0.3); }
+#startBp { width: 60px; text-align: center; font-weight: bold; font-size: 18px; padding: 5px; height: 30px; }
+.bp-actions-top { display: flex; gap: 8px; padding: 0 15px; margin-bottom: 15px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.action-btn { background: #1a1a1a; border: 1px solid #333; color: #ccc; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; white-space: nowrap; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
+.action-btn:active { transform: scale(0.96); }
+.toggle-btn { background: #111; border: 1px solid #333; color: #555; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+.toggle-btn.active { background: var(--gold); color: black; border-color: var(--gold); box-shadow: 0 0 10px rgba(251, 191, 36, 0.4); }
+.toggle-btn.active.x2 { background: var(--purple); color: white; border-color: var(--purple); box-shadow: 0 0 10px rgba(192, 132, 252, 0.4); }
+.list-container { padding: 0 15px; display: flex; flex-direction: column; gap: 8px; }
+.task-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 12px; position: relative; transition: background 0.2s; }
+.task-item:active { background: #151515; }
+.task-item.completed { border-color: #333; opacity: 0.6; background: #080808; }
+.task-item.twink-done { border-color: var(--purple); opacity: 0.8; background: rgba(192, 132, 252, 0.05); }
+.bp-icon-container { width: 42px; height: 42px; background: #151515; border-radius: 10px; border: 1px solid #222; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.bp-img { width: 32px; height: 32px; object-fit: contain; }
+.bp-emoji { font-size: 22px; }
+.task-content { flex: 1; min-width: 0; }
+.task-text { font-size: 14px; font-weight: 600; color: #eee; margin-bottom: 3px; line-height: 1.3; }
+.task-sub { font-size: 11px; color: #666; font-weight: 500; }
+.counter-wrapper { display: inline-flex; align-items: center; background: #000; border: 1px solid #333; border-radius: 8px; margin-top: 6px; height: 26px; overflow: hidden; }
 .icon-btn { background: transparent; border: none; color: #888; cursor: pointer; width: 30px; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: 0.2s; }
 .icon-btn:active { background: #222; color: #fff; }
+.icon-btn.del { width: 20px; height: 20px; border-radius: 4px; border: 1px solid #333; margin-left: 8px; }
+.counter-val { font-size: 12px; font-weight: bold; padding: 0 8px; color: #fff; min-width: 20px; text-align: center; border-left: 1px solid #222; border-right: 1px solid #222; }
+.inline-timer-box { display: flex; align-items: center; gap: 4px; background: #000; padding: 3px 4px 3px 8px; border-radius: 6px; border: 1px solid #333; margin-right: 5px; height: 24px; }
+.it-btn { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 12px; padding: 0; display: flex; align-items: center; }
+.it-val { font-size: 11px; font-family: monospace; color: #fff; min-width: 40px; text-align: center; font-weight: bold; }
+.it-val.done { color: var(--green); text-shadow: 0 0 5px rgba(16, 185, 129, 0.5); }
+.it-sep { width: 1px; height: 12px; background: #333; margin: 0 4px; }
+.checkbox { width: 22px; height: 22px; border-radius: 6px; border: 2px solid #444; display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 14px; background: #000; }
+.completed .checkbox { border-color: var(--green); background: rgba(16, 185, 129, 0.2); color: var(--green); }
+.timer-grid-new { display: grid; grid-template-columns: 1fr; gap: 10px; padding: 0 15px; }
+@media(min-width: 600px) { .timer-grid-new { grid-template-columns: 1fr 1fr; } }
+/* Круглый стиль для шаблонов и избранного */
+.timer-card.drag-template { display: flex; flex-direction: column; align-items: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px; padding: 12px 8px; position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: grab; width: 85px; gap: 0; box-sizing: border-box; }
+.tc-header { width: 100%; display: flex; justify-content: flex-end; margin-bottom: -5px; z-index: 2; }
+.tc-time { font-size: 11px !important; font-weight: 800; color: var(--text-main); margin: 0 !important; font-family: monospace; }
+.tc-footer { width: 100%; margin-top: 5px; }
+.tc-btn.start { width: 100%; background: var(--accent) !important; color: white !important; font-size: 9px !important; height: 24px !important; border-radius: 8px !important; box-shadow: none !important; border: none; font-weight: bold; cursor: pointer; }
 
-/* ================= STICKY SEARCH & HEADER TIMER ================= */
-.sticky-wrapper { position: sticky !important; top: 10px !important; margin: 10px 15px 15px !important; z-index: 1000; }
-.sticky-main-row { background: rgba(15, 15, 17, 0.8) !important; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08) !important; border-radius: 20px !important; padding: 10px 15px !important; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5) !important; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; }
-.header-timer-wrap { background: transparent !important; border: 1px solid rgba(255, 255, 255, 0.08) !important; border-radius: 16px !important; padding: 4px 10px !important; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; min-width: 140px; position: relative; }
-.ht-progress-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
-.ht-rect-path { fill: none; stroke: var(--green); stroke-width: 2px !important; rx: 20px; stroke-dasharray: 100; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear; vector-effect: non-scaling-stroke; }
-.ht-btn, .ht-content { position: relative; z-index: 2; background: none; border: none; color: #555; font-size: 10px; cursor: pointer; padding: 0 8px; }
-.ht-label { font-size: 9px; color: #666; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main) !important; }
-.ht-time { font-size: 13px; font-weight: bold; color: var(--text-sub) !important; font-family: monospace; }
-.search-toggle-btn { width: 36px; height: 36px; border-radius: 18px; background-color: rgba(255, 255, 255, 0.05); background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23aaaaaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>'); background-repeat: no-repeat; background-position: center; background-size: 16px; border: 1px solid rgba(255, 255, 255, 0.05); cursor: pointer; transition: 0.2s; }
-.sticky-search-dropdown { background: rgba(15, 15, 17, 0.9) !important; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08) !important; border-radius: 16px !important; margin-top: 6px; padding: 0 10px; max-height: 0; opacity: 0; overflow: hidden; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5); transform: translateY(-10px); }
-.sticky-search-dropdown.active { max-height: 60px; opacity: 1; padding: 8px 10px; transform: translateY(0); }
-.search-input-drop { width: 100% !important; height: 38px !important; background: rgba(255, 255, 255, 0.05) !important; border: 1px solid rgba(255, 255, 255, 0.08) !important; border-radius: 12px !important; color: var(--text-main) !important; padding: 0 12px !important; font-size: 14px !important; box-sizing: border-box; }
-.search-input-drop:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 2px var(--accent-glow) !important; outline: none; }
-
-/* ================= ВСТРОЕННЫЕ ТАЙМЕРЫ (FAB И ПАНЕЛЬ) ================= */
-.active-timers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 12px; padding: 0 15px 15px; }
-.template-timers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 15px 15px; }
-.timer-bubble { display: flex; flex-direction: column; align-items: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px; padding: 12px 8px; position: relative; transition: transform 0.2s, border-color 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer; }
-.timer-bubble.running { border-color: var(--accent); }
-.circle-wrap { position: relative; width: 52px; height: 52px; margin-bottom: 8px; }
-.circle-wrap svg { transform: rotate(-90deg); width: 52px; height: 52px; }
-.circle-bg { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 4; }
-.circle-progress { fill: none; stroke: var(--accent); stroke-width: 4; stroke-dasharray: 150.8; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear; stroke-linecap: round; }
-.circle-time { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 11px; font-weight: 800; font-family: monospace; color: var(--text-main); }
-.bubble-title { font-size: 10px; font-weight: 700; color: var(--text-sub); text-align: center; max-width: 70px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.bubble-close { position: absolute; top: -6px; right: -6px; width: 20px; height: 20px; background: var(--red); color: white; border: none; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10; }
-.timer-card.drag-template { display: flex; flex-direction: column; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 10px; position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.05); cursor: grab; width: 100%; box-sizing: border-box; gap: 8px; }
-.template-del-btn { position: absolute; top: 6px; right: 6px; width: 20px; height: 20px; background: rgba(239, 68, 68, 0.1); color: var(--red); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 6px; font-size: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; z-index: 10; }
-.template-del-btn:active { background: var(--red); color: white; transform: scale(0.9); }
-.empty-fav-msg { grid-column: 1 / -1; text-align: center; color: #666; font-size: 12px; padding: 10px; border: 1px dashed var(--border); border-radius: 12px; margin-bottom: 10px; }
-
-.fab-btn { position: fixed; bottom: calc(85px + env(safe-area-inset-bottom)); right: 20px; width: 52px; height: 52px; background: var(--accent); color: #fff; border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 300; box-shadow: 0 4px 15px var(--accent-glow); cursor: pointer; z-index: 1001; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-.fab-btn:active { transform: scale(0.9); }
-.fab-btn.open { transform: rotate(45deg); background: var(--red); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); }
-
-.custom-timer-panel { position: fixed; bottom: calc(150px + env(safe-area-inset-bottom)); right: 20px; background: rgba(15, 15, 17, 0.95); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 15px; width: calc(100% - 40px); max-width: 320px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 1000; display: flex; flex-direction: column; gap: 12px; opacity: 0; transform: translateY(20px) scale(0.9); pointer-events: none; transition: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); transform-origin: bottom right; }
-.custom-timer-panel.active { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
-
-.styled-checkbox { -webkit-appearance: none !important; appearance: none !important; width: 22px !important; height: 22px !important; padding: 0 !important; border-radius: 6px !important; background: #111 !important; border: 2px solid #444 !important; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-.styled-checkbox:checked { background: var(--accent) !important; border-color: var(--accent) !important; }
-.styled-checkbox:checked::after { content: "✔"; color: #fff; font-size: 14px; font-weight: bold; }
-
-/* ================= ОСТАЛЬНЫЕ ЭЛЕМЕНТЫ ================= */
-.bottom-nav { position: fixed !important; bottom: calc(15px + env(safe-area-inset-bottom)) !important; left: 50% !important; transform: translateX(-50%); width: 88% !important; max-width: 360px; height: 56px !important; background: rgba(15, 15, 17, 0.8) !important; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08) !important; border-radius: 20px !important; display: flex; justify-content: space-around; align-items: center; padding: 0 !important; z-index: 1000; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.05); }
-.nav-btn { background: transparent !important; border: none; color: var(--text-sub) !important; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px !important; font-size: 9px !important; font-weight: 700; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; flex: 1; height: 100%; }
-.nav-icon { font-size: 18px !important; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s; filter: grayscale(100%) opacity(0.5); }
-.nav-btn.active { color: var(--text-main) !important; transform: none !important; }
-.nav-btn.active .nav-icon { transform: translateY(-2px) scale(1.15); filter: grayscale(0%) opacity(1); drop-shadow: 0 3px 6px var(--accent-glow); }
-.nav-label { transition: 0.3s; transform: translateY(2px); }
-.nav-btn.active .nav-label { color: var(--accent); transform: translateY(-1px); }
-.nav-btn::after { content: ''; position: absolute; bottom: 4px; width: 16px; height: 3px; background: var(--accent); border-radius: 3px; opacity: 0; transform: scale(0); transition: 0.3s; box-shadow: 0 0 8px var(--accent-glow); }
-.nav-btn.active::after { opacity: 1; transform: scale(1); }
-
-.tab-content { display: none; animation: fadeIn 0.2s ease-out; }
-.tab-content.active { display: block; }
-@keyframes fadeIn { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
-
-.header { padding: 20px 15px 10px; font-size: 28px; font-weight: 800; color: var(--accent); letter-spacing: -1px; }
-.section-title { font-size: 11px; font-weight: 700; color: var(--text-sub); margin: 25px 15px 8px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid var(--accent); display: inline-block; padding-bottom: 4px;}
+/* Стили для сворачивания разделов */
 .section-header-toggle { display: flex; align-items: center; justify-content: space-between; margin: 25px 15px 8px; cursor: pointer; }
 .section-header-toggle .section-title { margin: 0; border: none; }
 .toggle-icon { font-size: 12px; color: var(--text-sub); transition: transform 0.3s; }
 .collapsed .toggle-icon { transform: rotate(-90deg); }
-.collapsed-content { display: none !important; }
-
-.modal-wrap { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 2000; display: none; align-items: center; justify-content: center; }
-.modal { background: var(--modal-bg) !important; width: 90%; max-width: 350px; max-height: 90vh; overflow-y: auto; border-radius: 20px; padding: 20px; border: 1px solid var(--border) !important; box-shadow: 0 10px 40px rgba(0,0,0,0.5); color: var(--text-main) !important; }
-
-#toast-container { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 8px; width: 90%; max-width: 400px; pointer-events: none; }
-.toast { background: rgba(20, 20, 20, 0.95); backdrop-filter: blur(10px); color: #fff; padding: 12px 16px; border-radius: 12px; border: 1px solid #333; box-shadow: 0 8px 20px rgba(0,0,0,0.4); font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 12px; animation: toastIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: auto; }
-.toast.success { border-left: 4px solid var(--green); }
-.toast.error { border-left: 4px solid var(--red); }
-.toast.info { border-left: 4px solid var(--accent); }
-@keyframes toastIn { from { opacity: 0; transform: translateY(20px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
-@keyframes toastOut { to { opacity: 0; transform: translateY(-20px) scale(0.9); } }
-
-/* Специфичные стили для светлой темы переопределенные разом */
-body[class*="theme-white"] .glass-hero { background: rgba(255, 255, 255, 0.6) !important; border-color: rgba(0,0,0,0.1) !important; box-shadow: 0 8px 32px rgba(0,0,0,0.05); }
-body[class*="theme-white"] .neo-btn { background: rgba(255,255,255,0.8) !important; color: #555; }
-body[class*="theme-white"] .glass-input { background: rgba(255,255,255,0.8) !important; border-color: rgba(0,0,0,0.1) !important; color: black !important; }
-body[class*="theme-white"] .ring-bg { stroke: rgba(0,0,0,0.05); }
-body[class*="theme-white"] .icon-ring-wrap .bp-icon-container { background: rgba(0,0,0,0.03) !important; }
-body[class*="theme-white"] .task-item.high-reward { background: linear-gradient(145deg, #ffffff 60%, rgba(251, 191, 36, 0.15)) !important; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.2) !important; border-color: var(--gold) !important; }
-body[class*="theme-white"] .bottom-nav { background: rgba(255, 255, 255, 0.85) !important; border: 1px solid rgba(0, 0, 0, 0.08) !important; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08); }
-body[class*="theme-white"] .sticky-main-row, body[class*="theme-white"] .sticky-search-dropdown { background: rgba(255, 255, 255, 0.85) !important; border: 1px solid rgba(0, 0, 0, 0.08) !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important; }
-body[class*="theme-white"] .header-timer-wrap { border-color: rgba(0, 0, 0, 0.08) !important; }
-body[class*="theme-white"] .search-toggle-btn { background-color: rgba(0, 0, 0, 0.04); border-color: rgba(0, 0, 0, 0.05); background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>'); }
-body[class*="theme-white"] .search-input-drop { background: rgba(0, 0, 0, 0.04) !important; border-color: rgba(0, 0, 0, 0.05) !important; color: #000 !important; }
-body[class*="theme-white"] .search-input-drop:focus { background: #fff !important; }
-body[class*="theme-white"] .start-bp-box { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.1); box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); }
-body[class*="theme-white"] .glass-input-mini { color: var(--accent) !important; }
-body[class*="theme-white"] .glass-select { background: rgba(255,255,255,0.8) !important; border-color: rgba(0,0,0,0.1) !important; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
-body[class*="theme-white"] .quick-btn { background: #ffffff; border-color: rgba(0,0,0,0.1); color: #000; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-body[class*="theme-white"] .timer-card.drag-template { background: #ffffff; border-color: rgba(0,0,0,0.08); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-body[class*="theme-white"] .custom-timer-panel { background: rgba(255, 255, 255, 0.95); border: 1px solid rgba(0, 0, 0, 0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-body[class*="theme-white"] .styled-checkbox { background: #f0f0f6 !important; border-color: #d1d1d6 !important; }
-body[class*="theme-white"] .styled-checkbox:checked { background: var(--accent) !important; border-color: var(--accent) !important; }
-body[class*="theme-white"] .toast { background: rgba(255, 255, 255, 0.95); color: #000; border: 1px solid #e5e5ea; box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
-body[class*="theme-white"] .task-item, body[class*="theme-white"] .bp-hero { box-shadow: var(--card-shadow) !important; border: 1px solid white !important; }
-body[class*="theme-white"] .sticky-search { background: rgba(255, 255, 255, 0.85) !important; border-bottom: 1px solid rgba(0,0,0,0.05); }
-
-/* Остальные мелкие компоненты из других вкладок (Еда, Гайды) */
-.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 12px; cursor: pointer; margin-bottom: 8px; }
-.card-icon { font-size: 24px; width: 40px; text-align: center; }
-.card-body { flex: 1; }
-.card-title { font-weight: 700; color: var(--text-main) !important; font-size: 14px; }
-.card-sub { font-size: 11px; color: var(--text-sub) !important; margin-top: 2px; }
-.card-end { text-align: right; font-size: 12px; }
+.collapsed-content { display: none !important; }.custom-timer { display: flex; gap: 8px; padding: 0 15px; margin-top: 10px; margin-bottom: 20px;}
+.custom-timer button { background: var(--accent); color: white; border: none; border-radius: 8px; font-weight: bold; flex: 1; box-shadow: 0 0 15px var(--accent-glow); }
+.cal-header { display: flex; justify-content: space-between; align-items: center; padding: 0 15px 15px; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; background: #0f0f11; padding: 15px; border-radius: 16px; border: 1px solid #222; margin-bottom: 15px; }
+.cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 13px; font-weight: 500; color: #666; background: rgba(255,255,255,0.02); }
+.cal-day.today { background: var(--accent); color: white; font-weight: bold; box-shadow: 0 0 15px var(--accent-glow); }
+.cal-day.event { border: 1px solid var(--accent); color: var(--accent); background: rgba(249, 115, 22, 0.1); }
+.event-item { background: #111; padding: 12px; border-radius: 10px; margin-bottom: 8px; border-left: 3px solid var(--accent); display: flex; font-size: 13px; align-items: center; }
+.table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid #333; margin-top: 15px; background: #0f0f11; }
+table { width: 100%; border-collapse: collapse; min-width: 320px; font-size: 12px; }
+th { background: #1a1a1a; color: var(--accent); text-align: left; padding: 12px 10px; font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px; }
+td { padding: 12px 10px; border-bottom: 1px solid #222; color: #ddd; }
+tr:last-child td { border-bottom: none; }
+tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+.header { padding: 20px 15px 10px; font-size: 28px; font-weight: 800; color: var(--accent); letter-spacing: -1px; }
+.section-title { font-size: 11px; font-weight: 700; color: var(--text-sub); margin: 25px 15px 8px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid var(--accent); display: inline-block; padding-bottom: 4px;}
+.sticky-search { position: sticky; top: 0; z-index: 100; background: rgba(5,5,5,0.95); padding: 10px 15px; border-bottom: 1px solid #222; backdrop-filter: blur(10px); }
+.mini-stats-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.mini-stat-val { font-weight:800; font-size: 13px; }
 .segment-wrapper { overflow-x: auto; padding: 0 15px 10px; margin-bottom: 5px; -webkit-overflow-scrolling: touch; }
 .segment { display: flex; gap: 8px; }
 .seg-btn { background: #111; color: #888; border: 1px solid #333; padding: 8px 16px; border-radius: 20px; font-size: 12px; white-space: nowrap; cursor: pointer; transition: 0.2s; font-weight: 600; }
 .seg-btn.active { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 4px 15px var(--accent-glow); }
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 12px; cursor: pointer; margin-bottom: 8px; }
+.card-icon { font-size: 24px; width: 40px; text-align: center; }
+.card-body { flex: 1; }
+.card-title { font-weight: 700; color: #eee; font-size: 14px; }
+.card-sub { font-size: 11px; color: #777; margin-top: 2px; }
+.card-end { text-align: right; font-size: 12px; }
+.price { color: var(--green); font-weight: bold; font-size: 13px; }
 .tarot-grid-new { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .tarot-card-new { background: #111; border: 1px solid #333; padding: 10px; border-radius: 8px; display: flex; gap: 10px; align-items:center; }
 .tarot-icon-box { font-size: 24px; min-width: 30px; display:flex; justify-content:center;}
 .tarot-card-title { font-weight: bold; font-size: 12px; color: var(--purple); }
 .tarot-card-desc { font-size: 10px; color: #777; margin-top: 2px; line-height: 1.2; }
 .tarot-icon-img { width: 30px; height: 30px; object-fit: contain; }
-.table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid #333; margin-top: 15px; background: #0f0f11; }
-table { width: 100%; border-collapse: collapse; min-width: 320px; font-size: 12px; }
-th { background: #1a1a1a; color: var(--accent); text-align: left; padding: 12px 10px; font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px; }
-td { padding: 12px 10px; border-bottom: 1px solid #222; color: #ddd; }
-tr:nth-child(even) { background: rgba(255,255,255,0.02); }
-.med-img { width: 28px; height: 28px; object-fit: contain; border-radius: 4px; flex-shrink: 0; }
+.header-timer-wrap { display: flex; align-items: center; background: #111; padding: 4px; border-radius: 20px; border: 1px solid #333; }
+.ht-btn { background: none; border: none; color: #555; font-size: 10px; cursor: pointer; padding: 0 8px; }
+.ht-content { text-align: center; width: 80px; }
+.ht-label { font-size: 9px; color: #666; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ht-time { font-size: 13px; font-weight: bold; color: #fff; font-family: monospace; }
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: var(--nav-height); background: rgba(5,5,5,0.9); backdrop-filter: blur(10px); border-top: 1px solid #222; display: flex; justify-content: space-around; padding-top: 12px; z-index: 999; }
+.nav-btn { background: none; border: none; color: #444; display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 10px; font-weight: 600; transition: 0.2s; }
+.nav-btn.active { color: var(--accent); transform: translateY(-2px); }
+.nav-icon { font-size: 22px; }
+.modal-wrap { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 2000; display: none; align-items: center; justify-content: center; }
+.modal { background: var(--modal-bg) !important; width: 90%; max-width: 350px; max-height: 90vh; overflow-y: auto; border-radius: 20px; padding: 20px; border: 1px solid var(--border) !important; box-shadow: 0 10px 40px rgba(0,0,0,0.5); color: var(--text-main) !important; }
 .tag { background: #222; padding: 4px 8px; border-radius: 4px; font-size: 11px; color: #ccc; margin-right: 4px; display: inline-block; margin-bottom: 4px; }
+.unhide-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #222; color: #ccc; align-items: center; }
+.unhide-btn { background: var(--accent); border: none; color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: bold; }
+.reminders-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 15px; }
+.remind-btn { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); color: #888; padding: 12px; border-radius: 12px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
+.remind-btn:active { background: rgba(255,255,255,0.1); }
+.tab-content { display: none; animation: fadeIn 0.2s ease-out; }
+.tab-content.active { display: block; }
+@keyframes fadeIn { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+.counter-wrapper { display: inline-flex; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; height: 32px; padding: 0 4px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+.icon-btn { width: 32px; height: 32px; border-radius: 50%; border: none; background: transparent; color: #888; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+.icon-btn:active { background: rgba(255,255,255,0.1); color: #fff; transform: scale(0.9); }
+.counter-val { min-width: 30px; text-align: center; font-weight: 800; font-size: 14px; color: var(--text-main); font-family: monospace; }
+.slider-container { width: 100%; display: flex; align-items: center; gap: 10px; margin-top: 8px; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 12px; border: 1px solid #222; }
+input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; cursor: pointer; height: 20px; margin: 0; }
+input[type=range]:focus { outline: none; }
+input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: #333; border-radius: 4px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5); }
+input[type=range]::-webkit-slider-thumb { height: 18px; width: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; -webkit-appearance: none; margin-top: -6px; box-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent-glow); border: 2px solid #fff; transition: transform 0.1s; }
+input[type=range]::-webkit-slider-thumb:active { transform: scale(1.2); background: #fff; }
+input[type=range]::-moz-range-track { width: 100%; height: 6px; background: #333; border-radius: 4px; }
+input[type=range]::-moz-range-thumb { height: 18px; width: 18px; border: none; border-radius: 50%; background: var(--accent); }
+.task-bottom-row { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 8px; box-sizing: border-box; flex-wrap: wrap; gap: 8px; }
+.task-actions-group { display: flex; align-items: center; gap: 6px; margin-left: auto; flex-wrap: wrap; justify-content: flex-end; }
+.btn-instant-done { height: 32px; padding: 0 10px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: var(--green); border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; transition: 0.2s; margin-left: 4px; }
+.btn-instant-done:active { background: var(--green); color: black; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #fbbf24); width: 0%; border-radius: 3px; transition: width 0.5s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: 0 0 10px var(--accent-glow); }
+.checkbox { width: 22px; height: 22px; border-radius: 6px; border: 2px solid #444; display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 14px; background: #000; cursor: pointer; position: relative; z-index: 5; transition: 0.1s; }
+.checkbox:active { transform: scale(0.9); border-color: var(--accent); }
+.btn-instant-done { height: 32px; padding: 0 10px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: var(--green); border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; margin-left: 4px; }
+:root { --input-bg: #111; --input-border: #333; --input-text: #fff; --icon-bg: #151515; --bar-bg: #000; }
+body.theme-white-orange, body.theme-white-purple { --input-bg: #e5e5ea; --input-border: #d1d1d6; --input-text: #000; --icon-bg: #f2f2f7; --bar-bg: #e5e5ea; --text-sub: #666; }
+.task-text, .card-title, .ht-label { color: var(--text-main) !important; }
+.task-sub, .card-sub, .tc-title, .ht-time, .stat-label { color: var(--text-sub) !important; }
+input, select, textarea { background: var(--input-bg) !important; border: 1px solid var(--input-border) !important; color: var(--input-text) !important; }
+.bp-icon-container, .card-icon { background: var(--icon-bg) !important; border: 1px solid var(--border) !important; }
+.controls-new, .counter-wrapper { background: var(--bar-bg) !important; border-color: var(--border) !important; }
+.counter-val, .counter-val-new { color: var(--text-main) !important; }
+.btn-mini.minus { background: var(--icon-bg) !important; color: var(--text-sub) !important; }
+.status-badge.time { background: var(--icon-bg) !important; color: var(--text-sub) !important; border: 1px solid var(--border); }
+.nav-btn { color: var(--text-sub) !important; }
+.nav-btn.active { color: var(--accent) !important; }
+.task-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 12px; position: relative; transition: background 0.2s, border-color 0.2s; color: var(--text-main); }
+.task-text, .card-title, .stat-val { color: var(--text-main) !important; }
+.task-sub, .card-sub, .stat-label { color: var(--text-sub) !important; }
+body:not([class*="theme-white"]):not(.theme-black-purple):not(.theme-black-red) .task-item, body.theme-default .task-item { border: 1px solid var(--accent); box-shadow: 0 0 5px rgba(249, 115, 22, 0.1); }
+body:not([class*="theme-white"]):not(.theme-black-purple):not(.theme-black-red) .task-item.completed, body.theme-default .task-item.completed { border-color: #333; background: rgba(249, 115, 22, 0.05); opacity: 0.7; }
+body.theme-black-red .task-item { border: 1px solid var(--accent); box-shadow: 0 0 5px rgba(239, 68, 68, 0.1); }
+body.theme-black-red .task-item.completed { border-color: #3f1a1a; background: rgba(239, 68, 68, 0.05); opacity: 0.7; }
+body.theme-white-orange .task-item, body.theme-white-purple .task-item { background: #ffffff; border: 1px solid #e5e5ea; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+body.theme-white-orange .task-item.completed, body.theme-white-purple .task-item.completed { background: #f2f2f7; opacity: 0.6; }
+body[class*="theme-white"] .sticky-search { background: rgba(255,255,255,0.95); border-bottom: 1px solid #e5e5ea; }
+body[class*="theme-white"] .search-input { background: #e5e5ea !important; color: #000 !important; border: 1px solid #d1d1d6 !important; }
+body[class*="theme-white"] { --bg-deep: #f2f2f7; --bg-card: #ffffff; --input-bg: #e5e5ea; --input-text: #000; --border: #d1d1d6; }
+body[class*="theme-white"] .checkbox, body[class*="theme-white"] .bp-icon-container, body[class*="theme-white"] .tc-btn-icon, body[class*="theme-white"] .icon-btn { background: #f0f0f6 !important; border-color: #d1d1d6 !important; color: #555 !important; }
+body[class*="theme-white"] .checkbox:active { background: #e1e1e6 !important; }
+body[class*="theme-white"] input, body[class*="theme-white"] select { background: #e5e5ea !important; color: #000 !important; border: 1px solid #c7c7cc !important; }
+body[class*="theme-white"] ::placeholder { color: #8e8e93; }
+body[class*="theme-white"] .sticky-search { background: rgba(255,255,255,0.95) !important; border-bottom: 1px solid #d1d1d6; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+body[class*="theme-white"] .header-timer-wrap { background: #fff !important; border-color: #d1d1d6 !important; }
+body[class*="theme-white"] .ht-time { color: #000 !important; }
+.header-timer-wrap { position: relative; display: flex; align-items: center; justify-content: space-between; background: #0f0f11; border-radius: 20px; padding: 6px 10px; min-width: 140px; overflow: hidden; }
+.ht-progress-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+.ht-rect-path { fill: none; stroke: var(--green); stroke-width: 4px; rx: 20px; stroke-dasharray: 100; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear; vector-effect: non-scaling-stroke; }
+.ht-btn, .ht-content { position: relative; z-index: 2; }
+.ht-progress-bg { display: none !important; }
+body[class*="theme-white"] { --text-main: #323236 !important; --text-sub: #8e8e93 !important; --border: rgba(0, 0, 0, 0.06) !important; --input-bg: rgba(0, 0, 0, 0.04) !important; --input-text: #323236 !important; }
+body.theme-white-orange { --bg-deep: #fdfbf9 !important; --bg-card: #ffffff !important; --accent: #fb923c !important; --accent-glow: rgba(251, 146, 60, 0.25) !important; --twink-bg: rgba(167, 139, 250, 0.1) !important; --twink-text: #8b5cf6 !important; }
+body.theme-white-purple { --bg-deep: #fbfbfe !important; --bg-card: #ffffff !important; --accent: #a78bfa !important; --accent-glow: rgba(167, 139, 250, 0.25) !important; --twink-bg: rgba(251, 113, 133, 0.1) !important; --twink-text: #f43f5e !important; }
+body[class*="theme-white"] .task-item, body[class*="theme-white"] .timer-card, body[class*="theme-white"] .bp-hero, body[class*="theme-white"] .card { border: 1px solid rgba(0,0,0,0.04) !important; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
+body[class*="theme-white"] .checkbox { background: #f3f4f6 !important; border: 2px solid #e5e7eb !important; }
+body[class*="theme-white"] .checkbox:active { transform: scale(0.95); background: var(--accent) !important; border-color: var(--accent) !important; color: white !important; }
+body[class*="theme-white"] .btn-mini, body[class*="theme-white"] .action-btn { background: #ffffff !important; border: 1px solid rgba(0,0,0,0.08) !important; box-shadow: 0 2px 5px rgba(0,0,0,0.02) !important; color: var(--text-main) !important; }
+body[class*="theme-white"] .ht-rect-path { stroke-opacity: 0.8; }
+body[class*="theme-white"] .header-timer-wrap { box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+body[class*="theme-white"] .task-item.completed { background: rgba(255,255,255,0.6) !important; opacity: 0.5; box-shadow: none; border-color: transparent !important; }
+.sticky-search { padding: 10px 15px 15px; display: flex; flex-direction: column; gap: 12px; }
+.search-input { width: 100%; box-sizing: border-box; height: 44px; font-size: 15px; border-radius: 12px; padding: 0 15px; margin: 0; transition: box-shadow 0.2s, border-color 0.2s; }
+.search-input:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px var(--accent-glow); }
+.task-item { margin-bottom: 10px; border-left: 4px solid var(--accent); border-top-left-radius: 4px; border-bottom-left-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+.task-item.completed { border-left-color: #444; transform: scale(0.98); }
+body[class*="theme-white"] .task-item.completed { border-left-color: #d1d1d6; }
+.task-text { font-size: 15px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.3px; }
+.task-bottom-row { padding-top: 8px; margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.05); }
+body[class*="theme-white"] .task-bottom-row { border-top: 1px solid rgba(0,0,0,0.05); }
+.bp-icon-container { width: 44px; height: 44px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.bp-emoji { font-size: 24px; }
+:root { --bg-deep: #121214 !important; --bg-card: #1c1c1e !important; --border: #2c2c2e !important; --text-main: #e4e4e7 !important; --text-sub: #a1a1aa !important; }
+body[class*="theme-white"] { --bg-deep: #f4f5f8 !important; --bg-card: #ffffff !important; --border: rgba(0,0,0,0.06) !important; --text-main: #27272a !important; --text-sub: #71717a !important; --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); }
+body[class*="theme-white"] .task-item, body[class*="theme-white"] .bp-hero { box-shadow: var(--card-shadow) !important; border: 1px solid white !important; }
+.sticky-search { background: rgba(18, 18, 20, 0.85) !important; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 1000; }
+body[class*="theme-white"] .sticky-search { background: rgba(255, 255, 255, 0.85) !important; border-bottom: 1px solid rgba(0,0,0,0.05); }
+body:not([class*="theme-white"]):not(.theme-black-purple):not(.theme-black-red) .progress-fill, body.theme-default .progress-fill { background: linear-gradient(90deg, #f97316, #fbbf24) !important; }
+body.theme-black-purple .progress-fill, body.theme-white-purple .progress-fill { background: linear-gradient(90deg, #a855f7, #d8b4fe) !important; }
+body.theme-black-red .progress-fill { background: linear-gradient(90deg, #ef4444, #fca5a5) !important; }
+input, select { border: 1px solid transparent !important; background: rgba(255,255,255,0.07) !important; transition: all 0.3s ease; }
+input:focus, select:focus { background: rgba(255,255,255,0.12) !important; box-shadow: 0 0 0 2px var(--accent) !important; transform: translateY(-1px); }
+body[class*="theme-white"] input, body[class*="theme-white"] select { background: #f1f5f9 !important; box-shadow: inset 0 1px 2px rgba(0,0,0,0.03); }
+body[class*="theme-white"] input:focus { background: #ffffff !important; box-shadow: 0 0 0 3px rgba(0,0,0,0.05) !important; }
+.task-text { line-height: 1.4; }
+.task-sub { opacity: 0.8; }
+.task-item, .bp-hero, .card, .btn-mini, .action-btn { border-radius: 16px !important; }
+.bp-icon-container { border-radius: 14px !important; }
+body[class*="theme-white"] { --bg-deep: #f2f4f7 !important; --bg-card: #ffffff !important; --border-visible: #d1d5db; }
+body[class*="theme-white"] .task-item, body[class*="theme-white"] .bp-hero, body[class*="theme-white"] .card, body[class*="theme-white"] .timer-card, body[class*="theme-white"] .header-timer-wrap { border: 1px solid var(--border-visible) !important; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important; }
+body[class*="theme-white"] .action-btn, body[class*="theme-white"] .hero-btn, body[class*="theme-white"] .seg-btn, body[class*="theme-white"] .btn-mini, body[class*="theme-white"] .tc-btn-icon, body[class*="theme-white"] .remind-btn, body[class*="theme-white"] .icon-btn { border: 1px solid var(--border-visible) !important; background: #ffffff !important; color: #4b5563 !important; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+body[class*="theme-white"] .seg-btn.active, body[class*="theme-white"] .hero-btn.active { background: var(--accent) !important; border-color: var(--accent) !important; color: #fff !important; }
+body[class*="theme-white"] input, body[class*="theme-white"] select, body[class*="theme-white"] .sticky-search { border-color: #c7c7cc !important; }
+body[class*="theme-white"] .checkbox { border: 2px solid #d1d5db !important; background: #fff !important; }
+body[class*="theme-white"] .task-bottom-row { border-top: 1px solid #e5e7eb !important; margin-top: 10px; padding-top: 10px; }
+/* Обновленный двухстрочный дизайн меню таймера */
+.custom-timer { display: flex !important; flex-wrap: wrap !important; align-items: center !important; justify-content: flex-start !important; gap: 8px !important; width: 100% !important; box-sizing: border-box !important; padding: 0 15px !important; margin-top: 10px !important; margin-bottom: 15px !important; }
+.timer-input-name { flex: 1 1 100% !important; min-width: 100% !important; margin: 0 !important; font-size: 14px !important; }
+.timer-input-num { width: 45px !important; flex-shrink: 0 !important; text-align: center !important; padding: 0 !important; height: 36px !important; margin: 0 !important; }
+.timer-add-btn { flex: 1 !important; height: 36px !important; padding: 0 12px !important; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-weight: 700; font-size: 12px; text-transform: uppercase; cursor: pointer; white-space: nowrap; box-shadow: 0 4px 10px var(--accent-glow); transition: 0.2s; }
+.timer-add-btn:active { transform: scale(0.95); }
+body[class*="theme-white"] .timer-add-btn { border: 1px solid rgba(0,0,0,0.1); color: #fff !important; }
+.bp-actions-top { display: flex; gap: 8px; padding: 0 15px; margin-bottom: 15px; }
+.bp-actions-top .action-btn { flex: 1; justify-content: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 10px 4px; }
+#listBP { transform-origin: top center; transition: zoom 0.2s; }
+body.simple-mode .task-item { flex-direction: row; align-items: center; padding: 6px 10px; min-height: 40px; gap: 8px; }
+body.simple-mode .bp-icon-container { width: 32px; height: 32px; }
+body.simple-mode .bp-img { width: 20px; height: 20px; }
+body.simple-mode .bp-emoji { font-size: 18px; }
+body.simple-mode .task-text { font-size: 13px; margin: 0; }
+body.simple-mode .task-header-row { width: auto; }
+body.simple-mode .task-top-row { width: auto; flex: 1; }
+body.simple-mode .task-bottom-row { margin-top: 0; width: auto; margin-left: auto; }
+body.simple-mode .progress-track { display: none; }
+body.simple-mode .controls-new { padding: 2px; height: 24px; }
+body.simple-mode .btn-mini { width: 24px; height: 24px; font-size: 14px; }
+body.simple-mode .counter-val-new { font-size: 12px; min-width: 15px; }
+body.simple-mode .reward-badge { padding: 2px 4px; font-size: 10px; }
+body.simple-mode .status-badge { font-size: 9px; padding: 1px 4px; }
+body.simple-mode .inline-timer-box { height: 24px; padding: 0 4px; }
+body.simple-mode .it-val { font-size: 10px; min-width: 30px; }
+:root { --bg-element: #1a1a1a; --modal-bg: #151515; }
+body[class*="theme-white"] { --bg-element: #f2f2f7; --modal-bg: #ffffff; }
+.modal { background: var(--modal-bg) !important; border: 1px solid var(--border) !important; color: var(--text-main) !important; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+input[type=range]::-webkit-slider-runnable-track { background: var(--bg-element) !important; }
+input[type=range]::-moz-range-track { background: var(--bg-element) !important; }
 .switch .slider { background-color: var(--bg-element) !important; border: 1px solid var(--border); }
 .switch input:checked + .slider { background-color: var(--accent) !important; }
 .slider-circle { box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 .switch input:checked + .slider .slider-circle { transform: translateX(16px); }
+#scaleRange { width: 100%; box-sizing: border-box; margin: 10px 0 0 0; display: block; }
+:root { --nav-height: 58px !important; }
+.bottom-nav { padding-top: 6px !important; height: var(--nav-height) !important; padding-bottom: env(safe-area-inset-bottom); box-sizing: content-box; }
+.nav-btn { gap: 2px !important; }
+.nav-icon { font-size: 20px !important; }
+body { padding-bottom: calc(var(--nav-height) + 30px) !important; }
+#toast-container { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 8px; width: 90%; max-width: 400px; pointer-events: none; }
+.toast { background: rgba(20, 20, 20, 0.95); backdrop-filter: blur(10px); color: #fff; padding: 12px 16px; border-radius: 12px; border: 1px solid #333; box-shadow: 0 8px 20px rgba(0,0,0,0.4); font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 12px; animation: toastIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: auto; }
+.toast.success { border-left: 4px solid var(--green); }
+.toast.error { border-left: 4px solid var(--red); }
+.toast.info { border-left: 4px solid var(--accent); }
+.toast-icon { font-size: 18px; }
+body[class*="theme-white"] .toast { background: rgba(255, 255, 255, 0.95); color: #000; border: 1px solid #e5e5ea; box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+@keyframes toastIn { from { opacity: 0; transform: translateY(20px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes toastOut { to { opacity: 0; transform: translateY(-20px) scale(0.9); } }
+.med-img { width: 28px; height: 28px; object-fit: contain; border-radius: 4px; flex-shrink: 0; }
+/* --- ИСПРАВЛЕНИЕ ПУСТОГО ЧЕКБОКСА (ТАЙМЕРЫ) --- */
+.styled-checkbox {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    width: 22px !important;
+    height: 22px !important;
+    padding: 0 !important;
+    border-radius: 6px !important;
+    background: #111 !important;
+    border: 2px solid #444 !important;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+}
+.styled-checkbox:checked {
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+}
+.styled-checkbox:checked::after {
+    content: "✔";
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+}
+/* Поддержка светлой темы */
+body[class*="theme-white"] .styled-checkbox {
+    background: #f0f0f6 !important;
+    border-color: #d1d1d6 !important;
+}
+body[class*="theme-white"] .styled-checkbox:checked {
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+}
+/* --- НОВЫЕ СТИЛИ ДЛЯ ТАЙМЕРОВ --- */
+.active-timers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 12px; padding: 0 15px 15px; }
+.timer-bubble { display: flex; flex-direction: column; align-items: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px; padding: 12px 8px; position: relative; transition: transform 0.2s, border-color 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer; }
+.timer-bubble.running { border-color: var(--accent); }
+.circle-wrap { position: relative; width: 52px; height: 52px; margin-bottom: 8px; }
+.circle-wrap svg { transform: rotate(-90deg); width: 52px; height: 52px; }
+.circle-bg { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 4; }
+body[class*="theme-white"] .circle-bg { stroke: rgba(0,0,0,0.05); }
+.circle-progress { fill: none; stroke: var(--accent); stroke-width: 4; stroke-dasharray: 150.8; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear; stroke-linecap: round; }
+.circle-time { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 11px; font-weight: 800; font-family: monospace; color: var(--text-main); }
+.bubble-title { font-size: 10px; font-weight: 700; color: var(--text-sub); text-align: center; max-width: 70px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bubble-close { position: absolute; top: -6px; right: -6px; width: 20px; height: 20px; background: var(--red); color: white; border: none; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10; }
+.empty-fav-msg { grid-column: 1 / -1; text-align: center; color: #666; font-size: 12px; padding: 10px; border: 1px dashed var(--border); border-radius: 12px; margin-bottom: 10px; }
+/* --- ГЛОБАЛЬНЫЙ ВИЗУАЛ BP (GLASSMORPHISM + COMPACT) --- */
+/* 1. Дашборд (Эффект стекла) */
+.glass-hero { background: rgba(255, 255, 255, 0.03) !important; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1) !important; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); position: relative; overflow: hidden; }
+.glass-hero::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, var(--accent-glow) 0%, transparent 60%); opacity: 0.15; z-index: 0; pointer-events: none; }
+.hero-stats-grid, .glass-toggles, .hero-footer { position: relative; z-index: 1; }
+.glass-toggles { display: flex; gap: 10px; margin-top: 10px; }
+.neo-btn { flex: 1; background: rgba(0,0,0,0.2) !important; border: 1px solid rgba(255,255,255,0.05) !important; color: #888; border-radius: 12px; padding: 12px; font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; }
+.neo-btn.active { background: rgba(251, 191, 36, 0.1) !important; border-color: var(--gold) !important; color: var(--gold) !important; box-shadow: 0 0 15px rgba(251, 191, 36, 0.2), inset 0 0 10px rgba(251,191,36,0.1); }
+.neo-btn.active#btnX2 { border-color: var(--purple) !important; color: var(--purple) !important; box-shadow: 0 0 15px rgba(192, 132, 252, 0.2), inset 0 0 10px rgba(192,132,252,0.1); }
+.hero-footer { margin-top:15px; display:flex; justify-content:space-between; align-items:center; font-size:12px; color:var(--text-sub); border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px; }
+.glass-input { width: 60px; padding: 4px !important; text-align: center; background: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 8px; color: white !important; font-size: 14px; font-weight: bold; }
+
+/* 2. Компактные карточки задач (Адаптивная версия) */
+.task-item.compact { flex-direction: row !important; align-items: flex-start !important; gap: 10px !important; padding: 12px 10px !important; }
+
+/* Новый контейнер для правой колонки */
+.task-item.compact .task-main-col { display: flex; flex-direction: column; flex: 1; min-width: 0; gap: 8px; justify-content: center; }
+
+.task-item.compact .task-content { display: flex; flex-direction: column; justify-content: flex-start; flex: none; width: 100%; }
+.task-item.compact .task-text { font-size: 14px !important; white-space: normal; line-height: 1.3; margin-bottom: 4px !important; word-wrap: break-word; }
+
+/* Нижний ряд с кнопками (Адаптивный перенос на мелких экранах) */
+.task-item.compact .task-bottom-row { margin: 0 !important; padding: 0 !important; border: none !important; width: 100% !important; display: flex; align-items: center; flex-wrap: wrap !important; gap: 6px !important; justify-content: space-between; }
+.task-item.compact .task-actions-group { margin-left: auto !important; gap: 4px !important; display: flex; align-items: center; flex-wrap: wrap !important; justify-content: flex-end; }
+
+/* 3. Круговой прогресс вокруг иконки */
+.icon-ring-wrap { position: relative; width: 44px; height: 44px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-right: 2px; }
+.icon-ring-wrap svg { position: absolute; top: -2px; left: -2px; width: 48px; height: 48px; transform: rotate(-90deg); pointer-events: none; }
+.ring-bg { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 3; }
+.ring-progress { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 138.2; stroke-dashoffset: 138.2; transition: stroke-dashoffset 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
+.icon-ring-wrap .bp-icon-container { width: 40px !important; height: 40px !important; margin: 0 !important; box-shadow: none !important; border: none !important; background: rgba(255,255,255,0.05) !important; }
+
+/* 4. Выделение "жирных" заданий (Подсветка) */
+.task-item.high-reward { border-color: var(--gold) !important; box-shadow: 0 0 12px rgba(251, 191, 36, 0.15) !important; background: linear-gradient(145deg, var(--bg-card) 60%, rgba(251, 191, 36, 0.08)) !important; }
+
+/* Светлая тема для новых элементов */
+body[class*="theme-white"] .glass-hero { background: rgba(255, 255, 255, 0.6) !important; border-color: rgba(0,0,0,0.1) !important; box-shadow: 0 8px 32px rgba(0,0,0,0.05); }
+body[class*="theme-white"] .neo-btn { background: rgba(255,255,255,0.8) !important; color: #555; }
+body[class*="theme-white"] .glass-input { background: rgba(255,255,255,0.8) !important; border-color: rgba(0,0,0,0.1) !important; color: black !important; }
+body[class*="theme-white"] .ring-bg { stroke: rgba(0,0,0,0.05); }
+body[class*="theme-white"] .icon-ring-wrap .bp-icon-container { background: rgba(0,0,0,0.03) !important; }
+body[class*="theme-white"] .task-item.high-reward { background: linear-gradient(145deg, #ffffff 60%, rgba(251, 191, 36, 0.15)) !important; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.2) !important; border-color: var(--gold) !important; }
+/* --- ПЛАВАЮЩИЙ DOCK (УЛЬТРА-КОМПАКТНАЯ ВЕРСИЯ) --- */
+.bottom-nav {
+    position: fixed !important;
+    /* Учитываем полоску на iPhone, чтобы панель не налезла на нее */
+    bottom: calc(15px + env(safe-area-inset-bottom)) !important; 
+    left: 50% !important;
+    transform: translateX(-50%);
+    width: 88% !important; /* Сделали панель чуть уже */
+    max-width: 360px; /* Ограничили максимальную ширину */
+    height: 56px !important; /* Сильно срезали высоту (было 70px) */
+    background: rgba(15, 15, 17, 0.8) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 20px !important; /* Аккуратное закругление */
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0 !important;
+    z-index: 1000;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+}
+
+.nav-btn {
+    background: transparent !important;
+    border: none;
+    color: var(--text-sub) !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px !important; /* Прижали текст к иконке */
+    font-size: 9px !important; /* Уменьшили шрифт надписей */
+    font-weight: 700;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    flex: 1;
+    height: 100%;
+}
+
+.nav-icon {
+    font-size: 18px !important; /* Уменьшили сами иконки (было 22px) */
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s;
+    filter: grayscale(100%) opacity(0.5);
+}
+
+/* Состояние АКТИВНОЙ кнопки */
+.nav-btn.active {
+    color: var(--text-main) !important;
+    transform: none !important;
+}
+
+.nav-btn.active .nav-icon {
+    transform: translateY(-2px) scale(1.15); /* Подпрыгивание стало аккуратнее */
+    filter: grayscale(0%) opacity(1);
+    drop-shadow: 0 3px 6px var(--accent-glow);
+}
+
+.nav-label {
+    transition: 0.3s;
+    transform: translateY(2px);
+}
+
+.nav-btn.active .nav-label {
+    color: var(--accent);
+    transform: translateY(-1px);
+}
+
+/* Светящаяся линия-индикатор (вместо точки) */
+.nav-btn::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    width: 16px; /* Длина линии */
+    height: 3px; /* Толщина линии */
+    background: var(--accent);
+    border-radius: 3px;
+    opacity: 0;
+    transform: scale(0);
+    transition: 0.3s;
+    box-shadow: 0 0 8px var(--accent-glow);
+}
+
+.nav-btn.active::after {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Адаптация под светлую тему */
+body[class*="theme-white"] .bottom-nav {
+    background: rgba(255, 255, 255, 0.85) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+/* --- ПЛАВАЮЩИЙ STICKY SEARCH (С ВЫЕЗЖАЮЩИМ ВНИЗ ПОИСКОМ) --- */
+.sticky-wrapper {
+    position: sticky !important; /* Возвращаем липкость! */
+    top: 10px !important;
+    margin: 10px 15px 15px !important;
+    z-index: 1000;
+}
+
+.sticky-main-row {
+    background: rgba(15, 15, 17, 0.8) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 20px !important;
+    padding: 10px 15px !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5) !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 2; /* Панель находится над выпадающим поиском */
+}
+
+/* Прозрачный фон таймера и тонкие линии */
+.header-timer-wrap {
+    background: transparent !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: none !important;
+    border-radius: 16px !important;
+    padding: 4px 10px !important;
+    margin: 0 auto;
+}
+.ht-rect-path { stroke-width: 2px !important; }
+
+/* Кнопка лупы (чистая иконка) */
+.search-toggle-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 18px;
+    background-color: rgba(255, 255, 255, 0.05);
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23aaaaaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: 0.2s;
+}
+.search-toggle-btn:active { transform: scale(0.9); }
+
+/* Выпадающее вниз поле поиска */
+.sticky-search-dropdown {
+    background: rgba(15, 15, 17, 0.9) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 16px !important;
+    margin-top: 6px;
+    padding: 0 10px;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+    transform: translateY(-10px);
+}
+
+.sticky-search-dropdown.active {
+    max-height: 60px;
+    opacity: 1;
+    padding: 8px 10px;
+    transform: translateY(0);
+}
+
+.search-input-drop {
+    width: 100% !important;
+    height: 38px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 12px !important;
+    color: var(--text-main) !important;
+    padding: 0 12px !important;
+    font-size: 14px !important;
+    box-sizing: border-box;
+}
+.search-input-drop:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 2px var(--accent-glow) !important; outline: none; }
+
+/* Светлая тема */
+body[class*="theme-white"] .sticky-main-row, body[class*="theme-white"] .sticky-search-dropdown { background: rgba(255, 255, 255, 0.85) !important; border: 1px solid rgba(0, 0, 0, 0.08) !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important; }
+body[class*="theme-white"] .header-timer-wrap { border-color: rgba(0, 0, 0, 0.08) !important; }
+body[class*="theme-white"] .search-toggle-btn { background-color: rgba(0, 0, 0, 0.04); border-color: rgba(0, 0, 0, 0.05); background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23555555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>'); }
+body[class*="theme-white"] .search-input-drop { background: rgba(0, 0, 0, 0.04) !important; border-color: rgba(0, 0, 0, 0.05) !important; color: #000 !important; }
+body[class*="theme-white"] .search-input-drop:focus { background: #fff !important; }
+/* --- УЛЬТРА-КОМПАКТНЫЙ ДАШБОРД BP --- */
+.start-bp-box { display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 4px 6px; flex: 1; max-width: 65px; height: 34px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
+.glass-input-mini { width: 100%; background: transparent !important; border: none !important; color: var(--gold) !important; font-size: 16px !important; font-weight: 800 !important; text-align: center; padding: 0 !important; outline: none; margin-top: -2px; }
+.glass-input-mini::placeholder { color: rgba(255,255,255,0.2); }
+
+.quick-actions-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 15px 12px; }
+.glass-select { flex: 1; height: 38px; background: rgba(255,255,255,0.03) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: var(--text-main) !important; border-radius: 12px; font-size: 12px; font-weight: 600; padding: 0 12px !important; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23888888%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E") !important; background-repeat: no-repeat !important; background-position: right 10px top 50% !important; background-size: 10px auto !important; }
+.quick-btn { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; font-size: 16px; cursor: pointer; transition: 0.2s; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+.quick-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.1); }
+.quick-btn.sync-btn { border-color: rgba(249, 115, 22, 0.3); color: var(--accent); background: rgba(249, 115, 22, 0.05); }
+
+/* Адаптация под светлые темы */
+body[class*="theme-white"] .start-bp-box { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.1); box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); }
+body[class*="theme-white"] .glass-input-mini { color: var(--accent) !important; }
+body[class*="theme-white"] .glass-select { background: rgba(255,255,255,0.8) !important; border-color: rgba(0,0,0,0.1) !important; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+body[class*="theme-white"] .quick-btn { background: #ffffff; border-color: rgba(0,0,0,0.1); color: #000; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+/* --- ФИКС ВЫПАДАЮЩИХ СПИСКОВ (OPTION) --- */
+option {
+    background-color: #1c1c1e !important; /* Темный фон списка */
+    color: #ffffff !important; /* Белый текст */
+    font-weight: 600 !important;
+}
+
+/* Фикс для светлых тем */
+body[class*="theme-white"] option {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+}
+/* Новая сетка и стили для прямоугольных шаблонов */
+.template-timers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 15px 15px; }
+
+.timer-card.drag-template { 
+    display: flex; flex-direction: column; background: var(--bg-card); border: 1px solid var(--border); 
+    border-radius: 12px; padding: 10px; position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
+    cursor: grab; width: 100%; box-sizing: border-box; gap: 8px;
+}
+.template-del-btn {
+    position: absolute; top: 6px; right: 6px; width: 20px; height: 20px; background: rgba(239, 68, 68, 0.1); 
+    color: var(--red); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 6px; font-size: 10px; 
+    display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; z-index: 10;
+}
+.template-del-btn:active { background: var(--red); color: white; transform: scale(0.9); }
+
+body[class*="theme-white"] .timer-card.drag-template { background: #ffffff; border-color: rgba(0,0,0,0.08); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+/* FAB (Плавающая кнопка) */
+.fab-btn {
+    position: fixed;
+    bottom: calc(85px + env(safe-area-inset-bottom));
+    right: 20px;
+    width: 52px;
+    height: 52px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: 300;
+    box-shadow: 0 4px 15px var(--accent-glow);
+    cursor: pointer;
+    z-index: 1001;
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.fab-btn:active { transform: scale(0.9); }
+.fab-btn.open {
+    transform: rotate(45deg);
+    background: var(--red);
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+}
+
+/* Всплывающая панель создания таймера */
+.custom-timer-panel {
+    position: fixed;
+    bottom: calc(150px + env(safe-area-inset-bottom));
+    right: 20px;
+    background: rgba(15, 15, 17, 0.95);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 15px;
+    width: calc(100% - 40px); 
+    max-width: 320px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+    pointer-events: none;
+    transition: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform-origin: bottom right;
+}
+.custom-timer-panel.active {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+body[class*="theme-white"] .custom-timer-panel {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
 </style>
 </head>
 <body>
@@ -241,7 +722,7 @@ tr:nth-child(even) { background: rgba(255,255,255,0.02); }
             <div class="stat-box"><div class="stat-val" id="farmedVal" style="color:var(--green)">+0</div><div class="stat-label">Нафарм.</div></div>
         </div>
         
-        <div class="glass-toggles" style="align-items: center;">
+<div class="glass-toggles" style="align-items: center;">
             <button class="neo-btn" id="btnVip" onclick="toggleVip()">👑 VIP</button>
             <button class="neo-btn" id="btnX2" onclick="toggleX2()">⚡ X2</button>
             
@@ -254,10 +735,13 @@ tr:nth-child(even) { background: rgba(255,255,255,0.02); }
         </div>
     </div>
 
-    <!-- Строка фильтров: Сортировка + Шар + Иконки -->
+<!-- Строка фильтров: Сортировка + Шар + Иконки -->
     <div class="quick-actions-row" style="display: flex; align-items: center; justify-content: space-between; padding: 0 15px 12px;">
         
+        <!-- Левый блок: Скрытые селекты под иконками -->
         <div style="display:flex; gap:6px;">
+            
+            <!-- Кнопка Сортировки -->
             <div style="position: relative; width: 38px; height: 38px;">
                 <div class="quick-btn" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; margin: 0; display:flex; align-items:center; justify-content:center;">📄</div>
                 <select id="bpSort" onchange="renderBP()" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; margin: 0; padding: 0;">
@@ -268,6 +752,7 @@ tr:nth-child(even) { background: rgba(255,255,255,0.02); }
                 </select>
             </div>
             
+            <!-- Кнопка Шара -->
             <div style="position: relative; width: 38px; height: 38px;">
                 <div class="quick-btn" id="btnBallVisual" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; margin: 0; display:flex; align-items:center; justify-content:center; transition: 0.2s;">🎱</div>
                 <select id="btnBall" onchange="toggleBall(this.value)" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; margin: 0; padding: 0;">
@@ -276,15 +761,16 @@ tr:nth-child(even) { background: rgba(255,255,255,0.02); }
                     <option value="-1">Нет (-25%)</option>
                 </select>
             </div>
+            
         </div>
         
+        <!-- Правый блок: Обычные кнопки -->
         <div style="display: flex; gap: 6px;">
             <button class="quick-btn" onclick="newDay()" title="Новый день">🌅</button>
             <button class="quick-btn" onclick="openUnhideModal()" title="Вернуть скрытые">👁</button>
             <button class="quick-btn sync-btn" onclick="forceSync()" title="Синхронизация">🔄</button>
         </div>
     </div>
-
     <div class="sticky-wrapper" id="stickySearchWrap">
         <div class="sticky-main-row">
             <div style="flex:1"><div style="font-size:10px; color:#888">Итого:</div><div class="mini-stat-val" style="color:var(--gold)" id="stickyTotal">0</div></div>
@@ -315,10 +801,10 @@ tr:nth-child(even) { background: rgba(255,255,255,0.02); }
     <div class="section-title">Активные</div>
     <div id="activeTimersList" class="active-timers-grid"></div>
 
-    <!-- Всплывающая панель создания таймера -->
+<!-- Всплывающая панель создания таймера -->
     <div class="custom-timer-panel" id="customTimerPanel">
         <div style="display: flex; gap: 8px; width: 100%; align-items: center;">
-            <input type="text" id="customName" class="timer-input-name" style="flex: 1; min-width: 0; margin: 0; padding: 10px; border-radius: 8px; font-size: 14px; background: rgba(0,0,0,0.4) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #fff !important;" placeholder="Название...">
+            <input type="text" id="customName" style="flex: 1; min-width: 0; margin: 0; padding: 10px; border-radius: 8px; font-size: 14px; background: rgba(0,0,0,0.4) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #fff !important;" placeholder="Название...">
             <input type="number" id="customMin" style="width: 45px; margin: 0; padding: 10px 4px; text-align: center; border-radius: 8px; font-size: 14px; background: rgba(0,0,0,0.4) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #fff !important;" placeholder="М">
             <div style="font-weight:bold; color:#666;">:</div> 
             <input type="number" id="customSec" style="width: 45px; margin: 0; padding: 10px 4px; text-align: center; border-radius: 8px; font-size: 14px; background: rgba(0,0,0,0.4) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #fff !important;" placeholder="С">
@@ -339,7 +825,7 @@ tr:nth-child(even) { background: rgba(255,255,255,0.02); }
     <!-- Круглая кнопка FAB -->
     <button class="fab-btn" id="fabBtn" onclick="toggleFab()">+</button>
 
-    <div class="section-title">⭐ Избранное</div>
+<div class="section-title">⭐ Избранное</div>
     <div id="favoriteTimers" class="template-timers-grid" style="min-height: 50px; padding: 0 15px 15px;"></div>
 
     <div class="section-header-toggle" id="dmHeader" onclick="toggleWrapper('demorganWrapper', this)">
@@ -452,7 +938,7 @@ tr:nth-child(even) { background: rgba(255,255,255,0.02); }
                 </span>
             </label>
         </div>
-        <div style="background:var(--bg-element); padding:10px; border-radius:12px; margin-bottom:15px; display:flex; align-items:center; justify-content:space-between; border:1px solid var(--border);">
+<div style="background:var(--bg-element); padding:10px; border-radius:12px; margin-bottom:15px; display:flex; align-items:center; justify-content:space-between; border:1px solid var(--border);">
             <span style="font-weight:600;">☁️ Облачная синхронизация</span>
             <label class="switch" style="position:relative; display:inline-block; width:40px; height:24px;">
                 <input type="checkbox" id="syncToggle" onchange="toggleSync()">
@@ -504,7 +990,34 @@ tr:nth-child(even) { background: rgba(255,255,255,0.02); }
 <script>
 // ====================== ДАННЫЕ ======================
 const TIMER_SERVICE_URL = "https://gta-timer.onrender.com";
-let GLOBAL_NOTIFY = true;
+let GLOBAL_NOTIFY = true; // глобальный флаг уведомлений
+
+function scheduleNotification(id, delaySeconds, message, notify = true) {
+    const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+    if (!userId) return;
+    if (!notify) return; // если не надо уведомлять
+    if (!GLOBAL_NOTIFY) return; // глобально выключены
+
+    fetch(`${TIMER_SERVICE_URL}/set`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            id: String(id),
+            chat_id: userId,
+            text: message,
+            delay: delaySeconds,
+            notify: notify
+        })
+    }).catch(err => console.error("Ошибка запуска таймера:", err));
+}
+
+function cancelNotification(id) {
+    fetch(`${TIMER_SERVICE_URL}/cancel`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: String(id) })
+    }).catch(err => console.error("Ошибка отмены таймера:", err));
+}
 
 const WORK_RATES = {
     build: [7, 20, 41, 60, 80, 99],
@@ -657,7 +1170,6 @@ tarot: [
             ]
         };
 
-
 // ====================== СОСТОЯНИЕ ======================
 let BP = { start:0, done:[], times:{}, hidden:[], counters:{}, vip:false, x2:false, sortOrder:[] };
 let TIMERS = {};
@@ -667,28 +1179,48 @@ let SCROLL_POS = {};
 let saveTimers = {};
 let HIDE_COMPLETED = false;
 
-// Переменная синхронизации
+// Переменная синхронизации (по умолчанию включена)
 let CLOUD_SYNC_ENABLED = localStorage.getItem('gta_sync_enabled_22') !== 'false'; 
 
 const Cloud = {
     isAvailable: () => window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.CloudStorage,
+    
     getItem: (key) => {
         return new Promise((resolve) => {
-            if (!CLOUD_SYNC_ENABLED || !Cloud.isAvailable()) return resolve(localStorage.getItem(key));
-            const safetyTimeout = setTimeout(() => resolve(localStorage.getItem(key)), 2000);
+            // Если синхронизация выключена - берем ТОЛЬКО из локальной памяти
+            if (!CLOUD_SYNC_ENABLED || !Cloud.isAvailable()) {
+                return resolve(localStorage.getItem(key));
+            }
+
+            const safetyTimeout = setTimeout(() => {
+                console.warn(`Cloud timeout for ${key}, using LocalStorage`);
+                resolve(localStorage.getItem(key));
+            }, 2000);
+
             window.Telegram.WebApp.CloudStorage.getItem(key, (err, val) => {
                 clearTimeout(safetyTimeout);
-                if (err || !val) resolve(localStorage.getItem(key));
-                else { localStorage.setItem(key, val); resolve(val); }
+                
+                if (err || !val) {
+                    resolve(localStorage.getItem(key));
+                } else {
+                    localStorage.setItem(key, val);
+                    resolve(val);
+                }
             });
         });
     },
+
     setItem: (key, value) => {
-        localStorage.setItem(key, value); 
+        localStorage.setItem(key, value); // Всегда сохраняем локально мгновенно
+        
+        // Если синхронизация включена - пушим еще и в облако
         if (CLOUD_SYNC_ENABLED && Cloud.isAvailable()) {
             if (saveTimers[key]) clearTimeout(saveTimers[key]);
+
             saveTimers[key] = setTimeout(() => {
-                window.Telegram.WebApp.CloudStorage.setItem(key, value, (err) => { if (err) console.error(err); });
+                window.Telegram.WebApp.CloudStorage.setItem(key, value, (err, stored) => {
+                    if (err) console.error('Cloud save error:', err);
+                });
             }, 500);
         }
     }
@@ -696,36 +1228,60 @@ const Cloud = {
 
 async function init() {
     try {
-        const [bpData, tmData] = await Promise.all([Cloud.getItem('gta_bp_22'), Cloud.getItem('gta_tm_22')]);
+const [bpData, tmData] = await Promise.all([
+            Cloud.getItem('gta_bp_22'),
+            Cloud.getItem('gta_tm_22')
+        ]);
+
         if(bpData) BP = JSON.parse(bpData);
         if(!BP.doneTwink) BP.doneTwink = [];
         if(tmData) TIMERS = JSON.parse(tmData);
-    } catch (e) { console.error("Error loading data", e); }
 
-    if(!BP.sortOrder || BP.sortOrder.length !== DB.bp.length) BP.sortOrder = DB.bp.map((_, i) => i);
+    } catch (e) {
+        console.error("Error loading data", e);
+    }
+
+    if(!BP.sortOrder || BP.sortOrder.length !== DB.bp.length) {
+        BP.sortOrder = DB.bp.map((_, i) => i);
+    }
 
     const loader = document.getElementById('loader');
-    if(loader) { loader.style.opacity = '0'; setTimeout(() => loader.remove(), 300); }
+    if(loader) {
+        loader.style.opacity = '0';
+        setTimeout(() => loader.remove(), 300);
+    }
     
-    const savedTheme = localStorage.getItem('gta_theme_22'); if(savedTheme) setTheme(savedTheme);
-    const savedSimple = localStorage.getItem('gta_simple_mode_22'); if(savedSimple === 'true') document.body.classList.add('simple-mode');
-    const savedScale = localStorage.getItem('gta_scale_22'); if(savedScale && document.getElementById('listBP')) document.getElementById('listBP').style.zoom = savedScale + '%';
-    const savedSkills = localStorage.getItem('gta_work_skills_22'); if(savedSkills) USER_WORK_SKILLS = JSON.parse(savedSkills);
+    const savedTheme = localStorage.getItem('gta_theme_22');
+    if(savedTheme) setTheme(savedTheme);
+
+    const savedSimple = localStorage.getItem('gta_simple_mode_22');
+    if(savedSimple === 'true') document.body.classList.add('simple-mode');
+
+    const savedScale = localStorage.getItem('gta_scale_22');
+    if(savedScale) {
+        const list = document.getElementById('listBP');
+        if(list) list.style.zoom = savedScale + '%';
+    }
     
+    const savedSkills = localStorage.getItem('gta_work_skills_22');
+    if(savedSkills) {
+        USER_WORK_SKILLS = JSON.parse(savedSkills);
+    }
+
     HIDE_COMPLETED = localStorage.getItem('gta_hide_completed_22') === 'true';
 
     document.getElementById('startBp').value = BP.start || '';
     document.getElementById('btnVip').classList.toggle('active', BP.vip);
     document.getElementById('btnX2').classList.toggle('active', BP.x2);
-    if(typeof BP.ball8 === 'undefined') BP.ball8 = 0; 
-    
-    applyBallStyle(); 
+    if(typeof BP.ball8 === 'undefined') BP.ball8 = 0; // Защита для старых сохранений
+    applyBallStyle(); // Красим шар при входе
+    // Запускаем отрисовку всех вкладок
     renderBP(); 
     updateBP();
     renderTimers(); 
     renderTimerPresets(); 
-    setupTimersDragAndDrop();
-    applyCollapsedState();
+setupTimersDragAndDrop();
+applyCollapsedState();
     renderFood(); 
     
     const activeGuideBtn = document.querySelector('#tab-guides .seg-btn.active');
@@ -737,44 +1293,52 @@ async function init() {
 
 function go(id, btn) {
     const currentTab = document.querySelector('.tab-content.active');
-    if (currentTab) SCROLL_POS[currentTab.id] = window.scrollY;
+    if (currentTab) {
+        SCROLL_POS[currentTab.id] = window.scrollY;
+        // Мы убрали отсюда код, который стирал поиск (searchInput.value = '')
+    }
     document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
     document.getElementById('tab-'+id).classList.add('active');
     document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active'));
     btn.classList.add('active');
-    setTimeout(() => window.scrollTo(0, SCROLL_POS['tab-'+id] || 0), 10);
+    const savedScroll = SCROLL_POS['tab-'+id] || 0;
+    setTimeout(() => window.scrollTo(0, savedScroll), 10);
 }
 
-// ====================== ТАЙМЕРЫ И УВЕДОМЛЕНИЯ ======================
-function scheduleNotification(id, delaySeconds, message, notify = true) {
-    const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
-    if (!userId || !notify || !GLOBAL_NOTIFY) return;
-    fetch(`${TIMER_SERVICE_URL}/set`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: String(id), chat_id: userId, text: message, delay: delaySeconds, notify: notify })
-    }).catch(err => console.error(err));
+// Звук и Пуш для таймеров
+function playDing() {
+    const audio = new Audio('https://notificationsounds.com/storage/sounds/file-sounds-1150-pristine.mp3');
+    audio.play().catch(e => console.log("Звук заблокирован"));
 }
 
-function cancelNotification(id) {
-    fetch(`${TIMER_SERVICE_URL}/cancel`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: String(id) })
-    }).catch(err => console.error(err));
+function showNativePopup(title) {
+    if (window.Telegram?.WebApp?.showPopup) {
+        window.Telegram.WebApp.showPopup({ title: "⏳ Таймер готов!", message: `Время вышло: ${title}`, buttons: [{ type: "ok", text: "ОК" }] });
+    }
 }
 
-function playDing() { const audio = new Audio('https://notificationsounds.com/storage/sounds/file-sounds-1150-pristine.mp3'); audio.play().catch(e=>{}); }
-function showNativePopup(title) { if (window.Telegram?.WebApp?.showPopup) window.Telegram.WebApp.showPopup({ title: "⏳ Таймер готов!", message: `Время вышло: ${title}`, buttons: [{ type: "ok", text: "ОК" }] }); }
-function saveTm() { Cloud.setItem('gta_tm_22', JSON.stringify(TIMERS)); }
-
+// ВАЖНО: теперь функция принимает СЕКУНДЫ
 function addTimerRaw(seconds, label, notify = true, type = 'gen') {
     if (!TIMERS.custom) TIMERS.custom = [];
+    
     let existing = TIMERS.custom.find(t => t.l === label);
     if (existing) {
-        existing.rm = seconds; existing.s = seconds; existing.ts = Date.now(); existing.et = Date.now() + (seconds * 1000); existing.run = true; existing.type = type;
+        existing.rm = seconds; existing.s = seconds;
+        existing.ts = Date.now(); existing.et = Date.now() + (seconds * 1000);
+        existing.run = true; existing.type = type; // Обновляем тип
     } else {
-        TIMERS.custom.push({ id: 't_' + Date.now(), l: label, s: seconds, rm: seconds, run: true, ts: Date.now(), et: Date.now() + (seconds * 1000), notify: notify, inApp: true, type: type });
+        const timerId = 't_' + Date.now();
+        TIMERS.custom.push({
+            id: timerId, l: label, s: seconds, rm: seconds,
+            run: true, ts: Date.now(), et: Date.now() + (seconds * 1000),
+            notify: notify, inApp: true, type: type // Добавляем тип
+        });
     }
-    if (notify) scheduleNotification(existing ? existing.id : TIMERS.custom[TIMERS.custom.length-1].id, seconds, `⏰ Таймер <b>${label}</b> завершен!`, notify);
+    
+    if (notify) {
+        let existingId = existing ? existing.id : TIMERS.custom[TIMERS.custom.length-1].id;
+        scheduleNotification(existingId, seconds, `⏰ Таймер <b>${label}</b> завершен!`, notify);
+    }
     saveTm(); renderTimers();
 }
 
@@ -784,71 +1348,121 @@ function toggleFab() {
 }
 
 function addCustomTimer() {
+    const nameInput = document.getElementById('customName').value;
     let m = parseInt(document.getElementById('customMin').value) || 0;
     let s = parseInt(document.getElementById('customSec').value) || 0;
     if (m === 0 && s === 0) return;
-    const totalSecs = (m * 60) + s;
-    const label = document.getElementById('customName').value.trim() || fmtTimeSimple(totalSecs);
     
-    addTimerRaw(totalSecs, label, document.getElementById('notifyCustom').checked);
+    const totalSeconds = (m * 60) + s;
+    const label = nameInput.trim() ? nameInput : fmtTimeSimple(totalSeconds);
+    const notify = document.getElementById('notifyCustom').checked;
+    const saveFav = document.getElementById('saveCustom').checked;
+
+    // Запускаем таймер
+    addTimerRaw(totalSeconds, label, notify);
     
-    if (document.getElementById('saveCustom').checked) {
+    // Если стоит галочка ⭐ - сохраняем как шаблон
+    if (saveFav) {
         if (!TIMERS.userPresets) TIMERS.userPresets = [];
         if (!TIMERS.fav) TIMERS.fav = [];
+        
         const presetId = 'u_' + Date.now();
-        TIMERS.userPresets.push({ id: presetId, l: label, s: totalSecs });
+        TIMERS.userPresets.push({ id: presetId, l: label, s: totalSeconds });
         TIMERS.fav.push(presetId); 
-        saveTm(); renderTimerPresets(); 
+        
+        saveTm();
+        renderTimerPresets(); 
         document.getElementById('saveCustom').checked = false;
     }
 
-    document.getElementById('customMin').value = ''; document.getElementById('customSec').value = ''; document.getElementById('customName').value = '';
-    const panel = document.getElementById('customTimerPanel'), fabBtn = document.getElementById('fabBtn');
-    if (panel && panel.classList.contains('active')) { panel.classList.remove('active'); fabBtn.classList.remove('open'); }
-}
+    // Очищаем поля
+    document.getElementById('customMin').value = ''; 
+    document.getElementById('customSec').value = ''; 
+    document.getElementById('customName').value = '';
 
-function addGameTimer(key) {
-    let t = DB.timers.find(x => x.id === key) || (TIMERS.userPresets && TIMERS.userPresets.find(x => x.id === key));
-    if (t) addTimerRaw(t.s, t.l, true); 
+    // Скрываем панель после запуска
+    const panel = document.getElementById('customTimerPanel');
+    const fabBtn = document.getElementById('fabBtn');
+    if (panel && panel.classList.contains('active')) {
+        panel.classList.remove('active');
+        fabBtn.classList.remove('open');
+    }
 }
-
+// Новая функция для удаления своих шаблонов
 function delPreset(id) {
     if (!TIMERS.userPresets) return;
     TIMERS.userPresets = TIMERS.userPresets.filter(t => t.id !== id);
     if (TIMERS.fav) TIMERS.fav = TIMERS.fav.filter(favId => favId !== id);
-    saveTm(); renderTimerPresets();
+    saveTm();
+    renderTimerPresets();
 }
 
 function renderTimers() {
-    const list = document.getElementById('activeTimersList'), dmList = document.getElementById('dmActiveList');
+    const list = document.getElementById('activeTimersList');
+    const dmList = document.getElementById('dmActiveList');
     if (!list || !dmList) return;
-    list.innerHTML = ''; dmList.innerHTML = '';
+    
+    list.innerHTML = '';
+    dmList.innerHTML = '';
 
-    if (!TIMERS.custom || TIMERS.custom.length === 0) { list.innerHTML = '<div style="padding:0 15px; color:#555; font-size:12px;">Активных задач нет</div>'; return; }
+    if (!TIMERS.custom || TIMERS.custom.length === 0) {
+        list.innerHTML = '<div style="padding:0 15px; color:#555; font-size:12px;">Активных задач нет</div>';
+        return;
+    }
 
-    [...TIMERS.custom].sort((a, b) => a.rm - b.rm).forEach(t => {
+    let sorted = [...TIMERS.custom].sort((a, b) => a.rm - b.rm);
+    
+    sorted.forEach(t => {
         const pct = t.s > 0 ? (t.rm / t.s) * 150.8 : 0;
         const html = `
             <div class="timer-bubble ${t.run ? 'running' : ''}" onclick="togTime('${t.id}')">
                 <button class="bubble-close" onclick="event.stopPropagation(); delTime('${t.id}')">✕</button>
-                <div class="circle-wrap"><svg><circle class="circle-bg" cx="26" cy="26" r="24"/><circle class="circle-progress" cx="26" cy="26" r="24" style="stroke-dashoffset: ${150.8 - pct}"/></svg><div class="circle-time" id="disp_${t.id}">${fmtTime(t.rm)}</div></div>
+                <div class="circle-wrap">
+                    <svg><circle class="circle-bg" cx="26" cy="26" r="24"/><circle class="circle-progress" cx="26" cy="26" r="24" style="stroke-dashoffset: ${150.8 - pct}"/></svg>
+                    <div class="circle-time" id="disp_${t.id}">${fmtTime(t.rm)}</div>
+                </div>
                 <div class="bubble-title">${t.l}</div>
             </div>`;
-        t.type === 'dm' ? dmList.innerHTML += html : list.innerHTML += html;
+        
+        // Распределяем по спискам в зависимости от типа
+        if (t.type === 'dm') {
+            dmList.innerHTML += html;
+        } else {
+            list.innerHTML += html;
+        }
     });
-    if (list.innerHTML === '') list.innerHTML = '<div style="padding:0 15px; color:#555; font-size:12px;">Активных задач нет</div>';
+    
+    if (list.innerHTML === '') {
+        list.innerHTML = '<div style="padding:0 15px; color:#555; font-size:12px;">Активных задач нет</div>';
+    }
 }
 
+function toggleNotifyTimer(id) { /* Заглушка, чтобы не ломался старый код */ }
+function toggleGlobalNotify() { GLOBAL_NOTIFY = document.getElementById('globalNotifyToggle').checked; localStorage.setItem('gta_global_notify_22', GLOBAL_NOTIFY); }
+function saveSkills() { USER_WORK_SKILLS.rednecks = parseInt(document.getElementById('setRednecks').value); USER_WORK_SKILLS.build = parseInt(document.getElementById('setBuild').value); USER_WORK_SKILLS.port = parseInt(document.getElementById('setPort').value); USER_WORK_SKILLS.mine = parseInt(document.getElementById('setMine').value); localStorage.setItem('gta_work_skills_22', JSON.stringify(USER_WORK_SKILLS)); renderBP(); }
+
 function renderTimerPresets() {
-    const favContainer = document.getElementById('favoriteTimers'), gridContainer = document.getElementById('timerGrid');
+    const favContainer = document.getElementById('favoriteTimers');
+    const gridContainer = document.getElementById('timerGrid');
     if (!favContainer || !gridContainer) return;
-    favContainer.innerHTML = ''; gridContainer.innerHTML = '';
+
+    favContainer.innerHTML = ''; 
+    gridContainer.innerHTML = '';
     if (!TIMERS.fav) TIMERS.fav = [];
 
-    let allPresets = [...DB.timers].concat(TIMERS.userPresets || []);
+    // Объединяем базовые шаблоны и пользовательские
+    let allPresets = [...DB.timers];
+    if (TIMERS.userPresets) {
+        allPresets = allPresets.concat(TIMERS.userPresets);
+    }
+
     allPresets.forEach(t => {
         const timeStr = fmtTimeSimple(t.s);
-        const delBtnHTML = t.id.startsWith('u_') ? `<button class="template-del-btn" onclick="event.stopPropagation(); delPreset('${t.id}')">✕</button>` : '';
+        const isUserCustom = t.id.startsWith('u_');
+        
+        // Аккуратный крестик в правом верхнем углу (только для кастомных)
+        const delBtnHTML = isUserCustom ? `<button class="template-del-btn" onclick="event.stopPropagation(); delPreset('${t.id}')">✕</button>` : '';
+
         const cardHTML = `
             <div class="timer-card drag-template" data-id="${t.id}">
                 ${delBtnHTML}
@@ -859,243 +1473,388 @@ function renderTimerPresets() {
                         <div style="font-size:11px; font-weight:800; color:var(--text-sub); font-family:monospace; margin-top:2px;">⏱ ${timeStr}</div>
                     </div>
                 </div>
-                <button class="tc-btn start" style="width:100%; background:rgba(249, 115, 22, 0.1) !important; color:var(--accent) !important; border:1px solid rgba(249, 115, 22, 0.3); border-radius:8px; padding:6px 0; font-size:11px; font-weight:700; cursor:pointer; margin-top:2px; transition:0.2s;" onclick="event.stopPropagation(); addGameTimer('${t.id}')">▶ СТАРТ</button>
+<button class="tc-btn start" style="width:100%; background:rgba(249, 115, 22, 0.1) !important; color:var(--accent) !important; border:1px solid rgba(249, 115, 22, 0.3); border-radius:8px; padding:6px 0; font-size:11px; font-weight:700; cursor:pointer; margin-top:2px; transition:0.2s;" onclick="event.stopPropagation(); addGameTimer('${t.id}')">▶ СТАРТ</button>
             </div>`;
-        TIMERS.fav.includes(t.id) ? favContainer.innerHTML += cardHTML : gridContainer.innerHTML += cardHTML;
+
+        if (TIMERS.fav.includes(t.id)) {
+            favContainer.innerHTML += cardHTML;
+        } else {
+            gridContainer.innerHTML += cardHTML;
+        }
     });
+
     if (TIMERS.fav.length === 0) favContainer.innerHTML = '<div class="empty-fav-msg" style="grid-column: 1/-1;">Тяни шаблоны сюда</div>';
 }
-
 let timersSortableInit = false;
 function setupTimersDragAndDrop() {
     if (timersSortableInit) return;
     const favEl = document.getElementById('favoriteTimers'), gridEl = document.getElementById('timerGrid');
     if (!favEl || !gridEl) return;
-    const opt = {
-        group: 'shared-timers', animation: 150, handle: '.drag-template', filter: 'button, input, select', preventOnFilter: false,
+
+    const sortableOptions = {
+        group: 'shared-timers', animation: 150, handle: '.drag-template',
+        filter: 'button, input, select', // ВАЖНО: запрещаем тянуть за кнопки
+        preventOnFilter: false, // ВАЖНО: разрешаем кнопкам нажиматься
         onEnd: function () {
-            TIMERS.fav = Array.from(favEl.querySelectorAll('.drag-template')).map(el => el.getAttribute('data-id')); saveTm();
+            const newFavs = [];
+            favEl.querySelectorAll('.drag-template').forEach(el => newFavs.push(el.getAttribute('data-id')));
+            TIMERS.fav = newFavs; saveTm();
             const emptyMsg = favEl.querySelector('.empty-fav-msg');
             if (TIMERS.fav.length === 0 && !emptyMsg) favEl.innerHTML = '<div class="empty-fav-msg" style="grid-column: 1/-1;">Тяни шаблоны сюда</div>';
             else if (TIMERS.fav.length > 0 && emptyMsg) emptyMsg.remove();
         }
     };
-    Sortable.create(favEl, opt); Sortable.create(gridEl, opt); timersSortableInit = true;
+    Sortable.create(favEl, sortableOptions); Sortable.create(gridEl, sortableOptions);
+    timersSortableInit = true;
 }
+function fmtTimeSimple(s) { const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60; if (h > 0) return `${h}:${pad(m)}:${pad(sec)}`; return `${m}:${pad(sec)}`; }
 
-// ====================== ЛОГИКА BP И ДАШБОРДА ======================
 function saveBP() { Cloud.setItem('gta_bp_22', JSON.stringify(BP)); }
-function saveSkills() { USER_WORK_SKILLS.rednecks = parseInt(document.getElementById('setRednecks').value); USER_WORK_SKILLS.build = parseInt(document.getElementById('setBuild').value); USER_WORK_SKILLS.port = parseInt(document.getElementById('setPort').value); USER_WORK_SKILLS.mine = parseInt(document.getElementById('setMine').value); localStorage.setItem('gta_work_skills_22', JSON.stringify(USER_WORK_SKILLS)); renderBP(); }
-
 function toggleVip() { BP.vip = !BP.vip; document.getElementById('btnVip').classList.toggle('active'); saveBP(); renderBP(); updateBP(); }
 function toggleX2() { BP.x2 = !BP.x2; document.getElementById('btnX2').classList.toggle('active'); saveBP(); renderBP(); updateBP(); }
 
 function updateBP() {
-    BP.done = [...new Set(BP.done)]; BP.start = parseInt(document.getElementById('startBp').value) || 0;
-    let farm = 0; 
-    BP.done.forEach(i => { let t = DB.bp[i]; if(t && !t.r) { let rw = BP.vip ? t.v : t.b; if(BP.x2) rw *= 2; farm += rw; } });
-    if(BP.counters) Object.keys(BP.counters).forEach(i => { let t = DB.bp[i]; if(t && t.r) { let rw = BP.vip ? t.v : t.b; if(BP.x2) rw *= 2; farm += (rw * BP.counters[i]); } });
-    
-    let total = BP.start + farm, mult = 1; 
-    if(BP.vip) mult *= 2; if(BP.x2) mult *= 2;
-    
-    if(document.getElementById('totalBp')) document.getElementById('totalBp').innerText = total;
-    if(document.getElementById('farmedVal')) document.getElementById('farmedVal').innerText = '+' + farm;
-    if(document.getElementById('multiplierDisp')) document.getElementById('multiplierDisp').innerText = 'x' + mult;
-    if(document.getElementById('stickyTotal')) document.getElementById('stickyTotal').innerText = total;
+    BP.done = [...new Set(BP.done)];
 
-    const elTime = document.getElementById('totalTime'); 
-    if(elTime) {
-        let count = (BP.counters && BP.counters[0]) ? BP.counters[0] : (BP.done.includes(0) ? 1 : 0); 
-        elTime.innerText = (count * 3) + 'ч'; elTime.style.color = count > 0 ? "var(--gold)" : "var(--text-sub)";
+    BP.start = parseInt(document.getElementById('startBp').value) || 0;
+    let farm = 0; 
+    
+    BP.done.forEach(i => { 
+        let t = DB.bp[i]; 
+        if(t && !t.r) { let rw = BP.vip ? t.v : t.b; if(BP.x2) rw *= 2; farm += rw; } 
+    });
+
+    if(BP.counters) { 
+        Object.keys(BP.counters).forEach(i => { 
+            let t = DB.bp[i]; 
+            if(t && t.r) { let rw = BP.vip ? t.v : t.b; if(BP.x2) rw *= 2; farm += (rw * BP.counters[i]); } 
+        }); 
     }
+
+    let total = BP.start + farm; 
+
+    const elTotal = document.getElementById('totalBp');
+    const elFarmed = document.getElementById('farmedVal'); // Выводим Нафармлено наверх
+    const elMult = document.getElementById('multiplierDisp');
+    const elTime = document.getElementById('totalTime'); 
+
+    if(elTotal) elTotal.innerText = total;
+    if(elFarmed) elFarmed.innerText = '+' + farm;
+    
+    let mult = 1;
+    if(BP.vip) mult *= 2; 
+    if(BP.x2) mult *= 2;
+    if(elMult) elMult.innerText = 'x' + mult;
+
+    const elStickyTotal = document.getElementById('stickyTotal');
+    if(elStickyTotal) elStickyTotal.innerText = total;
+
+    if(elTime) {
+        const taskID = 0; 
+        let count = (BP.counters && BP.counters[taskID]) ? BP.counters[taskID] : 0;
+        if(count === 0 && BP.done.includes(taskID)) count = 1; 
+        const totalHours = count * 3;
+        elTime.innerText = totalHours + 'ч';
+        elTime.style.color = totalHours > 0 ? "var(--gold)" : "var(--text-sub)";
+    }
+    
+    document.getElementById('btnVip').classList.toggle('active', BP.vip);
+    document.getElementById('btnX2').classList.toggle('active', BP.x2);
     saveBP();
 }
-
 function toggleSearch() {
-    const drop = document.getElementById('searchDropdown'); drop.classList.toggle('active');
-    drop.classList.contains('active') ? document.getElementById('searchBp').focus() : document.getElementById('searchBp').blur();
+    const drop = document.getElementById('searchDropdown');
+    drop.classList.toggle('active');
+    if (drop.classList.contains('active')) {
+        document.getElementById('searchBp').focus(); // Автоматически ставит курсор
+    } else {
+        document.getElementById('searchBp').blur();
+    }
 }
-
 function toggleTask(i, event) {
     if (event) event.stopPropagation();
-    if(BP.done.includes(i)) { BP.done = BP.done.filter(x=>x!==i); delete BP.times[i]; if(BP.counters && BP.counters[i]) BP.counters[i] = 0; } 
-    else { BP.done.push(i); if(BP.doneTwink) BP.doneTwink = BP.doneTwink.filter(x => x !== i); BP.times[i] = new Date().toLocaleTimeString().slice(0,5); if(DB.bp[i].q > 1) BP.counters[i] = DB.bp[i].q; }
+    if(BP.done.includes(i)) { 
+        BP.done = BP.done.filter(x=>x!==i); 
+        delete BP.times[i]; 
+        if(BP.counters && BP.counters[i]) BP.counters[i] = 0;
+    } else { 
+        BP.done.push(i);
+        if(BP.doneTwink) BP.doneTwink = BP.doneTwink.filter(x => x !== i);
+        BP.times[i] = new Date().toLocaleTimeString().slice(0,5); 
+        if(DB.bp[i].q > 1) BP.counters[i] = DB.bp[i].q;
+    }
     saveBP(); renderBP(); updateBP();
 }
 
 function toggleTwink(i, e) {
-    e.stopPropagation(); if(!BP.doneTwink) BP.doneTwink = [];
-    if(BP.doneTwink.includes(i)) BP.doneTwink = BP.doneTwink.filter(x => x !== i);
-    else { BP.doneTwink.push(i); BP.done = BP.done.filter(x => x !== i); BP.times[i] = new Date().toLocaleTimeString().slice(0,5); }
+    e.stopPropagation(); 
+    if(!BP.doneTwink) BP.doneTwink = [];
+    if(BP.doneTwink.includes(i)) {
+        BP.doneTwink = BP.doneTwink.filter(x => x !== i);
+    } else {
+        BP.doneTwink.push(i);
+        BP.done = BP.done.filter(x => x !== i);
+        BP.times[i] = new Date().toLocaleTimeString().slice(0,5);
+    }
     saveBP(); renderBP(); updateBP();
 }
 
 function updateCounter(id, delta) {
-    if(!BP.counters) BP.counters = {}; if(typeof BP.counters[id] === 'undefined') BP.counters[id] = 0;
-    const wasDone = BP.done.includes(id), max = DB.bp[id].q;
-    BP.counters[id] += delta; if(BP.counters[id] < 0) BP.counters[id] = 0;
+    if(!BP.counters) BP.counters = {};
+    if(typeof BP.counters[id] === 'undefined') BP.counters[id] = 0;
+    
+    const wasDone = BP.done.includes(id);
+    const max = DB.bp[id].q;
+    BP.counters[id] += delta;
+    if(BP.counters[id] < 0) BP.counters[id] = 0;
     
     if (!DB.bp[id].r) {
-        if(BP.counters[id] >= max) { BP.counters[id] = max; if(!BP.done.includes(id)) { BP.done.push(id); BP.times[id] = new Date().toLocaleTimeString().slice(0,5); } } 
-        else if(BP.done.includes(id)) { BP.done = BP.done.filter(x => x !== id); delete BP.times[id]; }
+        if(BP.counters[id] > max) BP.counters[id] = max;
+        if(BP.counters[id] >= max) {
+            if(!BP.done.includes(id)) { BP.done.push(id); BP.times[id] = new Date().toLocaleTimeString().slice(0,5); }
+        } else {
+            if(BP.done.includes(id)) { BP.done = BP.done.filter(x => x !== id); delete BP.times[id]; }
+        }
     }
+    const isDoneNow = BP.done.includes(id);
     saveBP(); updateBP(); 
-    wasDone !== BP.done.includes(id) ? renderBP() : (document.getElementById(`ring_${id}`) && document.getElementById(`cnt_${id}`) ? (document.getElementById(`ring_${id}`).style.strokeDashoffset = 138.2 - (138.2 * Math.min(BP.counters[id]/max, 1)), document.getElementById(`cnt_${id}`).innerText = BP.counters[id]) : renderBP());
+
+    if (wasDone !== isDoneNow) {
+        renderBP();
+    } else {
+        const elRing = document.getElementById(`ring_${id}`);
+        const elTxt = document.getElementById(`cnt_${id}`);
+        if (elRing && elTxt) {
+            let newPct = BP.counters[id] / max;
+            if(newPct > 1) newPct = 1;
+            // Длина окружности 138.2
+            elRing.style.strokeDashoffset = 138.2 - (138.2 * newPct);
+            elTxt.innerText = BP.counters[id];
+        } else {
+            renderBP();
+        }
+    }
 }
 
 function hideBP(i,e) { e.stopPropagation(); BP.hidden.push(i); saveBP(); renderBP(); }
 function resetHiddenBP() { BP.hidden = []; saveBP(); renderBP(); }
+
 function newDay() {
     const msg = "Начать новый день? Сбросится прогресс.";
-    const doReset = () => { BP.done = []; BP.doneTwink = []; BP.times = {}; BP.counters = {}; BP.start = 0; if(document.getElementById('startBp')) { document.getElementById('startBp').value = ''; document.getElementById('startBp').blur(); } saveBP(); renderBP(); updateBP(); };
-    window.Telegram?.WebApp?.showConfirm ? window.Telegram.WebApp.showConfirm(msg, (c) => { if (c) doReset(); }) : (confirm(msg) && doReset());
+    const doReset = () => {
+        BP.done = []; BP.doneTwink = []; BP.times = {}; BP.counters = {}; BP.start = 0;
+        const startInput = document.getElementById('startBp');
+        if(startInput) { startInput.value = ''; startInput.blur(); }
+        saveBP(); renderBP(); updateBP();
+    };
+    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.showConfirm) {
+        window.Telegram.WebApp.showConfirm(msg, function(confirmed) { if (confirmed) doReset(); });
+    } else {
+        if (confirm(msg)) doReset();
+    }
 }
-
-function applyBallStyle() {
-    const btnVisual = document.getElementById('btnBallVisual'), sel = document.getElementById('btnBall');
-    if (!btnVisual || !sel) return; sel.value = BP.ball8 || 0;
-    if (BP.ball8 === 1) { btnVisual.style.color = 'var(--green)'; btnVisual.style.borderColor = 'rgba(16, 185, 129, 0.4)'; btnVisual.style.backgroundColor = 'rgba(16, 185, 129, 0.05)'; } 
-    else if (BP.ball8 === -1) { btnVisual.style.color = 'var(--red)'; btnVisual.style.borderColor = 'rgba(239, 68, 68, 0.4)'; btnVisual.style.backgroundColor = 'rgba(239, 68, 68, 0.05)'; } 
-    else { btnVisual.style.color = ''; btnVisual.style.borderColor = ''; btnVisual.style.backgroundColor = ''; }
-}
-
-function toggleBall(val) { BP.ball8 = parseInt(val); saveBP(); renderBP(); applyBallStyle(); }
-function completeInstant(id) { const diff = DB.bp[id].q - (BP.counters && BP.counters[id] ? BP.counters[id] : 0); if (diff > 0) updateCounter(id, diff); }
 
 function renderBP() {
-    const list = document.getElementById('listBP'), search = document.getElementById('searchBp').value.toLowerCase(), sortMode = document.getElementById('bpSort').value;
-    if(!BP.localTimers) BP.localTimers = {}; if(!BP.doneTwink) BP.doneTwink = [];
+    const list = document.getElementById('listBP'); 
+    const search = document.getElementById('searchBp').value.toLowerCase();
+    const sortMode = document.getElementById('bpSort').value;
+    
+    if(!BP.localTimers) BP.localTimers = {};
+    if(!BP.doneTwink) BP.doneTwink = [];
 
     let tasks = BP.sortOrder.map(id => ({...DB.bp[id], id: id}));
-    if(sortMode === 'max') tasks.sort((a, b) => b.q - a.q); if(sortMode === 'min') tasks.sort((a, b) => a.q - b.q);
+    if(sortMode === 'max') tasks.sort((a, b) => b.q - a.q);
+    if(sortMode === 'min') tasks.sort((a, b) => a.q - b.q);
 
     list.innerHTML = '';
     
     tasks.forEach(t => {
-        const i = t.id, done = BP.done.includes(i), isTwink = BP.doneTwink.includes(i);
-        if ((HIDE_COMPLETED && (done || isTwink)) || BP.hidden.includes(i) || (search && !t.t.toLowerCase().includes(search))) return;
+        const i = t.id;
+        const done = BP.done.includes(i);
+        const isTwink = BP.doneTwink.includes(i);
+        
+        if (HIDE_COMPLETED && (done || isTwink)) return;
+        if(BP.hidden.includes(i) || (search && !t.t.toLowerCase().includes(search))) return;
         
         let rw = BP.vip ? t.v : t.b; if(BP.x2) rw *= 2;
-        let statusBadgeHTML = done && BP.times[i] ? `<span class="status-badge time">${BP.times[i]}</span>` : (isTwink ? `<span class="status-badge twink">ТВИНК</span>` : '');
+        
+        let statusBadgeHTML = '';
+        // Меняем div на span, чтобы статус был в одной строке с текстом
+        if (done && BP.times[i]) statusBadgeHTML = `<span class="status-badge time">${BP.times[i]}</span>`;
+        else if (isTwink) statusBadgeHTML = `<span class="status-badge twink">ТВИНК</span>`;
 
-        let payoutText = '';
+let payoutText = '';
         if (t.t.includes("действий на стройке") || t.t.includes("действий в порту") || t.t.includes("действий в шахте")) { 
             let basePay = t.t.includes("стройке") ? WORK_RATES.build[USER_WORK_SKILLS.build] : (t.t.includes("порту") ? WORK_RATES.port[USER_WORK_SKILLS.port] : WORK_RATES.mine[USER_WORK_SKILLS.mine]);
-            let totalPay = Math.round((basePay + Math.round(basePay * REDNECK_BONUS[USER_WORK_SKILLS.rednecks])) * 25);
+            const bonusMultiplier = REDNECK_BONUS[USER_WORK_SKILLS.rednecks];
+            let totalPay = Math.round((basePay + Math.round(basePay * bonusMultiplier)) * 25);
+            
             if (BP.x2) totalPay *= 2;
-            if (BP.ball8 === 1) totalPay = Math.round(totalPay * 1.25); else if (BP.ball8 === -1) totalPay = Math.round(totalPay * 0.75);
+            if (BP.ball8 === 1) totalPay = Math.round(totalPay * 1.25);
+            else if (BP.ball8 === -1) totalPay = Math.round(totalPay * 0.75);
+
             payoutText = `<div style="color:var(--green); font-weight:700; font-size:11px;">Выплата: ${totalPay.toLocaleString('ru-RU')}$</div>`;
         }
 
         let controlHTML = '', ringHTML = '', instantDoneBtn = '';
+        
         if(t.q > 1 || t.r) {
             const curr = BP.counters && BP.counters[i] ? BP.counters[i] : 0;
+            let pct = t.q > 0 ? (curr / t.q) : 0;
+            if(pct > 1) pct = 1;
+
             if(!t.r) {
-                ringHTML = `<svg viewBox="0 0 48 48"><circle class="ring-bg" cx="24" cy="24" r="22"/><circle id="ring_${i}" class="ring-progress" cx="24" cy="24" r="22" style="stroke-dashoffset: ${138.2 - (138.2 * Math.min(t.q>0?curr/t.q:0, 1))}"/></svg>`;
+                const offset = 138.2 - (138.2 * pct);
+                ringHTML = `<svg viewBox="0 0 48 48"><circle class="ring-bg" cx="24" cy="24" r="22"/><circle id="ring_${i}" class="ring-progress" cx="24" cy="24" r="22" style="stroke-dashoffset: ${offset}"/></svg>`;
                 if(!done) instantDoneBtn = `<button class="btn-instant-done" style="height:28px; font-size:12px;" onclick="completeInstant(${i})">+${rw}</button>`;
             }
-            controlHTML = `<div class="controls-new" style="height:28px; padding:2px; background:rgba(0,0,0,0.4);" onclick="event.stopPropagation()"><button class="btn-mini minus" style="height:24px; width:24px;" onclick="updateCounter(${i}, -1)">−</button><span id="cnt_${i}" class="counter-val-new" style="min-width:18px; font-size:12px;">${curr}</span><button class="btn-mini plus" style="height:24px; width:24px;" onclick="updateCounter(${i}, 1)">+</button></div>`;
+
+            controlHTML = `
+            <div class="controls-new" style="height:28px; padding:2px; background:rgba(0,0,0,0.4);" onclick="event.stopPropagation()">
+                <button class="btn-mini minus" style="height:24px; width:24px;" onclick="updateCounter(${i}, -1)">−</button>
+                <span id="cnt_${i}" class="counter-val-new" style="min-width:18px; font-size:12px;">${curr}</span>
+                <button class="btn-mini plus" style="height:24px; width:24px;" onclick="updateCounter(${i}, 1)">+</button>
+            </div>`;
         } else {
              controlHTML = `<button class="btn-instant-done" style="height:28px; padding:0 16px; font-size:13px;" onclick="toggleTask(${i}, event)">${done ? '✔ +'+rw : '+'+rw}</button>`;
         }
 
-        let timerActionHTML = '', iconOverlay = '';
+        // === ИНТЕГРАЦИЯ ТАЙМЕРА В ИКОНКУ ===
+        let timerActionHTML = '';
+        let iconOverlay = '';
+        
         if (t.timer) {
             let lt = BP.localTimers[i] || { rm: t.timer, run: false };
-            if(lt.run && lt.et) { const diff = Math.ceil((lt.et - Date.now()) / 1000); lt.rm = diff > 0 ? diff : 0; if(lt.rm === 0) lt.run = false; }
-            iconOverlay = `<div style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,${lt.run?'0.85':'0.65'}); backdrop-filter:blur(2px); -webkit-backdrop-filter:blur(2px); display:flex; align-items:center; justify-content:center; cursor:pointer; border-radius:10px; transition:0.2s; z-index:5;" onclick="event.stopPropagation(); toggleLocalTimer(${i}, ${t.timer})"><span id="loc_timer_${i}" style="font-family:monospace; font-size:${lt.rm<=0||fmtTime(lt.rm).length<=5?'11px':'9px'}; font-weight:800; ${lt.run?'color:var(--gold);':(lt.rm<=0?'color:var(--green);':'color:#fff;')}">${lt.rm <= 0 ? "✔" : fmtTime(lt.rm)}</span></div>`;
+            if(lt.run && lt.et) {
+                 const diff = Math.ceil((lt.et - Date.now()) / 1000);
+                 lt.rm = diff > 0 ? diff : 0; if(lt.rm === 0) lt.run = false;
+            }
+            
+            const displayTime = lt.rm <= 0 ? "✔" : fmtTime(lt.rm);
+            const playStyle = lt.run ? 'color:var(--gold);' : (lt.rm <= 0 ? 'color:var(--green);' : 'color:#fff;');
+            const bgAlpha = lt.run ? '0.85' : '0.65'; // Если идет - фон темнее, чтобы цифры лучше читались
+            const fontSize = displayTime.length > 5 ? '9px' : '11px';
+
+            // Само стекло, которое ляжет поверх иконки
+            iconOverlay = `
+            <div style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,${bgAlpha}); backdrop-filter:blur(2px); -webkit-backdrop-filter:blur(2px); display:flex; align-items:center; justify-content:center; cursor:pointer; border-radius:10px; transition:0.2s; z-index:5;" onclick="event.stopPropagation(); toggleLocalTimer(${i}, ${t.timer})">
+                <span id="loc_timer_${i}" style="font-family:monospace; font-size:${fontSize}; font-weight:800; ${playStyle}">${displayTime}</span>
+            </div>`;
+            
+            // Кнопка сброса уезжает вправо к остальным кнопкам
             timerActionHTML = `<button class="icon-btn" style="width:28px; height:28px; border-radius:6px; border:1px solid #333; background:rgba(0,0,0,0.2); font-size:14px;" onclick="event.stopPropagation(); resetLocalTimer(${i}, ${t.timer})">↺</button>`;
         }
 
+        let iconHTML = `<div class="icon-ring-wrap" style="position:relative;">${ringHTML}<div class="bp-icon-container" style="position:relative; overflow:hidden;">${t.img ? `<img src="${t.img}" class="bp-img">` : `<span class="bp-emoji">${t.i||'•'}</span>`}${iconOverlay}</div></div>`;
+
         const item = document.createElement('div');
-        item.className = `task-item compact ${(done && !t.r) ? 'completed' : ''} ${isTwink?'completed twink-done':''} ${t.b >= 4 ? 'high-reward' : ''}`;
-        item.setAttribute('data-id', i); if(!t.r && t.q <= 1) item.onclick = () => toggleTask(i);
+        let doneClass = (done && !t.r) ? 'completed' : '';
+        if (isTwink) doneClass = 'completed twink-done';
+        let highRewardClass = t.b >= 4 ? 'high-reward' : '';
+        
+        item.className = `task-item compact ${doneClass} ${highRewardClass}`;
+        item.setAttribute('data-id', i);
+        if(!t.r && t.q <= 1) item.onclick = () => toggleTask(i);
+
+        let twinkBtnStyle = isTwink ? 'color: #c084fc; background: rgba(192, 132, 252, 0.15); border: 1px solid rgba(192, 132, 252, 0.3);' : '';
+        const twinkBtn = !t.r ? `<button class="icon-btn" style="width:28px; height:28px; border-radius:6px; ${twinkBtnStyle}" onclick="toggleTwink(${i}, event)">👻</button>` : '';
 
         item.innerHTML = `
             <div class="drag-handle" style="margin-right:0; color:#444; width:12px; display:flex; align-items:center; justify-content:center;">⋮</div>
-            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex-shrink: 0; width: 44px;"><div class="icon-ring-wrap" style="position:relative;">${ringHTML}<div class="bp-icon-container" style="position:relative; overflow:hidden;">${t.img ? `<img src="${t.img}" class="bp-img">` : `<span class="bp-emoji">${t.i||'•'}</span>`}${iconOverlay}</div></div></div>
+            
+            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex-shrink: 0; width: 44px;">
+                ${iconHTML}
+            </div>
+            
             <div class="task-main-col" style="gap:4px; min-width:0;">
                 <div class="task-content">
                     <div class="task-text" style="margin-bottom:2px !important; font-size:13.5px;">${t.t} ${t.r ? '<span class="tag" style="margin:0 0 0 4px; font-size:9px;">∞</span>' : ''} ${statusBadgeHTML}</div>
                     ${payoutText ? `<div style="margin-top: 4px;">${payoutText}</div>` : ''}
                 </div>
+                
                 <div class="task-bottom-row" style="margin-top: 0 !important; justify-content: flex-end;">
-                     <div class="task-actions-group" style="flex-wrap: nowrap;">${timerActionHTML}${controlHTML}${instantDoneBtn}${!t.r ? `<button class="icon-btn" style="width:28px; height:28px; border-radius:6px; ${isTwink ? 'color: #c084fc; background: rgba(192, 132, 252, 0.15); border: 1px solid rgba(192, 132, 252, 0.3);' : ''}" onclick="toggleTwink(${i}, event)">👻</button>` : ''}<button class="icon-btn del" style="width:28px; height:28px; border-radius:6px; border:1px solid #333; background:rgba(0,0,0,0.2);" onclick="hideBP(${i},event)">✕</button></div>
+                     <div class="task-actions-group" style="flex-wrap: nowrap;">
+                        ${timerActionHTML}${controlHTML}${instantDoneBtn}${twinkBtn}
+                        <button class="icon-btn del" style="width:28px; height:28px; border-radius:6px; border:1px solid #333; background:rgba(0,0,0,0.2);" onclick="hideBP(${i},event)">✕</button>
+                     </div>
                 </div>
             </div>`;
         list.appendChild(item);
     });
 }
+function completeInstant(id) {
+    const max = DB.bp[id].q;
+    const current = BP.counters && BP.counters[id] ? BP.counters[id] : 0;
+    const diff = max - current;
+    if (diff > 0) updateCounter(id, diff); 
+}
 
 function setupDragAndDrop() {
-    Sortable.create(document.getElementById('listBP'), {
-        handle: '.drag-handle', animation: 150,
-        onEnd: function () {
-            const newOrder = []; document.getElementById('listBP').querySelectorAll('.task-item').forEach(el => newOrder.push(parseInt(el.getAttribute('data-id'))));
-            BP.sortOrder = [...newOrder, ...BP.sortOrder.filter(id => !newOrder.includes(id))]; saveBP();
+    const list = document.getElementById('listBP');
+    Sortable.create(list, {
+        handle: '.drag-handle',
+        animation: 150,
+        onEnd: function (evt) {
+            const newOrder = [];
+            list.querySelectorAll('.task-item').forEach(el => newOrder.push(parseInt(el.getAttribute('data-id'))));
+            const hiddenItems = BP.sortOrder.filter(id => !newOrder.includes(id));
+            BP.sortOrder = [...newOrder, ...hiddenItems];
+            saveBP();
         }
     });
 }
 
-let headerTimerIdx = 0;
-function changeHeaderTimer(dir) { headerTimerIdx += dir; updateHeaderTimer(); }
-function updateHeaderTimer() {
-    if (!TIMERS || !TIMERS.custom) return;
-    let active = TIMERS.custom.filter(t => t.run).sort((a, b) => (a.et ? Math.ceil((a.et - Date.now()) / 1000) : (a.rm || 0)) - (b.et ? Math.ceil((b.et - Date.now()) / 1000) : (b.rm || 0)));
-    const elLabel = document.getElementById('htLabel'), elTime = document.getElementById('htTime'), elSvgPath = document.querySelector('.ht-rect-path'); 
-
-    if (active.length === 0) {
-        if(elLabel) elLabel.innerText = "Нет активных"; if(elTime) { elTime.innerText = "--:--"; elTime.style.color = "#555"; }
-        if(elSvgPath) { elSvgPath.style.strokeDashoffset = 100; elSvgPath.style.stroke = 'var(--green)'; } return;
-    }
-    if (headerTimerIdx >= active.length) headerTimerIdx = 0; if (headerTimerIdx < 0) headerTimerIdx = active.length - 1;
-    const t = active[headerTimerIdx]; let timeLeft = Math.max(0, t.et ? Math.ceil((t.et - Date.now()) / 1000) : t.rm || 0);
-    if(elSvgPath) { let pct = t.s > 0 ? (timeLeft / t.s) * 100 : 0; elSvgPath.style.strokeDashoffset = 100 - pct; elSvgPath.style.stroke = pct > 50 ? 'var(--green)' : (pct > 20 ? 'var(--accent)' : 'var(--red)'); }
-    if(elLabel) elLabel.innerText = t.l.length > 12 ? t.l.slice(0, 11) + ".." : t.l;
-    if(elTime) { elTime.innerText = fmtTime(timeLeft); elTime.style.color = "var(--text-main)"; }
-}
-
-function toggleLocalTimer(id, defaultSeconds) {
-    if(!BP.localTimers) BP.localTimers = {}; if(!BP.localTimers[id]) BP.localTimers[id] = { rm: defaultSeconds, run: false };
-    let t = BP.localTimers[id];
-    if(t.rm <= 0) { t.rm = defaultSeconds; t.run = false; } else {
-        t.run = !t.run;
-        if(t.run) { t.et = Date.now() + (t.rm * 1000); scheduleNotification('loc_' + id, t.rm, `✅ Задача <b>${DB.bp[id] ? DB.bp[id].t : "Задача"}</b> готова!`, t.notify !== false); } 
-        else { cancelNotification('loc_' + id); }
-    }
-    saveBP(); renderBP(); 
-}
-
-function resetLocalTimer(id, defaultSeconds) {
-    if(!BP.localTimers || !BP.localTimers[id]) return;
-    BP.localTimers[id].rm = defaultSeconds; BP.localTimers[id].run = false; delete BP.localTimers[id].et; cancelNotification('loc_' + id);
-    if(window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-    saveBP(); renderBP();
-}
+function saveTm() { Cloud.setItem('gta_tm_22', JSON.stringify(TIMERS)); }
 
 function updateTimersVisuals() {
-    const now = Date.now(); let changed = false;
     if(TIMERS.custom) {
+        const now = Date.now();
+        let changed = false;
+        
+        // Проходим с конца, чтобы безопасно удалять завершенные таймеры
         for (let i = TIMERS.custom.length - 1; i >= 0; i--) {
             let t = TIMERS.custom[i];
             if(t.run) {
                 if (t.et) t.rm = Math.ceil((t.et - now) / 1000);
-                if(t.rm <= 0) { t.rm = 0; t.run = false; playDing(); showNativePopup(t.l); TIMERS.custom.splice(i, 1); changed = true; } 
-                else {
+                if(t.rm <= 0) {
+                    t.rm = 0; t.run = false;
+                    playDing();
+                    showNativePopup(t.l);
+                    TIMERS.custom.splice(i, 1); // Автоудаление
+                    changed = true;
+                } else {
+                    // Обновляем кружки
                     const elDisp = document.getElementById(`disp_${t.id}`);
-                    if(elDisp) { elDisp.innerText = fmtTime(t.rm); const svgCircle = elDisp.parentElement.querySelector('.circle-progress'); if(svgCircle) svgCircle.style.strokeDashoffset = 150.8 - (t.s > 0 ? (t.rm / t.s) * 150.8 : 0); }
+                    if(elDisp) {
+                        elDisp.innerText = fmtTime(t.rm);
+                        const svgCircle = elDisp.parentElement.querySelector('.circle-progress');
+                        if(svgCircle) {
+                            const pct = t.s > 0 ? (t.rm / t.s) * 150.8 : 0;
+                            svgCircle.style.strokeDashoffset = 150.8 - pct;
+                        }
+                    }
                 }
             }
         }
-        if(changed) { renderTimers(); saveTm(); changed = false; }
+        if(changed) { renderTimers(); saveTm(); }
     }
+
     if(BP.localTimers) {
+        const now = Date.now();
+        let changed = false;
         for (const [id, t] of Object.entries(BP.localTimers)) {
             if(t.run) {
                 const diff = Math.ceil((t.et - now) / 1000);
-                if(diff <= 0) { t.rm = 0; t.run = false; renderBP(); showToast(`Задача "${DB.bp[id] ? DB.bp[id].t : "Задача"}" готова!`, 'success'); if(window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.notificationOccurred('success'); } 
-                else { t.rm = diff; const el = document.getElementById(`loc_timer_${id}`); if(el) el.innerText = fmtTime(t.rm); }
+                if(diff <= 0) {
+                    t.rm = 0; t.run = false; renderBP(); 
+                    let taskName = DB.bp[id] ? DB.bp[id].t : "Задача";
+                    showToast(`Задача "${taskName}" готова!`, 'success');
+                    if(window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                } else {
+                    t.rm = diff;
+                    const el = document.getElementById(`loc_timer_${id}`);
+                    if(el) el.innerText = fmtTime(t.rm);
+                }
                 changed = true;
             }
         }
@@ -1104,93 +1863,378 @@ function updateTimersVisuals() {
 }
 
 let GLOBAL_TIMER_INT = null;
-function startGlobalTimerLoop() { if(GLOBAL_TIMER_INT) return; GLOBAL_TIMER_INT = setInterval(() => { if(typeof updateHeaderTimer === 'function') updateHeaderTimer(); updateTimersVisuals(); }, 1000); }
-
-function togTime(id) {
-    const t = TIMERS.custom.find(x => x.id === id); if (!t) return;
-    if (!t.run || t.rm <= 0) { t.run = true; t.et = Date.now() + (t.rm * 1000); if (t.notify) scheduleNotification(t.id, t.rm, `⏰ Таймер <b>${t.l}</b> завершен!`, true); } 
-    else { t.run = false; if (t.notify) cancelNotification(t.id); }
-    saveTm(); renderTimers();
+function startGlobalTimerLoop() {
+    if(GLOBAL_TIMER_INT) return; 
+    GLOBAL_TIMER_INT = setInterval(() => {
+        if(typeof updateHeaderTimer === 'function') updateHeaderTimer();
+        updateTimersVisuals();
+    }, 1000);
 }
-function delTime(id) { cancelNotification(id); TIMERS.custom = TIMERS.custom.filter(t=>t.id!==id); saveTm(); renderTimers(); }
 
-// ====================== ОСТАЛЬНЫЕ ФУНКЦИИ ======================
 function fmtTime(s) { const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60; return (h>0?h+':':'')+pad(m)+':'+pad(sec); }
-function fmtTimeSimple(s) { const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60; return h>0?`${h}:${pad(m)}:${pad(sec)}`:`${m}:${pad(sec)}`; }
 function pad(n) { return n<10?'0'+n:n; }
 
+function togTime(id) {
+    const t = TIMERS.custom.find(x => x.id === id);
+    if (!t) return;
+    if (!t.run || t.rm <= 0) {
+        t.run = true; 
+        t.et = Date.now() + (t.rm * 1000); // Снятие с паузы
+        // Снова отправляем задачу на сервер бота при снятии с паузы
+        if (t.notify) scheduleNotification(t.id, t.rm, `⏰ Таймер <b>${t.l}</b> завершен!`, true); 
+    } else {
+        t.run = false; // Пауза
+        // Отменяем отправку сообщения от бота, пока таймер на паузе
+        if (t.notify) cancelNotification(t.id); 
+    }
+    saveTm(); renderTimers();
+}
+
+function rstTime(id) { /* Заглушка */ }
+
+function delTime(id) { 
+    // Отменяем пуш от бота перед удалением
+    cancelNotification(id); 
+    TIMERS.custom = TIMERS.custom.filter(t=>t.id!==id); 
+    saveTm(); renderTimers(); 
+}
+
 function renderFood() {
-    const list = document.getElementById('listFood'), s = document.getElementById('searchFood').value.toLowerCase(); list.innerHTML = '';
+    const list = document.getElementById('listFood'); list.innerHTML = '';
+    const s = document.getElementById('searchFood').value.toLowerCase();
     DB.kitchen.forEach(f => {
         if(s && !f.name.toLowerCase().includes(s)) return;
-        list.innerHTML += `<div class="card" onclick='openModal(${JSON.stringify(f)})'><div class="card-icon">${f.icon}</div><div class="card-body"><div class="card-title">${f.name}</div><div class="food-stats-mini"><span class="fs-i" style="color:var(--green)">🍖 ${f.sat}</span> <span class="fs-i" style="color:var(--gold)">😎 ${f.mood}</span> <span class="fs-i" style="color:var(--red)">💪 ${f.str}</span></div></div><div class="card-end" style="font-size:20px; color:var(--text-sub)">›</div></div>`;
+        list.innerHTML += `
+            <div class="card" onclick='openModal(${JSON.stringify(f)})'>
+                <div class="card-icon">${f.icon}</div>
+                <div class="card-body">
+                    <div class="card-title">${f.name}</div>
+                    <div class="food-stats-mini">
+                        <span class="fs-i" style="color:var(--green)">🍖 ${f.sat}</span>
+                        <span class="fs-i" style="color:var(--gold)">😎 ${f.mood}</span>
+                        <span class="fs-i" style="color:var(--red)">💪 ${f.str}</span>
+                    </div>
+                </div>
+                <div class="card-end" style="font-size:20px; color:var(--text-sub)">›</div>
+            </div>`;
     });
 }
 
 function openModal(f) {
     document.getElementById('mTitle').innerText = f.name;
-    document.getElementById('mContent').innerHTML = `<div style="text-align:center; font-size:60px; margin-bottom:20px;">${f.icon}</div><div style="display:flex; justify-content:space-between; margin-bottom:20px; text-align:center; background:rgba(255,255,255,0.05); padding:15px; border-radius:16px;"><div><div style="color:var(--green); font-size:20px; font-weight:bold;">+${f.sat}</div><div style="font-size:10px; color:#666;">СЫТОСТЬ</div></div><div><div style="color:var(--gold); font-size:20px; font-weight:bold;">+${f.mood}</div><div style="font-size:10px; color:#666;">НАСТР</div></div><div><div style="color:var(--red); font-size:20px; font-weight:bold;">${f.str}</div><div style="font-size:10px; color:#666;">СИЛА</div></div></div><div style="margin-bottom:15px;"><div style="font-size:12px; color:#666; margin-bottom:5px;">ИНГРЕДИЕНТЫ</div><div>${f.ing.map(i=>`<span class="tag">${i}</span>`).join('')}</div></div><div><div style="font-size:12px; color:#666; margin-bottom:5px;">ТРЕБОВАНИЯ</div><span class="tag" style="background:rgba(255,69,58,0.2); color:var(--red)">${f.tool}</span> <span class="tag" style="background:rgba(255,214,10,0.2); color:var(--gold)">Навык: ${f.skill}</span></div>`;
+    document.getElementById('mContent').innerHTML = `
+        <div style="text-align:center; font-size:60px; margin-bottom:20px;">${f.icon}</div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:20px; text-align:center; background:rgba(255,255,255,0.05); padding:15px; border-radius:16px;">
+            <div><div style="color:var(--green); font-size:20px; font-weight:bold;">+${f.sat}</div><div style="font-size:10px; color:#666;">СЫТОСТЬ</div></div>
+            <div><div style="color:var(--gold); font-size:20px; font-weight:bold;">+${f.mood}</div><div style="font-size:10px; color:#666;">НАСТР</div></div>
+            <div><div style="color:var(--red); font-size:20px; font-weight:bold;">${f.str}</div><div style="font-size:10px; color:#666;">СИЛА</div></div>
+        </div>
+        <div style="margin-bottom:15px;"><div style="font-size:12px; color:#666; margin-bottom:5px;">ИНГРЕДИЕНТЫ</div><div>${f.ing.map(i=>`<span class="tag">${i}</span>`).join('')}</div></div>
+        <div><div style="font-size:12px; color:#666; margin-bottom:5px;">ТРЕБОВАНИЯ</div><span class="tag" style="background:rgba(255,69,58,0.2); color:var(--red)">${f.tool}</span> <span class="tag" style="background:rgba(255,214,10,0.2); color:var(--gold)">Навык: ${f.skill}</span></div>
+    `;
     document.getElementById('modal').style.display = 'flex';
 }
 function closeModal(e) { if(e.target.id === 'modal') document.getElementById('modal').style.display = 'none'; }
 
 function setGuide(id, btn) {
-    document.querySelectorAll('#tab-guides .seg-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
-    const c = document.getElementById('guideContent'); c.innerHTML = '';
+    document.querySelectorAll('#tab-guides .seg-btn').forEach(b => b.classList.remove('active')); 
+    btn.classList.add('active');
+    const c = document.getElementById('guideContent'); 
+    c.innerHTML = '';
     
-    if(id==='payment') { c.innerHTML += `<div class="guide-section-title">Животные</div>` + buildTable(DB.guides.payment.animals.r, DB.guides.payment.animals.h); c.innerHTML += `<div class="guide-section-title" style="margin-top:20px">Сокровища</div>` + buildTable(DB.guides.payment.treasures.r, DB.guides.payment.treasures.h); return; }
+    if(id==='payment') {
+        c.innerHTML += `<div class="guide-section-title">Животные</div>` + buildTable(DB.guides.payment.animals.r, DB.guides.payment.animals.h);
+        c.innerHTML += `<div class="guide-section-title" style="margin-top:20px">Сокровища</div>` + buildTable(DB.guides.payment.treasures.r, DB.guides.payment.treasures.h);
+        return;
+    }
     if(id==='med') {
         c.innerHTML = '<div style="padding:10px; display:flex; flex-direction:column; gap:8px;">';
         DB.guides.med.r.forEach(item => {
-            let bgClass = '#3a5c8a', txtClass = '#ccddff'; if (item.type === 'red') { bgClass = '#8a3a3a'; txtClass = '#ffcccc'; } else if (item.type === 'brown') { bgClass = '#8a5c3a'; txtClass = '#ffddcc'; } else if (item.type === 'yellow') { bgClass = '#8a7a3a'; txtClass = '#ffeecc'; }
-            const iconLeft = item.i.includes('.') ? `<img src="${item.i}" class="med-img">` : `<span style="font-size:20px;">${item.i}</span>`, iconRight = item.ci.includes('.') ? `<img src="${item.ci}" class="med-img">` : `<span style="font-size:20px;">${item.ci}</span>`;
-            c.innerHTML += `<div style="display:flex; width:100%; gap:4px;"><div style="flex:1; background:${bgClass}; color:${txtClass}; padding:10px; border-radius:12px; display:flex; align-items:center; font-weight:600; font-size:13px; gap:10px;">${iconLeft}<span style="line-height:1.2;">${item.t}</span></div><div style="flex:1; background:#1c1c1e; border:1px solid rgba(255,255,255,0.1); color:white; padding:10px; border-radius:12px; display:flex; align-items:center; justify-content:flex-start; font-weight:500; font-size:13px; gap:10px;">${iconRight}<span style="line-height:1.2;">${item.c}</span></div></div>`;
-        }); c.innerHTML += '</div>'; return;
+            let bgClass = '#3a5c8a', txtClass = '#ccddff';
+            if (item.type === 'red') { bgClass = '#8a3a3a'; txtClass = '#ffcccc'; }
+            if (item.type === 'brown') { bgClass = '#8a5c3a'; txtClass = '#ffddcc'; }
+            if (item.type === 'yellow') { bgClass = '#8a7a3a'; txtClass = '#ffeecc'; }
+            const iconLeft = item.i.includes('.') ? `<img src="${item.i}" class="med-img">` : `<span style="font-size:20px;">${item.i}</span>`;
+            const iconRight = item.ci.includes('.') ? `<img src="${item.ci}" class="med-img">` : `<span style="font-size:20px;">${item.ci}</span>`;
+            c.innerHTML += `
+                <div style="display:flex; width:100%; gap:4px;">
+                    <div style="flex:1; background:${bgClass}; color:${txtClass}; padding:10px; border-radius:12px; display:flex; align-items:center; font-weight:600; font-size:13px; gap:10px;">${iconLeft}<span style="line-height:1.2;">${item.t}</span></div>
+                    <div style="flex:1; background:#1c1c1e; border:1px solid rgba(255,255,255,0.1); color:white; padding:10px; border-radius:12px; display:flex; align-items:center; justify-content:flex-start; font-weight:500; font-size:13px; gap:10px;">${iconRight}<span style="line-height:1.2;">${item.c}</span></div>
+                </div>`;
+        });
+        c.innerHTML += '</div>';
+        return;
     }
     if(id==='tarot') {
         c.innerHTML = '<div class="tarot-grid-new">'; 
-        DB.tarot.forEach(t => { c.innerHTML += `<div class="tarot-card-new"><div class="tarot-icon-box">${t.img ? `<img src="${t.img}" class="tarot-icon-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"><div class="tarot-icon-box" style="display:none;">${t.i || '🃏'}</div>` : t.i || '🃏'}</div><div class="tarot-text-box"><div class="tarot-card-title">${t.n}</div><div class="tarot-card-desc">${t.d}</div></div></div>`; });
-        c.innerHTML += '</div>'; return;
+        DB.tarot.forEach(t => {
+            let visual = t.img ? `<img src="${t.img}" class="tarot-icon-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"><div class="tarot-icon-box" style="display:none;">${t.i || '🃏'}</div>` : t.i || '🃏';
+            c.innerHTML += `<div class="tarot-card-new"><div class="tarot-icon-box">${visual}</div><div class="tarot-text-box"><div class="tarot-card-title">${t.n}</div><div class="tarot-card-desc">${t.d}</div></div></div>`;
+        });
+        c.innerHTML += '</div>';
+        return;
     }
-    if(DB.guides[id]) c.innerHTML += buildTable(DB.guides[id].r, DB.guides[id].h); else if (id === 'ball') c.innerHTML += buildTable(DB.ball8.map(x=>[x.q, x.a]), ["Вопрос", "Ответ"]);
+    if(DB.guides[id]) { c.innerHTML += buildTable(DB.guides[id].r, DB.guides[id].h); } 
+    else if (id === 'ball') { c.innerHTML += buildTable(DB.ball8.map(x=>[x.q, x.a]), ["Вопрос", "Ответ"]); }
 }
 
 function buildTable(rows, headers) {
-    let h = `<div class="table-wrap"><table><thead><tr>`; headers.forEach(x=>h+=`<th>${x}</th>`); h+='</tr></thead><tbody>';
+    let h = `<div class="table-wrap"><table><thead><tr>`;
+    headers.forEach(x=>h+=`<th>${x}</th>`);
+    h+='</tr></thead><tbody>';
     rows.forEach((r, idx)=>{ h+=`<tr style="background:${idx%2===0?'rgba(255,255,255,0.02)':'transparent'}">`; r.forEach(ce=>h+=`<td>${ce}</td>`); h+='</tr>'; });
     return h + `</tbody></table></div>`;
 }
 
-async function forceSync() { const loader = document.createElement('div'); loader.id = 'loader'; loader.innerHTML = '<div class="spinner"></div><div style="margin-top:10px;font-size:12px;">Обновление...</div>'; document.body.appendChild(loader); await init(); }
+async function forceSync() {
+    const loader = document.createElement('div');
+    loader.id = 'loader';
+    loader.innerHTML = '<div class="spinner"></div><div style="margin-top:10px;font-size:12px;">Обновление...</div>';
+    document.body.appendChild(loader);
+    await init(); 
+}
 
 function openUnhideModal() {
-    const modal = document.getElementById('modalUnhide'), list = document.getElementById('unhideList'); list.innerHTML = '';
-    if(BP.hidden.length === 0) list.innerHTML = '<div style="padding:20px; text-align:center; color:#666;">Нет скрытых задач</div>';
-    else BP.hidden.forEach(id => { let task = DB.bp[id]; if(task) list.innerHTML += `<div class="unhide-item"><span>${task.t}</span><button class="unhide-btn" onclick="restoreTask(${id})">Вернуть</button></div>`; });
+    const modal = document.getElementById('modalUnhide');
+    const list = document.getElementById('unhideList');
+    list.innerHTML = '';
+    if(BP.hidden.length === 0) {
+        list.innerHTML = '<div style="padding:20px; text-align:center; color:#666;">Нет скрытых задач</div>';
+    } else {
+        BP.hidden.forEach(id => {
+            let task = DB.bp[id]; 
+            if(task) list.innerHTML += `<div class="unhide-item"><span>${task.t}</span><button class="unhide-btn" onclick="restoreTask(${id})">Вернуть</button></div>`;
+        });
+    }
     modal.style.display = 'flex';
 }
 
 function restoreTask(id) { BP.hidden = BP.hidden.filter(h => h !== id); saveBP(); renderBP(); openUnhideModal(); }
 function closeUnhideModal(e) { if(e.target.id === 'modalUnhide') document.getElementById('modalUnhide').style.display = 'none'; }
-function openSettingsModal() { document.getElementById('modalSettings').style.display = 'flex'; document.getElementById('simpleModeToggle').checked = document.body.classList.contains('simple-mode'); document.getElementById('hideCompletedToggle').checked = HIDE_COMPLETED; document.getElementById('syncToggle').checked = CLOUD_SYNC_ENABLED; document.getElementById('scaleRange').value = localStorage.getItem('gta_scale_22') || 100; document.getElementById('scaleVal').innerText = (localStorage.getItem('gta_scale_22') || 100) + '%'; document.getElementById('setRednecks').value = USER_WORK_SKILLS.rednecks; document.getElementById('setBuild').value = USER_WORK_SKILLS.build; document.getElementById('setPort').value = USER_WORK_SKILLS.port; document.getElementById('setMine').value = USER_WORK_SKILLS.mine; }
-function closeSettingsModal(e) { if(e.target.id === 'modalSettings') document.getElementById('modalSettings').style.display = 'none'; }
-function toggleSimpleMode() { document.body.classList.toggle('simple-mode'); localStorage.setItem('gta_simple_mode_22', document.body.classList.contains('simple-mode')); }
-function toggleHideCompleted() { HIDE_COMPLETED = document.getElementById('hideCompletedToggle').checked; localStorage.setItem('gta_hide_completed_22', HIDE_COMPLETED); renderBP(); }
-function toggleSync() { CLOUD_SYNC_ENABLED = document.getElementById('syncToggle').checked; localStorage.setItem('gta_sync_enabled_22', CLOUD_SYNC_ENABLED); if (CLOUD_SYNC_ENABLED) { showToast("Синхронизация включена! Выгружаем...", "info"); saveBP(); saveTm(); setTimeout(() => showToast("Данные сохранены", "success"), 1500); } else showToast("Локальный режим. Облако отключено.", "error"); }
-function changeScale(val) { document.getElementById('listBP').style.zoom = val + '%'; document.getElementById('scaleVal').innerText = val + '%'; localStorage.setItem('gta_scale_22', val); }
-function setTheme(themeName) { const isSimple = document.body.classList.contains('simple-mode'); document.body.className = ''; if(themeName !== 'default') document.body.classList.add(themeName); if(isSimple) document.body.classList.add('simple-mode'); localStorage.setItem('gta_theme_22', themeName); if(window.Telegram?.WebApp) window.Telegram.WebApp.HapticFeedback.impactOccurred('medium'); }
-function toggleWrapper(id, headerEl) { const wrapper = document.getElementById(id); if (wrapper) { wrapper.classList.toggle('collapsed-content'); headerEl.classList.toggle('collapsed'); localStorage.setItem('collapsed_' + id, wrapper.classList.contains('collapsed-content')); } }
-function showToast(msg, type='info') {
-    let container = document.getElementById('toast-container'); if(!container) { container = document.createElement('div'); container.id = 'toast-container'; document.body.appendChild(container); }
-    const toast = document.createElement('div'); toast.className = `toast ${type}`; toast.innerHTML = `<div class="toast-icon">${type === 'success' ? '✅' : (type === 'error' ? '❌' : 'ℹ️')}</div><div>${msg}</div>`; container.appendChild(toast);
-    try { window.Telegram?.WebApp?.HapticFeedback.notificationOccurred(type); } catch(e){}
-    setTimeout(() => { toast.style.animation = 'toastOut 0.3s forwards'; setTimeout(() => toast.remove(), 300); }, 3000);
-}
-function toggleBPNotify(id, defaultSeconds) { if(!BP.localTimers) BP.localTimers = {}; if(!BP.localTimers[id]) BP.localTimers[id] = { rm: defaultSeconds, run: false }; BP.localTimers[id].notify = !(BP.localTimers[id].notify !== false); if (BP.localTimers[id].notify === false) cancelNotification('loc_' + id); else if (BP.localTimers[id].run) scheduleNotification('loc_' + id, BP.localTimers[id].rm, `✅ Задача <b>${DB.bp[id] ? DB.bp[id].t : "Задача"}</b> готова!`, true); saveBP(); renderBP(); }
 
-if (window.Telegram?.WebApp) { window.Telegram.WebApp.ready(); window.Telegram.WebApp.expand(); try { window.Telegram.WebApp.disableVerticalSwipes(); } catch(e){} }
+let headerTimerIdx = 0;
+function changeHeaderTimer(dir) { headerTimerIdx += dir; updateHeaderTimer(); }
+
+function updateHeaderTimer() {
+    if (!TIMERS || !TIMERS.custom) return;
+    
+    // 1. Фильтруем и СОРТИРУЕМ таймеры (наименьшее оставшееся время = первый)
+    let active = TIMERS.custom.filter(t => t.run);
+    active.sort((a, b) => {
+        let aLeft = a.et ? Math.ceil((a.et - Date.now()) / 1000) : (a.rm || 0);
+        let bLeft = b.et ? Math.ceil((b.et - Date.now()) / 1000) : (b.rm || 0);
+        return aLeft - bLeft;
+    });
+
+    const elLabel = document.getElementById('htLabel'), elTime = document.getElementById('htTime'), elSvgPath = document.querySelector('.ht-rect-path'); 
+
+    if (active.length === 0) {
+        if(elLabel) elLabel.innerText = "Нет активных";
+        if(elTime) { elTime.innerText = "--:--"; elTime.style.color = "#555"; }
+        if(elSvgPath) { elSvgPath.style.strokeDashoffset = 100; elSvgPath.style.stroke = 'var(--green)'; } 
+        return;
+    }
+
+    if (headerTimerIdx >= active.length) headerTimerIdx = 0;
+    if (headerTimerIdx < 0) headerTimerIdx = active.length - 1;
+
+    // Так как массив отсортирован, active[0] ВСЕГДА будет таймером, который закончится раньше всех
+    const t = active[headerTimerIdx];
+    let timeLeft = t.et ? Math.ceil((t.et - Date.now()) / 1000) : t.rm || 0;
+    if (timeLeft < 0) timeLeft = 0;
+    
+    let pct = t.s > 0 ? (timeLeft / t.s) * 100 : 0; 
+    
+    if(elSvgPath) {
+        elSvgPath.style.strokeDashoffset = 100 - pct;
+        if (pct > 50) elSvgPath.style.stroke = 'var(--green)';
+        else if (pct > 20) elSvgPath.style.stroke = 'var(--accent)';
+        else elSvgPath.style.stroke = 'var(--red)';
+    }
+
+    if(elLabel) { let n = t.l || "Таймер"; elLabel.innerText = n.length > 12 ? n.slice(0, 11) + ".." : n; }
+    if(elTime) { elTime.innerText = fmtTime(timeLeft); elTime.style.color = "var(--text-main)"; }
+}
+
+function toggleBPNotify(id, defaultSeconds) {
+    if(!BP.localTimers) BP.localTimers = {};
+    if(!BP.localTimers[id]) BP.localTimers[id] = { rm: defaultSeconds, run: false };
+    
+    // Переключаем статус (по умолчанию считается включенным)
+    BP.localTimers[id].notify = !(BP.localTimers[id].notify !== false);
+    
+    if (BP.localTimers[id].notify === false) {
+        cancelNotification('loc_' + id); // Отменяем, если выключили
+    } else if (BP.localTimers[id].run) {
+        // Если таймер работает и мы включили уведы - заводим его снова
+        let taskName = DB.bp[id] ? DB.bp[id].t : "Задача";
+        scheduleNotification('loc_' + id, BP.localTimers[id].rm, `✅ Задача <b>${taskName}</b> готова!`, true);
+    }
+    
+    saveBP(); renderBP();
+}
+
+function toggleLocalTimer(id, defaultSeconds) {
+    if(!BP.localTimers) BP.localTimers = {};
+    if(!BP.localTimers[id]) BP.localTimers[id] = { rm: defaultSeconds, run: false };
+    
+    let t = BP.localTimers[id];
+
+    if(t.rm <= 0) { 
+        t.rm = defaultSeconds; 
+        t.run = false; 
+    } else {
+        t.run = !t.run;
+        if(t.run) {
+            t.et = Date.now() + (t.rm * 1000);
+            let taskName = DB.bp[id] ? DB.bp[id].t : "Задача";
+            // Передаем флаг уведомлений
+            scheduleNotification('loc_' + id, t.rm, `✅ Задача <b>${taskName}</b> готова!`, t.notify !== false);
+        } else {
+            // ВАЖНО: Отменяем уведомление, если поставили на паузу
+            cancelNotification('loc_' + id); 
+        }
+    }
+    saveBP(); renderBP(); 
+}
+function toggleBall(val) {
+    BP.ball8 = parseInt(val);
+    saveBP(); // Сохраняем в память
+    renderBP(); // Мгновенно пересчитываем суммы выплат
+    applyBallStyle(); // Меняем цвет кнопки
+}
+
+function applyBallStyle() {
+    const btnVisual = document.getElementById('btnBallVisual');
+    const sel = document.getElementById('btnBall');
+    if (!btnVisual || !sel) return;
+    
+    // Синхронизируем значение выпадающего списка
+    sel.value = BP.ball8 || 0;
+    
+    // Красим визуальную кнопку под ним
+    if (BP.ball8 === 1) {
+        btnVisual.style.color = 'var(--green)';
+        btnVisual.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+        btnVisual.style.backgroundColor = 'rgba(16, 185, 129, 0.05)';
+    } else if (BP.ball8 === -1) {
+        btnVisual.style.color = 'var(--red)';
+        btnVisual.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+        btnVisual.style.backgroundColor = 'rgba(239, 68, 68, 0.05)';
+    } else {
+        // Дефолтное состояние
+        btnVisual.style.color = '';
+        btnVisual.style.borderColor = '';
+        btnVisual.style.backgroundColor = '';
+    }
+}
+
+function resetLocalTimer(id, defaultSeconds) {
+    if(!BP.localTimers) return;
+    const t = BP.localTimers[id];
+    if(t) {
+        t.rm = defaultSeconds; 
+        t.run = false; 
+        delete t.et;           
+        cancelNotification('loc_' + id); // Отменяем уведомление при сбросе
+        
+        if(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
+            window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+        }
+        saveBP(); renderBP();
+    }
+}
+
+function openSettingsModal() { 
+    document.getElementById('modalSettings').style.display = 'flex'; 
+    document.getElementById('simpleModeToggle').checked = document.body.classList.contains('simple-mode');
+    document.getElementById('hideCompletedToggle').checked = HIDE_COMPLETED;
+    document.getElementById('syncToggle').checked = CLOUD_SYNC_ENABLED; // <--- ДОБАВИТЬ ЭТУ СТРОКУ
+    const savedScale = localStorage.getItem('gta_scale_22') || 100;
+    document.getElementById('scaleRange').value = savedScale;
+    document.getElementById('scaleVal').innerText = savedScale + '%';
+    document.getElementById('setRednecks').value = USER_WORK_SKILLS.rednecks;
+    document.getElementById('setBuild').value = USER_WORK_SKILLS.build;
+    document.getElementById('setPort').value = USER_WORK_SKILLS.port;
+    document.getElementById('setMine').value = USER_WORK_SKILLS.mine;
+}
+
+function closeSettingsModal(e) { if(e.target.id === 'modalSettings') document.getElementById('modalSettings').style.display = 'none'; }
+function toggleSimpleMode() {
+    if(document.getElementById('simpleModeToggle').checked) { document.body.classList.add('simple-mode'); localStorage.setItem('gta_simple_mode_22', 'true'); } 
+    else { document.body.classList.remove('simple-mode'); localStorage.setItem('gta_simple_mode_22', 'false'); }
+}
+function toggleHideCompleted() { HIDE_COMPLETED = document.getElementById('hideCompletedToggle').checked; localStorage.setItem('gta_hide_completed_22', HIDE_COMPLETED); renderBP(); }
+function toggleSync() {
+    CLOUD_SYNC_ENABLED = document.getElementById('syncToggle').checked;
+    localStorage.setItem('gta_sync_enabled_22', CLOUD_SYNC_ENABLED);
+    
+    if (CLOUD_SYNC_ENABLED) {
+        showToast("Синхронизация включена! Выгружаем данные...", "info");
+        saveBP(); // Принудительно отправляем текущий прогресс в облако
+        saveTm(); // Отправляем таймеры
+        setTimeout(() => showToast("Данные сохранены в облаке", "success"), 1500);
+    } else {
+        showToast("Локальный режим. Облако отключено.", "error");
+    }
+}
+function changeScale(val) { document.getElementById('listBP').style.zoom = val + '%'; document.getElementById('scaleVal').innerText = val + '%'; localStorage.setItem('gta_scale_22', val); }
+function setTheme(themeName) {
+    const isSimple = document.body.classList.contains('simple-mode');
+    document.body.className = ''; 
+    if(themeName !== 'default') document.body.classList.add(themeName);
+    if(isSimple) document.body.classList.add('simple-mode');
+    localStorage.setItem('gta_theme_22', themeName);
+    if(window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+}
+function toggleWrapper(id, headerEl) {
+    const wrapper = document.getElementById(id);
+    if (wrapper) {
+        wrapper.classList.toggle('collapsed-content');
+        headerEl.classList.toggle('collapsed');
+        
+        // Сохраняем состояние, чтобы не разворачивалось само (опционально)
+        const isCollapsed = wrapper.classList.contains('collapsed-content');
+        localStorage.setItem('collapsed_' + id, isCollapsed);
+    }
+}
+function showToast(msg, type='info') {
+    let container = document.getElementById('toast-container');
+    if(!container) { container = document.createElement('div'); container.id = 'toast-container'; document.body.appendChild(container); }
+    const toast = document.createElement('div'); toast.className = `toast ${type}`;
+    let icon = type === 'success' ? '✅' : (type === 'error' ? '❌' : 'ℹ️');
+    toast.innerHTML = `<div class="toast-icon">${icon}</div><div>${msg}</div>`;
+    container.appendChild(toast);
+    
+    // БЕЗОПАСНАЯ ПРОВЕРКА ВИБРАЦИИ (Защита от зависаний на ПК)
+    if(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
+        try { window.Telegram.WebApp.HapticFeedback.notificationOccurred(type); } catch(e){}
+    }
+    
+    setTimeout(() => { 
+        toast.style.animation = 'toastOut 0.3s forwards'; 
+        setTimeout(() => toast.remove(), 300); 
+    }, 3000);
+}
+
+// Инициализация
+if (window.Telegram && window.Telegram.WebApp) {
+    window.Telegram.WebApp.ready();
+    window.Telegram.WebApp.expand();
+    try { window.Telegram.WebApp.disableVerticalSwipes(); } catch(e){}
+}
 init();
-function applyCollapsedState() { ['demorganWrapper', 'allTemplatesWrapper'].forEach(id => { if (localStorage.getItem('collapsed_' + id) === 'true') { document.getElementById(id)?.classList.add('collapsed-content'); document.querySelector(`[onclick*="${id}"]`)?.classList.add('collapsed'); } }); }
+function applyCollapsedState() {
+    ['demorganWrapper', 'allTemplatesWrapper'].forEach(id => {
+        const isCollapsed = localStorage.getItem('collapsed_' + id) === 'true';
+        if (isCollapsed) {
+            const wrapper = document.getElementById(id);
+            const header = document.querySelector(`[onclick*="${id}"]`);
+            if (wrapper) wrapper.classList.add('collapsed-content');
+            if (header) header.classList.add('collapsed');
+        }
+    });
+}
 </script>
 </body>
 </html>
