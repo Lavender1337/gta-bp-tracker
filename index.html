@@ -656,9 +656,9 @@ body[class*="theme-white"] option {
         </div>
     </div>
 
-    <!-- Строка фильтров: Сортировка + Шар + Иконки -->
-    <div class="quick-actions-row">
-        <div style="display:flex; gap:6px; flex: 1;">
+<!-- Строка фильтров: Сортировка + Шар + Иконки -->
+    <div class="quick-actions-row" style="flex-wrap: wrap;">
+        <div style="display:flex; gap:6px; flex: 1 1 180px;">
             <select id="bpSort" class="glass-select" onchange="renderBP()">
                 <option value="user">Сорт: Drag</option>
                 <option value="def">Сорт: Список</option>
@@ -666,14 +666,14 @@ body[class*="theme-white"] option {
                 <option value="min">Сорт: Дешевые</option>
             </select>
             
-            <select id="btnBall" class="glass-select" onchange="toggleBall(this.value)" style="flex: 0.8; padding: 0 8px !important; text-align: center; background-position: right 5px top 50% !important;">
+            <select id="btnBall" class="glass-select" onchange="toggleBall(this.value)" style="flex: 0.8; padding: 0 4px 0 8px !important; text-align: left; background-position: right 4px top 50% !important;">
                 <option value="0">🎱 Шар</option>
                 <option value="1">🎱 Да (+25%)</option>
                 <option value="-1">🎱 Нет (-25%)</option>
             </select>
         </div>
         
-        <div style="display:flex; gap:6px; margin-left: 8px;">
+        <div style="display:flex; gap:6px; margin-left: auto;">
             <button class="quick-btn" onclick="newDay()" title="Новый день">🌅</button>
             <button class="quick-btn" onclick="openUnhideModal()" title="Вернуть скрытые">👁</button>
             <button class="quick-btn sync-btn" onclick="forceSync()" title="Синхронизация">🔄</button>
@@ -1587,15 +1587,11 @@ let payoutText = '';
             const bonusMultiplier = REDNECK_BONUS[USER_WORK_SKILLS.rednecks];
             let totalPay = Math.round((basePay + Math.round(basePay * bonusMultiplier)) * 25);
             
-            // 1. Умножаем на Х2, если он включен
             if (BP.x2) totalPay *= 2;
-            
-            // 2. Считаем бонус/штраф от Шара (25%)
             if (BP.ball8 === 1) totalPay = Math.round(totalPay * 1.25);
             else if (BP.ball8 === -1) totalPay = Math.round(totalPay * 0.75);
 
-            // Теперь это блочный элемент <div> без отступа слева, чтобы он красиво падал на новую строку
-            payoutText = `<div style="color:var(--green); font-weight:700; font-size:11px; margin-top:2px;">Выплата: ${totalPay.toLocaleString('ru-RU')}$</div>`;
+            payoutText = `<div style="color:var(--green); font-weight:700; font-size:11px;">Выплата: ${totalPay.toLocaleString('ru-RU')}$</div>`;
         }
 
         let controlHTML = '', ringHTML = '', instantDoneBtn = '';
@@ -1612,13 +1608,14 @@ let payoutText = '';
             }
 
             controlHTML = `
-            <div class="controls-new" style="height:28px; padding:2px;" onclick="event.stopPropagation()">
+            <div class="controls-new" style="height:28px; padding:2px; background:rgba(0,0,0,0.4);" onclick="event.stopPropagation()">
                 <button class="btn-mini minus" style="height:24px; width:24px;" onclick="updateCounter(${i}, -1)">−</button>
                 <span id="cnt_${i}" class="counter-val-new" style="min-width:18px; font-size:12px;">${curr}</span>
                 <button class="btn-mini plus" style="height:24px; width:24px;" onclick="updateCounter(${i}, 1)">+</button>
             </div>`;
         } else {
-             controlHTML = `<div class="checkbox" style="width:28px; height:28px;" onclick="toggleTask(${i}, event)">${done?'✔':''}</div>`;
+             // ЗАМЕНА ЧЕРНОГО КВАДРАТА НА КРАСИВУЮ КНОПКУ
+             controlHTML = `<button class="action-btn" style="height:28px; padding:0 12px; border:1px solid ${done?'var(--green)':'rgba(255,255,255,0.1)'}; background:${done?'rgba(16, 185, 129, 0.1)':'rgba(0,0,0,0.3)'}; color:${done?'var(--green)':'#aaa'};" onclick="toggleTask(${i}, event)">${done?'✔ ГОТОВО':'ВЫПОЛНИТЬ'}</button>`;
         }
 
         let iconHTML = `<div class="icon-ring-wrap">${ringHTML}<div class="bp-icon-container">${t.img ? `<img src="${t.img}" class="bp-img">` : `<span class="bp-emoji">${t.i||'•'}</span>`}</div></div>`;
@@ -1632,11 +1629,12 @@ let payoutText = '';
             }
             const displayTime = lt.rm <= 0 ? "ГОТОВО" : fmtTime(lt.rm);
             const playStyle = lt.run ? 'color:var(--gold); border-color:var(--gold);' : '';
+            // ТАЙМЕР СТАЛ МЕНЬШЕ И АККУРАТНЕЕ
             timerHTML = `
-            <div class="inline-timer-box" style="height:28px;" onclick="event.stopPropagation()">
-                <button class="it-btn" style="${playStyle}" onclick="toggleLocalTimer(${i}, ${t.timer})">${lt.run ? '⏸' : '▶'}</button>
-                <div class="it-val ${lt.rm<=0?'done':''}" id="loc_timer_${i}">${displayTime}</div>
-                <button class="it-btn" onclick="resetLocalTimer(${i}, ${t.timer})">↺</button>
+            <div class="inline-timer-box" style="height:22px; padding:0 6px; border-radius:6px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.05);" onclick="event.stopPropagation()">
+                <button class="it-btn" style="${playStyle}; font-size:10px;" onclick="toggleLocalTimer(${i}, ${t.timer})">${lt.run ? '⏸' : '▶'}</button>
+                <div class="it-val ${lt.rm<=0?'done':''}" id="loc_timer_${i}" style="font-size:11px; min-width:32px;">${displayTime}</div>
+                <button class="it-btn" style="font-size:10px; color:#666;" onclick="resetLocalTimer(${i}, ${t.timer})">↺</button>
             </div>`;
         }
 
@@ -1655,28 +1653,27 @@ let payoutText = '';
         item.innerHTML = `
             <div class="drag-handle" style="margin-right:0; color:#444; width:12px; display:flex; align-items:center; justify-content:center;">⋮</div>
             
-            <!-- Левая колонка: Иконка и под ней Плашка BP -->
-            <div style="display:flex; flex-direction:column; align-items:center; gap:6px; flex-shrink: 0;">
+            <div style="display:flex; flex-direction:column; align-items:center; gap:6px; flex-shrink: 0; width: 44px;">
                 ${iconHTML}
-                <div class="reward-badge">+${rw}</div>
+                <div class="reward-badge" style="width:100%; text-align:center; padding:2px 0;">+${rw}</div>
             </div>
             
-            <div class="task-main-col" style="gap:6px;">
+            <div class="task-main-col" style="gap:4px; min-width:0;">
                 <div class="task-content">
-                    <div class="task-text" style="margin-bottom:0 !important;">${t.t} ${t.r ? '<span class="tag" style="margin:0 0 0 4px;">∞</span>' : ''} ${statusBadgeHTML}</div>
-                    ${payoutText}
+                    <div class="task-text" style="margin-bottom:2px !important; font-size:13.5px;">${t.t} ${t.r ? '<span class="tag" style="margin:0 0 0 4px; font-size:9px;">∞</span>' : ''} ${statusBadgeHTML}</div>
+                    
+                    <!-- Выплата и Таймер теперь стоят вместе под названием -->
+                    ${(payoutText || timerHTML) ? `<div style="display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top: 4px;">${payoutText}${timerHTML}</div>` : ''}
                 </div>
                 
-                <!-- Правая колонка: Кнопки теперь влезли в один ряд -->
                 <div class="task-bottom-row" style="margin-top: 0 !important; justify-content: flex-end;">
-                     ${timerHTML ? `<div style="display:flex; margin-right:auto;">${timerHTML}</div>` : ''}
-                     <div class="task-actions-group">
+                     <div class="task-actions-group" style="flex-wrap: nowrap;">
                         ${controlHTML}${instantDoneBtn}${twinkBtn}
-                        <button class="icon-btn del" style="width:28px; height:28px; border-radius:6px; border:1px solid #333;" onclick="hideBP(${i},event)">✕</button>
+                        <button class="icon-btn del" style="width:28px; height:28px; border-radius:6px; border:1px solid #333; background:rgba(0,0,0,0.2);" onclick="hideBP(${i},event)">✕</button>
                      </div>
                 </div>
             </div>`;
-        list.appendChild(item);    
+        list.appendChild(item);
     });
 }
 function completeInstant(id) {
