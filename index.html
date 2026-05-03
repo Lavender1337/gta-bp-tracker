@@ -1596,7 +1596,7 @@ let payoutText = '';
 
         let controlHTML = '', ringHTML = '', instantDoneBtn = '';
         
-        if(t.q > 1 || t.r) {
+if(t.q > 1 || t.r) {
             const curr = BP.counters && BP.counters[i] ? BP.counters[i] : 0;
             let pct = t.q > 0 ? (curr / t.q) : 0;
             if(pct > 1) pct = 1;
@@ -1604,7 +1604,8 @@ let payoutText = '';
             if(!t.r) {
                 const offset = 138.2 - (138.2 * pct);
                 ringHTML = `<svg viewBox="0 0 48 48"><circle class="ring-bg" cx="24" cy="24" r="22"/><circle id="ring_${i}" class="ring-progress" cx="24" cy="24" r="22" style="stroke-dashoffset: ${offset}"/></svg>`;
-                if(!done) instantDoneBtn = `<button class="btn-instant-done" style="height:28px;" onclick="completeInstant(${i})">MAX</button>`;
+                // Заменяем кнопку MAX на стильную кнопку с очками
+                if(!done) instantDoneBtn = `<button class="btn-instant-done" style="height:28px; font-size:12px;" onclick="completeInstant(${i})">+${rw}</button>`;
             }
 
             controlHTML = `
@@ -1614,8 +1615,8 @@ let payoutText = '';
                 <button class="btn-mini plus" style="height:24px; width:24px;" onclick="updateCounter(${i}, 1)">+</button>
             </div>`;
         } else {
-             // ЗАМЕНА ЧЕРНОГО КВАДРАТА НА КРАСИВУЮ КНОПКУ
-             controlHTML = `<button class="action-btn" style="height:28px; padding:0 12px; border:1px solid ${done?'var(--green)':'rgba(255,255,255,0.1)'}; background:${done?'rgba(16, 185, 129, 0.1)':'rgba(0,0,0,0.3)'}; color:${done?'var(--green)':'#aaa'};" onclick="toggleTask(${i}, event)">${done?'✔ ГОТОВО':'ВЫПОЛНИТЬ'}</button>`;
+             // Заменяем кнопку ВЫПОЛНИТЬ на стильную кнопку с очками
+             controlHTML = `<button class="btn-instant-done" style="height:28px; padding:0 16px; font-size:13px;" onclick="toggleTask(${i}, event)">${done ? '✔ +'+rw : '+'+rw}</button>`;
         }
 
         let iconHTML = `<div class="icon-ring-wrap">${ringHTML}<div class="bp-icon-container">${t.img ? `<img src="${t.img}" class="bp-img">` : `<span class="bp-emoji">${t.i||'•'}</span>`}</div></div>`;
@@ -1629,7 +1630,6 @@ let payoutText = '';
             }
             const displayTime = lt.rm <= 0 ? "ГОТОВО" : fmtTime(lt.rm);
             const playStyle = lt.run ? 'color:var(--gold); border-color:var(--gold);' : '';
-            // ТАЙМЕР СТАЛ МЕНЬШЕ И АККУРАТНЕЕ
             timerHTML = `
             <div class="inline-timer-box" style="height:22px; padding:0 6px; border-radius:6px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.05);" onclick="event.stopPropagation()">
                 <button class="it-btn" style="${playStyle}; font-size:10px;" onclick="toggleLocalTimer(${i}, ${t.timer})">${lt.run ? '⏸' : '▶'}</button>
@@ -1653,16 +1653,14 @@ let payoutText = '';
         item.innerHTML = `
             <div class="drag-handle" style="margin-right:0; color:#444; width:12px; display:flex; align-items:center; justify-content:center;">⋮</div>
             
-            <div style="display:flex; flex-direction:column; align-items:center; gap:6px; flex-shrink: 0; width: 44px;">
+            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex-shrink: 0; width: 44px;">
                 ${iconHTML}
-                <div class="reward-badge" style="width:100%; text-align:center; padding:2px 0;">+${rw}</div>
+                <!-- Плашка с очками отсюда полностью удалена -->
             </div>
             
             <div class="task-main-col" style="gap:4px; min-width:0;">
                 <div class="task-content">
                     <div class="task-text" style="margin-bottom:2px !important; font-size:13.5px;">${t.t} ${t.r ? '<span class="tag" style="margin:0 0 0 4px; font-size:9px;">∞</span>' : ''} ${statusBadgeHTML}</div>
-                    
-                    <!-- Выплата и Таймер теперь стоят вместе под названием -->
                     ${(payoutText || timerHTML) ? `<div style="display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top: 4px;">${payoutText}${timerHTML}</div>` : ''}
                 </div>
                 
