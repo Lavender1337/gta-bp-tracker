@@ -1596,7 +1596,7 @@ let payoutText = '';
 
         let controlHTML = '', ringHTML = '', instantDoneBtn = '';
         
-if(t.q > 1 || t.r) {
+        if(t.q > 1 || t.r) {
             const curr = BP.counters && BP.counters[i] ? BP.counters[i] : 0;
             let pct = t.q > 0 ? (curr / t.q) : 0;
             if(pct > 1) pct = 1;
@@ -1604,7 +1604,6 @@ if(t.q > 1 || t.r) {
             if(!t.r) {
                 const offset = 138.2 - (138.2 * pct);
                 ringHTML = `<svg viewBox="0 0 48 48"><circle class="ring-bg" cx="24" cy="24" r="22"/><circle id="ring_${i}" class="ring-progress" cx="24" cy="24" r="22" style="stroke-dashoffset: ${offset}"/></svg>`;
-                // Заменяем кнопку MAX на стильную кнопку с очками
                 if(!done) instantDoneBtn = `<button class="btn-instant-done" style="height:28px; font-size:12px;" onclick="completeInstant(${i})">+${rw}</button>`;
             }
 
@@ -1615,30 +1614,36 @@ if(t.q > 1 || t.r) {
                 <button class="btn-mini plus" style="height:24px; width:24px;" onclick="updateCounter(${i}, 1)">+</button>
             </div>`;
         } else {
-             // Заменяем кнопку ВЫПОЛНИТЬ на стильную кнопку с очками
              controlHTML = `<button class="btn-instant-done" style="height:28px; padding:0 16px; font-size:13px;" onclick="toggleTask(${i}, event)">${done ? '✔ +'+rw : '+'+rw}</button>`;
         }
 
-        let iconHTML = `<div class="icon-ring-wrap">${ringHTML}<div class="bp-icon-container">${t.img ? `<img src="${t.img}" class="bp-img">` : `<span class="bp-emoji">${t.i||'•'}</span>`}</div></div>`;
-
-        let timerHTML = '';
+        // === ИНТЕГРАЦИЯ ТАЙМЕРА В ИКОНКУ ===
+        let timerActionHTML = '';
+        let iconOverlay = '';
+        
         if (t.timer) {
             let lt = BP.localTimers[i] || { rm: t.timer, run: false };
             if(lt.run && lt.et) {
                  const diff = Math.ceil((lt.et - Date.now()) / 1000);
                  lt.rm = diff > 0 ? diff : 0; if(lt.rm === 0) lt.run = false;
             }
-            const displayTime = lt.rm <= 0 ? "ГОТОВО" : fmtTime(lt.rm);
-            const playStyle = lt.run ? 'color:var(--gold);' : 'color:var(--accent);';
             
-            // Таймер переделан под стиль кнопок и имеет высоту 28px
-            timerHTML = `
-            <div style="display:flex; align-items:center; gap:6px; height:28px; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:0 8px;" onclick="event.stopPropagation()">
-                <button class="it-btn" style="${playStyle} font-size:11px; padding:0;" onclick="toggleLocalTimer(${i}, ${t.timer})">${lt.run ? '⏸' : '▶'}</button>
-                <div class="it-val ${lt.rm<=0?'done':''}" id="loc_timer_${i}" style="font-size:12px; min-width:34px; color:#ddd; font-weight:700;">${displayTime}</div>
-                <button class="it-btn" style="font-size:12px; color:#666; padding:0;" onclick="resetLocalTimer(${i}, ${t.timer})">↺</button>
+            const displayTime = lt.rm <= 0 ? "✔" : fmtTime(lt.rm);
+            const playStyle = lt.run ? 'color:var(--gold);' : (lt.rm <= 0 ? 'color:var(--green);' : 'color:#fff;');
+            const bgAlpha = lt.run ? '0.85' : '0.65'; // Если идет - фон темнее, чтобы цифры лучше читались
+            const fontSize = displayTime.length > 5 ? '9px' : '11px';
+
+            // Само стекло, которое ляжет поверх иконки
+            iconOverlay = `
+            <div style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,${bgAlpha}); backdrop-filter:blur(2px); -webkit-backdrop-filter:blur(2px); display:flex; align-items:center; justify-content:center; cursor:pointer; border-radius:10px; transition:0.2s; z-index:5;" onclick="event.stopPropagation(); toggleLocalTimer(${i}, ${t.timer})">
+                <span id="loc_timer_${i}" style="font-family:monospace; font-size:${fontSize}; font-weight:800; ${playStyle}">${displayTime}</span>
             </div>`;
+            
+            // Кнопка сброса уезжает вправо к остальным кнопкам
+            timerActionHTML = `<button class="icon-btn" style="width:28px; height:28px; border-radius:6px; border:1px solid #333; background:rgba(0,0,0,0.2); font-size:14px;" onclick="event.stopPropagation(); resetLocalTimer(${i}, ${t.timer})">↺</button>`;
         }
+
+        let iconHTML = `<div class="icon-ring-wrap" style="position:relative;">${ringHTML}<div class="bp-icon-container" style="position:relative; overflow:hidden;">${t.img ? `<img src="${t.img}" class="bp-img">` : `<span class="bp-emoji">${t.i||'•'}</span>`}${iconOverlay}</div></div>`;
 
         const item = document.createElement('div');
         let doneClass = (done && !t.r) ? 'completed' : '';
@@ -1665,11 +1670,9 @@ if(t.q > 1 || t.r) {
                     ${payoutText ? `<div style="margin-top: 4px;">${payoutText}</div>` : ''}
                 </div>
                 
-                <div class="task-bottom-row" style="margin-top: 2px !important; justify-content: flex-end;">
-                     <!-- Таймер теперь стоит слева в нижнем ряду кнопок -->
-                     ${timerHTML ? `<div style="margin-right:auto;">${timerHTML}</div>` : ''}
+                <div class="task-bottom-row" style="margin-top: 0 !important; justify-content: flex-end;">
                      <div class="task-actions-group" style="flex-wrap: nowrap;">
-                        ${controlHTML}${instantDoneBtn}${twinkBtn}
+                        ${timerActionHTML}${controlHTML}${instantDoneBtn}${twinkBtn}
                         <button class="icon-btn del" style="width:28px; height:28px; border-radius:6px; border:1px solid #333; background:rgba(0,0,0,0.2);" onclick="hideBP(${i},event)">✕</button>
                      </div>
                 </div>
