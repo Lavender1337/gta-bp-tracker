@@ -1346,7 +1346,30 @@ function toggleFab() {
     document.getElementById('customTimerPanel').classList.toggle('active');
     document.getElementById('fabBtn').classList.toggle('open');
 }
+// Функция запуска таймера из шаблонов и избранного
+function addGameTimer(id) {
+    // 1. Ищем шаблон в базовых (DB.timers)
+    let preset = DB.timers.find(t => t.id === id);
+    
+    // 2. Если там нет, ищем в пользовательских (TIMERS.userPresets)
+    if (!preset && TIMERS.userPresets) {
+        preset = TIMERS.userPresets.find(t => t.id === id);
+    }
 
+    // 3. Если шаблон найден, запускаем его
+    if (preset) {
+        // Передаем секунды (s) и название (l) в твою главную функцию
+        addTimerRaw(preset.s, preset.l, true, 'gen');
+        
+        // (Опционально) Показываем красивое уведомление о запуске
+        if (typeof showToast === 'function') {
+            showToast(`Таймер "${preset.l}" запущен!`, 'success');
+        }
+    } else {
+        console.error("Шаблон таймера не найден:", id);
+        if (typeof showToast === 'function') showToast("Ошибка: шаблон не найден", "error");
+    }
+}
 function addCustomTimer() {
     const nameInput = document.getElementById('customName').value;
     let m = parseInt(document.getElementById('customMin').value) || 0;
