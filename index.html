@@ -1594,7 +1594,8 @@ let payoutText = '';
             if (BP.ball8 === 1) totalPay = Math.round(totalPay * 1.25);
             else if (BP.ball8 === -1) totalPay = Math.round(totalPay * 0.75);
 
-            payoutText = `<span style="color:var(--green); font-weight:700; font-size:11px; margin-left:6px;">Выплата: ${totalPay.toLocaleString('ru-RU')}$</span>`;
+            // Теперь это блочный элемент <div> без отступа слева, чтобы он красиво падал на новую строку
+            payoutText = `<div style="color:var(--green); font-weight:700; font-size:11px; margin-top:2px;">Выплата: ${totalPay.toLocaleString('ru-RU')}$</div>`;
         }
 
         let controlHTML = '', ringHTML = '', instantDoneBtn = '';
@@ -1652,22 +1653,30 @@ let payoutText = '';
         const twinkBtn = !t.r ? `<button class="icon-btn" style="width:28px; height:28px; border-radius:6px; ${twinkBtnStyle}" onclick="toggleTwink(${i}, event)">👻</button>` : '';
 
         item.innerHTML = `
-            <div class="drag-handle" style="margin-right:0; color:#444; width:12px; display:flex; align-items:center; justify-content:center; padding-top:8px;">⋮</div>
-            ${iconHTML}
-            <div class="task-main-col" style="gap:4px;">
+            <div class="drag-handle" style="margin-right:0; color:#444; width:12px; display:flex; align-items:center; justify-content:center;">⋮</div>
+            
+            <!-- Левая колонка: Иконка и под ней Плашка BP -->
+            <div style="display:flex; flex-direction:column; align-items:center; gap:6px; flex-shrink: 0;">
+                ${iconHTML}
+                <div class="reward-badge">+${rw}</div>
+            </div>
+            
+            <div class="task-main-col" style="gap:6px;">
                 <div class="task-content">
-                    <div class="task-text">${t.t} ${t.r ? '<span class="tag" style="margin:0 0 0 4px;">∞</span>' : ''} ${statusBadgeHTML} ${payoutText}</div>
+                    <div class="task-text" style="margin-bottom:0 !important;">${t.t} ${t.r ? '<span class="tag" style="margin:0 0 0 4px;">∞</span>' : ''} ${statusBadgeHTML}</div>
+                    ${payoutText}
                 </div>
-                <div class="task-bottom-row" style="margin-top: 0 !important;">
-                     <div class="reward-badge" style="margin-right:auto;">+${rw}</div>
-                     ${timerHTML ? `<div style="display:flex; margin-right:4px;">${timerHTML}</div>` : ''}
+                
+                <!-- Правая колонка: Кнопки теперь влезли в один ряд -->
+                <div class="task-bottom-row" style="margin-top: 0 !important; justify-content: flex-end;">
+                     ${timerHTML ? `<div style="display:flex; margin-right:auto;">${timerHTML}</div>` : ''}
                      <div class="task-actions-group">
                         ${controlHTML}${instantDoneBtn}${twinkBtn}
                         <button class="icon-btn del" style="width:28px; height:28px; border-radius:6px; border:1px solid #333;" onclick="hideBP(${i},event)">✕</button>
                      </div>
                 </div>
             </div>`;
-        list.appendChild(item);      
+        list.appendChild(item);    
     });
 }
 function completeInstant(id) {
