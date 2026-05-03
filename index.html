@@ -389,9 +389,9 @@ body[class*="theme-white"] .circle-bg { stroke: rgba(0,0,0,0.05); }
 .task-item.compact .task-content { display: flex; flex-direction: column; justify-content: flex-start; flex: none; width: 100%; }
 .task-item.compact .task-text { font-size: 14px !important; white-space: normal; line-height: 1.3; margin-bottom: 4px !important; word-wrap: break-word; }
 
-/* Нижний ряд с кнопками жестко зафиксирован в одну линию */
-.task-item.compact .task-bottom-row { margin: 0 !important; padding: 0 !important; border: none !important; width: 100% !important; display: flex; align-items: center; flex-wrap: nowrap !important; gap: 6px !important; justify-content: space-between; }
-.task-item.compact .task-actions-group { margin-left: auto !important; gap: 4px !important; display: flex; align-items: center; flex-wrap: nowrap !important; }
+/* Нижний ряд с кнопками (Адаптивный перенос на мелких экранах) */
+.task-item.compact .task-bottom-row { margin: 0 !important; padding: 0 !important; border: none !important; width: 100% !important; display: flex; align-items: center; flex-wrap: wrap !important; gap: 6px !important; justify-content: space-between; }
+.task-item.compact .task-actions-group { margin-left: auto !important; gap: 4px !important; display: flex; align-items: center; flex-wrap: wrap !important; justify-content: flex-end; }
 
 /* 3. Круговой прогресс вокруг иконки */
 .icon-ring-wrap { position: relative; width: 44px; height: 44px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-right: 2px; }
@@ -478,19 +478,19 @@ body[class*="theme-white"] .task-item.high-reward { background: linear-gradient(
     transform: translateY(-1px);
 }
 
-/* Светящаяся точка-индикатор */
+/* Светящаяся линия-индикатор (вместо точки) */
 .nav-btn::after {
     content: '';
     position: absolute;
-    bottom: 6px; /* Опустили точку чуть ниже */
-    width: 4px;
-    height: 4px;
+    bottom: 4px;
+    width: 16px; /* Длина линии */
+    height: 3px; /* Толщина линии */
     background: var(--accent);
-    border-radius: 50%;
+    border-radius: 3px;
     opacity: 0;
     transform: scale(0);
     transition: 0.3s;
-    box-shadow: 0 0 8px var(--accent);
+    box-shadow: 0 0 8px var(--accent-glow);
 }
 
 .nav-btn.active::after {
@@ -1606,7 +1606,7 @@ let payoutText = '';
 
             if(!t.r) {
                 const offset = 138.2 - (138.2 * pct);
-                ringHTML = `<svg><circle class="ring-bg" cx="24" cy="24" r="22"/><circle id="ring_${i}" class="ring-progress" cx="24" cy="24" r="22" style="stroke-dashoffset: ${offset}"/></svg>`;
+                ringHTML = `<svg viewBox="0 0 48 48"><circle class="ring-bg" cx="24" cy="24" r="22"/><circle id="ring_${i}" class="ring-progress" cx="24" cy="24" r="22" style="stroke-dashoffset: ${offset}"/></svg>`;
                 if(!done) instantDoneBtn = `<button class="btn-instant-done" style="height:28px;" onclick="completeInstant(${i})">MAX</button>`;
             }
 
