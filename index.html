@@ -643,33 +643,37 @@ body[class*="theme-white"] option {
             <div class="stat-box"><div class="stat-val" id="farmedVal" style="color:var(--green)">+0</div><div class="stat-label">Нафарм.</div></div>
         </div>
         
-<div class="glass-toggles" style="align-items: center; gap: 6px;">
-            <button class="neo-btn" id="btnVip" onclick="toggleVip()" style="padding: 12px 2px; font-size: 11px;">👑 VIP</button>
-            <button class="neo-btn" id="btnX2" onclick="toggleX2()" style="padding: 12px 2px; font-size: 11px;">⚡ X2</button>
+<div class="glass-toggles" style="align-items: center;">
+            <button class="neo-btn" id="btnVip" onclick="toggleVip()">👑 VIP</button>
+            <button class="neo-btn" id="btnX2" onclick="toggleX2()">⚡ X2</button>
             
-            <!-- Выпадающее меню Магического шара -->
-            <select class="neo-btn" id="btnBall" onchange="toggleBall(this.value)" style="padding: 12px 2px; font-size: 11px; appearance: none; text-align: center; text-align-last: center; outline: none; cursor: pointer;">
-                <option value="0">🎱 Шар</option>
-                <option value="1">🎱 Да (+25%)</option>
-                <option value="-1">🎱 Нет (-25%)</option>
-            </select>
-            
-            <div class="start-bp-box" style="max-width: 55px;">
+            <div class="start-bp-box">
                 <span style="font-size:8px; font-weight:800; color:#888; letter-spacing:0.5px;">СТАРТ BP</span>
                 <input type="number" id="startBp" value="" placeholder="0" oninput="updateBP()" class="glass-input-mini">
             </div>
             
-            <button class="neo-btn" onclick="openSettingsModal()" style="max-width: 35px; padding: 0;">⚙️</button>
+            <button class="neo-btn" onclick="openSettingsModal()" style="max-width: 45px; padding: 0;">⚙️</button>
         </div>
+    </div>
+
+    <!-- Строка фильтров: Сортировка + Шар + Иконки -->
     <div class="quick-actions-row">
-        <select id="bpSort" class="glass-select" onchange="renderBP()">
-            <option value="user">Сорт: Своя (Drag)</option>
-            <option value="def">Сорт: По списку</option>
-            <option value="max">Сорт: Дорогие</option>
-            <option value="min">Сорт: Дешевые</option>
-        </select>
+        <div style="display:flex; gap:6px; flex: 1;">
+            <select id="bpSort" class="glass-select" onchange="renderBP()">
+                <option value="user">Сорт: Drag</option>
+                <option value="def">Сорт: Список</option>
+                <option value="max">Сорт: Дорогие</option>
+                <option value="min">Сорт: Дешевые</option>
+            </select>
+            
+            <select id="btnBall" class="glass-select" onchange="toggleBall(this.value)" style="flex: 0.8; padding: 0 8px !important; text-align: center; background-position: right 5px top 50% !important;">
+                <option value="0">🎱 Шар</option>
+                <option value="1">🎱 Да (+25%)</option>
+                <option value="-1">🎱 Нет (-25%)</option>
+            </select>
+        </div>
         
-        <div style="display:flex; gap:6px;">
+        <div style="display:flex; gap:6px; margin-left: 8px;">
             <button class="quick-btn" onclick="newDay()" title="Новый день">🌅</button>
             <button class="quick-btn" onclick="openUnhideModal()" title="Вернуть скрытые">👁</button>
             <button class="quick-btn sync-btn" onclick="forceSync()" title="Синхронизация">🔄</button>
@@ -1994,16 +1998,16 @@ function applyBallStyle() {
     btn.value = BP.ball8 || 0;
     if (BP.ball8 === 1) {
         btn.style.color = 'var(--green)';
-        btn.style.borderColor = 'var(--green)';
-        btn.style.background = 'rgba(16, 185, 129, 0.1)';
+        btn.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+        btn.style.backgroundColor = 'rgba(16, 185, 129, 0.05)';
     } else if (BP.ball8 === -1) {
         btn.style.color = 'var(--red)';
-        btn.style.borderColor = 'var(--red)';
-        btn.style.background = 'rgba(239, 68, 68, 0.1)';
+        btn.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+        btn.style.backgroundColor = 'rgba(239, 68, 68, 0.05)';
     } else {
         btn.style.color = '';
         btn.style.borderColor = '';
-        btn.style.background = '';
+        btn.style.backgroundColor = '';
     }
 }
 
