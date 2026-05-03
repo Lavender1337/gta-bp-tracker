@@ -625,6 +625,85 @@ body[class*="theme-white"] option {
     background-color: #ffffff !important;
     color: #000000 !important;
 }
+/* Новая сетка и стили для прямоугольных шаблонов */
+.template-timers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 15px 15px; }
+
+.timer-card.drag-template { 
+    display: flex; flex-direction: column; background: var(--bg-card); border: 1px solid var(--border); 
+    border-radius: 12px; padding: 10px; position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
+    cursor: grab; width: 100%; box-sizing: border-box; gap: 8px;
+}
+.template-del-btn {
+    position: absolute; top: 6px; right: 6px; width: 20px; height: 20px; background: rgba(239, 68, 68, 0.1); 
+    color: var(--red); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 6px; font-size: 10px; 
+    display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; z-index: 10;
+}
+.template-del-btn:active { background: var(--red); color: white; transform: scale(0.9); }
+
+body[class*="theme-white"] .timer-card.drag-template { background: #ffffff; border-color: rgba(0,0,0,0.08); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+/* FAB (Плавающая кнопка) */
+.fab-btn {
+    position: fixed;
+    bottom: calc(85px + env(safe-area-inset-bottom));
+    right: 20px;
+    width: 52px;
+    height: 52px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: 300;
+    box-shadow: 0 4px 15px var(--accent-glow);
+    cursor: pointer;
+    z-index: 1001;
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.fab-btn:active { transform: scale(0.9); }
+.fab-btn.open {
+    transform: rotate(45deg);
+    background: var(--red);
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+}
+
+/* Всплывающая панель создания таймера */
+.custom-timer-panel {
+    position: fixed;
+    bottom: calc(150px + env(safe-area-inset-bottom));
+    right: 20px;
+    background: rgba(15, 15, 17, 0.95);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 15px;
+    width: calc(100% - 40px); 
+    max-width: 320px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+    pointer-events: none;
+    transition: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform-origin: bottom right;
+}
+.custom-timer-panel.active {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+body[class*="theme-white"] .custom-timer-panel {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
 </style>
 </head>
 <body>
@@ -710,23 +789,32 @@ body[class*="theme-white"] option {
     <div class="section-title">Активные</div>
     <div id="activeTimersList" class="active-timers-grid"></div>
 
-    <div class="custom-timer">
-        <input type="text" id="customName" class="timer-input-name" placeholder="Название...">
-        <input type="number" id="customMin" class="timer-input-num" placeholder="М">
-        <div style="font-weight:bold; color:#666;">:</div> <input type="number" id="customSec" class="timer-input-num" placeholder="С">
-        
-        <label style="display:flex; align-items:center; gap:2px; margin:0 2px;">
-            <input type="checkbox" id="notifyCustom" class="styled-checkbox" checked> 🔔
-        </label>
-        <label style="display:flex; align-items:center; gap:2px; margin:0 2px;">
-            <input type="checkbox" id="saveCustom" class="styled-checkbox"> ⭐
-        </label>
-        
-        <button class="timer-add-btn" onclick="addCustomTimer()">СТАРТ</button>
+<!-- Всплывающая панель создания таймера -->
+    <div class="custom-timer-panel" id="customTimerPanel">
+        <div style="display: flex; gap: 8px; width: 100%;">
+            <input type="text" id="customName" class="timer-input-name" style="flex:1; margin:0;" placeholder="Название таймера...">
+            <input type="number" id="customMin" class="timer-input-num" style="width:45px; margin:0;" placeholder="М">
+            <div style="font-weight:bold; color:#666; display:flex; align-items:center;">:</div> 
+            <input type="number" id="customSec" class="timer-input-num" style="width:45px; margin:0;" placeholder="С">
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div style="display:flex; gap: 15px;">
+                <label style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; cursor:pointer;">
+                    <input type="checkbox" id="notifyCustom" class="styled-checkbox" checked> 🔔
+                </label>
+                <label style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; cursor:pointer;">
+                    <input type="checkbox" id="saveCustom" class="styled-checkbox"> ⭐
+                </label>
+            </div>
+            <button class="timer-add-btn" style="width: auto; padding: 0 20px;" onclick="addCustomTimer()">СТАРТ</button>
+        </div>
     </div>
 
-    <div class="section-title">⭐ Избранное</div>
-    <div id="favoriteTimers" class="active-timers-grid" style="min-height: 50px; padding: 0 15px 15px;"></div>
+    <!-- Круглая кнопка FAB -->
+    <button class="fab-btn" id="fabBtn" onclick="toggleFab()">+</button>
+
+<div class="section-title">⭐ Избранное</div>
+    <div id="favoriteTimers" class="template-timers-grid" style="min-height: 50px; padding: 0 15px 15px;"></div>
 
     <div class="section-header-toggle" id="dmHeader" onclick="toggleWrapper('demorganWrapper', this)">
         <div class="section-title" style="color:var(--red)">Деморган</div>
@@ -744,8 +832,8 @@ body[class*="theme-white"] option {
         <div class="section-title">Все шаблоны</div>
         <div class="toggle-icon">▼</div>
     </div>
-    <div id="allTemplatesWrapper" class="active-timers-grid" style="padding: 0 15px 15px;">
-        <div id="timerGrid" class="active-timers-grid" style="padding:0; width:100%; grid-column: 1/-1;"></div>
+    <div id="allTemplatesWrapper" class="template-timers-grid" style="padding: 0 15px 15px;">
+        <div id="timerGrid" class="template-timers-grid" style="padding:0; width:100%; grid-column: 1/-1;"></div>
     </div>
 </div>
 
@@ -1242,6 +1330,11 @@ function addTimerRaw(seconds, label, notify = true, type = 'gen') {
     saveTm(); renderTimers();
 }
 
+function toggleFab() {
+    document.getElementById('customTimerPanel').classList.toggle('active');
+    document.getElementById('fabBtn').classList.toggle('open');
+}
+
 function addCustomTimer() {
     const nameInput = document.getElementById('customName').value;
     let m = parseInt(document.getElementById('customMin').value) || 0;
@@ -1251,7 +1344,7 @@ function addCustomTimer() {
     const totalSeconds = (m * 60) + s;
     const label = nameInput.trim() ? nameInput : fmtTimeSimple(totalSeconds);
     const notify = document.getElementById('notifyCustom').checked;
-    const saveFav = document.getElementById('saveCustom').checked; // Проверяем галочку Избранного
+    const saveFav = document.getElementById('saveCustom').checked;
 
     // Запускаем таймер
     addTimerRaw(totalSeconds, label, notify);
@@ -1263,12 +1356,10 @@ function addCustomTimer() {
         
         const presetId = 'u_' + Date.now();
         TIMERS.userPresets.push({ id: presetId, l: label, s: totalSeconds });
-        TIMERS.fav.push(presetId); // Сразу кидаем в избранное
+        TIMERS.fav.push(presetId); 
         
         saveTm();
-        renderTimerPresets(); // Перерисовываем шаблоны
-        
-        // Снимаем галочку, чтобы случайно не насоздавать клонов
+        renderTimerPresets(); 
         document.getElementById('saveCustom').checked = false;
     }
 
@@ -1276,15 +1367,15 @@ function addCustomTimer() {
     document.getElementById('customMin').value = ''; 
     document.getElementById('customSec').value = ''; 
     document.getElementById('customName').value = '';
-}
 
-// Обновляем запуск из шаблона, чтобы бот видел и кастомные тоже
-function addGameTimer(key) {
-    let t = DB.timers.find(x => x.id === key);
-    if (!t && TIMERS.userPresets) t = TIMERS.userPresets.find(x => x.id === key);
-    if (t) addTimerRaw(t.s, t.l, true); 
+    // Скрываем панель после запуска
+    const panel = document.getElementById('customTimerPanel');
+    const fabBtn = document.getElementById('fabBtn');
+    if (panel && panel.classList.contains('active')) {
+        panel.classList.remove('active');
+        fabBtn.classList.remove('open');
+    }
 }
-
 // Новая функция для удаления своих шаблонов
 function delPreset(id) {
     if (!TIMERS.userPresets) return;
@@ -1357,23 +1448,20 @@ function renderTimerPresets() {
         const timeStr = fmtTimeSimple(t.s);
         const isUserCustom = t.id.startsWith('u_');
         
-        // Крестик удаления рисуем ТОЛЬКО для твоих созданных шаблонов
-        const delBtnHTML = isUserCustom ? `<button class="bubble-close" style="z-index:10; right:-2px; top:-2px;" onclick="event.stopPropagation(); delPreset('${t.id}')">✕</button>` : '';
+        // Аккуратный крестик в правом верхнем углу (только для кастомных)
+        const delBtnHTML = isUserCustom ? `<button class="template-del-btn" onclick="event.stopPropagation(); delPreset('${t.id}')">✕</button>` : '';
 
         const cardHTML = `
             <div class="timer-card drag-template" data-id="${t.id}">
                 ${delBtnHTML}
-                <div class="tc-header">
-                    <div style="color: #444; font-size: 12px; font-weight: bold; margin-right:4px;">⋮⋮</div>
+                <div style="display:flex; align-items:center; gap:8px; width:100%;">
+                    <div style="color:#555; font-size:16px; font-weight:bold; letter-spacing:-2px; cursor:grab;">⋮⋮</div>
+                    <div style="flex:1; min-width:0; padding-right:16px;">
+                        <div style="font-size:12px; font-weight:700; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${t.l}</div>
+                        <div style="font-size:11px; font-weight:800; color:var(--text-sub); font-family:monospace; margin-top:2px;">⏱ ${timeStr}</div>
+                    </div>
                 </div>
-                <div class="circle-wrap" style="margin-bottom:2px;">
-                    <svg><circle class="circle-bg" cx="26" cy="26" r="24"/></svg>
-                    <div class="circle-time">${timeStr}</div>
-                </div>
-                <div class="bubble-title" style="margin-bottom:4px;">${t.l}</div>
-                <div class="tc-footer">
-                    <button class="tc-btn start" onclick="addGameTimer('${t.id}')">СТАРТ</button>
-                </div>
+                <button class="tc-btn start" style="width:100%; background:rgba(249, 115, 22, 0.1) !important; color:var(--accent) !important; border:1px solid rgba(249, 115, 22, 0.3); border-radius:8px; padding:6px 0; font-size:11px; font-weight:700; cursor:pointer; margin-top:2px; transition:0.2s;" onclick="addGameTimer('${t.id}')">▶ СТАРТ</button>
             </div>`;
 
         if (TIMERS.fav.includes(t.id)) {
@@ -1383,7 +1471,7 @@ function renderTimerPresets() {
         }
     });
 
-    if (TIMERS.fav.length === 0) favContainer.innerHTML = '<div class="empty-fav-msg">Тяни шаблоны сюда</div>';
+    if (TIMERS.fav.length === 0) favContainer.innerHTML = '<div class="empty-fav-msg" style="grid-column: 1/-1;">Тяни шаблоны сюда</div>';
 }
 let timersSortableInit = false;
 function setupTimersDragAndDrop() {
