@@ -704,6 +704,31 @@ body[class*="theme-white"] .custom-timer-panel {
     border: 1px solid rgba(0, 0, 0, 0.1);
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
+/* Стили для режима сортировки */
+.sort-pill {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: 0.2s;
+}
+.sort-pill:active { transform: scale(0.95); }
+.sort-pill.selected {
+    background: rgba(249, 115, 22, 0.05);
+    border-color: var(--accent);
+}
+body[class*="theme-white"] .sort-pill {
+    background: #fff; border-color: #d1d5db; color: #333; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+body[class*="theme-white"] .sort-pill.selected {
+    background: rgba(251, 146, 60, 0.05); border-color: var(--accent); color: #000;
+}
 </style>
 </head>
 <body>
@@ -769,6 +794,7 @@ body[class*="theme-white"] .custom-timer-panel {
             <button class="quick-btn" onclick="newDay()" title="Новый день">🌅</button>
             <button class="quick-btn" onclick="openUnhideModal()" title="Вернуть скрытые">👁</button>
             <button class="quick-btn sync-btn" onclick="forceSync()" title="Синхронизация">🔄</button>
+<button class="quick-btn" onclick="toggleEditSortMode()" title="Редактор сортировки">🛠</button>
         </div>
     </div>
     <div class="sticky-wrapper" id="stickySearchWrap">
@@ -791,7 +817,24 @@ body[class*="theme-white"] .custom-timer-panel {
             <input type="text" class="search-input-drop" id="searchBp" placeholder="🔍 Найти задание..." oninput="renderBP()">
         </div>
     </div>
+<!-- ИНТЕРФЕЙС РЕЖИМА СОРТИРОВКИ (Скрыт по умолчанию) -->
+<div id="editSortWrapper" style="display: none; padding: 0 15px 15px; flex-direction: column; gap: 15px;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-size: 16px; font-weight: 800; color: var(--accent);">Режим сортировки</div>
+        <button class="action-btn" onclick="toggleEditSortMode()" style="color: var(--green); border-color: rgba(16, 185, 129, 0.3);">✅ Готово</button>
+    </div>
+    
+    <div style="background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 12px; padding: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div style="font-size: 11px; color: var(--text-sub); text-transform: uppercase; font-weight: bold;">Доступные задания</div>
+            <button class="action-btn" onclick="clearSortList()" style="font-size: 10px; padding: 4px 8px; color: var(--red); border-color: rgba(239, 68, 68, 0.3);">⬇ Сбросить всё</button>
+        </div>
+        <div id="listAvailableSort" style="display: flex; flex-wrap: wrap; gap: 6px; max-height: 250px; overflow-y: auto;"></div>
+    </div>
 
+    <div style="font-size: 11px; color: var(--text-sub); text-transform: uppercase; font-weight: bold;">Твой порядок (Тяни или кликай ✕)</div>
+    <div id="listSelectedSort" style="display: flex; flex-direction: column; gap: 6px; min-height: 100px;"></div>
+</div>
     <div class="list-container" id="listBP"></div>
 </div>
 
@@ -1424,17 +1467,19 @@ function renderTimers() {
     const list = document.getElementById('activeTimersList');
     const dmList = document.getElementById('dmActiveList');
     if (!list || !dmList) return;
-    
-    list.innerHTML = '';
-    dmList.innerHTML = '';
 
     if (!TIMERS.custom || TIMERS.custom.length === 0) {
         list.innerHTML = '<div style="padding:0 15px; color:#555; font-size:12px;">Активных задач нет</div>';
+        dmList.innerHTML = '';
         return;
     }
 
     let sorted = [...TIMERS.custom].sort((a, b) => a.rm - b.rm);
     
+    // Два отдельных буфера для обычных таймеров и Деморгана
+    let mainHtml = '';
+    let dmHtml = '';
+
     sorted.forEach(t => {
         const pct = t.s > 0 ? (t.rm / t.s) * 150.8 : 0;
         const html = `
@@ -1447,17 +1492,21 @@ function renderTimers() {
                 <div class="bubble-title">${t.l}</div>
             </div>`;
         
-        // Распределяем по спискам в зависимости от типа
         if (t.type === 'dm') {
-            dmList.innerHTML += html;
+            dmHtml += html;
         } else {
-            list.innerHTML += html;
+            mainHtml += html;
         }
     });
     
-    if (list.innerHTML === '') {
-        list.innerHTML = '<div style="padding:0 15px; color:#555; font-size:12px;">Активных задач нет</div>';
+    // Если обычных таймеров нет, выводим заглушку
+    if (mainHtml === '') {
+        mainHtml = '<div style="padding:0 15px; color:#555; font-size:12px;">Активных задач нет</div>';
     }
+
+    // Вставляем собранные данные за один раз
+    list.innerHTML = mainHtml;
+    dmList.innerHTML = dmHtml;
 }
 
 function toggleNotifyTimer(id) { /* Заглушка, чтобы не ломался старый код */ }
@@ -1469,8 +1518,6 @@ function renderTimerPresets() {
     const gridContainer = document.getElementById('timerGrid');
     if (!favContainer || !gridContainer) return;
 
-    favContainer.innerHTML = ''; 
-    gridContainer.innerHTML = '';
     if (!TIMERS.fav) TIMERS.fav = [];
 
     // Объединяем базовые шаблоны и пользовательские
@@ -1479,11 +1526,14 @@ function renderTimerPresets() {
         allPresets = allPresets.concat(TIMERS.userPresets);
     }
 
+    // Буферы для списков
+    let favHtml = '';
+    let gridHtml = '';
+
     allPresets.forEach(t => {
         const timeStr = fmtTimeSimple(t.s);
         const isUserCustom = t.id.startsWith('u_');
         
-        // Аккуратный крестик в правом верхнем углу (только для кастомных)
         const delBtnHTML = isUserCustom ? `<button class="template-del-btn" onclick="event.stopPropagation(); delPreset('${t.id}')">✕</button>` : '';
 
         const cardHTML = `
@@ -1496,17 +1546,23 @@ function renderTimerPresets() {
                         <div style="font-size:11px; font-weight:800; color:var(--text-sub); font-family:monospace; margin-top:2px;">⏱ ${timeStr}</div>
                     </div>
                 </div>
-<button class="tc-btn start" style="width:100%; background:rgba(249, 115, 22, 0.1) !important; color:var(--accent) !important; border:1px solid rgba(249, 115, 22, 0.3); border-radius:8px; padding:6px 0; font-size:11px; font-weight:700; cursor:pointer; margin-top:2px; transition:0.2s;" onclick="event.stopPropagation(); addGameTimer('${t.id}')">▶ СТАРТ</button>
+                <button class="tc-btn start" style="width:100%; background:rgba(249, 115, 22, 0.1) !important; color:var(--accent) !important; border:1px solid rgba(249, 115, 22, 0.3); border-radius:8px; padding:6px 0; font-size:11px; font-weight:700; cursor:pointer; margin-top:2px; transition:0.2s;" onclick="event.stopPropagation(); addGameTimer('${t.id}')">▶ СТАРТ</button>
             </div>`;
 
         if (TIMERS.fav.includes(t.id)) {
-            favContainer.innerHTML += cardHTML;
+            favHtml += cardHTML;
         } else {
-            gridContainer.innerHTML += cardHTML;
+            gridHtml += cardHTML;
         }
     });
 
-    if (TIMERS.fav.length === 0) favContainer.innerHTML = '<div class="empty-fav-msg" style="grid-column: 1/-1;">Тяни шаблоны сюда</div>';
+    if (TIMERS.fav.length === 0) {
+        favHtml = '<div class="empty-fav-msg" style="grid-column: 1/-1;">Тяни шаблоны сюда</div>';
+    }
+
+    // Вставляем все сразу
+    favContainer.innerHTML = favHtml;
+    gridContainer.innerHTML = gridHtml;
 }
 let timersSortableInit = false;
 function setupTimersDragAndDrop() {
@@ -1923,11 +1979,16 @@ function delTime(id) {
 }
 
 function renderFood() {
-    const list = document.getElementById('listFood'); list.innerHTML = '';
+    const list = document.getElementById('listFood');
     const s = document.getElementById('searchFood').value.toLowerCase();
+    
+    let htmlBuffer = ''; // Создаем пустую строку-буфер
+    
     DB.kitchen.forEach(f => {
         if(s && !f.name.toLowerCase().includes(s)) return;
-        list.innerHTML += `
+        
+        // Добавляем карточки в буфер, а не в DOM
+        htmlBuffer += `
             <div class="card" onclick='openModal(${JSON.stringify(f)})'>
                 <div class="card-icon">${f.icon}</div>
                 <div class="card-body">
@@ -1941,6 +2002,9 @@ function renderFood() {
                 <div class="card-end" style="font-size:20px; color:var(--text-sub)">›</div>
             </div>`;
     });
+    
+    // Единоразовая вставка всего списка
+    list.innerHTML = htmlBuffer;
 }
 
 function openModal(f) {
@@ -2239,14 +2303,129 @@ function showToast(msg, type='info') {
         setTimeout(() => toast.remove(), 300); 
     }, 3000);
 }
+// === УМНАЯ СОРТИРОВКА ===
+let isSortModeActive = false;
+let tempSortOrder = [];
+let availableSortItems = [];
+let editSortableInstance = null;
 
-// Инициализация
-if (window.Telegram && window.Telegram.WebApp) {
-    window.Telegram.WebApp.ready();
-    window.Telegram.WebApp.expand();
-    try { window.Telegram.WebApp.disableVerticalSwipes(); } catch(e){}
+function toggleEditSortMode() {
+    isSortModeActive = !isSortModeActive;
+    
+    const mainList = document.getElementById('listBP');
+    const editWrapper = document.getElementById('editSortWrapper');
+    const searchWrap = document.getElementById('stickySearchWrap');
+    const sortSelectBtn = document.getElementById('bpSort').parentElement;
+    
+    if (isSortModeActive) {
+        // Включаем редактор: прячем главный список и поиск
+        mainList.style.display = 'none';
+        searchWrap.style.display = 'none';
+        sortSelectBtn.style.opacity = '0.3';
+        sortSelectBtn.style.pointerEvents = 'none';
+        editWrapper.style.display = 'flex';
+        
+        // Загружаем текущий порядок
+        tempSortOrder = [...BP.sortOrder];
+        availableSortItems = DB.bp.map((_, i) => i).filter(id => !tempSortOrder.includes(id));
+        
+        renderSortMode();
+        setupSortModeDrag();
+    } else {
+        // Выключаем редактор: возвращаем всё как было
+        editWrapper.style.display = 'none';
+        mainList.style.display = 'flex'; 
+        searchWrap.style.display = 'flex';
+        sortSelectBtn.style.opacity = '1';
+        sortSelectBtn.style.pointerEvents = 'auto';
+        
+        // Защита от дурака: если юзер не перенес какие-то таски наверх, докидываем их в конец
+        let missing = DB.bp.map((_, i) => i).filter(id => !tempSortOrder.includes(id));
+        BP.sortOrder = [...tempSortOrder, ...missing];
+        
+        saveBP();      // Автоматически сохраняем в облако
+        renderBP();    // Перерисовываем главный список в новом порядке
+        
+        if (window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+    }
 }
-init();
+
+function renderSortMode() {
+    const availList = document.getElementById('listAvailableSort');
+    const selectList = document.getElementById('listSelectedSort');
+    
+    let availHTML = '';
+    let selectHTML = '';
+    
+    // Сборка доступных (плитки для тапов)
+    availableSortItems.forEach(id => {
+        let t = DB.bp[id];
+        let name = t.t.length > 20 ? t.t.substring(0, 20) + '...' : t.t;
+        availHTML += `<div class="sort-pill" onclick="moveToSelected(${id})">➕ ${name}</div>`;
+    });
+    
+    if (availableSortItems.length === 0) {
+        availHTML = '<div style="font-size:11px; color:#666; width:100%; text-align:center; padding: 10px 0;">Все задания собраны!</div>';
+    }
+    
+    // Сборка выбранных (полноразмерные полоски с Drag & Drop)
+    tempSortOrder.forEach(id => {
+        let t = DB.bp[id];
+        selectHTML += `
+            <div class="sort-pill selected drag-sort-item" data-id="${id}" style="width: 100%; box-sizing: border-box; justify-content: space-between; padding: 10px 12px; cursor: default;">
+                <div style="display:flex; align-items:center; gap:12px; flex:1; min-width:0;">
+                    <span style="color:var(--text-sub); font-size:16px; cursor:grab;">⋮⋮</span>
+                    <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:13px;">${t.t}</span>
+                </div>
+                <button class="icon-btn del" style="width:24px; height:24px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.2);" onclick="moveToAvailable(${id})">✕</button>
+            </div>
+        `;
+    });
+
+    // Единоразовая вставка всего собранного HTML
+    availList.innerHTML = availHTML;
+    selectList.innerHTML = selectHTML;
+}
+// Перекинуть вверх
+function moveToSelected(id) {
+    availableSortItems = availableSortItems.filter(x => x !== id);
+    tempSortOrder.push(id);
+    renderSortMode();
+    if (window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+}
+
+// Скинуть обратно вниз
+function moveToAvailable(id) {
+    tempSortOrder = tempSortOrder.filter(x => x !== id);
+    availableSortItems.push(id);
+    renderSortMode();
+    if (window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+}
+
+// Кнопка "Сбросить всё"
+function clearSortList() {
+    availableSortItems = [...availableSortItems, ...tempSortOrder];
+    tempSortOrder = [];
+    renderSortMode();
+    if (window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+}
+
+// Инициализация перетягивания внутри редактора
+function setupSortModeDrag() {
+    const list = document.getElementById('listSelectedSort');
+    if (editSortableInstance) editSortableInstance.destroy();
+    
+    editSortableInstance = Sortable.create(list, {
+        handle: '.drag-sort-item',
+        animation: 150,
+        onEnd: function () {
+            const newOrder = [];
+            list.querySelectorAll('.drag-sort-item').forEach(el => newOrder.push(parseInt(el.getAttribute('data-id'))));
+            tempSortOrder = newOrder; // Обновляем порядок после перетягивания
+            if (window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.selectionChanged();
+        }
+    });
+}
 function applyCollapsedState() {
     ['demorganWrapper', 'allTemplatesWrapper'].forEach(id => {
         const isCollapsed = localStorage.getItem('collapsed_' + id) === 'true';
@@ -2258,6 +2437,16 @@ function applyCollapsedState() {
         }
     });
 }
+
+// === СТАРТ ПРИЛОЖЕНИЯ ===
+if (window.Telegram && window.Telegram.WebApp) {
+    window.Telegram.WebApp.ready();
+    window.Telegram.WebApp.expand();
+    try { window.Telegram.WebApp.disableVerticalSwipes(); } catch(e){}
+}
+
+// Запускаем всё после того, как все функции уже прочитаны браузером
+init();
 </script>
 </body>
 </html>
