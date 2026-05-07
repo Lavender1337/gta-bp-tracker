@@ -1874,11 +1874,30 @@ function setupDragAndDrop() {
         handle: '.drag-handle',
         animation: 150,
         onEnd: function (evt) {
-            const newOrder = [];
-            list.querySelectorAll('.task-item').forEach(el => newOrder.push(parseInt(el.getAttribute('data-id'))));
-            const hiddenItems = BP.sortOrder.filter(id => !newOrder.includes(id));
-            BP.sortOrder = [...newOrder, ...hiddenItems];
-            saveBP();
+            const itemEl = evt.item;
+            const idMoved = parseInt(itemEl.getAttribute('data-id'));
+            
+            // 1. Вырезаем перетянутый элемент из массива
+            BP.sortOrder = BP.sortOrder.filter(id => id !== idMoved);
+            
+            // 2. Умная вставка: смотрим, перед каким ВИДИМЫМ элементом он теперь стоит
+            const nextEl = itemEl.nextElementSibling;
+            if (nextEl) {
+                const nextId = parseInt(nextEl.getAttribute('data-id'));
+                const targetIdx = BP.sortOrder.indexOf(nextId);
+                BP.sortOrder.splice(targetIdx, 0, idMoved);
+            } else {
+                // Если он стоит в самом конце видимого списка, ставим после предыдущего
+                const prevEl = itemEl.previousElementSibling;
+                if (prevEl) {
+                    const prevId = parseInt(prevEl.getAttribute('data-id'));
+                    const targetIdx = BP.sortOrder.indexOf(prevId);
+                    BP.sortOrder.splice(targetIdx + 1, 0, idMoved);
+                } else {
+                    BP.sortOrder.push(idMoved); // Фолбэк на случай 1 элемента
+                }
+            }
+            saveBP(); // Сохраняем правильный порядок
         }
     });
 }
@@ -2360,7 +2379,8 @@ function renderSortMode() {
     // Сборка доступных (плитки для тапов)
     availableSortItems.forEach(id => {
         let t = DB.bp[id];
-        let name = t.t.length > 20 ? t.t.substring(0, 20) + '...' : t.t;
+        // Увеличили лимит символов с 20 до 40, чтобы текст был понятным
+        let name = t.t.length > 40 ? t.t.substring(0, 40) + '...' : t.t;
         availHTML += `<div class="sort-pill" onclick="moveToSelected(${id})">➕ ${name}</div>`;
     });
     
