@@ -941,6 +941,7 @@ body[class*="theme-white"] .contract-input { background: rgba(255,255,255,0.8) !
     <!-- Основной интерфейс (изначально скрыт) -->
     <div id="contractMainScreen" style="display: none;">
         
+        <!-- БЛОК 1: Управление -->
         <div class="contract-card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <div style="font-size: 16px; font-weight: bold;">Управление составом</div>
@@ -955,6 +956,7 @@ body[class*="theme-white"] .contract-input { background: rgba(255,255,255,0.8) !
             <div id="contractUsersList"></div>
         </div>
 
+        <!-- БЛОК 2: План контрактов -->
         <div class="contract-card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <div style="font-size: 16px; font-weight: bold;">План контрактов</div>
@@ -962,6 +964,16 @@ body[class*="theme-white"] .contract-input { background: rgba(255,255,255,0.8) !
             </div>
             
             <div id="contractsPlanList"></div>
+        </div>
+
+        <!-- БЛОК 3: История пиков -->
+        <div class="contract-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div style="font-size: 16px; font-weight: bold;">📜 История пиков</div>
+                <button class="action-btn" style="color:var(--red); border-color:rgba(239,68,68,0.3);" onclick="clearContractHistory()">Очистить</button>
+            </div>
+            
+            <div id="contractsHistoryList"></div>
         </div>
         
     </div>
@@ -2594,27 +2606,52 @@ function removeContractUser(id) {
 }
 
 // --- ОБНОВЛЕННАЯ ФУНКЦИЯ ДОБАВЛЕНИЯ ВЕКСЕЛЕЙ ИЗ КОНТРАКТА ---
-function addContractBills(userId, contractIndex) {
-    const input = document.getElementById(`bill_in_${contractIndex}_${userId}`);
-    const amount = parseInt(input.value);
-    if (amount && !isNaN(amount) && amount !== 0) {
-        let user = CONTRACTS_STATE.queue.find(u => u.id === userId);
-        if (user) {
-            user.bills += amount;
-            saveContractsData();
-            renderContracts(); // Перерисует и обновит ИТОГ наверху
-            showToast(`Добавлено ${amount} векселей для ${user.name}`, "success");
-            if (window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.selectionChanged();
-        }
+// --- ОБНОВЛЕННАЯ ФУНКЦИЯ: СОБИРАЕТ ВСЕ ВПИСАННЫЕ ВЕКСЕЛИ ЗА ОДИН КЛИК ---
+function addContractBills() {
+    let addedCount = 0;
+    
+    // Проходим по всем 4 контрактам и всем участникам
+    for (let i = 0; i < 4; i++) {
+        CONTRACTS_STATE.queue.forEach(u => {
+            let input = document.getElementById(`bill_in_${i}_${u.id}`);
+            if (input && input.value) {
+                let amount = parseInt(input.value);
+                if (!isNaN(amount) && amount !== 0) {
+                    u.bills += amount;
+                    addedCount++;
+                }
+            }
+        });
+    }
+
+    if (addedCount > 0) {
+        saveContractsData();
+        renderContracts(); // Перерисует интерфейс и обновит итоги
+        showToast(`Вексели обновлены у ${addedCount} участников!`, "success");
+        if (window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.selectionChanged();
     } else {
-        showToast("Введите число в поле", "error");
+        showToast("Сначала введите число в поле", "error");
     }
 }
 
+// ОБНОВЛЕННАЯ МАССОВАЯ РАЗДАЧА (Тоже собирает ручные вводы, чтобы они не стирались)
 function rewardContract(shiftIndex) {
     const input = document.getElementById(`rewardInput_${shiftIndex}`);
     const val = parseInt(input.value);
     if (!val || val <= 0 || isNaN(val)) return showToast("Введите сумму", "error");
+
+    // Сначала сохраняем всё, что юзер успел вбить ручками в другие поля
+    for (let i = 0; i < 4; i++) {
+        CONTRACTS_STATE.queue.forEach(u => {
+            let manualInput = document.getElementById(`bill_in_${i}_${u.id}`);
+            if (manualInput && manualInput.value) {
+                let amount = parseInt(manualInput.value);
+                if (!isNaN(amount) && amount !== 0) {
+                    u.bills += amount;
+                }
+            }
+        });
+    }
 
     const limit = CONTRACTS_STATE.isX2 ? 7 : 5;
     let shifted = getContractShiftedQueue(CONTRACTS_STATE.queue, shiftIndex);
@@ -2666,11 +2703,38 @@ function getContractShiftedQueue(arr, steps) {
 function nextContracts() {
     if (CONTRACTS_STATE.queue.length <= 1) return showToast("Мало людей для ротации", "error");
     
-    const msg = "Сформировать новые 4 контракта? Текущая очередь сдвинется.";
+    const msg = "Сформировать новые 4 контракта? Текущие списки сохранятся в Историю.";
     const doNext = () => {
+        // --- СОХРАНЕНИЕ В ИСТОРИЮ ---
+        if (!CONTRACTS_STATE.history) CONTRACTS_STATE.history = [];
+        let today = new Date().toLocaleDateString('ru-RU', {day: '2-digit', month: '2-digit', hour: '2-digit', minute:'2-digit'});
+        
+        let snapshot = [];
+        const limit = CONTRACTS_STATE.isX2 ? 7 : 5;
+        
+        // Собираем имена активных людей из текущих 4-х контрактов
+        for (let i = 0; i < 4; i++) {
+            let shifted = getContractShiftedQueue(CONTRACTS_STATE.queue, i);
+            let activeNames = shifted.slice(0, limit).map(u => u.name); // Берем только тех, кто влез в лимит
+            snapshot.push(activeNames.join(', '));
+        }
+        
+        // Пушим снимок в начало массива истории
+        CONTRACTS_STATE.history.unshift({
+            date: today,
+            contracts: snapshot
+        });
+        
+        // Храним только 7 последних записей, чтобы не забить память CloudStorage
+        if (CONTRACTS_STATE.history.length > 7) {
+            CONTRACTS_STATE.history.pop();
+        }
+
+        // --- СДВИГ ОЧЕРЕДИ ---
         for(let i = 0; i < 4; i++) {
             CONTRACTS_STATE.queue.push(CONTRACTS_STATE.queue.shift());
         }
+        
         saveContractsData();
         renderContracts();
         if (window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
@@ -2680,6 +2744,14 @@ function nextContracts() {
         window.Telegram.WebApp.showConfirm(msg, function(confirmed) { if (confirmed) doNext(); });
     } else {
         if (confirm(msg)) doNext();
+    }
+}
+
+function clearContractHistory() {
+    if (confirm("Точно удалить всю историю?")) {
+        CONTRACTS_STATE.history = [];
+        saveContractsData();
+        renderContracts();
     }
 }
 
@@ -2694,7 +2766,7 @@ function renderContracts() {
 
     const limit = CONTRACTS_STATE.isX2 ? 7 : 5;
 
-    // 1. Отрисовка списка управления (Теперь здесь ТОЛЬКО общие ИТОГИ)
+    // 1. Отрисовка списка управления
     const usersList = document.getElementById('contractUsersList');
     if (usersList) {
         usersList.innerHTML = '';
@@ -2719,7 +2791,7 @@ function renderContracts() {
         }
     }
 
-    // 2. Отрисовка 4-х контрактов (Теперь инпуты ЗДЕСЬ)
+    // 2. Отрисовка 4-х контрактов
     const plan = document.getElementById('contractsPlanList');
     if (plan) {
         plan.innerHTML = '';
@@ -2751,7 +2823,7 @@ function renderContracts() {
                             </div>
                             <div style="display:flex; gap:4px; align-items:center;">
                                 <input type="number" id="bill_in_${i}_${u.id}" class="contract-input" style="width:35px; padding:2px; height:22px; text-align:center; margin:0; font-size:12px;" placeholder="0">
-                                <button class="action-btn" style="height:26px; padding:0 8px; color:var(--green); border-color:rgba(16,185,129,0.3);" onclick="addContractBills(${u.id}, ${i})">➕</button>
+                                <button class="action-btn" style="height:26px; padding:0 8px; color:var(--green); border-color:rgba(16,185,129,0.3);" onclick="addContractBills()">➕</button>
                             </div>
                         </div>
                     `;
@@ -2759,6 +2831,30 @@ function renderContracts() {
                 html += `</div>`;
                 plan.innerHTML += html;
             }
+        }
+    }
+    
+    // 3. Отрисовка Истории
+    const historyEl = document.getElementById('contractsHistoryList');
+    if (historyEl) {
+        historyEl.innerHTML = '';
+        if (!CONTRACTS_STATE.history || CONTRACTS_STATE.history.length === 0) {
+            historyEl.innerHTML = '<div style="color:var(--text-sub); font-size:12px; text-align:center;">Здесь будут сохранены прошлые пики.</div>';
+        } else {
+            CONTRACTS_STATE.history.forEach((h, idx) => {
+                let hHtml = `
+                <div class="contract-block" style="background:rgba(255,255,255,0.02); margin-bottom: 8px; padding: 12px;">
+                    <div style="color:var(--accent); font-weight:bold; margin-bottom:8px; display:flex; align-items:center; gap:5px;">
+                        📅 ${h.date}
+                    </div>
+                    <div style="font-size:12px; color:var(--text-sub); line-height:1.6;">
+                `;
+                h.contracts.forEach((cNames, cIdx) => {
+                    hHtml += `<div><strong style="color:#eee;">К${cIdx + 1}:</strong> ${cNames}</div>`;
+                });
+                hHtml += `</div></div>`;
+                historyEl.innerHTML += hHtml;
+            });
         }
     }
     
