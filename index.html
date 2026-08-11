@@ -2705,36 +2705,45 @@ function nextContracts() {
     
     const msg = "Сформировать новые 4 контракта? Текущие списки сохранятся в Историю.";
     const doNext = () => {
-        // --- СОХРАНЕНИЕ В ИСТОРИЮ ---
+        // 1. АВТО-СБОР ВЕКСЕЛЕЙ (если юзер вписал цифры, но забыл нажать +)
+        for (let i = 0; i < 4; i++) {
+            CONTRACTS_STATE.queue.forEach(u => {
+                let manualInput = document.getElementById(`bill_in_${i}_${u.id}`);
+                if (manualInput && manualInput.value) {
+                    let amount = parseInt(manualInput.value);
+                    if (!isNaN(amount) && amount !== 0) {
+                        u.bills += amount;
+                    }
+                }
+            });
+        }
+
+        // 2. СОХРАНЕНИЕ В ИСТОРИЮ
         if (!CONTRACTS_STATE.history) CONTRACTS_STATE.history = [];
         let today = new Date().toLocaleDateString('ru-RU', {day: '2-digit', month: '2-digit', hour: '2-digit', minute:'2-digit'});
         
         let snapshot = [];
         const limit = CONTRACTS_STATE.isX2 ? 7 : 5;
         
-        // Собираем имена активных людей из текущих 4-х контрактов
         for (let i = 0; i < 4; i++) {
             let shifted = getContractShiftedQueue(CONTRACTS_STATE.queue, i);
-            let activeNames = shifted.slice(0, limit).map(u => u.name); // Берем только тех, кто влез в лимит
+            let activeNames = shifted.slice(0, limit).map(u => u.name); 
             snapshot.push(activeNames.join(', '));
         }
         
-        // Пушим снимок в начало массива истории
         CONTRACTS_STATE.history.unshift({
             date: today,
             contracts: snapshot
         });
         
-        // Храним только 7 последних записей, чтобы не забить память CloudStorage
         if (CONTRACTS_STATE.history.length > 7) {
             CONTRACTS_STATE.history.pop();
         }
 
-        // --- СДВИГ ОЧЕРЕДИ ---
-        for(let i = 0; i < 4; i++) {
-            CONTRACTS_STATE.queue.push(CONTRACTS_STATE.queue.shift());
-        }
+        // 3. ИСПРАВЛЕННЫЙ СДВИГ ОЧЕРЕДИ (Наступление нового дня: сдвиг ровно на 1 человека)
+        CONTRACTS_STATE.queue.push(CONTRACTS_STATE.queue.shift());
         
+        // 4. СОХРАНЕНИЕ И ОТРИСОВКА
         saveContractsData();
         renderContracts();
         if (window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
