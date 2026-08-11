@@ -2594,19 +2594,69 @@ function removeContractUser(id) {
 }
 
 function addContractBills(id) {
-    // Используем нативный prompt, так как он проще для быстрого ввода
-    let amount = prompt("Сколько векселей добавить?", "10");
-    if (amount !== null && !isNaN(amount) && amount.trim() !== "") {
+    const input = document.getElementById(`add_bill_${id}`);
+    const amount = parseInt(input.value);
+    if (amount && !isNaN(amount) && amount !== 0) {
         let user = CONTRACTS_STATE.queue.find(u => u.id === id);
         if (user) {
-            user.bills += parseInt(amount);
+            user.bills += amount;
             saveContractsData();
             renderContracts();
+            showToast(`Добавлено ${amount} векселей`, "success");
+            if (window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.selectionChanged();
         }
+    } else {
+        showToast("Введите число в поле", "error");
     }
 }
 
-// Сдвигает массив на указанное количество шагов (для генерации 4 списков)
+// НОВАЯ ФУНКЦИЯ: Массовая раздача векселей участникам конкретного контракта
+function rewardContract(shiftIndex) {
+    const input = document.getElementById(`rewardInput_${shiftIndex}`);
+    const val = parseInt(input.value);
+    if (!val || val <= 0 || isNaN(val)) return showToast("Введите сумму", "error");
+
+    const limit = CONTRACTS_STATE.isX2 ? 7 : 5;
+    let shifted = getContractShiftedQueue(CONTRACTS_STATE.queue, shiftIndex);
+    
+    // Собираем ID тех, кто находится в активной зоне (в пределах лимита)
+    let activeIds = [];
+    shifted.forEach((u, idx) => {
+        if (idx < limit) activeIds.push(u.id);
+    });
+
+    // Начисляем вексели
+    CONTRACTS_STATE.queue.forEach(u => {
+        if (activeIds.includes(u.id)) {
+            u.bills += val;
+        }
+    });
+
+    saveContractsData();
+    renderContracts();
+    showToast(`Выдано по ${val} векселей (${activeIds.length} участникам)`, "success");
+    if (window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+}
+
+// НОВАЯ ФУНКЦИЯ: Drag & Drop для списка контрактов
+let contractSortable = null;
+function setupContractSortable() {
+    const el = document.getElementById('contractUsersList');
+    if (!el) return;
+    if (contractSortable) contractSortable.destroy();
+    contractSortable = Sortable.create(el, {
+        animation: 150,
+        handle: '.drag-handle-c',
+        onEnd: function (evt) {
+            const item = CONTRACTS_STATE.queue.splice(evt.oldIndex, 1)[0];
+            CONTRACTS_STATE.queue.splice(evt.newIndex, 0, item);
+            saveContractsData();
+            renderContracts();
+            if (window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.selectionChanged();
+        }
+    });
+}
+
 function getContractShiftedQueue(arr, steps) {
     if (arr.length === 0) return [];
     let result = [...arr];
@@ -2621,7 +2671,6 @@ function nextContracts() {
     
     const msg = "Сформировать новые 4 контракта? Текущая очередь сдвинется.";
     const doNext = () => {
-        // Сдвигаем базовую очередь на 4 позиции
         for(let i = 0; i < 4; i++) {
             CONTRACTS_STATE.queue.push(CONTRACTS_STATE.queue.shift());
         }
@@ -2638,7 +2687,6 @@ function nextContracts() {
 }
 
 function renderContracts() {
-    // 1. Обновляем кнопку X2
     const btnX2 = document.getElementById('btnContractX2');
     if(btnX2) {
         btnX2.innerText = CONTRACTS_STATE.isX2 ? "Режим: 7 мест (X2)" : "Режим: 5 мест";
@@ -2657,15 +2705,17 @@ function renderContracts() {
         } else {
             CONTRACTS_STATE.queue.forEach((u, index) => {
                 usersList.innerHTML += `
-                    <div class="contract-list-item">
-                        <div style="font-size: 14px;">
-                            <span style="color:var(--text-sub); margin-right:5px;">${index + 1}.</span>
+                    <div class="contract-list-item" data-id="${u.id}">
+                        <div style="font-size: 14px; display:flex; align-items:center; gap:8px;">
+                            <span class="drag-handle-c" style="color:#666; font-size:16px; cursor:grab;">⋮⋮</span>
+                            <span style="color:var(--text-sub);">${index + 1}.</span>
                             <strong>${u.name}</strong> 
                             <span class="contract-badge">💰 ${u.bills}</span>
                         </div>
-                        <div style="display:flex; gap:6px;">
-                            <button class="action-btn" onclick="addContractBills(${u.id})">+ Вексели</button>
-                            <button class="action-btn" style="color:var(--red); border-color:rgba(239,68,68,0.3);" onclick="removeContractUser(${u.id})">✕</button>
+                        <div style="display:flex; gap:6px; align-items:center;">
+                            <input type="number" id="add_bill_${u.id}" class="contract-input" style="width:35px; padding:4px; height:24px; text-align:center; margin:0;" placeholder="0">
+                            <button class="action-btn" style="height:24px; padding:0 8px; color:var(--green); border-color:rgba(16,185,129,0.3);" onclick="addContractBills(${u.id})">➕</button>
+                            <button class="action-btn" style="height:24px; padding:0 8px; color:var(--red); border-color:rgba(239,68,68,0.3);" onclick="removeContractUser(${u.id})">✕</button>
                         </div>
                     </div>
                 `;
@@ -2679,29 +2729,39 @@ function renderContracts() {
         plan.innerHTML = '';
         if (CONTRACTS_STATE.queue.length === 0) {
             plan.innerHTML = '<div style="color:var(--text-sub); font-size:12px; text-align:center;">Добавьте людей для формирования плана.</div>';
-            return;
-        }
-
-        for (let i = 0; i < 4; i++) {
-            let shifted = getContractShiftedQueue(CONTRACTS_STATE.queue, i);
-            let html = `<div class="contract-block"><div class="contract-title">📄 Контракт № ${i + 1}</div>`;
-            
-            shifted.forEach((u, index) => {
-                const place = index + 1;
-                const isOk = place <= limit;
-                const icon = isOk ? '✅' : '⏳';
-                const color = isOk ? 'var(--green)' : 'var(--text-sub)';
+        } else {
+            for (let i = 0; i < 4; i++) {
+                let shifted = getContractShiftedQueue(CONTRACTS_STATE.queue, i);
+                let html = `
+                <div class="contract-block">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <div class="contract-title" style="margin:0;">📄 Контракт № ${i + 1}</div>
+                        <div style="display:flex; gap:5px; align-items:center;">
+                            <input type="number" id="rewardInput_${i}" class="contract-input" style="width:40px; padding:4px; height:24px; text-align:center; margin:0;" placeholder="0">
+                            <button class="action-btn" style="color:var(--green); border-color:rgba(16,185,129,0.3); height:24px; padding:0 8px;" onclick="rewardContract(${i})">Всем</button>
+                        </div>
+                    </div>`;
                 
-                html += `
-                    <div style="font-size:13px; margin-bottom:6px; color:${color}; font-weight:600;">
-                        ${icon} ${place}. ${u.name} <span style="color:var(--text-main); font-weight:normal;">(💰 ${u.bills})</span>
-                    </div>
-                `;
-            });
-            html += `</div>`;
-            plan.innerHTML += html;
+                shifted.forEach((u, index) => {
+                    const place = index + 1;
+                    const isOk = place <= limit;
+                    const icon = isOk ? '✅' : '⏳';
+                    const color = isOk ? 'var(--green)' : 'var(--text-sub)';
+                    
+                    html += `
+                        <div style="font-size:13px; margin-bottom:6px; color:${color}; font-weight:600;">
+                            ${icon} ${place}. ${u.name} <span style="color:var(--text-main); font-weight:normal;">(💰 ${u.bills})</span>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+                plan.innerHTML += html;
+            }
         }
     }
+    
+    // Подключаем перетягивание после обновления интерфейса
+    setupContractSortable();
 }
 </script>
 </body>
