@@ -1368,10 +1368,12 @@ async function init() {
     const savedSimple = localStorage.getItem('gta_simple_mode_22');
     if(savedSimple === 'true') document.body.classList.add('simple-mode');
 
-    const savedScale = localStorage.getItem('gta_scale_22');
+const savedScale = localStorage.getItem('gta_scale_22');
     if(savedScale) {
         const list = document.getElementById('listBP');
+        const contractScreen = document.getElementById('contractMainScreen');
         if(list) list.style.zoom = savedScale + '%';
+        if(contractScreen) contractScreen.style.zoom = savedScale + '%';
     }
     
     const savedSkills = localStorage.getItem('gta_work_skills_22');
@@ -2358,7 +2360,16 @@ function toggleSync() {
         showToast("Локальный режим. Облако отключено.", "error");
     }
 }
-function changeScale(val) { document.getElementById('listBP').style.zoom = val + '%'; document.getElementById('scaleVal').innerText = val + '%'; localStorage.setItem('gta_scale_22', val); }
+function changeScale(val) { 
+    const listBP = document.getElementById('listBP');
+    const contractScreen = document.getElementById('contractMainScreen');
+    
+    if(listBP) listBP.style.zoom = val + '%'; 
+    if(contractScreen) contractScreen.style.zoom = val + '%'; 
+    
+    document.getElementById('scaleVal').innerText = val + '%'; 
+    localStorage.setItem('gta_scale_22', val); 
+}
 function setTheme(themeName) {
     const isSimple = document.body.classList.contains('simple-mode');
     document.body.className = ''; 
@@ -2765,6 +2776,7 @@ function clearContractHistory() {
 }
 
 // --- ОБНОВЛЕННЫЙ РЕНДЕР ИНТЕРФЕЙСА ---
+// --- ОБНОВЛЕННЫЙ РЕНДЕР ИНТЕРФЕЙСА ---
 function renderContracts() {
     const btnX2 = document.getElementById('btnContractX2');
     if(btnX2) {
@@ -2775,7 +2787,7 @@ function renderContracts() {
 
     const limit = CONTRACTS_STATE.isX2 ? 7 : 5;
 
-    // 1. Отрисовка списка управления
+    // 1. Отрисовка списка управления (Уменьшены отступы)
     const usersList = document.getElementById('contractUsersList');
     if (usersList) {
         usersList.innerHTML = '';
@@ -2784,7 +2796,7 @@ function renderContracts() {
         } else {
             CONTRACTS_STATE.queue.forEach((u, index) => {
                 usersList.innerHTML += `
-                    <div class="contract-list-item" data-id="${u.id}">
+                    <div class="contract-list-item" data-id="${u.id}" style="padding: 6px 0;">
                         <div style="font-size: 14px; display:flex; align-items:center; gap:8px;">
                             <span class="drag-handle-c" style="color:#666; font-size:16px; cursor:grab;">⋮⋮</span>
                             <span style="color:var(--text-sub);">${index + 1}.</span>
@@ -2800,7 +2812,7 @@ function renderContracts() {
         }
     }
 
-    // 2. Отрисовка 4-х контрактов
+    // 2. Отрисовка 4-х контрактов (Кнопка "Всем" удалена, отступы сжаты)
     const plan = document.getElementById('contractsPlanList');
     if (plan) {
         plan.innerHTML = '';
@@ -2810,13 +2822,9 @@ function renderContracts() {
             for (let i = 0; i < 4; i++) {
                 let shifted = getContractShiftedQueue(CONTRACTS_STATE.queue, i);
                 let html = `
-                <div class="contract-block">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <div class="contract-block" style="padding: 8px; margin-bottom: 8px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                         <div class="contract-title" style="margin:0;">📄 Контракт № ${i + 1}</div>
-                        <div style="display:flex; gap:5px; align-items:center;">
-                            <input type="number" id="rewardInput_${i}" class="contract-input" style="width:40px; padding:4px; height:24px; text-align:center; margin:0;" placeholder="0">
-                            <button class="action-btn" style="color:var(--green); border-color:rgba(16,185,129,0.3); height:26px; padding:0 8px;" onclick="rewardContract(${i})">Всем</button>
-                        </div>
                     </div>`;
                 
                 shifted.forEach((u, index) => {
@@ -2826,7 +2834,7 @@ function renderContracts() {
                     const color = isOk ? 'var(--green)' : 'var(--text-sub)';
                     
                     html += `
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; padding-bottom:6px; border-bottom:1px solid rgba(255,255,255,0.02);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; padding-bottom:4px; border-bottom:1px solid rgba(255,255,255,0.02);">
                             <div style="font-size:13px; color:${color}; font-weight:600;">
                                 ${icon} ${place}. ${u.name} <span style="color:var(--text-sub); font-weight:normal; font-size:11px;">(Всего: ${u.bills})</span>
                             </div>
@@ -2852,11 +2860,11 @@ function renderContracts() {
         } else {
             CONTRACTS_STATE.history.forEach((h, idx) => {
                 let hHtml = `
-                <div class="contract-block" style="background:rgba(255,255,255,0.02); margin-bottom: 8px; padding: 12px;">
-                    <div style="color:var(--accent); font-weight:bold; margin-bottom:8px; display:flex; align-items:center; gap:5px;">
+                <div class="contract-block" style="background:rgba(255,255,255,0.02); margin-bottom: 8px; padding: 10px;">
+                    <div style="color:var(--accent); font-weight:bold; margin-bottom:6px; display:flex; align-items:center; gap:5px;">
                         📅 ${h.date}
                     </div>
-                    <div style="font-size:12px; color:var(--text-sub); line-height:1.6;">
+                    <div style="font-size:12px; color:var(--text-sub); line-height:1.5;">
                 `;
                 h.contracts.forEach((cNames, cIdx) => {
                     hHtml += `<div><strong style="color:#eee;">К${cIdx + 1}:</strong> ${cNames}</div>`;
