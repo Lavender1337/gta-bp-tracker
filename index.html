@@ -2752,7 +2752,10 @@ function nextContracts() {
         }
 
         // 3. ИСПРАВЛЕННЫЙ СДВИГ ОЧЕРЕДИ (Наступление нового дня: сдвиг ровно на 1 человека)
-        CONTRACTS_STATE.queue.push(CONTRACTS_STATE.queue.shift());
+        // 3. СДВИГ ОЧЕРЕДИ (Берем 4-й контракт за основу и делаем шаг вперед)
+        for(let i = 0; i < 4; i++) {
+            CONTRACTS_STATE.queue.push(CONTRACTS_STATE.queue.shift());
+        }
         
         // 4. СОХРАНЕНИЕ И ОТРИСОВКА
         saveContractsData();
@@ -2777,6 +2780,7 @@ function clearContractHistory() {
 
 // --- ОБНОВЛЕННЫЙ РЕНДЕР ИНТЕРФЕЙСА ---
 // --- ОБНОВЛЕННЫЙ РЕНДЕР ИНТЕРФЕЙСА ---
+// --- ОБНОВЛЕННЫЙ РЕНДЕР ИНТЕРФЕЙСА ---
 function renderContracts() {
     const btnX2 = document.getElementById('btnContractX2');
     if(btnX2) {
@@ -2787,7 +2791,7 @@ function renderContracts() {
 
     const limit = CONTRACTS_STATE.isX2 ? 7 : 5;
 
-    // 1. Отрисовка списка управления (Уменьшены отступы)
+    // 1. Отрисовка списка управления
     const usersList = document.getElementById('contractUsersList');
     if (usersList) {
         usersList.innerHTML = '';
@@ -2812,7 +2816,7 @@ function renderContracts() {
         }
     }
 
-    // 2. Отрисовка 4-х контрактов (Кнопка "Всем" удалена, отступы сжаты)
+    // 2. Отрисовка 4-х контрактов
     const plan = document.getElementById('contractsPlanList');
     if (plan) {
         plan.innerHTML = '';
@@ -2836,7 +2840,7 @@ function renderContracts() {
                     html += `
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; padding-bottom:4px; border-bottom:1px solid rgba(255,255,255,0.02);">
                             <div style="font-size:13px; color:${color}; font-weight:600;">
-                                ${icon} ${place}. ${u.name} <span style="color:var(--text-sub); font-weight:normal; font-size:11px;">(Всего: ${u.bills})</span>
+                                ${icon} ${place}. ${u.name} <span style="color:var(--text-sub); font-weight:normal; font-size:11px;">(Всего: 💰 ${u.bills})</span>
                             </div>
                             <div style="display:flex; gap:4px; align-items:center;">
                                 <input type="number" id="bill_in_${i}_${u.id}" class="contract-input" style="width:35px; padding:2px; height:22px; text-align:center; margin:0; font-size:12px;" placeholder="0">
