@@ -1055,10 +1055,32 @@ body[class*="theme-white"] .contract-input { background: rgba(255,255,255,0.8) !
                 </span>
             </label>
         </div>
-        <div style="background:var(--bg-element); padding:10px; border-radius:12px; margin-bottom:15px; display:flex; align-items:center; justify-content:space-between; border:1px solid var(--border);">
-            <span style="font-weight:600;">🔔 Отправлять уведомления</span>
+<div class="section-title" style="margin: 0 0 10px 0; border:none;">Настройки уведомлений</div>
+        
+        <div style="background:var(--bg-element); padding:10px; border-radius:12px; margin-bottom:5px; display:flex; align-items:center; justify-content:space-between; border:1px solid var(--border);">
+            <span style="font-weight:600;">💬 Сообщение в Telegram</span>
             <label class="switch" style="position:relative; display:inline-block; width:40px; height:24px;">
-                <input type="checkbox" id="globalNotifyToggle" onchange="toggleGlobalNotify()" checked>
+                <input type="checkbox" id="notifyTgToggle" onchange="saveNotifySettings()" checked>
+                <span class="slider" style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; transition:.4s; border-radius:24px;">
+                    <span class="slider-circle" style="position:absolute; content:''; height:18px; width:18px; left:3px; bottom:3px; background-color:white; transition:.4s; border-radius:50%;"></span>
+                </span>
+            </label>
+        </div>
+
+        <div style="background:var(--bg-element); padding:10px; border-radius:12px; margin-bottom:5px; display:flex; align-items:center; justify-content:space-between; border:1px solid var(--border);">
+            <span style="font-weight:600;">🔕 Звук в Telegram</span>
+            <label class="switch" style="position:relative; display:inline-block; width:40px; height:24px;">
+                <input type="checkbox" id="notifyTgSoundToggle" onchange="saveNotifySettings()" checked>
+                <span class="slider" style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; transition:.4s; border-radius:24px;">
+                    <span class="slider-circle" style="position:absolute; content:''; height:18px; width:18px; left:3px; bottom:3px; background-color:white; transition:.4s; border-radius:50%;"></span>
+                </span>
+            </label>
+        </div>
+
+        <div style="background:var(--bg-element); padding:10px; border-radius:12px; margin-bottom:15px; display:flex; align-items:center; justify-content:space-between; border:1px solid var(--border);">
+            <span style="font-weight:600;">📱 Пуш и звук в приложении</span>
+            <label class="switch" style="position:relative; display:inline-block; width:40px; height:24px;">
+                <input type="checkbox" id="notifyAppToggle" onchange="saveNotifySettings()" checked>
                 <span class="slider" style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; transition:.4s; border-radius:24px;">
                     <span class="slider-circle" style="position:absolute; content:''; height:18px; width:18px; left:3px; bottom:3px; background-color:white; transition:.4s; border-radius:50%;"></span>
                 </span>
@@ -1098,13 +1120,25 @@ body[class*="theme-white"] .contract-input { background: rgba(255,255,255,0.8) !
 <script>
 // ====================== ДАННЫЕ ======================
 const TIMER_SERVICE_URL = "https://gta-timer.onrender.com";
-let GLOBAL_NOTIFY = true; // глобальный флаг уведомлений
+// Новые настройки уведомлений по умолчанию
+let NOTIFY_SETTINGS = { tg: true, tgSound: true, app: true };
+
+function saveNotifySettings() {
+    NOTIFY_SETTINGS.tg = document.getElementById('notifyTgToggle').checked;
+    NOTIFY_SETTINGS.tgSound = document.getElementById('notifyTgSoundToggle').checked;
+    NOTIFY_SETTINGS.app = document.getElementById('notifyAppToggle').checked;
+    localStorage.setItem('gta_notify_settings_22', JSON.stringify(NOTIFY_SETTINGS));
+}
 
 function scheduleNotification(id, delaySeconds, message, notify = true) {
     const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
     if (!userId) return;
-    if (!notify) return; // если не надо уведомлять
-    if (!GLOBAL_NOTIFY) return; // глобально выключены
+    
+    // Если при создании таймера галочка 🔔 была снята - игнорим
+    if (!notify) return; 
+    
+    // Если в настройках выключены ТГ уведомления - ничего на бэкенд не шлем
+    if (!NOTIFY_SETTINGS.tg) return; 
 
     fetch(`${TIMER_SERVICE_URL}/set`, {
         method: 'POST',
@@ -1114,7 +1148,9 @@ function scheduleNotification(id, delaySeconds, message, notify = true) {
             chat_id: userId,
             text: message,
             delay: delaySeconds,
-            notify: notify
+            notify: true,
+            // Передаем на бэкенд параметр silent (без звука)
+            silent: !NOTIFY_SETTINGS.tgSound 
         })
     }).catch(err => console.error("Ошибка запуска таймера:", err));
 }
@@ -1586,7 +1622,6 @@ function renderTimers() {
 }
 
 function toggleNotifyTimer(id) { /* Заглушка, чтобы не ломался старый код */ }
-function toggleGlobalNotify() { GLOBAL_NOTIFY = document.getElementById('globalNotifyToggle').checked; localStorage.setItem('gta_global_notify_22', GLOBAL_NOTIFY); }
 function saveSkills() { USER_WORK_SKILLS.rednecks = parseInt(document.getElementById('setRednecks').value); USER_WORK_SKILLS.build = parseInt(document.getElementById('setBuild').value); USER_WORK_SKILLS.port = parseInt(document.getElementById('setPort').value); USER_WORK_SKILLS.mine = parseInt(document.getElementById('setMine').value); localStorage.setItem('gta_work_skills_22', JSON.stringify(USER_WORK_SKILLS)); renderBP(); }
 
 function renderTimerPresets() {
@@ -1990,10 +2025,15 @@ function updateTimersVisuals() {
             let t = TIMERS.custom[i];
             if(t.run) {
                 if (t.et) t.rm = Math.ceil((t.et - now) / 1000);
-                if(t.rm <= 0) {
+if(t.rm <= 0) {
                     t.rm = 0; t.run = false;
-                    playDing();
-                    showNativePopup(t.l);
+                    
+                    // Проверяем, разрешил ли юзер пуши на экране
+                    if (NOTIFY_SETTINGS.app) {
+                        playDing();
+                        showNativePopup(t.l);
+                    }
+                    
                     TIMERS.custom.splice(i, 1); // Автоудаление
                     changed = true;
                 } else {
@@ -2331,7 +2371,13 @@ function openSettingsModal() {
     document.getElementById('modalSettings').style.display = 'flex'; 
     document.getElementById('simpleModeToggle').checked = document.body.classList.contains('simple-mode');
     document.getElementById('hideCompletedToggle').checked = HIDE_COMPLETED;
-    document.getElementById('syncToggle').checked = CLOUD_SYNC_ENABLED; // <--- ДОБАВИТЬ ЭТУ СТРОКУ
+    document.getElementById('syncToggle').checked = CLOUD_SYNC_ENABLED; 
+    
+    // Подгружаем состояния наших новых кнопок
+    document.getElementById('notifyTgToggle').checked = NOTIFY_SETTINGS.tg;
+    document.getElementById('notifyTgSoundToggle').checked = NOTIFY_SETTINGS.tgSound;
+    document.getElementById('notifyAppToggle').checked = NOTIFY_SETTINGS.app;
+    
     const savedScale = localStorage.getItem('gta_scale_22') || 100;
     document.getElementById('scaleRange').value = savedScale;
     document.getElementById('scaleVal').innerText = savedScale + '%';
@@ -2553,6 +2599,10 @@ if (window.Telegram && window.Telegram.WebApp) {
 // Запускаем всё после того, как все функции уже прочитаны браузером
 init();
 // ====================== МОДУЛЬ КОНТРАКТОВ ======================
+const savedNotify = localStorage.getItem('gta_notify_settings_22');
+    if(savedNotify) {
+        NOTIFY_SETTINGS = JSON.parse(savedNotify);
+    }
 
 const CONTRACTS_SECRET = "1234"; // Задай свой пароль здесь
 
