@@ -1077,10 +1077,20 @@ body[class*="theme-white"] .contract-input { background: rgba(255,255,255,0.8) !
             </label>
         </div>
 
-        <div style="background:var(--bg-element); padding:10px; border-radius:12px; margin-bottom:15px; display:flex; align-items:center; justify-content:space-between; border:1px solid var(--border);">
-            <span style="font-weight:600;">📱 Пуш и звук в приложении</span>
+       <div style="background:var(--bg-element); padding:10px; border-radius:12px; margin-bottom:5px; display:flex; align-items:center; justify-content:space-between; border:1px solid var(--border);">
+            <span style="font-weight:600;">📱 Пуш на экране (в игре)</span>
             <label class="switch" style="position:relative; display:inline-block; width:40px; height:24px;">
-                <input type="checkbox" id="notifyAppToggle" onchange="saveNotifySettings()" checked>
+                <input type="checkbox" id="notifyAppPushToggle" onchange="saveNotifySettings()" checked>
+                <span class="slider" style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; transition:.4s; border-radius:24px;">
+                    <span class="slider-circle" style="position:absolute; content:''; height:18px; width:18px; left:3px; bottom:3px; background-color:white; transition:.4s; border-radius:50%;"></span>
+                </span>
+            </label>
+        </div>
+
+        <div style="background:var(--bg-element); padding:10px; border-radius:12px; margin-bottom:15px; display:flex; align-items:center; justify-content:space-between; border:1px solid var(--border);">
+            <span style="font-weight:600;">🎵 Звук в приложении</span>
+            <label class="switch" style="position:relative; display:inline-block; width:40px; height:24px;">
+                <input type="checkbox" id="notifyAppSoundToggle" onchange="saveNotifySettings()" checked>
                 <span class="slider" style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; transition:.4s; border-radius:24px;">
                     <span class="slider-circle" style="position:absolute; content:''; height:18px; width:18px; left:3px; bottom:3px; background-color:white; transition:.4s; border-radius:50%;"></span>
                 </span>
@@ -1121,12 +1131,14 @@ body[class*="theme-white"] .contract-input { background: rgba(255,255,255,0.8) !
 // ====================== ДАННЫЕ ======================
 const TIMER_SERVICE_URL = "https://gta-timer.onrender.com";
 // Новые настройки уведомлений по умолчанию
-let NOTIFY_SETTINGS = { tg: true, tgSound: true, app: true };
+// Новые настройки уведомлений по умолчанию
+let NOTIFY_SETTINGS = { tg: true, tgSound: true, appPush: true, appSound: true };
 
 function saveNotifySettings() {
     NOTIFY_SETTINGS.tg = document.getElementById('notifyTgToggle').checked;
     NOTIFY_SETTINGS.tgSound = document.getElementById('notifyTgSoundToggle').checked;
-    NOTIFY_SETTINGS.app = document.getElementById('notifyAppToggle').checked;
+    NOTIFY_SETTINGS.appPush = document.getElementById('notifyAppPushToggle').checked;
+    NOTIFY_SETTINGS.appSound = document.getElementById('notifyAppSoundToggle').checked;
     localStorage.setItem('gta_notify_settings_22', JSON.stringify(NOTIFY_SETTINGS));
 }
 
@@ -2029,8 +2041,11 @@ if(t.rm <= 0) {
                     t.rm = 0; t.run = false;
                     
                     // Проверяем, разрешил ли юзер пуши на экране
-                    if (NOTIFY_SETTINGS.app) {
+// Раздельные проверки для звука и пуша на экране
+                    if (NOTIFY_SETTINGS.appSound) {
                         playDing();
+                    }
+                    if (NOTIFY_SETTINGS.appPush) {
                         showNativePopup(t.l);
                     }
                     
@@ -2376,7 +2391,8 @@ function openSettingsModal() {
     // Подгружаем состояния наших новых кнопок
     document.getElementById('notifyTgToggle').checked = NOTIFY_SETTINGS.tg;
     document.getElementById('notifyTgSoundToggle').checked = NOTIFY_SETTINGS.tgSound;
-    document.getElementById('notifyAppToggle').checked = NOTIFY_SETTINGS.app;
+    document.getElementById('notifyAppPushToggle').checked = NOTIFY_SETTINGS.appPush;
+    document.getElementById('notifyAppSoundToggle').checked = NOTIFY_SETTINGS.appSound;
     
     const savedScale = localStorage.getItem('gta_scale_22') || 100;
     document.getElementById('scaleRange').value = savedScale;
@@ -2803,8 +2819,19 @@ function nextContracts() {
 
         // 3. ИСПРАВЛЕННЫЙ СДВИГ ОЧЕРЕДИ (Наступление нового дня: сдвиг ровно на 1 человека)
         // 3. СДВИГ ОЧЕРЕДИ (Берем 4-й контракт за основу и делаем шаг вперед)
-        for(let i = 0; i < 4; i++) {
-            CONTRACTS_STATE.queue.push(CONTRACTS_STATE.queue.shift());
+        // 3. УМНЫЙ СДВИГ ОЧЕРЕДИ
+        let len = CONTRACTS_STATE.queue.length;
+        if (len > 0) {
+            // По умолчанию берем за основу сдвиг на 4 (как раньше)
+            let shifts = 4 % len; 
+            
+            // Если математика делает полный круг (например, 4 человека), 
+            // то сдвигаем ровно на 1 (первый становится последним)
+            if (shifts === 0) shifts = 1; 
+
+            for(let i = 0; i < shifts; i++) {
+                CONTRACTS_STATE.queue.push(CONTRACTS_STATE.queue.shift());
+            }
         }
         
         // 4. СОХРАНЕНИЕ И ОТРИСОВКА
