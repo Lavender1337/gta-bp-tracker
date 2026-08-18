@@ -2817,19 +2817,9 @@ function nextContracts() {
             CONTRACTS_STATE.history.pop();
         }
 
-        // 3. ИСПРАВЛЕННЫЙ СДВИГ ОЧЕРЕДИ (Наступление нового дня: сдвиг ровно на 1 человека)
-        // 3. СДВИГ ОЧЕРЕДИ (Берем 4-й контракт за основу и делаем шаг вперед)
-        // 3. УМНЫЙ СДВИГ ОЧЕРЕДИ
-        let len = CONTRACTS_STATE.queue.length;
-        if (len > 0) {
-            // По умолчанию берем за основу сдвиг на 4 (как раньше)
-            let shifts = 4 % len; 
-            
-            // Если математика делает полный круг (например, 4 человека), 
-            // то сдвигаем ровно на 1 (первый становится последним)
-            if (shifts === 0) shifts = 1; 
-
-            for(let i = 0; i < shifts; i++) {
+        // 3. СДВИГ ОЧЕРЕДИ: строго на 4 шага (продолжение цепочки после 4-го контракта)
+        for(let i = 0; i < 4; i++) {
+            if (CONTRACTS_STATE.queue.length > 0) {
                 CONTRACTS_STATE.queue.push(CONTRACTS_STATE.queue.shift());
             }
         }
@@ -2846,7 +2836,6 @@ function nextContracts() {
         if (confirm(msg)) doNext();
     }
 }
-
 function clearContractHistory() {
     if (confirm("Точно удалить всю историю?")) {
         CONTRACTS_STATE.history = [];
@@ -2855,8 +2844,6 @@ function clearContractHistory() {
     }
 }
 
-// --- ОБНОВЛЕННЫЙ РЕНДЕР ИНТЕРФЕЙСА ---
-// --- ОБНОВЛЕННЫЙ РЕНДЕР ИНТЕРФЕЙСА ---
 // --- ОБНОВЛЕННЫЙ РЕНДЕР ИНТЕРФЕЙСА ---
 function renderContracts() {
     const btnX2 = document.getElementById('btnContractX2');
