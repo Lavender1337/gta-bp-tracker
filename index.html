@@ -743,6 +743,39 @@ body[class*="theme-white"] .sort-pill.selected {
 .contract-block { background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 8px; padding: 10px; margin-bottom: 10px; }
 .contract-title { font-size: 14px; font-weight: bold; color: var(--accent); margin-bottom: 8px; }
 body[class*="theme-white"] .contract-input { background: rgba(255,255,255,0.8) !important; border-color: rgba(0,0,0,0.1) !important; color: black !important; }
+/* --- СТИЛИ ДЛЯ ИВЕНТА --- */
+.event-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 12px;
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.event-input {
+    background: rgba(0,0,0,0.2) !important;
+    border: 1px solid rgba(255,255,255,0.05) !important;
+    color: var(--text-main) !important;
+    border-radius: 8px;
+    font-size: 13px;
+    padding: 8px 10px;
+    outline: none;
+    transition: 0.2s;
+    margin: 0 !important;
+}
+.event-input:focus { border-color: var(--accent) !important; }
+body[class*="theme-white"] .event-card {
+    background: #ffffff;
+    border: 1px solid rgba(0,0,0,0.08);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+}
+body[class*="theme-white"] .event-input {
+    background: rgba(0,0,0,0.03) !important;
+    border: 1px solid rgba(0,0,0,0.08) !important;
+    color: #000 !important;
+}
 </style>
 </head>
 <body>
@@ -978,12 +1011,18 @@ body[class*="theme-white"] .contract-input { background: rgba(255,255,255,0.8) !
         
     </div>
 </div>
+<!-- НОВАЯ ВКЛАДКА: ИВЕНТ -->
+<div id="tab-event" class="tab-content">
+    <div class="header" style="color:var(--accent)">Ивент: Квесты</div>
+    <div id="eventTabContent" style="padding: 0 15px 20px;"></div>
+</div>
 <nav class="bottom-nav">
     <button class="nav-btn active" onclick="go('bp', this)"><div class="nav-icon">📊</div><span class="nav-label">BP</span></button>
     <button class="nav-btn" onclick="go('timers', this)"><div class="nav-icon">⏱</div><span class="nav-label">Таймер</span></button>
     <button class="nav-btn" onclick="go('kitchen', this)"><div class="nav-icon">🍔</div><span class="nav-label">Еда</span></button>
     <button class="nav-btn" onclick="go('guides', this)"><div class="nav-icon">📚</div><span class="nav-label">Гайды</span></button>
 <button class="nav-btn" onclick="go('contracts', this)"><div class="nav-icon">📝</div><span class="nav-label">Контракты</span></button>
+<button class="nav-btn" onclick="go('event', this)"><div class="nav-icon">🎪</div><span class="nav-label">Ивент</span></button>
 </nav>
 
 <div id="modal" class="modal-wrap" onclick="closeModal(event)">
@@ -1327,8 +1366,17 @@ tarot: [
         };
 
 // ====================== СОСТОЯНИЕ ======================
+// ====================== СОСТОЯНИЕ ======================
 let BP = { start:0, done:[], times:{}, hidden:[], counters:{}, vip:false, x2:false, sortOrder:[] };
 let TIMERS = {};
+
+// СОСТОЯНИЕ НОВОЙ ВКЛАДКИ ИВЕНТ
+let EVENT_STATE = { activeChar: 0, chars: [] };
+for(let i=0; i<3; i++) {
+    let rows = [];
+    for(let j=0; j<10; j++) rows.push({ npc: "", t1: "", t1Time: 0, t2: "", t2Time: 0, exam: false });
+    EVENT_STATE.chars.push({ name: "Персонаж "+(i+1), vip: false, rows: rows });
+}
 
 let TIMER_INT = {};
 let SCROLL_POS = {};
@@ -1385,17 +1433,23 @@ const Cloud = {
 async function init() {
     try {
         // Одновременно загружаем из облака BP, таймеры и новые контракты
-        const [bpData, tmData, contractsData] = await Promise.all([
+const [bpData, tmData, contractsData, eventDataRaw] = await Promise.all([
             Cloud.getItem('gta_bp_22'),
             Cloud.getItem('gta_tm_22'),
-            Cloud.getItem('gta_contracts_22')
+            Cloud.getItem('gta_contracts_22'),
+            Cloud.getItem('gta_event_22')
         ]);
 
         if(bpData) BP = JSON.parse(bpData);
         if(!BP.doneTwink) BP.doneTwink = [];
         if(tmData) TIMERS = JSON.parse(tmData);
         if(contractsData) CONTRACTS_STATE = JSON.parse(contractsData);
-
+if (eventDataRaw) {
+            try {
+                let parsed = JSON.parse(eventDataRaw);
+                if (parsed.chars && parsed.chars.length === 3) EVENT_STATE = parsed;
+            } catch(e){}
+        }
     } catch (e) {
         console.error("Error loading data", e);
     }
@@ -1453,7 +1507,8 @@ const savedScale = localStorage.getItem('gta_scale_22');
     
     const activeGuideBtn = document.querySelector('#tab-guides .seg-btn.active');
     if(activeGuideBtn) setGuide('payment', activeGuideBtn);
-    
+
+    renderEventTab();
     setupDragAndDrop();
     startGlobalTimerLoop();
 }
@@ -2097,9 +2152,9 @@ function startGlobalTimerLoop() {
     GLOBAL_TIMER_INT = setInterval(() => {
         if(typeof updateHeaderTimer === 'function') updateHeaderTimer();
         updateTimersVisuals();
+        if(typeof updateEventTimersVisuals === 'function') updateEventTimersVisuals();
     }, 1000);
 }
-
 function fmtTime(s) { const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60; return (h>0?h+':':'')+pad(m)+':'+pad(sec); }
 function pad(n) { return n<10?'0'+n:n; }
 
@@ -2127,6 +2182,176 @@ function delTime(id) {
     TIMERS.custom = TIMERS.custom.filter(t=>t.id!==id); 
     saveTm(); renderTimers(); 
 }
+
+// ====================== МОДУЛЬ ИВЕНТА ======================
+
+function saveEventData() { Cloud.setItem('gta_event_22', JSON.stringify(EVENT_STATE)); }
+
+function setEventChar(idx) {
+    EVENT_STATE.activeChar = idx;
+    saveEventData();
+    renderEventTab();
+}
+
+function toggleEventVip() {
+    let c = EVENT_STATE.chars[EVENT_STATE.activeChar];
+    c.vip = !c.vip;
+    saveEventData();
+    renderEventTab();
+}
+
+function toggleEventExam(rIdx) {
+    let row = EVENT_STATE.chars[EVENT_STATE.activeChar].rows[rIdx];
+    row.exam = !row.exam;
+    saveEventData();
+    renderEventTab();
+}
+
+function updateEventData(field, val, rIdx = null) {
+    let c = EVENT_STATE.chars[EVENT_STATE.activeChar];
+    if (rIdx === null) c[field] = val; 
+    else c.rows[rIdx][field] = val; 
+    saveEventData();
+    if (field === 'name') renderEventTab();
+}
+
+function getEventTimerUI(cIdx, rIdx, tNum, endTime) {
+    const now = Date.now();
+    if (endTime > now) {
+        let rm = Math.ceil((endTime - now) / 1000);
+        return `<button class="action-btn" style="width:85px; justify-content:center; color:var(--gold); border-color:var(--gold); background:rgba(251, 191, 36, 0.1);" onclick="cancelEventTimer(${rIdx}, ${tNum})" id="evt_btn_${cIdx}_${rIdx}_${tNum}">${fmtTime(rm)}</button>`;
+    } else {
+        return `<button class="action-btn" style="width:85px; justify-content:center; background:rgba(16, 185, 129, 0.1); color:var(--green); border-color:rgba(16, 185, 129, 0.3);" onclick="startEventTimer(${rIdx}, ${tNum})">Выполнил</button>`;
+    }
+}
+
+function startEventTimer(rIdx, tNum) {
+    let cIdx = EVENT_STATE.activeChar;
+    let c = EVENT_STATE.chars[cIdx];
+    let row = c.rows[rIdx];
+
+    // КД: VIP = 5 часов (18000 сек), Обычный = 6 часов (21600 сек)
+    let cdSeconds = c.vip ? 18000 : 21600;
+    let endTime = Date.now() + (cdSeconds * 1000);
+
+    row['t'+tNum+'Time'] = endTime;
+    saveEventData();
+    renderEventTab();
+
+    // Запускаем уведомление в ТГ
+    let taskName = row['t'+tNum] || `Задание ${tNum}`;
+    let npcName = row.npc || `NPC #${rIdx+1}`;
+    let msg = `🎪 Ивент (${c.name}): Задание «${taskName}» у <b>${npcName}</b> снова доступно!`;
+    let notifId = `evt_${cIdx}_${rIdx}_${tNum}`;
+
+    scheduleNotification(notifId, cdSeconds, msg, true);
+    if (window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+}
+
+function cancelEventTimer(rIdx, tNum) {
+    if(!confirm("Сбросить таймер этого задания?")) return;
+    let cIdx = EVENT_STATE.activeChar;
+    EVENT_STATE.chars[cIdx].rows[rIdx]['t'+tNum+'Time'] = 0;
+    saveEventData();
+    renderEventTab();
+
+    let notifId = `evt_${cIdx}_${rIdx}_${tNum}`;
+    cancelNotification(notifId);
+}
+
+function updateEventTimersVisuals() {
+    if(!EVENT_STATE || !EVENT_STATE.chars) return;
+    let cIdx = EVENT_STATE.activeChar;
+    let now = Date.now();
+    let needsRender = false;
+
+    EVENT_STATE.chars.forEach((c, cIndex) => {
+        c.rows.forEach((row, rIdx) => {
+            [1, 2].forEach(tNum => {
+                let endTime = row['t'+tNum+'Time'];
+                if (endTime > now) {
+                    if (cIndex === cIdx) {
+                        let btn = document.getElementById(`evt_btn_${cIdx}_${rIdx}_${tNum}`);
+                        if (btn) btn.innerText = fmtTime(Math.ceil((endTime - now) / 1000));
+                    }
+                } else if (endTime > 0 && endTime <= now) {
+                    row['t'+tNum+'Time'] = 0;
+                    if (cIndex === cIdx) needsRender = true;
+                    
+                    if (typeof NOTIFY_SETTINGS !== 'undefined') {
+                        if (NOTIFY_SETTINGS.appSound) playDing();
+                        if (NOTIFY_SETTINGS.appPush) showNativePopup(row['t'+tNum] || `Задание ${tNum}`);
+                    } else {
+                        playDing(); showNativePopup(row['t'+tNum] || `Задание ${tNum}`);
+                    }
+                }
+            });
+        });
+    });
+
+    if (needsRender) {
+        saveEventData();
+        renderEventTab();
+    }
+}
+
+function renderEventTab() {
+    const container = document.getElementById('eventTabContent');
+    if(!container) return;
+
+    let cIdx = EVENT_STATE.activeChar;
+    let charData = EVENT_STATE.chars[cIdx];
+
+    // Вкладки персонажей
+    let html = `<div class="segment-wrapper" style="margin-bottom:15px; padding: 0;">
+        <div class="segment">`;
+    for(let i=0; i<3; i++) {
+        html += `<button class="seg-btn ${i === cIdx ? 'active' : ''}" onclick="setEventChar(${i})" style="flex:1; text-align:center;">${EVENT_STATE.chars[i].name}</button>`;
+    }
+    html += `</div></div>`;
+
+    // Имя и кнопка VIP
+    html += `
+    <div style="display:flex; gap:10px; margin-bottom:15px; align-items:center;">
+        <input type="text" value="${charData.name}" onchange="updateEventData('name', this.value)" class="event-input" placeholder="Укажите имя персонажа" style="flex:1;">
+        <button class="action-btn ${charData.vip ? 'active' : ''}" style="height:36px; padding:0 12px; font-size:13px; font-weight:bold; ${charData.vip ? 'border-color:var(--gold); color:var(--gold); background:rgba(251, 191, 36, 0.1);' : 'color:var(--text-sub);'}" onclick="toggleEventVip()">👑 VIP (${charData.vip ? '5ч' : '6ч'})</button>
+    </div>
+    `;
+
+    // 10 строк квестов
+    charData.rows.forEach((row, rIdx) => {
+        let examStatus = row.exam ? '✅ Сдан' : '❌ Не сдан';
+        let examColor = row.exam ? 'var(--green)' : 'var(--red)';
+        let examBg = row.exam ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)';
+
+        let t1UI = getEventTimerUI(cIdx, rIdx, 1, row.t1Time);
+        let t2UI = getEventTimerUI(cIdx, rIdx, 2, row.t2Time);
+
+        html += `
+        <div class="event-card">
+            <div style="display:flex; gap:10px; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:10px;">
+                <div style="display:flex; align-items:center; gap:8px; flex:1;">
+                    <div style="font-size:12px; color:var(--text-sub); font-weight:800; background:rgba(255,255,255,0.05); padding:4px 8px; border-radius:6px;">#${rIdx+1}</div>
+                    <input type="text" value="${row.npc}" onchange="updateEventData('npc', this.value, ${rIdx})" class="event-input" placeholder="Имя NPC..." style="flex:1;">
+                </div>
+                <button class="action-btn" style="color:${examColor}; background:${examBg}; border-color:rgba(255,255,255,0.05); width:85px; justify-content:center; font-size:11px;" onclick="toggleEventExam(${rIdx})">${examStatus}</button>
+            </div>
+
+            <div style="display:flex; gap:8px; align-items:center;">
+                <input type="text" value="${row.t1}" onchange="updateEventData('t1', this.value, ${rIdx})" class="event-input" placeholder="Задание 1..." style="flex:1;">
+                ${t1UI}
+            </div>
+            <div style="display:flex; gap:8px; align-items:center;">
+                <input type="text" value="${row.t2}" onchange="updateEventData('t2', this.value, ${rIdx})" class="event-input" placeholder="Задание 2..." style="flex:1;">
+                ${t2UI}
+            </div>
+        </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+// ==========================================================
 
 function renderFood() {
     const list = document.getElementById('listFood');
