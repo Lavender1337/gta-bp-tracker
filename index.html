@@ -1371,10 +1371,11 @@ let BP = { start:0, done:[], times:{}, hidden:[], counters:{}, vip:false, x2:fal
 let TIMERS = {};
 
 // СОСТОЯНИЕ НОВОЙ ВКЛАДКИ ИВЕНТ
-let EVENT_STATE = { activeChar: 0, chars: [] };
+let EVENT_STATE = { activeChar: 0, tasks: [], chars: [] };
+for(let j=0; j<10; j++) EVENT_STATE.tasks.push({ npc: "", t1: "", t2: "" }); // Общие названия
 for(let i=0; i<3; i++) {
     let rows = [];
-    for(let j=0; j<10; j++) rows.push({ npc: "", t1: "", t1Time: 0, t2: "", t2Time: 0, exam: false });
+    for(let j=0; j<10; j++) rows.push({ t1Time: 0, t2Time: 0, exam: false }); // Личные таймеры
     EVENT_STATE.chars.push({ name: "Персонаж "+(i+1), vip: false, rows: rows });
 }
 
@@ -2207,10 +2208,13 @@ function toggleEventExam(rIdx) {
     renderEventTab();
 }
 
+// Теперь названия сохраняются в глобальный массив tasks
 function updateEventData(field, val, rIdx = null) {
-    let c = EVENT_STATE.chars[EVENT_STATE.activeChar];
-    if (rIdx === null) c[field] = val; 
-    else c.rows[rIdx][field] = val; 
+    if (rIdx === null) {
+        EVENT_STATE.chars[EVENT_STATE.activeChar][field] = val; 
+    } else {
+        EVENT_STATE.tasks[rIdx][field] = val; 
+    }
     saveEventData();
     if (field === 'name') renderEventTab();
 }
@@ -2219,16 +2223,15 @@ function getEventTimerUI(cIdx, rIdx, tNum, endTime) {
     const now = Date.now();
     if (endTime > now) {
         let rm = Math.ceil((endTime - now) / 1000);
-        // Вычисляем точное время завершения (часы и минуты)
         let targetTime = new Date(endTime).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
         
         return `
-        <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
-            <button class="action-btn" style="width:85px; justify-content:center; color:var(--gold); border-color:var(--gold); background:rgba(251, 191, 36, 0.1); padding: 6px 0;" onclick="cancelEventTimer(${rIdx}, ${tNum})" id="evt_btn_${cIdx}_${rIdx}_${tNum}">${fmtTime(rm)}</button>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:4px; min-width: 85px;">
+            <button class="action-btn" style="width:100%; justify-content:center; color:var(--gold); border-color:var(--gold); background:rgba(251, 191, 36, 0.1); padding: 6px 0;" onclick="cancelEventTimer(${rIdx}, ${tNum})" id="evt_btn_${cIdx}_${rIdx}_${tNum}">${fmtTime(rm)}</button>
             <div style="font-size:10px; font-weight:800; color:var(--accent); letter-spacing:0.5px;">до ${targetTime}</div>
         </div>`;
     } else {
-        return `<button class="action-btn" style="width:85px; justify-content:center; background:rgba(16, 185, 129, 0.1); color:var(--green); border-color:rgba(16, 185, 129, 0.3);" onclick="startEventTimer(${rIdx}, ${tNum})">Выполнил</button>`;
+        return `<button class="action-btn" style="min-width:85px; justify-content:center; background:rgba(16, 185, 129, 0.1); color:var(--green); border-color:rgba(16, 185, 129, 0.3);" onclick="startEventTimer(${rIdx}, ${tNum})">Выполнил</button>`;
     }
 }
 
@@ -2245,9 +2248,9 @@ function startEventTimer(rIdx, tNum) {
     saveEventData();
     renderEventTab();
 
-    // Запускаем уведомление в ТГ
-    let taskName = row['t'+tNum] || `Задание ${tNum}`;
-    let npcName = row.npc || `NPC #${rIdx+1}`;
+    // Берем имена из общей базы
+    let taskName = EVENT_STATE.tasks[rIdx]['t'+tNum] || `Задание ${tNum}`;
+    let npcName = EVENT_STATE.tasks[rIdx].npc || `NPC #${rIdx+1}`;
     let msg = `🎪 Ивент (${c.name}): Задание «${taskName}» у <b>${npcName}</b> снова доступно!`;
     let notifId = `evt_${cIdx}_${rIdx}_${tNum}`;
 
@@ -2285,11 +2288,12 @@ function updateEventTimersVisuals() {
                     row['t'+tNum+'Time'] = 0;
                     if (cIndex === cIdx) needsRender = true;
                     
+                    let taskName = EVENT_STATE.tasks[rIdx]['t'+tNum] || `Задание ${tNum}`;
                     if (typeof NOTIFY_SETTINGS !== 'undefined') {
                         if (NOTIFY_SETTINGS.appSound) playDing();
-                        if (NOTIFY_SETTINGS.appPush) showNativePopup(row['t'+tNum] || `Задание ${tNum}`);
+                        if (NOTIFY_SETTINGS.appPush) showNativePopup(taskName);
                     } else {
-                        playDing(); showNativePopup(row['t'+tNum] || `Задание ${tNum}`);
+                        playDing(); showNativePopup(taskName);
                     }
                 }
             });
@@ -2306,9 +2310,15 @@ function renderEventTab() {
     const container = document.getElementById('eventTabContent');
     if(!container) return;
 
+    // Защита: если после обновления кэша нет tasks, создаем их
+    if(!EVENT_STATE.tasks) {
+        EVENT_STATE.tasks = [];
+        for(let j=0; j<10; j++) EVENT_STATE.tasks.push({ npc: "", t1: "", t2: "" });
+    }
+
     let cIdx = EVENT_STATE.activeChar;
     let charData = EVENT_STATE.chars[cIdx];
-    let now = Date.now(); // Текущее время для расчетов
+    let now = Date.now();
 
     // Вкладки персонажей
     let html = `<div class="segment-wrapper" style="margin-bottom:15px; padding: 0;">
@@ -2328,28 +2338,24 @@ function renderEventTab() {
     `;
 
     // --- УМНАЯ СОРТИРОВКА КАРТОЧЕК ---
-    // Создаем массив индексов [0, 1, ... 9] и сортируем его
     let sortedIndices = charData.rows.map((_, idx) => idx);
     sortedIndices.sort((a, b) => {
         let rA = charData.rows[a], rB = charData.rows[b];
-        let wA, wB;
-        
-        // Готово ли хотя бы одно задание? (Если 0 или время вышло)
         let a1Ready = !rA.t1Time || rA.t1Time <= now;
         let a2Ready = !rA.t2Time || rA.t2Time <= now;
-        // Вес 0 (наверх), иначе берем минимальное время до конца
-        if (a1Ready || a2Ready) wA = 0; else wA = Math.min(rA.t1Time, rA.t2Time);
+        let wA = (a1Ready || a2Ready) ? 0 : Math.min(rA.t1Time, rA.t2Time);
 
         let b1Ready = !rB.t1Time || rB.t1Time <= now;
         let b2Ready = !rB.t2Time || rB.t2Time <= now;
-        if (b1Ready || b2Ready) wB = 0; else wB = Math.min(rB.t1Time, rB.t2Time);
+        let wB = (b1Ready || b2Ready) ? 0 : Math.min(rB.t1Time, rB.t2Time);
 
-        return wA - wB; // Сортируем по весу (ближайшие наверху)
+        return wA - wB;
     });
 
-    // Отрисовка отсортированных строк
+    // Отрисовка
     sortedIndices.forEach((rIdx) => {
         let row = charData.rows[rIdx];
+        let taskTexts = EVENT_STATE.tasks[rIdx]; // Глобальные тексты
         
         let examStatus = row.exam ? '✅ Сдан' : '❌ Не сдан';
         let examColor = row.exam ? 'var(--green)' : 'var(--red)';
@@ -2358,24 +2364,27 @@ function renderEventTab() {
         let t1UI = getEventTimerUI(cIdx, rIdx, 1, row.t1Time);
         let t2UI = getEventTimerUI(cIdx, rIdx, 2, row.t2Time);
 
-        // Сохраняем оригинальный номер карточки для удобства (от #1 до #10)
         let displayNum = rIdx + 1;
+        
+        // Визуальное затухание, если оба таймера тикают
+        let allRunning = (row.t1Time > now) && (row.t2Time > now);
+        let cardStyle = allRunning ? "opacity: 0.6; background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.02);" : "";
 
         html += `
-        <div class="event-card">
+        <div class="event-card" style="${cardStyle}">
             <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:10px; margin-bottom:10px;">
                 <div style="display:flex; gap:8px; align-items:center; flex:1;">
                     <span style="background:rgba(255,255,255,0.05); padding:4px 8px; border-radius:6px; font-weight:bold; font-size:12px; color:var(--text-sub);">#${displayNum}</span>
-                    <input type="text" class="event-input" placeholder="Имя NPC..." value="${row.npc}" onchange="updateEventData('npc', this.value, ${rIdx})" style="flex:1;">
+                    <input type="text" class="event-input" placeholder="Имя NPC..." value="${taskTexts.npc}" onchange="updateEventData('npc', this.value, ${rIdx})" style="flex:1; font-weight:bold;">
                 </div>
                 <button class="action-btn" style="width:85px; margin-left:10px; justify-content:center; background:${examBg}; color:${examColor}; border-color:${row.exam ? 'var(--green)' : 'rgba(239,68,68,0.3)'}" onclick="toggleEventExam(${rIdx})">${examStatus}</button>
             </div>
             <div style="display:flex; gap:10px; align-items:center; margin-bottom:8px;">
-                <input type="text" class="event-input" placeholder="Задание 1..." value="${row.t1}" onchange="updateEventData('t1', this.value, ${rIdx})" style="flex:1;">
+                <input type="text" class="event-input" placeholder="Задание 1..." value="${taskTexts.t1}" onchange="updateEventData('t1', this.value, ${rIdx})" style="flex:1;">
                 ${t1UI}
             </div>
             <div style="display:flex; gap:10px; align-items:center;">
-                <input type="text" class="event-input" placeholder="Задание 2..." value="${row.t2}" onchange="updateEventData('t2', this.value, ${rIdx})" style="flex:1;">
+                <input type="text" class="event-input" placeholder="Задание 2..." value="${taskTexts.t2}" onchange="updateEventData('t2', this.value, ${rIdx})" style="flex:1;">
                 ${t2UI}
             </div>
         </div>
