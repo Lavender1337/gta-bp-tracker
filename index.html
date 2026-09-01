@@ -2219,7 +2219,14 @@ function getEventTimerUI(cIdx, rIdx, tNum, endTime) {
     const now = Date.now();
     if (endTime > now) {
         let rm = Math.ceil((endTime - now) / 1000);
-        return `<button class="action-btn" style="width:85px; justify-content:center; color:var(--gold); border-color:var(--gold); background:rgba(251, 191, 36, 0.1);" onclick="cancelEventTimer(${rIdx}, ${tNum})" id="evt_btn_${cIdx}_${rIdx}_${tNum}">${fmtTime(rm)}</button>`;
+        // Вычисляем точное время завершения (часы и минуты)
+        let targetTime = new Date(endTime).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
+        
+        return `
+        <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
+            <button class="action-btn" style="width:85px; justify-content:center; color:var(--gold); border-color:var(--gold); background:rgba(251, 191, 36, 0.1); padding: 6px 0;" onclick="cancelEventTimer(${rIdx}, ${tNum})" id="evt_btn_${cIdx}_${rIdx}_${tNum}">${fmtTime(rm)}</button>
+            <div style="font-size:10px; font-weight:800; color:var(--accent); letter-spacing:0.5px;">до ${targetTime}</div>
+        </div>`;
     } else {
         return `<button class="action-btn" style="width:85px; justify-content:center; background:rgba(16, 185, 129, 0.1); color:var(--green); border-color:rgba(16, 185, 129, 0.3);" onclick="startEventTimer(${rIdx}, ${tNum})">Выполнил</button>`;
     }
@@ -2301,25 +2308,49 @@ function renderEventTab() {
 
     let cIdx = EVENT_STATE.activeChar;
     let charData = EVENT_STATE.chars[cIdx];
+    let now = Date.now(); // Текущее время для расчетов
 
     // Вкладки персонажей
     let html = `<div class="segment-wrapper" style="margin-bottom:15px; padding: 0;">
         <div class="segment">`;
     for(let i=0; i<3; i++) {
-        html += `<button class="seg-btn ${i === cIdx ? 'active' : ''}" onclick="setEventChar(${i})" style="flex:1; text-align:center;">${EVENT_STATE.chars[i].name}</button>`;
+        let n = EVENT_STATE.chars[i].name;
+        html += `<button class="seg-btn ${i === cIdx ? 'active' : ''}" onclick="setEventChar(${i})" style="flex:1; text-align:center;">${n}</button>`;
     }
     html += `</div></div>`;
 
     // Имя и кнопка VIP
     html += `
-    <div style="display:flex; gap:10px; margin-bottom:15px; align-items:center;">
-        <input type="text" value="${charData.name}" onchange="updateEventData('name', this.value)" class="event-input" placeholder="Укажите имя персонажа" style="flex:1;">
-        <button class="action-btn ${charData.vip ? 'active' : ''}" style="height:36px; padding:0 12px; font-size:13px; font-weight:bold; ${charData.vip ? 'border-color:var(--gold); color:var(--gold); background:rgba(251, 191, 36, 0.1);' : 'color:var(--text-sub);'}" onclick="toggleEventVip()">👑 VIP (${charData.vip ? '5ч' : '6ч'})</button>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; background:var(--bg-card); padding:10px 15px; border-radius:12px; border:1px solid var(--border);">
+        <input type="text" value="${charData.name}" onchange="updateEventData('name', this.value)" class="event-input" placeholder="Имя персонажа" style="font-weight:bold; color:var(--accent) !important; background:transparent !important; border:none !important; font-size:16px; padding:0; flex:1;">
+        <button class="action-btn ${charData.vip ? 'active' : ''}" style="${charData.vip ? 'color:var(--gold); border-color:var(--gold); background:rgba(251,191,36,0.1);' : 'color:var(--text-sub);'}" onclick="toggleEventVip()">👑 VIP (${charData.vip ? '5ч' : '6ч'})</button>
     </div>
     `;
 
-    // 10 строк квестов
-    charData.rows.forEach((row, rIdx) => {
+    // --- УМНАЯ СОРТИРОВКА КАРТОЧЕК ---
+    // Создаем массив индексов [0, 1, ... 9] и сортируем его
+    let sortedIndices = charData.rows.map((_, idx) => idx);
+    sortedIndices.sort((a, b) => {
+        let rA = charData.rows[a], rB = charData.rows[b];
+        let wA, wB;
+        
+        // Готово ли хотя бы одно задание? (Если 0 или время вышло)
+        let a1Ready = !rA.t1Time || rA.t1Time <= now;
+        let a2Ready = !rA.t2Time || rA.t2Time <= now;
+        // Вес 0 (наверх), иначе берем минимальное время до конца
+        if (a1Ready || a2Ready) wA = 0; else wA = Math.min(rA.t1Time, rA.t2Time);
+
+        let b1Ready = !rB.t1Time || rB.t1Time <= now;
+        let b2Ready = !rB.t2Time || rB.t2Time <= now;
+        if (b1Ready || b2Ready) wB = 0; else wB = Math.min(rB.t1Time, rB.t2Time);
+
+        return wA - wB; // Сортируем по весу (ближайшие наверху)
+    });
+
+    // Отрисовка отсортированных строк
+    sortedIndices.forEach((rIdx) => {
+        let row = charData.rows[rIdx];
+        
         let examStatus = row.exam ? '✅ Сдан' : '❌ Не сдан';
         let examColor = row.exam ? 'var(--green)' : 'var(--red)';
         let examBg = row.exam ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)';
@@ -2327,22 +2358,24 @@ function renderEventTab() {
         let t1UI = getEventTimerUI(cIdx, rIdx, 1, row.t1Time);
         let t2UI = getEventTimerUI(cIdx, rIdx, 2, row.t2Time);
 
+        // Сохраняем оригинальный номер карточки для удобства (от #1 до #10)
+        let displayNum = rIdx + 1;
+
         html += `
         <div class="event-card">
-            <div style="display:flex; gap:10px; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:10px;">
-                <div style="display:flex; align-items:center; gap:8px; flex:1;">
-                    <div style="font-size:12px; color:var(--text-sub); font-weight:800; background:rgba(255,255,255,0.05); padding:4px 8px; border-radius:6px;">#${rIdx+1}</div>
-                    <input type="text" value="${row.npc}" onchange="updateEventData('npc', this.value, ${rIdx})" class="event-input" placeholder="Имя NPC..." style="flex:1;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:10px; margin-bottom:10px;">
+                <div style="display:flex; gap:8px; align-items:center; flex:1;">
+                    <span style="background:rgba(255,255,255,0.05); padding:4px 8px; border-radius:6px; font-weight:bold; font-size:12px; color:var(--text-sub);">#${displayNum}</span>
+                    <input type="text" class="event-input" placeholder="Имя NPC..." value="${row.npc}" onchange="updateEventData('npc', this.value, ${rIdx})" style="flex:1;">
                 </div>
-                <button class="action-btn" style="color:${examColor}; background:${examBg}; border-color:rgba(255,255,255,0.05); width:85px; justify-content:center; font-size:11px;" onclick="toggleEventExam(${rIdx})">${examStatus}</button>
+                <button class="action-btn" style="width:85px; margin-left:10px; justify-content:center; background:${examBg}; color:${examColor}; border-color:${row.exam ? 'var(--green)' : 'rgba(239,68,68,0.3)'}" onclick="toggleEventExam(${rIdx})">${examStatus}</button>
             </div>
-
-            <div style="display:flex; gap:8px; align-items:center;">
-                <input type="text" value="${row.t1}" onchange="updateEventData('t1', this.value, ${rIdx})" class="event-input" placeholder="Задание 1..." style="flex:1;">
+            <div style="display:flex; gap:10px; align-items:center; margin-bottom:8px;">
+                <input type="text" class="event-input" placeholder="Задание 1..." value="${row.t1}" onchange="updateEventData('t1', this.value, ${rIdx})" style="flex:1;">
                 ${t1UI}
             </div>
-            <div style="display:flex; gap:8px; align-items:center;">
-                <input type="text" value="${row.t2}" onchange="updateEventData('t2', this.value, ${rIdx})" class="event-input" placeholder="Задание 2..." style="flex:1;">
+            <div style="display:flex; gap:10px; align-items:center;">
+                <input type="text" class="event-input" placeholder="Задание 2..." value="${row.t2}" onchange="updateEventData('t2', this.value, ${rIdx})" style="flex:1;">
                 ${t2UI}
             </div>
         </div>
