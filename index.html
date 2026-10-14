@@ -6,75 +6,149 @@
     <title>GTA Helper v23 — Command Center</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-    // Embedded drag-and-drop for Telegram Mini App: no extra JS file or CDN.
-    // Interface compatible with Sortable.create(...) calls used below.
+    // GTA HELPER PRO: animated, touch-first Sortable implementation, embedded in index.html.
+    // Ghost follows the finger, placeholder marks the landing spot, neighbours move with FLIP.
     (function(){
-        const instances=new WeakMap();
-        const directChildren=root=>Array.from(root.children).filter(e=>e.nodeType===1&&!e.classList.contains('empty-fav-msg'));
-        function create(root,options={}){
-            if(!root)return null;
-            const old=instances.get(root);if(old)old.destroy();
-            let gesture=null;
-            const isFiltered=node=>options.filter && node.closest(options.filter);
-            const matchesHandle=node=>!options.handle || node.closest(options.handle);
-            function onDown(e){
-                if(e.button!==undefined&&e.button!==0)return;
-                if(isFiltered(e.target)||!matchesHandle(e.target))return;
-                const item=directChildren(root).find(x=>x.contains(e.target));
-                if(!item)return;
-                gesture={item,from:root,to:root,oldIndex:directChildren(root).indexOf(item),x:e.clientX,y:e.clientY,dragging:false,pointerId:e.pointerId};
-            }
-            function onMove(e){
-                if(!gesture||e.pointerId!==gesture.pointerId)return;
-                if(!gesture.dragging){
-                    if(Math.hypot(e.clientX-gesture.x,e.clientY-gesture.y)<9)return;
-                    gesture.dragging=true;
-                    gesture.item.classList.add('gh-sort-dragging');
-                }
-                e.preventDefault();
-                const at=document.elementFromPoint(e.clientX,e.clientY);
-                if(!at)return;
-                let toRoot=root;
-                if(options.group){
-                    const any=Array.from(document.querySelectorAll('#favoriteTimers,#timerGrid'))
-                        .find(el=>el===at||el.contains(at));
-                    if(any)toRoot=any;
-                    else return;
-                }else if(!root.contains(at)&&at!==root)return;
-                const others=directChildren(toRoot).filter(el=>el!==gesture.item);
-                const over=others.find(el=>el.contains(at));
-                if(over){
-                    const r=over.getBoundingClientRect();
-                    const before=(e.clientY<r.top+r.height/2);
-                    toRoot.insertBefore(gesture.item,before?over:over.nextSibling);
-                }else if(toRoot!==gesture.item.parentNode){
-                    toRoot.appendChild(gesture.item);
-                }
-                gesture.to=toRoot;
-            }
-            function onUp(e){
-                if(!gesture||e.pointerId!==gesture.pointerId)return;
-                const g=gesture;gesture=null;
-                if(!g.dragging)return;
-                g.item.classList.remove('gh-sort-dragging');
-                const index=directChildren(g.to).indexOf(g.item);
-                if(g.from!==g.to||g.oldIndex!==index){
-                    try{options.onEnd?.({item:g.item,from:g.from,to:g.to,oldIndex:g.oldIndex,newIndex:index})}
-                    catch(error){console.error('Sort callback',error)}
-                }
-            }
-            function onCancel(){if(gesture){gesture.item.classList.remove('gh-sort-dragging');gesture=null}}
-            function onClick(e){if(e.target.closest('.gh-sort-dragging')){e.preventDefault();e.stopPropagation()}}
-            root.addEventListener('pointerdown',onDown);
-            document.addEventListener('pointermove',onMove,{passive:false});
-            document.addEventListener('pointerup',onUp);
-            document.addEventListener('pointercancel',onCancel);
-            root.addEventListener('click',onClick,true);
-            const instance={destroy(){root.removeEventListener('pointerdown',onDown);document.removeEventListener('pointermove',onMove);document.removeEventListener('pointerup',onUp);document.removeEventListener('pointercancel',onCancel);root.removeEventListener('click',onClick,true);onCancel();}};
-            instances.set(root,instance);
-            return instance;
+      'use strict';
+      const instances=new WeakMap();
+      const children=root=>Array.from(root.children).filter(e=>e.nodeType===1&&!e.classList.contains('empty-fav-msg'));
+      const reduced=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      const isElement=x=>x&&x.nodeType===1;
+      function create(root,options={}){
+        if(!root)return null;
+        instances.get(root)?.destroy();
+        let g=null,raf=0,scrollRaf=0,clickBlock=0;
+        const duration=()=>reduced()?0:(Number(options.animation)||210);
+        function placementRoots(){return options.group?
+            ['favoriteTimers','timerGrid'].map(id=>document.getElementById(id)).filter(Boolean):[root]}
+        function dragHandle(target){return !options.handle || !!target.closest(options.handle)}
+        function blocked(target){return !!(options.filter && target.closest(options.filter))}
+        function snapshot(roots){const m=new Map();for(const r of roots)for(const e of children(r))if(e!==g?.item)m.set(e,e.getBoundingClientRect());return m}
+        function animateFlip(before){
+          const time=duration();if(!time)return;
+          for(const [el,old] of before){
+            if(!el.isConnected)continue;
+            const now=el.getBoundingClientRect(),dx=old.left-now.left,dy=old.top-now.top;
+            if(Math.abs(dx)+Math.abs(dy)<1)continue;
+            el.getAnimations?.().filter(a=>a.id==='gh-flip').forEach(a=>a.cancel());
+            try{const a=el.animate([{transform:`translate3d(${dx}px,${dy}px,0)`},{transform:'translate3d(0,0,0)'}],{duration:time,easing:'cubic-bezier(.2,.8,.2,1)'});a.id='gh-flip';}catch(_){}
+          }
         }
-        window.Sortable={create};
+        function onDown(e){
+          if(e.button!==undefined&&e.button!==0 || g || !isElement(e.target))return;
+          const target=e.target;
+          if(blocked(target)||!dragHandle(target))return;
+          const item=children(root).find(el=>el.contains(target));if(!item)return;
+          const rect=item.getBoundingClientRect();
+          g={item,from:root,oldIndex:children(root).indexOf(item),pointerId:e.pointerId,
+             startX:e.clientX,startY:e.clientY,x:e.clientX,y:e.clientY,
+             rect,dragging:false,ghost:null};
+        }
+        function haptic(){try{window.Telegram?.WebApp?.HapticFeedback?.selectionChanged?.()}catch(_){}}
+        function start(){
+          const x=g;if(!x||x.dragging)return;
+          x.dragging=true;
+          const clone=x.item.cloneNode(true);
+          clone.removeAttribute('id');clone.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
+          clone.classList.add('gh-sort-floating');clone.classList.remove('gh-sort-placeholder');
+          clone.setAttribute('aria-hidden','true');clone.querySelectorAll('button,input,select,textarea').forEach(el=>el.tabIndex=-1);
+          Object.assign(clone.style,{width:x.rect.width+'px',height:x.rect.height+'px',left:x.rect.left+'px',top:x.rect.top+'px',position:'fixed',margin:'0',pointerEvents:'none',zIndex:'99999',boxSizing:'border-box'});
+          x.ghost=clone;
+          document.body.appendChild(clone);
+          x.item.classList.add('gh-sort-placeholder');document.documentElement.classList.add('gh-sorting-active');
+          root.setAttribute('data-gh-sorting','true');
+          haptic();
+        }
+        function follow(){
+          raf=0;
+          if(!g||!g.dragging||!g.ghost)return;
+          g.ghost.style.transform=`translate3d(${g.x-g.startX}px,${g.y-g.startY}px,0) rotate(-1.5deg) scale(1.035)`;
+        }
+        function movePlaceholder(){
+          if(!g||!g.dragging)return;
+          const at=document.elementFromPoint(g.x,g.y);if(!at)return;
+          let targetRoot;
+          if(options.group)targetRoot=placementRoots().find(el=>el===at||el.contains(at));
+          else if(root===at||root.contains(at))targetRoot=root;
+          if(!targetRoot)return;
+          const others=children(targetRoot).filter(el=>el!==g.item);
+          const content=others.map(el=>({el,rect:el.getBoundingClientRect()}));
+          const closest=content.reduce((best,cur)=>{
+            const dx=Math.max(cur.rect.left-g.x,0,g.x-cur.rect.right);
+            const dy=Math.max(cur.rect.top-g.y,0,g.y-cur.rect.bottom);
+            const dist=dx*dx+dy*dy;
+            return !best||dist<best.dist?{...cur,dist}:best;
+          },null);
+          const before=snapshot(placementRoots());
+          let changed=false;
+          if(closest){
+            const r=closest.rect;
+            // For horizontal templates use X inside the same row; for tasks use Y.
+            const onRow=Math.abs(g.y-(r.top+r.height/2))<r.height*.42 && r.width<135;
+            const insertBefore=onRow?g.x<r.left+r.width/2:g.y<r.top+r.height/2;
+            const anchor=insertBefore?closest.el:closest.el.nextSibling;
+            if(g.item.parentElement!==targetRoot||g.item.nextSibling!==anchor){targetRoot.insertBefore(g.item,anchor);changed=true;}
+          }else if(g.item.parentElement!==targetRoot){targetRoot.appendChild(g.item);changed=true;}
+          if(changed){animateFlip(before);g.lastMove=Date.now();}
+        }
+        function startScroll(){
+          if(scrollRaf)return;
+          function tick(){
+            scrollRaf=0;if(!g||!g.dragging)return;
+            const zone=66,top=45,bottom=window.innerHeight-95;
+            const speed=g.y<top+zone?-Math.min(14,(top+zone-g.y)*.20):g.y>bottom-zone?Math.min(14,(g.y-(bottom-zone))*.20):0;
+            if(speed&&window.scrollY>=0){window.scrollBy(0,speed);movePlaceholder();}
+            scrollRaf=requestAnimationFrame(tick);
+          }
+          scrollRaf=requestAnimationFrame(tick);
+        }
+        function onMove(e){
+          if(!g||e.pointerId!==g.pointerId)return;
+          g.x=e.clientX;g.y=e.clientY;
+          if(!g.dragging){if(Math.hypot(g.x-g.startX,g.y-g.startY)<7)return;start();}
+          if(e.cancelable)e.preventDefault();
+          if(!raf)raf=requestAnimationFrame(follow);
+          movePlaceholder();startScroll();
+        }
+        function clear(animate){
+          if(!g)return;const x=g;g=null;
+          cancelAnimationFrame(raf);raf=0;cancelAnimationFrame(scrollRaf);scrollRaf=0;
+          document.documentElement.classList.remove('gh-sorting-active');root.removeAttribute('data-gh-sorting');
+          x.item.classList.remove('gh-sort-placeholder');
+          if(x.ghost){
+            const el=x.ghost;
+            if(animate&&!reduced()){
+              const end=x.item.getBoundingClientRect(),left=x.rect.left+x.x-x.startX,top=x.rect.top+x.y-x.startY;
+              // Set fixed destination; clean up after the settle animation.
+              el.style.transform='none';el.style.left=left+'px';el.style.top=top+'px';
+              el.animate([{left:left+'px',top:top+'px',opacity:1,transform:'scale(1.035)'},{left:end.left+'px',top:end.top+'px',opacity:.4,transform:'scale(1)'}],{duration:180,easing:'ease-out'}).finished.catch(()=>{}).finally(()=>el.remove());
+              setTimeout(()=>el.remove(),350);
+            }else el.remove();
+          }
+          return x;
+        }
+        function onUp(e){
+          if(!g||e.pointerId!==g.pointerId)return;
+          const x=clear(true);if(!x.dragging)return;
+          clickBlock=Date.now()+350;
+          const to=x.item.parentElement||x.from;
+          const index=children(to).indexOf(x.item);
+          if(x.from!==to||index!==x.oldIndex){
+            haptic();
+            try{options.onEnd?.({item:x.item,from:x.from,to,oldIndex:x.oldIndex,newIndex:index})}catch(err){console.error('Drag end:',err)}
+          }
+        }
+        function onCancel(){clear(false)}
+        function onClick(e){if(Date.now()<clickBlock){e.preventDefault();e.stopPropagation();}}
+        root.addEventListener('pointerdown',onDown);
+        document.addEventListener('pointermove',onMove,{passive:false});
+        document.addEventListener('pointerup',onUp);
+        document.addEventListener('pointercancel',onCancel);
+        root.addEventListener('click',onClick,true);
+        const instance={destroy(){root.removeEventListener('pointerdown',onDown);document.removeEventListener('pointermove',onMove);document.removeEventListener('pointerup',onUp);document.removeEventListener('pointercancel',onCancel);root.removeEventListener('click',onClick,true);clear(false);}};
+        instances.set(root,instance);return instance;
+      }
+      window.Sortable={create};
     })();
     </script>
 <style>
@@ -1262,6 +1336,50 @@ body[class*="theme-white"] .stat-val{color:var(--accent)!important}
 #tab-event .event-card .action-btn{flex:none!important;min-width:75px;width:auto!important;max-width:100px;white-space:nowrap;font-size:10px!important;padding:8px 7px!important}
 #tab-event #eventTabContent>.segment-wrapper .seg-btn{min-width:0;padding:9px 7px!important;white-space:normal;font-size:11px}
 #tab-event #eventTabContent>.segment-wrapper .segment{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+
+/* GTA PRO: drag overlay + FLIP movement, touch friendly on Telegram mobile */
+.gh-sort-placeholder{opacity:.22!important;transform:scale(.975);border:2px dashed var(--accent)!important;background:color-mix(in srgb,var(--accent) 6%,var(--bg-card))!important;filter:saturate(.65);}
+.gh-sort-floating{opacity:.98!important;border-color:var(--accent)!important;background:var(--bg-card)!important;border-radius:15px!important;box-shadow:0 26px 75px rgba(0,0,0,.52),0 0 0 2px var(--accent-glow)!important;overflow:hidden;will-change:transform;transform-origin:center;user-select:none!important;-webkit-user-select:none!important;}
+.gh-sort-floating:before{content:'';pointer-events:none;position:absolute;inset:0;border:1px solid var(--accent);border-radius:inherit;z-index:8;}
+.gh-sorting-active,.gh-sorting-active *{cursor:grabbing!important;}
+.gh-sorting-active{overscroll-behavior:contain;user-select:none!important;-webkit-user-select:none!important;}
+#listBP .drag-handle,#listSelectedSort .drag-sort-item,#contractUsersList .drag-handle-c,.drag-template{touch-action:none;-webkit-touch-callout:none;}
+#listBP .drag-handle,#contractUsersList .drag-handle-c{cursor:grab;}
+#favoriteTimers,#timerGrid{min-height:90px;transition:background .2s ease,border-color .2s ease;}
+#favoriteTimers:has(.gh-sort-placeholder),#timerGrid:has(.gh-sort-placeholder){background:color-mix(in srgb,var(--accent) 4%,transparent);}
+/* Photo-to-fish OCR */
+.fish-ocr-panel{overflow:hidden}
+.fish-ocr-picker{display:flex;align-items:center;gap:13px;border:1px dashed color-mix(in srgb,var(--accent) 50%,var(--border));background:color-mix(in srgb,var(--accent) 6%,var(--bg-card));padding:13px;border-radius:15px;cursor:pointer;margin-top:12px;}
+.fish-ocr-picker .fish-ocr-camera{width:42px;height:42px;display:grid;place-items:center;border-radius:12px;font-size:22px;background:var(--bg-card);flex-shrink:0}
+.fish-ocr-picker>span:nth-child(2){display:flex;flex-direction:column;gap:3px;flex:1;min-width:0}
+.fish-ocr-picker b{font-size:13px;color:var(--text-main)}
+.fish-ocr-picker small{font-size:10px;color:var(--text-sub)}
+.fish-ocr-arrow{font-size:20px;color:var(--accent);font-weight:800}
+.fish-ocr-preview{margin-top:10px;border:1px solid var(--border);border-radius:13px;padding:8px;background:var(--bg-card)}
+.fish-ocr-preview img{width:100%;max-height:260px;object-fit:contain;border-radius:8px;display:block;}
+.fish-ocr-preview-info{display:flex;gap:9px;align-items:center;justify-content:space-between;font-size:11px;color:var(--text-sub);padding:7px 3px 1px;overflow:hidden;}
+#fishOcrFileName{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fish-ocr-progress{border:1px solid var(--border);border-radius:12px;padding:11px;margin-top:10px;font-size:12px;color:var(--text-sub)}
+.fish-ocr-review-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:16px 0 9px;font-size:13px;}
+.fish-ocr-rows{display:flex;flex-direction:column;gap:10px;}
+.fish-ocr-row{border:1px solid var(--border);border-radius:13px;padding:10px;background:var(--bg-card);}
+.fish-ocr-row-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px;}
+.fish-ocr-row-top label{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text-sub);}
+.fish-ocr-row-top input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px;}
+.fish-ocr-row .cc-input{width:100%;box-sizing:border-box;}
+.fish-ocr-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:8px;}
+.fish-ocr-fields label{font-size:10px;color:var(--text-sub);min-width:0;display:flex;flex-direction:column;gap:4px;}
+.fish-ocr-fields input{max-width:100%;min-width:0!important;box-sizing:border-box;font-size:12px!important;padding:9px 5px!important;}
+.fish-ocr-debug{margin-top:13px;padding:10px;border:1px solid var(--border);border-radius:12px;color:var(--text-sub);font-size:11px;}
+.fish-ocr-debug summary{cursor:pointer}
+.fish-ocr-debug textarea{width:100%;box-sizing:border-box;margin-top:8px;background:var(--input-bg)!important;color:var(--text-main)!important;resize:vertical;}
+.fish-ocr-error{color:var(--red)!important;margin-top:10px!important}
+#fishOcrStart:disabled{opacity:.45}
+/* Dedicated grab grips prevent accidental drags while scrolling Telegram */
+#tab-timers .timer-card.drag-template{touch-action:pan-y!important;cursor:default!important}
+#tab-timers .gh-timer-grip{display:flex;align-items:center;justify-content:center;flex:0 0 27px;width:27px;height:34px;border-radius:9px;background:color-mix(in srgb,var(--accent) 9%,transparent);color:var(--accent);cursor:grab;font-size:23px;font-weight:700;touch-action:none!important;user-select:none;-webkit-user-select:none}
+#tab-bp .drag-handle{min-width:27px!important;width:27px!important;min-height:35px!important;font-size:19px!important;color:var(--accent)!important;border-radius:7px;background:color-mix(in srgb,var(--accent) 8%,transparent)}
+#tab-contracts .drag-handle-c{display:inline-flex;justify-content:center;align-items:center;width:27px;min-height:33px;color:var(--accent)!important;touch-action:none!important;border-radius:7px;background:color-mix(in srgb,var(--accent) 8%,transparent)}
 </style>
 </head>
 <body>
@@ -1327,7 +1445,19 @@ body[class*="theme-white"] .stat-val{color:var(--accent)!important}
 </div></div>
 
 <div id="tab-fishing" class="tab-content"><button class="cc-back" onclick="go('services')">← Инструменты</button><div class="cc-top" style="padding-top:5px"><div><div class="cc-eyebrow">OPTIMIZATION ENGINE</div><div class="cc-heading">🐟 РЫБАЛКА PRO</div></div></div><div class="cc-container">
- <div class="cc-panel"><div class="cc-panel-title">Добавить улов</div><div class="cc-mini" style="margin-bottom:10px">Вес и стоимость <b>одной рыбы</b>. Если поймал несколько одинаковых, укажи количество. Вместимость — 10 кг.</div><div class="cc-form-row"><input id="fishName" class="cc-input" type="text" maxlength="55" placeholder="Название рыбы" aria-label="Название рыбы"></div><div class="cc-form-row" style="margin-top:8px"><input id="fishWeight" class="cc-input" type="number" min="0.001" max="10" step="0.001" placeholder="Вес, кг"><input id="fishPrice" class="cc-input" type="number" min="0.01" step="0.01" placeholder="Цена, $"><input id="fishQty" class="cc-input" type="number" min="1" max="40" step="1" value="1" style="flex:.65" title="Количество"></div><button class="cc-btn primary" style="width:100%;margin-top:10px" onclick="addFish()">+ Добавить рыбу</button></div>
+ <div class="cc-panel fish-ocr-panel">
+  <div class="cc-panel-title"><span>📷 Улов со скриншота</span><span class="cc-chip">OCR · BETA</span></div>
+  <p class="cc-mini">Загрузи скриншот инвентаря или карточек рыбы. Бот попробует найти <b>вес и цену</b> каждой позиции. Проверь распознанные значения перед добавлением: OCR может ошибаться.</p>
+  <label class="fish-ocr-picker" for="fishOcrFile"><span class="fish-ocr-camera">📸</span><span><b>Выбрать фото / скриншот</b><small>PNG, JPG, WEBP · до 15 МБ</small></span><span class="fish-ocr-arrow">＋</span></label>
+  <input id="fishOcrFile" type="file" accept="image/png,image/jpeg,image/webp,image/*" hidden onchange="fishOcrLoadFile(this)">
+  <div id="fishOcrPreviewWrap" class="fish-ocr-preview" hidden><img id="fishOcrPreview" alt="Загруженный скриншот" loading="lazy"><div class="fish-ocr-preview-info"><span id="fishOcrFileName"></span><button class="cc-link" type="button" onclick="fishOcrReset()">Удалить</button></div></div>
+  <button id="fishOcrStart" class="cc-btn primary" style="width:100%;margin-top:10px" type="button" onclick="fishOcrStart()" disabled>✨ Распознать рыбу</button>
+  <div id="fishOcrProgressWrap" class="fish-ocr-progress" hidden><div class="cc-flex"><span id="fishOcrStatus">Подготовка…</span><b id="fishOcrPercent">0%</b></div><div class="cc-hbar"><div id="fishOcrBar" style="width:0%"></div></div></div>
+  <div id="fishOcrReview" hidden><div class="fish-ocr-review-heading"><strong>Проверь улов</strong><span id="fishOcrReviewCount" class="cc-chip"></span></div><div id="fishOcrRows" class="fish-ocr-rows"></div><div class="cc-form-row" style="margin-top:12px"><button type="button" class="cc-btn" onclick="fishOcrAddRow()">+ Строка</button><button type="button" class="cc-btn primary" style="flex:1" onclick="fishOcrImport()">✓ Добавить проверенные</button></div><details class="fish-ocr-debug"><summary>Распознанный текст (для проверки)</summary><textarea id="fishOcrText" rows="7" aria-label="Текст распознавания — можно исправить вручную"></textarea><button type="button" class="cc-btn" onclick="fishOcrReparse()">Повторно разобрать текст</button></details></div>
+  <p id="fishOcrError" class="cc-mini fish-ocr-error" role="status" hidden></p>
+  <p class="cc-mini" style="margin:11px 0 0">Обработка фото выполняется в браузере. При первом запуске скачиваются модели распознавания русского и английского. Результат можно исправить вручную.</p>
+</div>
+<div class="cc-panel"><div class="cc-panel-title">Добавить улов</div><div class="cc-mini" style="margin-bottom:10px">Вес и стоимость <b>одной рыбы</b>. Если поймал несколько одинаковых, укажи количество. Вместимость — 10 кг.</div><div class="cc-form-row"><input id="fishName" class="cc-input" type="text" maxlength="55" placeholder="Название рыбы" aria-label="Название рыбы"></div><div class="cc-form-row" style="margin-top:8px"><input id="fishWeight" class="cc-input" type="number" min="0.001" max="10" step="0.001" placeholder="Вес, кг"><input id="fishPrice" class="cc-input" type="number" min="0.01" step="0.01" placeholder="Цена, $"><input id="fishQty" class="cc-input" type="number" min="1" max="40" step="1" value="1" style="flex:.65" title="Количество"></div><button class="cc-btn primary" style="width:100%;margin-top:10px" onclick="addFish()">+ Добавить рыбу</button></div>
  <div class="cc-panel"><div class="cc-panel-title">🏆 Оптимальный стак <button class="cc-link" onclick="clearFish()">Очистить</button></div><div id="fishResult" class="cc-mini">Добавь улов для расчёта.</div></div>
  <div class="cc-panel"><div class="cc-panel-title">Весь улов</div><div id="fishList"></div></div>
  <div id="fishMoodNote" class="cc-notice">Если настроение ниже 30, по твоим данным скупщики платят неполную цену. Неизвестный процент скидки автоматически не придумывается.</div>
@@ -1339,7 +1469,7 @@ body[class*="theme-white"] .stat-val{color:var(--accent)!important}
  </div></div>
 
 <div id="tab-bp" class="tab-content">
-<div class="pro-masthead"><div><div class="pro-eyebrow">BONUS POINTS</div><h1>Бонус поинты</h1><p>Задания, награды и прогресс</p></div><div class="pro-head-icon"><img src="img/casino_img.png" alt="" loading="lazy"></div></div>
+<div class="pro-masthead"><div><div class="pro-eyebrow">BONUS POINTS</div><h1>Бонусные баллы</h1><p>Задания, награды и прогресс</p></div><div class="pro-head-icon"><img src="img/casino_img.png" alt="" loading="lazy"></div></div>
     <div class="bp-hero glass-hero" style="margin-bottom: 12px;">
         <div class="hero-stats-grid">
             <div class="stat-box"><div class="stat-val" id="totalBp">0</div><div class="stat-label">BP</div></div>
@@ -2683,7 +2813,7 @@ function renderTimerPresets() {
             <div class="timer-card drag-template" data-id="${t.id}">
                 ${delBtnHTML}
                 <div style="display:flex; align-items:center; gap:8px; width:100%;">
-                    <div style="color:#555; font-size:16px; font-weight:bold; letter-spacing:-2px; cursor:grab;">⋮⋮</div>
+                    <div class="gh-timer-grip" title="Перетащить таймер" aria-label="Перетащить таймер">⠿</div>
                     <div style="flex:1; min-width:0; padding-right:16px;">
                         <div style="font-size:12px; font-weight:700; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${ccEscape(t.l)}</div>
                         <div style="font-size:11px; font-weight:800; color:var(--text-sub); font-family:monospace; margin-top:2px;">⏱ ${timeStr}</div>
@@ -2714,7 +2844,7 @@ function setupTimersDragAndDrop() {
     if (!favEl || !gridEl) return;
 
     const sortableOptions = {
-        group: 'shared-timers', animation: 150, handle: '.drag-template',
+        group: 'shared-timers', animation: 230, handle: '.gh-timer-grip',
         filter: 'button, input, select', // ВАЖНО: запрещаем тянуть за кнопки
         preventOnFilter: false, // ВАЖНО: разрешаем кнопкам нажиматься
         onEnd: function () {
@@ -3017,7 +3147,7 @@ function setupDragAndDrop() {
     const list = document.getElementById('listBP');
     Sortable.create(list, {
         handle: '.drag-handle',
-        animation: 150,
+        animation: 230,
         onEnd: function (evt) {
             const itemEl = evt.item;
             const idMoved = parseInt(itemEl.getAttribute('data-id'));
@@ -3827,7 +3957,7 @@ function setupSortModeDrag() {
     
     editSortableInstance = Sortable.create(list, {
         handle: '.drag-sort-item',
-        animation: 150,
+        animation: 230,
         onEnd: function () {
             const newOrder = [];
             list.querySelectorAll('.drag-sort-item').forEach(el => newOrder.push(parseInt(el.getAttribute('data-id'))));
@@ -4227,6 +4357,182 @@ function renderContracts() {
     
     setupContractSortable();
 }
+
+/* ===== Screenshot Fish OCR (Telegram Mini App / in-device) ===== */
+let FISH_OCR_FILE=null,FISH_OCR_URL='',FISH_OCR_BUSY=false,FISH_OCR_ROWS=[],FISH_OCR_TEXT='';
+const fishOcrEl=id=>document.getElementById(id);
+function fishOcrStatus(txt,pct){
+  const msg=fishOcrEl('fishOcrStatus'),percent=fishOcrEl('fishOcrPercent'),bar=fishOcrEl('fishOcrBar');
+  if(msg)msg.textContent=txt;if(percent)percent.textContent=Math.round(pct||0)+'%';if(bar)bar.style.width=Math.max(0,Math.min(100,pct||0))+'%';
+}
+function fishOcrReset(){
+  if(FISH_OCR_BUSY)return;
+  if(FISH_OCR_URL)URL.revokeObjectURL(FISH_OCR_URL);FISH_OCR_URL='';FISH_OCR_FILE=null;FISH_OCR_ROWS=[];FISH_OCR_TEXT='';
+  const file=fishOcrEl('fishOcrFile');if(file)file.value='';
+  ['fishOcrPreviewWrap','fishOcrProgressWrap','fishOcrReview','fishOcrError'].forEach(id=>{const el=fishOcrEl(id);if(el)el.hidden=true;});
+  fishOcrEl('fishOcrStart').disabled=true;
+}
+function fishOcrLoadFile(input){
+  const file=input?.files?.[0];if(!file)return;
+  if(!file.type.startsWith('image/')||file.size>15*1024*1024){
+    fishOcrReset();showToast('Выбери изображение до 15 МБ','error');return;
+  }
+  if(FISH_OCR_URL)URL.revokeObjectURL(FISH_OCR_URL);
+  FISH_OCR_FILE=file;FISH_OCR_URL=URL.createObjectURL(file);FISH_OCR_ROWS=[];FISH_OCR_TEXT='';
+  fishOcrEl('fishOcrPreview').src=FISH_OCR_URL;
+  fishOcrEl('fishOcrFileName').textContent=file.name;
+  fishOcrEl('fishOcrPreviewWrap').hidden=false;
+  fishOcrEl('fishOcrReview').hidden=true;
+  fishOcrEl('fishOcrError').hidden=true;
+  fishOcrEl('fishOcrProgressWrap').hidden=true;
+  fishOcrEl('fishOcrStart').disabled=false;
+}
+function fishOcrScript(){
+  if(window.Tesseract)return Promise.resolve();
+  if(window.__ghTesseractPromise)return window.__ghTesseractPromise;
+  window.__ghTesseractPromise=new Promise((resolve,reject)=>{
+    const s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';s.async=true;
+    const timeout=setTimeout(()=>{s.remove();reject(new Error('Истекло время загрузки OCR-движка'))},25000);
+    s.onload=()=>{clearTimeout(timeout);if(window.Tesseract)resolve();else reject(new Error('Не удалось запустить OCR'))};
+    s.onerror=()=>{clearTimeout(timeout);reject(new Error('Нет доступа к серверу OCR-библиотеки'))};
+    document.head.appendChild(s);
+  }).catch(error=>{window.__ghTesseractPromise=null;throw error});
+  return window.__ghTesseractPromise;
+}
+function fishOcrNorm(s){return String(s||'').replace(/\u00a0/g,' ').replace(/[−–—]/g,'-').replace(/(\d)\s+(?=\d{3}\b)/g,'$1').trim()}
+function fishOcrExtractWeight(line){
+  // Recognize 1,25 кг; 1250 г; mixed script units (КГ / kg / kг).
+  const t=fishOcrNorm(line).replace(/(\d)\s*[,;:]\s*(\d)/g,'$1.$2');
+  const m=t.match(/(\d{1,5}(?:\.\d{1,3})?)\s*(к\s*[гr]|k\s*[gг]|гр(?:амм)?|г|g)(?!\p{L})/iu);
+  if(m){const n=Number(m[1]);return /^(г|гр|g)/i.test(m[2])?n/1000:n;}
+  const tagged=t.match(/(?:вес|weight|масса)\s*[:\-]?\s*(\d{1,5}(?:\.\d{1,3})?)/iu);
+  return tagged?Number(tagged[1]):null;
+}
+function fishOcrExtractPrice(line){
+  const t=fishOcrNorm(line).replace(/(\d)\s*[,;:]\s*(\d)/g,'$1.$2');
+  const m=t.match(/(?:\$|₴)\s*(\d{1,8}(?:\.\d{1,3})?)/u)||t.match(/(\d{1,8}(?:\.\d{1,3})?)\s*(?:\$|₴|грн|usd)(?!\p{L})/iu);
+  if(m){const raw=m[1];return /^[0-9]{1,3}[.,][0-9]{3}$/.test(raw)?Number(raw.replace(/[.,]/g,'')):Number(raw);}
+  const tagged=t.match(/(?:цена|стоимость|price|продажа|выручка)\s*[:\-]?\s*(\d{1,8}(?:\.\d{1,3})?)/iu);
+  return tagged?/^[0-9]{1,3}[.,][0-9]{3}$/.test(tagged[1])?Number(tagged[1].replace(/[.,]/g,'')):Number(tagged[1]):null;
+}
+function fishOcrLooksName(line){
+  const t=line.replace(/[\d.,+\-$₴]/g,'').trim();
+  return t.length>=3&&/[а-яёa-z]/iu.test(t) &&
+         !/(инвентарь|рыбалка|вес|цена|продать|стоимость|цены|стоим|улов|итого|количество|общая|грамм|weight|price|total|кг|склад|команды)/iu.test(t) && t.length<60;
+}
+function fishOcrParseText(text){
+  // Group candidate name + nearest weight and price; never invent missing values.
+  const lines=fishOcrNorm(text).split(/\r?\n/).map(x=>x.replace(/\s{2,}/g,' ').trim()).filter(Boolean);
+  const items=[];let current=null;
+  const flush=()=>{
+    if(current&&(current.w!==null||current.p!==null))items.push(current);
+    current=null;
+  };
+  for(const line of lines){
+    const w=fishOcrExtractWeight(line),p=fishOcrExtractPrice(line);
+    let label=line.replace(/(?:название|name)\s*[:：]?/giu,'').replace(/(?:\$|₴)\s*\d[\d., ]*/gu,' ').replace(/(?:\d[\d., ]*)\s*(?:кг|кг\.|kg|гр|г|\$|₴|грн)(?!\p{L})/giu,' ').replace(/(?:вес|цена|стоимость|продажа|weight|price)\s*[:\-]?/giu,'').replace(/[|·:\-]+/g,' ').trim();
+    const name=fishOcrLooksName(label)?label:'';
+    if(name&&current&&(current.w!==null||current.p!==null)&&((w!==null||p!==null)||items.length<30))flush();
+    if(!current)current={id:'ocr_'+items.length+'_'+Math.random().toString(36).slice(2,5),n:name||'',w:null,p:null,qty:1,selected:true};
+    if(name&&!current.n)current.n=name;
+    if(w!==null&&Number.isFinite(w)&&w>0&&w<=10){
+      if(current.w!==null&&current.p!==null){flush();current={id:'ocr_'+items.length+'_'+Math.random().toString(36).slice(2,5),n:name||'',w:null,p:null,qty:1,selected:true};}
+      current.w=Math.round(w*1000)/1000;
+    }
+    if(p!==null&&Number.isFinite(p)&&p>=0&&p<=1e8){
+      if(current.p!==null&&current.w!==null){flush();current={id:'ocr_'+items.length+'_'+Math.random().toString(36).slice(2,5),n:name||'',w:null,p:null,qty:1,selected:true};}
+      current.p=p;
+    }
+    if(current.w!==null&&current.p!==null)flush();
+    if(items.length>=40)break;
+  }
+  flush();
+  // Text is a proposal only. Incomplete lines appear for editing, not auto-added.
+  return items.slice(0,40);
+}
+function fishOcrEscape(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function fishOcrRender(){
+  const root=fishOcrEl('fishOcrRows');if(!root)return;
+  fishOcrEl('fishOcrReview').hidden=false;
+  fishOcrEl('fishOcrReviewCount').textContent=FISH_OCR_ROWS.length+' строк';
+  root.innerHTML=FISH_OCR_ROWS.map((f,i)=>`<div class="fish-ocr-row" data-ocr="${i}">
+    <div class="fish-ocr-row-top"><label><input type="checkbox" data-field="selected" ${f.selected?'checked':''} aria-label="Добавить позицию"> Позиция ${i+1}</label><button type="button" class="cc-link" data-delete-ocr="${i}">Удалить</button></div>
+    <input class="cc-input" data-field="n" value="${fishOcrEscape(f.n)}" placeholder="Название рыбы" aria-label="Название рыбы">
+    <div class="fish-ocr-fields"><label>Вес, кг<input class="cc-input" data-field="w" type="number" min="0.001" max="10" step="0.001" value="${f.w??''}" placeholder="кг"></label>
+    <label>Цена, $<input class="cc-input" data-field="p" type="number" min="0" step="0.01" value="${f.p??''}" placeholder="$"></label>
+    <label>Штук<input class="cc-input" data-field="qty" type="number" min="1" max="40" step="1" value="${f.qty||1}"></label></div></div>`).join('')||'<p class="cc-mini">Автоматически строки не обнаружены. Можно добавить их вручную по фото.</p>';
+}
+function fishOcrUpdateRow(e){
+  const field=e.target.dataset?.field,wrap=e.target.closest('[data-ocr]');if(!field||!wrap)return;
+  const row=FISH_OCR_ROWS[Number(wrap.dataset.ocr)];if(!row)return;
+  row[field]=field==='selected'?e.target.checked:field==='n'?e.target.value:e.target.value===''?null:Number(e.target.value);
+}
+function fishOcrAddRow(){if(FISH_OCR_ROWS.length>=40)return showToast('До 40 строк за раз','error');FISH_OCR_ROWS.push({n:'',w:null,p:null,qty:1,selected:true});fishOcrRender()}
+function fishOcrReparse(){FISH_OCR_TEXT=fishOcrEl('fishOcrText')?.value||'';if(!FISH_OCR_TEXT)return;FISH_OCR_ROWS=fishOcrParseText(FISH_OCR_TEXT);fishOcrRender();}
+function fishOcrImport(){
+  const selected=FISH_OCR_ROWS.filter(row=>row.selected);
+  const valid=selected.filter(row=>Number(row.w)>0&&Number(row.w)<=10&&row.p!==null&&row.p!==''&&Number(row.p)>=0&&Number.isFinite(Number(row.p))&&Number.isInteger(Number(row.qty))&&row.qty>=1&&row.qty<=40);
+  if(!selected.length)return showToast('Отметь хотя бы одну строку','error');
+  if(valid.length!==selected.length)return showToast('Проверь вес, цену и количество во всех выбранных строках','error');
+  const amount=valid.reduce((sum,row)=>sum+Number(row.qty),0);
+  if(FISH.length+amount>40)return showToast('Всего можно хранить до 40 рыб. Удали часть из списка.','error');
+  const stamp=Date.now();let j=0;
+  for(const row of valid)for(let i=0;i<row.qty;i++)FISH.push({id:'ocr_'+stamp+'_'+(j++),n:String(row.n||'Рыба').trim().slice(0,55),w:Math.round(Number(row.w)*1000)/1000,p:Math.round(Number(row.p)*100)/100});
+  saveFish();FISH_OCR_ROWS=[];fishOcrRender();showToast('Добавлено '+amount+' рыб. Стак пересчитан.','success');
+  fishOcrEl('fishResult')?.scrollIntoView({block:'nearest',behavior:'smooth'});
+}
+async function fishOcrPrepare(file){
+  // Reduce very large mobile screenshots before OCR. Keep original visible for user.
+  const img=await new Promise((resolve,reject)=>{const i=new Image();const url=URL.createObjectURL(file);i.onload=()=>{URL.revokeObjectURL(url);resolve(i)};i.onerror=()=>{URL.revokeObjectURL(url);reject(Error('Не удалось открыть изображение'))};i.src=url;});
+  const max=2400,ratio=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight)),w=Math.round(img.naturalWidth*ratio),h=Math.round(img.naturalHeight*ratio);
+  const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+  const ctx=canvas.getContext('2d',{willReadFrequently:true});if(!ctx)throw Error('Невозможно обработать изображение');
+  ctx.drawImage(img,0,0,w,h);
+  // Desaturate and enhance contrast, useful for dark GTA screenshots.
+  const pixels=ctx.getImageData(0,0,w,h),a=pixels.data;
+  let bright=0;for(let i=0;i<a.length;i+=4)bright+=(a[i]*.299+a[i+1]*.587+a[i+2]*.114);bright=bright/(a.length/4);
+  const invert=bright<115;
+  for(let i=0;i<a.length;i+=4){let v=a[i]*.299+a[i+1]*.587+a[i+2]*.114;if(invert)v=255-v;v=Math.max(0,Math.min(255,((v-128)*1.3)+128));a[i]=a[i+1]=a[i+2]=v;}
+  ctx.putImageData(pixels,0,0);
+  return canvas;
+}
+async function fishOcrStart(){
+  if(!FISH_OCR_FILE||FISH_OCR_BUSY)return;
+  FISH_OCR_BUSY=true;fishOcrEl('fishOcrStart').disabled=true;fishOcrEl('fishOcrError').hidden=true;
+  fishOcrEl('fishOcrProgressWrap').hidden=false;fishOcrEl('fishOcrReview').hidden=true;
+  let worker=null;
+  try{
+    fishOcrStatus('Загружаю движок распознавания…',3);
+    await fishOcrScript();
+    fishOcrStatus('Подготавливаю изображение…',9);
+    const prepared=await fishOcrPrepare(FISH_OCR_FILE);
+    worker=await Tesseract.createWorker('rus+eng',1,{logger:m=>{
+      if(m&&Number.isFinite(m.progress))fishOcrStatus(m.status==='recognizing text'?'Распознаю текст…':'Загружаю языковую модель…',Math.min(95,12+m.progress*83));
+    }});
+    const result=await worker.recognize(prepared);
+    FISH_OCR_TEXT=String(result.data?.text||'').trim();
+    fishOcrEl('fishOcrText').value=FISH_OCR_TEXT;
+    FISH_OCR_ROWS=fishOcrParseText(FISH_OCR_TEXT);
+    if(!FISH_OCR_ROWS.length)FISH_OCR_ROWS.push({n:'',w:null,p:null,qty:1,selected:true});
+    fishOcrRender();fishOcrStatus('Готово: проверь распознанные значения',100);
+    if(FISH_OCR_ROWS.length===1&&!FISH_OCR_ROWS[0].w)showToast('Данные не найдены — проверь текст и заполни строку','info');
+  }catch(e){
+    console.warn('Fish OCR failed',e);
+    const el=fishOcrEl('fishOcrError');el.textContent='Не получилось распознать фото: '+(e.message||'ошибка подключения')+'. Введи рыбу вручную ниже или повтори попытку.';el.hidden=false;
+    fishOcrStatus('Ошибка распознавания',0);
+  }finally{
+    try{await worker?.terminate()}catch(_){}
+    FISH_OCR_BUSY=false;fishOcrEl('fishOcrStart').disabled=!FISH_OCR_FILE;
+  }
+}
+// Delegate edits so re-rendering the review cards never loses change handlers.
+document.addEventListener('input',e=>{if(e.target.closest?.('#fishOcrRows'))fishOcrUpdateRow(e)});
+document.addEventListener('change',e=>{if(e.target.closest?.('#fishOcrRows'))fishOcrUpdateRow(e)});
+document.addEventListener('click',e=>{
+  const b=e.target.closest?.('[data-delete-ocr]');if(!b)return;
+  FISH_OCR_ROWS.splice(Number(b.dataset.deleteOcr),1);fishOcrRender();
+});
 </script>
 <script>
 /* GTA HELPER PRO — cosmetic UX enhancement; legacy state logic remains unchanged. */
