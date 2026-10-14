@@ -2,10 +2,81 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GTA Helper v22 Cloud</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>GTA Helper v23 — Command Center</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <script>
+    // Embedded drag-and-drop for Telegram Mini App: no extra JS file or CDN.
+    // Interface compatible with Sortable.create(...) calls used below.
+    (function(){
+        const instances=new WeakMap();
+        const directChildren=root=>Array.from(root.children).filter(e=>e.nodeType===1&&!e.classList.contains('empty-fav-msg'));
+        function create(root,options={}){
+            if(!root)return null;
+            const old=instances.get(root);if(old)old.destroy();
+            let gesture=null;
+            const isFiltered=node=>options.filter && node.closest(options.filter);
+            const matchesHandle=node=>!options.handle || node.closest(options.handle);
+            function onDown(e){
+                if(e.button!==undefined&&e.button!==0)return;
+                if(isFiltered(e.target)||!matchesHandle(e.target))return;
+                const item=directChildren(root).find(x=>x.contains(e.target));
+                if(!item)return;
+                gesture={item,from:root,to:root,oldIndex:directChildren(root).indexOf(item),x:e.clientX,y:e.clientY,dragging:false,pointerId:e.pointerId};
+            }
+            function onMove(e){
+                if(!gesture||e.pointerId!==gesture.pointerId)return;
+                if(!gesture.dragging){
+                    if(Math.hypot(e.clientX-gesture.x,e.clientY-gesture.y)<9)return;
+                    gesture.dragging=true;
+                    gesture.item.classList.add('gh-sort-dragging');
+                }
+                e.preventDefault();
+                const at=document.elementFromPoint(e.clientX,e.clientY);
+                if(!at)return;
+                let toRoot=root;
+                if(options.group){
+                    const any=Array.from(document.querySelectorAll('#favoriteTimers,#timerGrid'))
+                        .find(el=>el===at||el.contains(at));
+                    if(any)toRoot=any;
+                    else return;
+                }else if(!root.contains(at)&&at!==root)return;
+                const others=directChildren(toRoot).filter(el=>el!==gesture.item);
+                const over=others.find(el=>el.contains(at));
+                if(over){
+                    const r=over.getBoundingClientRect();
+                    const before=(e.clientY<r.top+r.height/2);
+                    toRoot.insertBefore(gesture.item,before?over:over.nextSibling);
+                }else if(toRoot!==gesture.item.parentNode){
+                    toRoot.appendChild(gesture.item);
+                }
+                gesture.to=toRoot;
+            }
+            function onUp(e){
+                if(!gesture||e.pointerId!==gesture.pointerId)return;
+                const g=gesture;gesture=null;
+                if(!g.dragging)return;
+                g.item.classList.remove('gh-sort-dragging');
+                const index=directChildren(g.to).indexOf(g.item);
+                if(g.from!==g.to||g.oldIndex!==index){
+                    try{options.onEnd?.({item:g.item,from:g.from,to:g.to,oldIndex:g.oldIndex,newIndex:index})}
+                    catch(error){console.error('Sort callback',error)}
+                }
+            }
+            function onCancel(){if(gesture){gesture.item.classList.remove('gh-sort-dragging');gesture=null}}
+            function onClick(e){if(e.target.closest('.gh-sort-dragging')){e.preventDefault();e.stopPropagation()}}
+            root.addEventListener('pointerdown',onDown);
+            document.addEventListener('pointermove',onMove,{passive:false});
+            document.addEventListener('pointerup',onUp);
+            document.addEventListener('pointercancel',onCancel);
+            root.addEventListener('click',onClick,true);
+            const instance={destroy(){root.removeEventListener('pointerdown',onDown);document.removeEventListener('pointermove',onMove);document.removeEventListener('pointerup',onUp);document.removeEventListener('pointercancel',onCancel);root.removeEventListener('click',onClick,true);onCancel();}};
+            instances.set(root,instance);
+            return instance;
+        }
+        window.Sortable={create};
+    })();
+    </script>
 <style>
 /* --- ВСЕ СТИЛИ ОСТАВЛЕНЫ БЕЗ ИЗМЕНЕНИЙ (как в исходнике) --- */
 :root {
@@ -776,6 +847,421 @@ body[class*="theme-white"] .event-input {
     border: 1px solid rgba(0,0,0,0.08) !important;
     color: #000 !important;
 }
+
+/* ============ GTA HELPER 23 / SINGLE-FILE UI ============ */
+:root { --nav-height:65px !important; --purple:#ad92ff; --panel-shadow:0 8px 32px rgba(0,0,0,.14); }
+body { background:var(--bg-deep); padding-bottom:calc(88px + env(safe-area-inset-bottom)) !important; }
+body::before { content:""; position:fixed; top:-240px; left:-160px; width:450px; height:450px; pointer-events:none; border-radius:50%; background:radial-gradient(circle,rgba(249,115,22,.06),transparent 68%); z-index:-1; }
+.tab-content { max-width:980px; margin:0 auto; }
+#tab-dashboard,#tab-mood,#tab-services,#tab-fishing,#tab-planner { padding-bottom:35px; }
+.cc-top { padding:25px 17px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.cc-eyebrow { color:var(--text-sub); text-transform:uppercase; font-size:10px; font-weight:800; letter-spacing:2px; }
+.cc-heading { color:var(--text-main); letter-spacing:-.8px; font-size:25px; font-weight:850; margin-top:4px; }
+.cc-heading strong {color:var(--accent);}
+.cc-status {display:flex; gap:6px; align-items:center; background:rgba(16,185,129,.09); color:var(--green); border:1px solid rgba(16,185,129,.18); padding:8px 10px; border-radius:50px; font-size:10px; font-weight:800; white-space:nowrap; }
+.cc-container { padding:0 15px; display:flex; flex-direction:column; gap:13px; }
+.cc-panel { background:var(--bg-card); border:1px solid var(--border); border-radius:20px; padding:16px; box-shadow:var(--panel-shadow); }
+.cc-panel-title { display:flex; align-items:center; justify-content:space-between; font-size:14px; font-weight:850; gap:10px; margin-bottom:14px; }
+.cc-link {border:0; background:transparent; color:var(--accent); font-size:12px; font-weight:750; padding:6px; cursor:pointer; }
+.cc-grid {display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.cc-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+.cc-stat {border:1px solid var(--border); background:rgba(127,127,127,.035); border-radius:14px; padding:13px 9px; min-width:0; }
+.cc-stat-label {font-size:10px; font-weight:700; color:var(--text-sub); }
+.cc-stat-value {font-size:22px; font-weight:850; letter-spacing:-1px; margin-top:5px; font-variant-numeric:tabular-nums; color:var(--text-main); }
+.cc-stat-value.accent {color:var(--accent);}
+.cc-stat-value.good {color:var(--green);}
+.cc-tile { border:1px solid var(--border); background:var(--bg-card); border-radius:17px; padding:14px; text-align:left; color:var(--text-main); cursor:pointer; display:flex; flex-direction:column; gap:9px; min-height:85px; }
+.cc-tile:active,.cc-action:active {transform:scale(.98)}
+.cc-tile-icon { font-size:25px; }
+.cc-tile-label {font-size:13px; font-weight:800;}
+.cc-tile-desc {font-size:11px; color:var(--text-sub); line-height:1.4;}
+.cc-hbar { height:8px; border-radius:20px; background:rgba(128,128,128,.2); overflow:hidden; }
+.cc-hbar > div {height:100%; width:0%; border-radius:20px; background:linear-gradient(90deg,#f97316,#ffc66e); transition:width .35s ease;}
+.cc-hbar.good > div {background:linear-gradient(90deg,#13ad7b,#60e1ac)}
+.cc-flex {display:flex; align-items:center; justify-content:space-between; gap:12px;}
+.cc-mini {font-size:11px; color:var(--text-sub); line-height:1.6;}
+.cc-muted {color:var(--text-sub);}
+.cc-notice {border-radius:14px; padding:13px; border:1px solid rgba(249,115,22,.22); background:rgba(249,115,22,.055); color:var(--text-main); font-size:12px; line-height:1.65; }
+.cc-btn,.cc-action {border:1px solid var(--border); border-radius:12px; padding:10px 12px; font-size:12px; font-weight:800; color:var(--text-main); background:var(--bg-card); cursor:pointer; }
+.cc-btn.primary { background:var(--accent); color:#111; border-color:var(--accent); }
+.cc-btn.success {background:rgba(16,185,129,.1); color:var(--green); border-color:rgba(16,185,129,.3)}
+.cc-btn:disabled,.cc-action:disabled { opacity:.4; cursor:not-allowed; }
+.cc-form-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.cc-form-row input,.cc-form-row select {min-width:0; flex:1; }
+.cc-input {background:var(--input-bg) !important; color:var(--text-main) !important; border:1px solid var(--border) !important; padding:10px !important; border-radius:11px !important; font-size:13px !important; min-width:0; }
+.cc-mood-num {font-size:56px; font-weight:900; line-height:1; letter-spacing:-2px; font-variant-numeric:tabular-nums; color:var(--accent); }
+.cc-quick {display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+.cc-quick .cc-btn {text-align:center; padding:12px 5px; background:rgba(127,127,127,.06);}
+.cc-catalog {display:flex; flex-direction:column; gap:8px;}
+.cc-action {display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%; text-align:left; padding:13px; }
+.cc-action strong {font-size:13px; display:block; line-height:1.3;}
+.cc-action small {font-size:11px; font-weight:500; color:var(--text-sub); display:block; margin-top:4px; line-height:1.5;}
+.cc-delta { font-variant-numeric:tabular-nums; font-size:17px; font-weight:900; white-space:nowrap; color:var(--green); }
+.cc-delta.neg {color:var(--red)}
+.cc-cd {display:flex; gap:4px; align-items:center;}
+.cc-cd button {flex-shrink:0; border:1px solid var(--border); border-radius:9px; color:var(--text-sub); background:transparent; padding:7px; cursor:pointer; }
+.cc-chip {display:inline-flex; padding:5px 9px; border:1px solid var(--border); border-radius:30px; font-size:11px; font-weight:750; color:var(--text-sub); background:rgba(128,128,128,.05);}
+.cc-chip.good {color:var(--green); border-color:rgba(16,185,129,.25)}
+.cc-chip.bad {color:var(--red); border-color:rgba(239,68,68,.3)}
+.cc-history {padding:11px 0; border-bottom:1px solid var(--border); font-size:12px; display:flex; justify-content:space-between; gap:12px; }
+.cc-history:last-child {border-bottom:0}
+.cc-secondary { font-size:11px; color:var(--text-sub); }
+.cc-history-r {text-align:right; flex-shrink:0; font-variant-numeric:tabular-nums}
+.cc-back {margin:12px 15px; padding:9px 12px; background:var(--bg-card); color:var(--accent); border:1px solid var(--border); border-radius:11px; font-size:12px; font-weight:750; cursor:pointer;}
+.cc-progress-note {margin-top:8px; font-size:11px; color:var(--text-sub);}
+.cc-mini-timer {display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border); gap:8px; }
+.cc-mini-timer:last-child{border-bottom:0}
+.cc-mini-timer b {font-size:13px; font-weight:750;}
+.cc-mini-timer time {font-size:14px; color:var(--accent); font-weight:900; font-variant-numeric:tabular-nums}
+.cc-form-label {font-size:12px; color:var(--text-sub); margin-bottom:5px; display:block;}
+.cc-fish-row {display:flex; align-items:center; justify-content:space-between; gap:8px; border-bottom:1px solid var(--border); padding:10px 0; }
+.cc-fish-row:last-child{border-bottom:0}
+.cc-fish-row .cc-btn {padding:7px 10px;}
+.cc-run {background:linear-gradient(135deg,rgba(249,115,22,.16),rgba(249,115,22,.025)); border-color:rgba(249,115,22,.27);}
+.cc-pbar {height:4px; margin:10px 0 0; border-radius:9px; background:var(--border); overflow:hidden;}
+.cc-pbar div {height:100%; background:var(--accent); border-radius:9px;}
+.cc-list {margin:0; padding-left:19px; font-size:12px; line-height:1.9; color:var(--text-main);}
+.cc-kbd {font-size:10px; background:rgba(127,127,127,.12); padding:3px 6px; border-radius:7px; font-weight:700; }
+.bottom-nav {padding:7px 3px calc(5px + env(safe-area-inset-bottom)) !important; height:auto !important; min-height:55px; gap:1px; justify-content:space-evenly; background:color-mix(in srgb,var(--bg-card) 91%,transparent) !important; border-top:1px solid var(--border) !important;}
+.nav-btn {flex:1; padding:5px 1px 7px; border-radius:13px; align-items:center; min-width:0;}
+.nav-btn.active {background:rgba(249,115,22,.09); transform:none; }
+.nav-btn .nav-icon {font-size:21px !important;}
+.nav-btn .nav-label {font-size:10px;}
+@media(min-width:700px) {.cc-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.cc-container{gap:16px}.cc-quick{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:360px) {.cc-stat-value{font-size:18px}.cc-mood-num{font-size:46px}.cc-action{padding:10px}.nav-btn .nav-label{font-size:9px}}
+@media(prefers-reduced-motion: reduce) {*{animation-duration:.01ms !important;transition-duration:.01ms !important}}
+
+/* Telegram Mini App: системные отступы и удобные области нажатия */
+:root{--gh-safe-top:0px;--gh-safe-bottom:0px;--gh-safe-left:0px;--gh-safe-right:0px}
+body{padding-left:var(--gh-safe-left);padding-right:var(--gh-safe-right);overscroll-behavior-y:contain}
+.bottom-nav{padding-bottom:calc(6px + env(safe-area-inset-bottom,0px) + var(--gh-safe-bottom)) !important}
+ .tab-content{padding-top:var(--gh-safe-top)}
+#tab-dashboard .cc-top{padding-top:18px}
+.cc-btn,.cc-action,.cc-tile,.nav-btn{touch-action:manipulation}
+.cc-action{min-height:53px}
+#ccSyncStatus[data-state="ok"]{color:var(--green);border-color:rgba(16,185,129,.3)}
+#ccSyncStatus[data-state="error"]{color:var(--red);border-color:rgba(239,68,68,.3)}
+@media(prefers-reduced-motion:reduce){.cc-hbar>div{transition:none}}
+.gh-sort-dragging{opacity:.7;outline:2px dashed var(--accent)!important;z-index:99!important}
+.drag-handle,.drag-handle-c,.drag-sort-item,.drag-template{touch-action:none}
+
+/* ===========================================================
+   GTA HELPER PRO — PREMIUM SYSTEM • all eleven screens
+   Designed for Telegram WebView. One file, original img paths.
+   =========================================================== */
+:root {
+ --bg-deep:#0b0e13 !important; --bg-card:#171c24 !important; --border:#29313d !important;
+ --text-main:#f0f3f8 !important; --text-sub:#a0abbb !important;
+ --accent:#f8a94c !important; --accent-glow:rgba(248,169,76,.20) !important;
+ --gold:#f6c56e; --green:#4ad9aa; --red:#ff747c; --purple:#b5a5ff;
+ --input-bg:#202734; --input-text:#f0f3f8; --bg-element:#212937; --bar-bg:#121820;
+ --modal-bg:#151b25; --panel-shadow:0 8px 28px rgba(0,0,0,.14);
+ --pro-panel:#171c24; --pro-surface:#202734; --pro-soft:#242d39; --pro-line:#303a49;
+ --pro-shadow:0 10px 28px rgba(0,0,0,.19); --pro-glow:rgba(248,169,76,.14);
+ --pro-nav-bg:rgba(21,27,36,.96);
+ color-scheme:dark;
+}
+body[class*="theme-white"] {
+ --bg-deep:#f4f5f7 !important; --bg-card:#fff !important; --border:#dde2e9 !important;
+ --text-main:#1d2633 !important; --text-sub:#647184 !important;
+ --input-bg:#f0f2f6 !important; --input-text:#1d2633 !important;
+ --bg-element:#f0f2f6 !important; --bar-bg:#f1f3f7 !important; --modal-bg:#fff !important;
+ --pro-panel:#fff; --pro-surface:#f2f4f7; --pro-soft:#e9edf3; --pro-line:#dce2eb;
+ --pro-shadow:0 6px 24px rgba(19,34,59,.07); --pro-glow:rgba(231,138,53,.12);
+ --pro-nav-bg:rgba(255,255,255,.97);
+ color-scheme:light;
+}
+body.theme-white-orange {--accent:#d47b2e !important;--accent-glow:rgba(212,123,46,.15) !important; --gold:#c78a31;--green:#14886c;--red:#d44453;--purple:#8664cf}
+body.theme-white-purple {--accent:#8b64d4 !important;--accent-glow:rgba(139,100,212,.17) !important;--gold:#9b6cb3;--green:#14886c;--red:#d44453;--purple:#8b64d4}
+body.theme-black-purple {--accent:#b99af9 !important;--accent-glow:rgba(185,154,249,.17) !important;--gold:#d5b3ff}
+body.theme-black-red {--accent:#fb8381 !important;--accent-glow:rgba(251,131,129,.14) !important;--gold:#f5a4a2}
+html {scroll-behavior:smooth;scroll-padding-top:12px}
+body {font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:14px;
+  background:var(--bg-deep) !important;color:var(--text-main) !important;
+  padding-bottom:calc(108px + env(safe-area-inset-bottom) + var(--gh-safe-bottom)) !important;
+  -webkit-tap-highlight-color:transparent; text-rendering:optimizeLegibility;}
+body::before {z-index:0;top:-360px;left:-200px;width:700px;height:700px;
+  background:radial-gradient(circle,var(--pro-glow),transparent 62%)}
+body::after {content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(135deg,rgba(255,255,255,.014),transparent 42%,rgba(105,122,143,.012))}
+.tab-content{position:relative;max-width:840px;margin:auto;padding-bottom:34px}
+#tab-bp,#tab-timers,#tab-kitchen,#tab-guides,#tab-contracts,#tab-event{padding-top:0}
+button,input,select,textarea{font-family:inherit}
+button {cursor:pointer;touch-action:manipulation}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--accent)!important;outline-offset:3px}
+img {max-width:100%}
+/* page masthead */
+.cc-top,.pro-masthead{padding:25px 18px 20px!important;display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:74px;box-sizing:border-box}
+.cc-eyebrow,.pro-masthead .pro-eyebrow{font-size:10px;line-height:1.3;font-weight:850;letter-spacing:1.9px;color:var(--accent);opacity:.95}
+.cc-heading,.pro-masthead h1{font-size:clamp(23px,5.8vw,29px);font-weight:900;line-height:1.12;letter-spacing:-1.1px;color:var(--text-main);margin:5px 0 0;text-wrap:balance}
+.cc-heading strong{color:var(--accent)}
+.pro-masthead p{font-size:11px;color:var(--text-sub);margin:7px 0 0;line-height:1.5}
+.pro-head-icon{flex:none;width:46px;height:46px;display:grid;place-items:center;background:var(--pro-surface);border:1px solid var(--pro-line);border-radius:15px;box-shadow:var(--pro-shadow);font-size:25px}
+.pro-head-icon img{width:33px;height:33px;object-fit:contain}
+.cc-status{border:1px solid var(--pro-line)!important;background:var(--pro-surface)!important;border-radius:13px!important;color:var(--accent)!important;height:39px;font-weight:800;padding:0 12px!important}
+.cc-container{padding:0 16px!important;gap:14px!important}
+/* universal cards / hierarchy */
+.cc-panel,.bp-hero,.card,.task-item,.contract-card,.event-card,.timer-card.drag-template,.timer-bubble,.tarot-card-new,.cc-tile,.pro-card{
+ background:var(--pro-panel)!important;border:1px solid var(--pro-line)!important;border-radius:19px!important;
+ box-shadow:var(--pro-shadow)!important;color:var(--text-main)!important;
+}
+.cc-panel{padding:17px!important;overflow:hidden}
+.cc-panel-title{font-size:14px;line-height:1.4;font-weight:850;margin-bottom:14px;letter-spacing:-.2px}
+.cc-chip{background:var(--pro-surface);border-color:var(--pro-line);font-size:10px;letter-spacing:.15px}
+.cc-mini,.cc-secondary,.task-sub,.card-sub,.tc-title{font-size:11px;line-height:1.55;color:var(--text-sub)!important}
+.cc-panel p{margin-top:0}
+.cc-run{background:linear-gradient(145deg,var(--pro-panel) 15%,var(--pro-surface) 140%)!important;
+ border-color:color-mix(in srgb,var(--accent) 38%,var(--pro-line))!important;position:relative}
+.cc-run:before{content:'';position:absolute;right:-90px;top:-125px;width:240px;height:240px;border-radius:100%;
+ background:radial-gradient(circle,var(--pro-glow),transparent 70%);pointer-events:none}
+.cc-run>*{position:relative}
+.cc-stats{gap:9px}
+.cc-stat {padding:14px 10px!important;border-radius:14px;background:var(--pro-surface);border:1px solid var(--pro-line)}
+.cc-stat-value{font-size:clamp(21px,5vw,28px);line-height:1.1;font-weight:900;letter-spacing:-.9px;margin-top:7px}
+.cc-stat-label{font-size:10px;letter-spacing:.12px}
+.cc-tile{padding:15px 14px!important;gap:7px;min-height:120px;transition:transform .18s,border-color .18s,box-shadow .18s}
+.cc-tile:active{transform:scale(.975)}
+.cc-tile:focus-visible,.cc-tile:hover{border-color:var(--accent)!important}
+.cc-tile-icon{font-size:22px;width:41px;height:41px;display:grid;place-items:center;background:var(--pro-surface);border-radius:13px;border:1px solid var(--pro-line);margin-bottom:4px}
+.cc-tile-icon img{width:29px;height:29px;object-fit:contain}
+.cc-tile-label{font-size:13px;letter-spacing:-.2px;line-height:1.2}
+.cc-tile-desc{font-size:11px;line-height:1.4}
+.cc-hbar{height:9px;background:var(--pro-surface);border:1px solid var(--pro-line)}
+.cc-hbar>div{background:linear-gradient(90deg,var(--accent),var(--gold));box-shadow:0 0 18px var(--pro-glow);transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.cc-notice{background:var(--pro-surface)!important;border-color:var(--pro-line)!important;color:var(--text-main)!important}
+.cc-btn,.cc-action,.contract-btn,.action-btn,.remind-btn,.timer-add-btn,.unhide-btn,.tc-btn.start{
+ border-radius:12px!important;transition:background .18s,border-color .18s,transform .18s!important;font-weight:800!important;
+}
+.cc-btn{padding:11px 13px!important;background:var(--pro-surface)!important;border:1px solid var(--pro-line)!important;line-height:1.2}
+.cc-btn.primary,.contract-btn,.unhide-btn,.timer-add-btn{background:var(--accent)!important;color:#14171d!important;border-color:var(--accent)!important;box-shadow:none!important}
+.cc-btn.success{background:color-mix(in srgb,var(--green) 13%,var(--pro-panel))!important;color:var(--green)!important}
+.cc-btn:active,.action-btn:active,.contract-btn:active,.remind-btn:active{transform:scale(.97)}
+.cc-action{background:var(--pro-surface)!important;padding:13px 12px!important;min-height:56px;border-color:var(--pro-line)!important}
+.cc-action strong{font-size:12.5px;color:var(--text-main)!important}
+.cc-delta{font-size:18px;color:var(--green)!important}.cc-delta.neg{color:var(--red)!important}
+.cc-input,input:not([type=checkbox]):not([type=range]):not([type=radio]),select,textarea{
+ background:var(--pro-surface)!important;border:1px solid var(--pro-line)!important;color:var(--text-main)!important;
+ border-radius:12px!important;min-height:38px;box-sizing:border-box;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)!important;box-shadow:0 0 0 3px var(--pro-glow)!important;transform:none!important}
+input[type="range"]{accent-color:var(--accent)}
+option {background:var(--pro-panel)!important;color:var(--text-main)!important}
+body[class*="theme-white"] option {background:#fff!important;color:#1d2633!important}
+/* dashboard */
+#tab-dashboard .cc-top{padding-top:26px!important}
+#tab-dashboard .cc-run{padding:21px 18px 19px!important}
+#tab-dashboard .cc-run .cc-panel-title{margin-bottom:17px}
+#tab-dashboard .cc-stat{min-height:67px}
+#tab-dashboard>.cc-container>.cc-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#tab-dashboard .cc-panel:has(#ccHomeTimerList) .cc-mini{font-size:12px}
+#ccHomeTimerList .cc-mini-timer{padding:12px 0}
+#tab-dashboard .cc-panel:has(#ccHomeMoodAdvice){background:var(--pro-surface)!important}
+/* mood */
+.cc-mood-num{font-size:64px;letter-spacing:-3px;font-weight:900;line-height:1}
+#tab-mood .cc-panel:has(#moodAmount){background:linear-gradient(135deg,var(--pro-panel),var(--pro-surface))!important}
+#tab-mood .cc-stats{gap:8px}
+#tab-mood .cc-stat{min-height:66px}
+#tab-mood .cc-action{border-radius:13px!important}
+#tab-mood .cc-catalog{gap:7px}
+#tab-mood .cc-quick{gap:8px}
+#tab-mood #moodQuick .cc-btn{min-height:42px}
+#tab-mood .cc-form-row input{min-width:120px}
+#tab-mood #moodActions{max-height:none}
+.cc-history{border-color:var(--pro-line)}
+/* BP */
+#tab-bp>.bp-hero{margin:0 16px 14px!important;padding:18px!important}
+#tab-bp .glass-hero{background:linear-gradient(130deg,var(--pro-panel),var(--pro-surface))!important;backdrop-filter:none!important}
+#tab-bp .glass-hero:before{background:radial-gradient(circle,var(--pro-glow),transparent 65%)!important;opacity:1!important}
+#tab-bp .hero-stats-grid{gap:5px;margin-bottom:14px;padding-bottom:14px;border-color:var(--pro-line)}
+#tab-bp .stat-box{gap:4px;min-width:0}
+#tab-bp .stat-val{font-size:clamp(17px,4.6vw,23px)!important;color:var(--accent)!important;letter-spacing:-.5px}
+#tab-bp .stat-label{font-size:9px;color:var(--text-sub)!important}
+#tab-bp .neo-btn{background:var(--pro-surface)!important;border:1px solid var(--pro-line)!important;color:var(--text-sub);border-radius:11px;padding:11px 8px}
+#tab-bp .neo-btn.active{background:var(--pro-glow)!important;border-color:var(--accent)!important;color:var(--accent)!important}
+#tab-bp .start-bp-box{background:var(--pro-surface)!important;border-color:var(--pro-line)!important;height:43px;min-width:59px}
+#tab-bp .glass-input-mini{color:var(--text-main)!important}
+#tab-bp .quick-actions-row{padding:0 16px 12px!important}
+#tab-bp .quick-btn{background:var(--pro-panel)!important;color:var(--text-main)!important;border-color:var(--pro-line)!important;box-shadow:none!important}
+#tab-bp .sticky-wrapper{margin:0 16px 12px!important}
+#tab-bp .sticky-main-row{background:var(--pro-panel)!important;border:1px solid var(--pro-line)!important;border-radius:14px!important;padding:8px!important}
+#tab-bp .sticky-search-dropdown{background:var(--pro-panel)!important;border-color:var(--pro-line)!important}
+#tab-bp .header-timer-wrap{border-color:var(--pro-line)!important}
+#listBP{gap:10px!important;padding:0 16px!important}
+#listBP .task-item{border:1px solid var(--pro-line)!important;padding:13px 12px!important;margin:0 0 9px!important;border-left:3px solid var(--accent)!important;
+ transform:none;opacity:1!important;transition:background .15s,border-color .15s!important}
+#listBP .task-item.completed{border-left-color:var(--green)!important;opacity:.72!important;background:var(--pro-surface)!important}
+#listBP .task-item.twink-done{border-left-color:var(--purple)!important}
+#listBP .bp-icon-container{background:var(--pro-surface)!important;border-color:var(--pro-line)!important;border-radius:12px!important}
+#listBP .task-text{font-size:13px!important;font-weight:750!important;line-height:1.4;color:var(--text-main)!important}
+#listBP .task-bottom-row{border-top-color:var(--pro-line)!important}
+#listBP .controls-new,#listBP .counter-wrapper{background:var(--pro-surface)!important;border-color:var(--pro-line)!important}
+#listBP .btn-mini.minus{background:var(--pro-soft)!important}
+#listBP .btn-mini.plus{background:var(--accent)!important;color:#12141b!important;box-shadow:none!important}
+#listBP .reward-badge{color:var(--green)!important;border-color:color-mix(in srgb,var(--green) 32%,var(--pro-line))}
+#tab-bp .progress-track{background:var(--pro-surface)!important}
+/* Timer view + ring-based visual hierarchy */
+#tab-timers .section-title{margin:22px 16px 12px!important}
+#tab-timers .active-timers-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:9px!important;padding:0 16px 11px!important}
+#tab-timers .timer-bubble{min-height:106px;gap:8px;padding:15px 7px 10px!important;position:relative;
+ transition:transform .2s,border-color .2s,box-shadow .2s!important;overflow:visible}
+#tab-timers .timer-bubble.running{border-color:color-mix(in srgb,var(--accent) 55%,var(--pro-line))!important}
+#tab-timers .timer-bubble:active{transform:scale(.975)}
+#tab-timers .timer-bubble.running::after{content:'';position:absolute;bottom:0;left:22%;right:22%;height:2px;
+ background:var(--accent);border-radius:3px;box-shadow:0 0 12px var(--accent)}
+#tab-timers .circle-wrap{height:70px;width:70px;margin:0 auto 2px}
+#tab-timers .circle-wrap svg{height:70px;width:70px;transform:rotate(-90deg);overflow:visible}
+#tab-timers .circle-bg{stroke:var(--pro-soft);stroke-width:3.7}
+#tab-timers .circle-progress{stroke:var(--accent);stroke-width:3.7;stroke-linecap:round;
+ transition:stroke-dashoffset .75s linear;filter:drop-shadow(0 0 3px var(--pro-glow))}
+#tab-timers .circle-time{font-size:12px;letter-spacing:-.5px;color:var(--text-main)!important}
+#tab-timers .bubble-title{font-size:11px;color:var(--text-main);font-weight:750;max-width:100px}
+#tab-timers .bubble-close{top:5px;right:5px;height:20px;width:20px;background:var(--pro-surface);color:var(--text-sub);border:1px solid var(--pro-line);box-shadow:none}
+#tab-timers .template-timers-grid{gap:9px!important}
+#tab-timers .timer-card.drag-template{padding:13px!important;min-width:0;gap:8px}
+#tab-timers .tc-btn.start{background:var(--accent)!important;color:#12141b!important;height:29px!important;font-size:10px!important}
+#tab-timers .reminders-grid{gap:9px}
+#tab-timers .remind-btn{background:var(--pro-panel)!important;color:var(--text-main)!important;border-color:var(--pro-line)!important;min-height:48px}
+#tab-timers .section-header-toggle{margin:17px 0 9px;padding:0 16px}
+#tab-timers .section-header-toggle>.section-title{margin:0!important}
+#tab-timers #allTemplatesWrapper{padding:0 16px 20px!important}
+#tab-timers #favoriteTimers{padding:0 16px 12px!important}
+#tab-timers #timerGrid{padding:0!important}
+#tab-timers .fab-btn{width:55px;height:55px;bottom:calc(91px + env(safe-area-inset-bottom) + var(--gh-safe-bottom));right:17px;
+ background:var(--accent)!important;color:#14171d;box-shadow:0 9px 30px var(--accent-glow);font-size:28px}
+#tab-timers .custom-timer-panel{background:var(--modal-bg)!important;color:var(--text-main)!important;border-color:var(--pro-line)!important;
+ bottom:calc(157px + env(safe-area-inset-bottom) + var(--gh-safe-bottom));border-radius:19px!important;box-shadow:0 14px 45px rgba(0,0,0,.35)}
+#tab-timers .custom-timer-panel input{background:var(--pro-surface)!important;border-color:var(--pro-line)!important;color:var(--text-main)!important}
+/* Kitchen and Guide cards */
+#tab-kitchen>.sticky-search{margin:0 16px 14px;padding:10px!important;top:var(--gh-safe-top)!important;
+ border-radius:15px!important;background:var(--pro-panel)!important;border:1px solid var(--pro-line)!important;position:sticky}
+#tab-kitchen #listFood{padding:0 16px!important}
+#tab-kitchen .card{border:1px solid var(--pro-line)!important;margin-bottom:9px!important;padding:14px!important;min-height:52px}
+#tab-kitchen .card-title{color:var(--text-main)!important;font-size:13px!important}
+#tab-kitchen .card-icon{background:var(--pro-surface)!important;border-color:var(--pro-line)!important;border-radius:12px!important;
+ min-width:44px;min-height:44px;display:grid;place-items:center}
+#tab-kitchen .price{color:var(--green)!important}
+#tab-guides .segment-wrapper{padding:0 16px 10px!important}
+#tab-guides .segment{gap:7px!important}
+#tab-guides .seg-btn{background:var(--pro-panel)!important;border:1px solid var(--pro-line)!important;
+ color:var(--text-sub)!important;border-radius:12px!important;padding:11px 13px!important;font-size:11px}
+#tab-guides .seg-btn.active{background:var(--accent)!important;border-color:var(--accent)!important;color:#10151d!important;box-shadow:none!important}
+#tab-guides #guideContent{padding:5px 16px 26px!important}
+#tab-guides .card,#tab-guides .tarot-card-new{padding:12px!important;border-color:var(--pro-line)!important}
+#tab-guides .tarot-card-title{color:var(--accent)!important}
+#tab-guides .tarot-card-desc{color:var(--text-sub)!important}
+.table-wrap{background:var(--pro-panel)!important;border:1px solid var(--pro-line)!important;border-radius:15px!important}
+table{color:var(--text-main)}th{background:var(--pro-surface)!important;color:var(--accent)!important}td{color:var(--text-main)!important;border-bottom-color:var(--pro-line)!important}
+tr:nth-child(even){background:var(--pro-surface)!important}
+/* contracts / event cards */
+#tab-contracts .contract-card{margin:0 16px 12px!important;padding:15px!important}
+#tab-contracts .contract-block{background:var(--pro-surface)!important;border:1px solid var(--pro-line)!important;border-radius:13px!important}
+#tab-contracts .contract-input{background:var(--pro-surface)!important;color:var(--text-main)!important;border-color:var(--pro-line)!important}
+#tab-contracts .contract-title{color:var(--accent)!important}
+#tab-contracts .contract-pass-screen{margin:12px 16px;padding:35px 15px;border-radius:20px;
+ background:var(--pro-panel);border:1px solid var(--pro-line)}
+#tab-event #eventTabContent{padding:0 16px 25px!important}
+#tab-event .event-card{margin-bottom:12px!important;padding:15px!important;border:1px solid var(--pro-line)!important}
+#tab-event .event-input{background:var(--pro-surface)!important;color:var(--text-main)!important;border:1px solid var(--pro-line)!important}
+#tab-event .event-card button{border-radius:11px!important}
+/* tools / fish / planner */
+#tab-services .cc-grid{gap:10px}
+#tab-fishing .cc-fish-row{border-bottom-color:var(--pro-line)}
+#tab-fishing .cc-fish-row b{color:var(--text-main)}
+#tab-planner .cc-list{line-height:2}
+.cc-back{margin:14px 16px 0;padding:9px 14px;background:var(--pro-panel)!important;color:var(--accent)!important;border-color:var(--pro-line)!important}
+/* modal window system: true Telegram-friendly sheet */
+.modal-wrap{padding:10px;box-sizing:border-box;align-items:flex-end!important;justify-content:center!important;
+ background:rgba(4,7,12,.7)!important;backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important}
+.modal-wrap .modal{position:relative;display:flex;flex-direction:column;width:100%!important;max-width:560px!important;
+ min-width:0;max-height:min(86dvh,820px)!important;padding:21px 17px calc(20px + env(safe-area-inset-bottom))!important;
+ background:var(--modal-bg)!important;border:1px solid var(--pro-line)!important;border-radius:24px 24px 18px 18px!important;
+ color:var(--text-main)!important;box-shadow:0 -15px 65px rgba(0,0,0,.35)!important;overscroll-behavior:contain}
+.modal-wrap .modal:before{content:'';width:42px;height:4px;border-radius:6px;background:var(--pro-line);align-self:center;flex:none;margin:-8px auto 16px}
+.modal-wrap .modal>*{flex-shrink:0}
+#modalSettings .modal{display:block;overflow:auto}
+#modalSettings .modal:before{display:block}
+.pro-modal-header{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:17px}
+.pro-modal-header h2{font-size:20px;margin:0;font-weight:900;letter-spacing:-.5px}
+.pro-modal-close{width:34px;height:34px;display:grid;place-items:center;background:var(--pro-surface);border:1px solid var(--pro-line);border-radius:11px;color:var(--text-main);font-size:18px}
+.pro-settings-group{background:var(--pro-panel);border:1px solid var(--pro-line);border-radius:15px;margin-bottom:10px;overflow:hidden}
+.pro-settings-group summary{list-style:none;display:flex;justify-content:space-between;align-items:center;padding:14px 14px;font-size:13px;font-weight:850;cursor:pointer}
+.pro-settings-group summary::-webkit-details-marker{display:none}
+.pro-settings-group summary::after{content:'⌄';font-size:20px;color:var(--text-sub);line-height:1;transition:transform .2s}
+.pro-settings-group[open] summary::after{transform:rotate(180deg)}
+.pro-settings-group .pro-settings-content{padding:2px 11px 12px}
+.pro-settings-group .pro-settings-content>div[style]{border-color:var(--pro-line)!important;background:var(--pro-surface)!important;border-radius:12px!important;margin-bottom:7px!important}
+.pro-settings-group .pro-settings-content .cc-panel{background:var(--pro-surface)!important;margin-bottom:7px!important}
+.pro-settings-group label,.pro-settings-group span{color:var(--text-main)}
+.pro-settings-group .cc-mini{color:var(--text-sub)!important}
+#modal .modal{max-width:520px!important}
+#modal #mTitle{color:var(--text-main)!important;text-align:left!important}
+#modal #mContent{overflow-y:auto;flex:1;min-height:0}
+#modal .modal .action-btn{background:var(--pro-surface)!important;border-color:var(--pro-line)!important;color:var(--text-main)!important}
+#modalUnhide .modal{max-width:520px!important}
+#modalUnhide .unhide-item{color:var(--text-main)!important;border-bottom-color:var(--pro-line)!important}
+/* navigation: floating segmented bar, safe areas */
+.bottom-nav{position:fixed;left:max(10px,var(--gh-safe-left));right:max(10px,var(--gh-safe-right));bottom:calc(9px + var(--gh-safe-bottom) + env(safe-area-inset-bottom));
+ width:auto;height:70px!important;min-height:0!important;border-radius:20px!important;padding:7px 6px!important;
+ background:var(--pro-nav-bg)!important;border:1px solid var(--pro-line)!important;
+ box-shadow:0 10px 34px rgba(0,0,0,.28)!important;z-index:900;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex}
+.nav-btn{flex:1;min-width:0;min-height:54px;padding:7px 0!important;justify-content:center;color:var(--text-sub)!important;border-radius:14px!important;gap:5px!important;transition:background .2s!important}
+.nav-btn.active{background:var(--pro-surface)!important;color:var(--accent)!important;transform:none!important}
+.nav-btn .nav-icon{font-size:20px!important;height:22px;line-height:22px;filter:saturate(.45)}
+.nav-btn.active .nav-icon{filter:none}
+.nav-btn .nav-label{font-size:10px;letter-spacing:.05px;font-weight:750;white-space:nowrap}
+#toast-container{bottom:calc(104px + var(--gh-safe-bottom) + env(safe-area-inset-bottom));z-index:3000}
+.toast{background:var(--modal-bg)!important;color:var(--text-main)!important;border-color:var(--pro-line)!important;border-radius:14px}
+/* older sections keep consistent identity */
+.header{padding:24px 18px 16px!important;font-size:26px!important;line-height:1.15!important;font-weight:900!important;letter-spacing:-.8px!important;color:var(--text-main)!important}
+.section-title{border:0!important;font-size:11px!important;color:var(--text-sub)!important;letter-spacing:1.1px!important}
+.section-header-toggle>.section-title{color:var(--text-sub)!important}
+body[class*="theme-white"] .task-item,body[class*="theme-white"] .bp-hero,body[class*="theme-white"] .card,
+body[class*="theme-white"] .timer-card,body[class*="theme-white"] .header-timer-wrap{border-color:var(--pro-line)!important;box-shadow:var(--pro-shadow)!important}
+body[class*="theme-white"] .task-item.completed{background:var(--pro-surface)!important;opacity:.76!important}
+body[class*="theme-white"] .sticky-search{background:var(--pro-panel)!important;border-color:var(--pro-line)!important}
+body[class*="theme-white"] .search-input,body[class*="theme-white"] .glass-select{background:var(--pro-surface)!important;color:var(--text-main)!important;border-color:var(--pro-line)!important}
+body[class*="theme-white"] .action-btn,body[class*="theme-white"] .hero-btn,
+body[class*="theme-white"] .seg-btn,body[class*="theme-white"] .btn-mini,
+body[class*="theme-white"] .remind-btn,body[class*="theme-white"] .quick-btn{
+ color:var(--text-main)!important;background:var(--pro-surface)!important;border-color:var(--pro-line)!important}
+body[class*="theme-white"] .seg-btn.active{background:var(--accent)!important;color:#fff!important;border-color:var(--accent)!important}
+body[class*="theme-white"] .checkbox,body[class*="theme-white"] .bp-icon-container{background:var(--pro-surface)!important;border-color:var(--pro-line)!important}
+body[class*="theme-white"] .task-text,body[class*="theme-white"] .card-title{color:var(--text-main)!important}
+body[class*="theme-white"] .stat-val{color:var(--accent)!important}
+/* motion with restraint */
+.tab-content.active{animation:proEnter .22s ease-out both}
+@keyframes proEnter{from{opacity:.4;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@media (min-width:580px){
+ .bottom-nav{left:50%;right:auto;transform:translateX(-50%);width:480px}
+ #tab-dashboard .cc-container>.cc-grid,#tab-services .cc-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ #tab-timers .active-timers-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+ .modal-wrap{align-items:center!important}
+ .modal-wrap .modal{border-radius:24px!important}
+}
+@media (max-width:359px){
+ .cc-heading,.pro-masthead h1{font-size:22px}.cc-top,.pro-masthead{padding:20px 13px 15px!important}
+ .cc-container{padding:0 11px!important}
+ .cc-stats{gap:5px}.cc-stat{padding:12px 7px!important}.cc-stat-value{font-size:20px}
+ .cc-tile{padding:12px!important}
+ #tab-timers .active-timers-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .bottom-nav{left:5px;right:5px}.nav-btn .nav-label{font-size:9px}
+ #tab-bp>.bp-hero{margin-left:11px!important;margin-right:11px!important}
+}
+@media (prefers-reduced-motion:reduce){*,*:before,*:after{transition-duration:0.01ms!important;animation-duration:0.01ms!important;scroll-behavior:auto!important}}
+
+
+/* hide legacy title elements only on upgraded routes */
+#tab-timers>.header,#tab-kitchen>.header,#tab-guides>.header,#tab-contracts>.header,#tab-event>.header{display:none!important}
+#tab-dashboard .cc-tile-icon img,#tab-services .cc-tile-icon img{image-rendering:auto}
+#tab-fishing .cc-panel,#tab-planner .cc-panel{min-width:0}
+
+/* Event row min-content fix: action buttons never spill beyond narrow Telegram viewports. */
+#tab-event .event-card{min-width:0;overflow:hidden}
+#tab-event .event-card>div,#tab-event .event-card>div>div{min-width:0;max-width:100%}
+#tab-event .event-card .event-input{min-width:0!important;width:0!important;flex:1 1 0!important}
+#tab-event .event-card .action-btn{flex:none!important;min-width:75px;width:auto!important;max-width:100px;white-space:nowrap;font-size:10px!important;padding:8px 7px!important}
+#tab-event #eventTabContent>.segment-wrapper .seg-btn{min-width:0;padding:9px 7px!important;white-space:normal;font-size:11px}
+#tab-event #eventTabContent>.segment-wrapper .segment{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
 </style>
 </head>
 <body>
@@ -785,7 +1271,75 @@ body[class*="theme-white"] .event-input {
     <div style="margin-top:10px; color:#666; font-size:12px;">Синхронизация...</div>
 </div>
 
-<div id="tab-bp" class="tab-content active">
+
+<!-- GTA HELPER 23 / Telegram Mini App · github /img assets -->
+<div id="tab-dashboard" class="tab-content active">
+ <div class="cc-top"><div><div class="cc-eyebrow">GTA HELPER · PRO V23</div><div class="cc-heading">COMMAND <strong>CENTER</strong></div></div><button class="cc-status" onclick="openSettingsModal()">● НАСТРОЙКИ ⚙</button></div>
+ <div class="cc-container">
+  <div class="cc-panel cc-run"><div class="cc-panel-title"><span>Игровая сводка</span><span class="cc-chip">LIVE</span></div>
+   <div class="cc-stats"><div class="cc-stat"><div class="cc-stat-label">Bonus Points</div><div class="cc-stat-value accent" id="ccHomeBP">0</div></div><div class="cc-stat"><div class="cc-stat-label">Настроение</div><div class="cc-stat-value" id="ccHomeMood">—</div></div><div class="cc-stat"><div class="cc-stat-label">Таймеры</div><div class="cc-stat-value good" id="ccHomeTimers">0</div></div></div>
+   <div style="margin-top:15px" class="cc-flex"><div class="cc-mini">Прогресс заданий BP</div><span class="cc-chip" id="ccHomeBPDone">0 / 0</span></div><div class="cc-hbar" style="margin-top:8px"><div id="ccHomeBPBar"></div></div>
+  </div>
+  <div class="cc-grid">
+    <button class="cc-tile" onclick="go('mood')"><span class="cc-tile-icon">🙂</span><span class="cc-tile-label">Настроение</span><span class="cc-tile-desc">Бонусы и порог 30</span></button>
+    <button class="cc-tile" onclick="go('bp')"><span class="cc-tile-icon"><img loading="lazy" src="img/casino_img.png" alt="" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span hidden>🎯</span></span><span class="cc-tile-label">Bonus Points</span><span class="cc-tile-desc">Прогресс и задачи</span></button>
+    <button class="cc-tile" onclick="go('timers')"><span class="cc-tile-icon"><img loading="lazy" src="img/poshta.png" alt="" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span hidden>⏱</span></span><span class="cc-tile-label">Таймеры</span><span class="cc-tile-desc">Управление откатами</span></button>
+    <button class="cc-tile" onclick="go('fishing')"><span class="cc-tile-icon"><img loading="lazy" src="img/icon_fishing.png" alt="" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span hidden>🐟</span></span><span class="cc-tile-label">Рыбалка PRO</span><span class="cc-tile-desc">Лучший стак до 10 кг</span></button>
+  </div>
+  <div class="cc-panel"><div class="cc-panel-title"><span>⏳ Ближайшие таймеры</span><button class="cc-link" onclick="go('timers')">Все →</button></div><div id="ccHomeTimerList" class="cc-mini">Активных таймеров нет</div></div>
+  <div class="cc-panel"><div class="cc-panel-title"><span>⚡ Сценарии быстрого старта</span><button class="cc-link" onclick="go('planner')">BP-планировщик →</button></div>
+    <div class="cc-grid"><button class="cc-btn" onclick="startTimerScenario('daily')">📮 Почта + Механик + Такси</button><button class="cc-btn" onclick="startTimerScenario('long')">🎰 Клуб + Таро + Казино</button><button class="cc-btn" onclick="startTimerScenario('favorites')">⭐ Все избранные таймеры</button><button class="cc-btn" onclick="go('planner')">🎯 План на 30–120 минут</button></div>
+  </div>
+  <div class="cc-panel"><div class="cc-panel-title">📈 Статус настроения</div><div id="ccHomeMoodAdvice" class="cc-mini">Укажи настроение, чтобы включить контроль игровых штрафов.</div></div>
+ </div>
+</div>
+
+<div id="tab-mood" class="tab-content">
+ <div class="cc-top"><div><div class="cc-eyebrow">PLAYER STATUS</div><div class="cc-heading">🙂 НАСТРОЕНИЕ</div></div><span class="cc-chip" id="moodTopStatus">НЕТ ДАННЫХ</span></div>
+ <div class="cc-container">
+   <div class="cc-panel"><div class="cc-flex"><div><div class="cc-mini">Текущий показатель · 0–100</div><div id="moodAmount" class="cc-mood-num">—</div></div><div id="moodEmoji" style="font-size:58px">😶</div></div>
+     <div class="cc-hbar" style="height:12px; margin-top:12px;"><div id="moodBar"></div></div>
+     <div class="cc-flex" style="margin-top:8px"><span class="cc-mini">0</span><span class="cc-chip">30 = полный бонус</span><span class="cc-mini">100</span></div>
+     <div id="moodBanner" class="cc-notice" style="margin-top:15px">Укажи настроение своего персонажа, чтобы начать учёт.</div>
+     <div class="cc-form-row" style="margin-top:13px"><input class="cc-input" type="number" min="0" max="100" inputmode="numeric" id="moodManual" placeholder="Точное настроение сейчас" aria-label="Настроение сейчас"><button class="cc-btn primary" onclick="setMoodManual()">Установить</button><button class="cc-btn" onclick="undoMood()" title="Отменить последний шаг">↶</button></div>
+   </div>
+   <div class="cc-stats"><div class="cc-stat"><div class="cc-stat-label">До порога 30</div><div class="cc-stat-value accent" id="moodNeed">—</div></div><div class="cc-stat"><div class="cc-stat-label">Известные затраты</div><div class="cc-stat-value" id="moodSpent">0$</div></div><div class="cc-stat"><div class="cc-stat-label">Потеря силы</div><div class="cc-stat-value" id="moodStrength">0</div></div></div>
+   <div class="cc-panel"><div class="cc-flex"><div><b style="font-size:13px">🍽 Голод персонажа</b><div class="cc-mini">По твоим данным, при голоде настроение падает в 2 раза быстрее. Точная скорость не указана, поэтому баллы автоматически не списываются.</div></div><label class="switch" style="flex:none;position:relative;display:inline-block;width:40px;height:24px"><input id="moodHungry" type="checkbox" onchange="setMoodHunger(this.checked)" aria-label="Голод"><span class="slider" style="position:absolute;inset:0;border-radius:24px"><span class="slider-circle" style="position:absolute;left:3px;bottom:3px;width:18px;height:18px;background:white;border-radius:50%"></span></span></label></div></div>
+   <div class="cc-panel"><div class="cc-panel-title">⚡ Быстрые действия</div><div id="moodQuick" class="cc-quick"></div></div>
+   <div class="cc-panel"><div class="cc-panel-title"><span>Действия персонажа</span><span class="cc-chip" id="moodActionCount"></span></div><div class="cc-form-row" style="margin-bottom:13px"><input class="cc-input" id="moodSearch" placeholder="Найти действие..." oninput="renderMoodActions()" aria-label="Поиск действий"><select class="cc-input" id="moodCategory" onchange="renderMoodActions()" aria-label="Категория"><option value="up">🙂 Повышают</option><option value="down">🙁 Снижают</option><option value="all">Все</option></select></div><div id="moodActions" class="cc-catalog"></div></div>
+   <div class="cc-panel"><div class="cc-panel-title"><span>Что зависит от настроения?</span><span class="cc-chip">Порог 30</span></div><div id="moodEffects"></div></div>
+   <div class="cc-panel"><div class="cc-panel-title"><span>🕘 История действий</span><button class="cc-link" onclick="undoMood()">Отменить последнее ↶</button></div><div id="moodHistory" class="cc-mini">Пока пусто</div></div>
+ </div>
+</div>
+
+<div id="tab-services" class="tab-content"><div class="cc-top"><div><div class="cc-eyebrow">GAME TOOLS</div><div class="cc-heading">ИНСТРУМЕНТЫ</div></div></div><div class="cc-container">
+ <div class="cc-grid">
+   <button class="cc-tile" onclick="go('fishing')"><span class="cc-tile-icon"><img loading="lazy" src="img/icon_fishing.png" alt="" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span hidden>🐟</span></span><span class="cc-tile-label">Рыбалка PRO</span><span class="cc-tile-desc">Оптимизация стака 10 кг</span></button>
+   <button class="cc-tile" onclick="go('planner')"><span class="cc-tile-icon"><img loading="lazy" src="img/build_img.png" alt="" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span hidden>📈</span></span><span class="cc-tile-label">BP-планировщик</span><span class="cc-tile-desc">Максимум BP за время</span></button>
+   <button class="cc-tile" onclick="go('kitchen')"><span class="cc-tile-icon"><img loading="lazy" src="img/ferma_img.png" alt="" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span hidden>🍳</span></span><span class="cc-tile-label">Кухня</span><span class="cc-tile-desc">Все рецепты</span></button>
+   <button class="cc-tile" onclick="go('guides')"><span class="cc-tile-icon"><img loading="lazy" src="img/medical_card_img.png" alt="" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span hidden>📚</span></span><span class="cc-tile-label">Гайды</span><span class="cc-tile-desc">Медицина, таро, шанс</span></button>
+   <button class="cc-tile" onclick="go('contracts')"><span class="cc-tile-icon"><img loading="lazy" src="img/codes_img.png" alt="" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span hidden>📝</span></span><span class="cc-tile-label">Контракты</span><span class="cc-tile-desc">Ротация и история</span></button>
+   <button class="cc-tile" onclick="go('event')"><span class="cc-tile-icon"><img loading="lazy" src="img/icon_club_task.png" alt="" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span hidden>🎪</span></span><span class="cc-tile-label">Ивенты</span><span class="cc-tile-desc">Квесты персонажей</span></button>
+ </div>
+ <div class="cc-panel"><div class="cc-panel-title">💾 Перенос данных</div><p class="cc-mini">Сделай резервную копию BP, таймеров, настроения, рыбы и событий. Это особенно полезно перед обновлением файла.</p><div class="cc-form-row"><button class="cc-btn success" onclick="exportAllData()">↓ Экспорт JSON</button><button class="cc-btn" onclick="document.getElementById('ccImportFile').click()">↑ Импорт JSON</button><input id="ccImportFile" type="file" accept=".json,application/json" hidden onchange="importAllData(this)"></div></div>
+ <div class="cc-panel"><div class="cc-panel-title"><span>☁ Состояние облака</span><span class="cc-chip" id="ccSyncStatus">Проверка…</span></div><p class="cc-mini">Хранение на устройстве работает сразу. При запуске внутри Telegram данные также синхронизируются с облаком по частям, даже если объём превышает лимит одной записи.</p><button class="cc-btn primary" onclick="Cloud.syncNow()">Синхронизировать сейчас</button></div>
+ <div class="cc-notice">Все функции интерфейса и игровые данные находятся в одном <b>index.html</b>. Telegram и облачный сервис уведомлений требуют интернета.</div>
+</div></div>
+
+<div id="tab-fishing" class="tab-content"><button class="cc-back" onclick="go('services')">← Инструменты</button><div class="cc-top" style="padding-top:5px"><div><div class="cc-eyebrow">OPTIMIZATION ENGINE</div><div class="cc-heading">🐟 РЫБАЛКА PRO</div></div></div><div class="cc-container">
+ <div class="cc-panel"><div class="cc-panel-title">Добавить улов</div><div class="cc-mini" style="margin-bottom:10px">Вес и стоимость <b>одной рыбы</b>. Если поймал несколько одинаковых, укажи количество. Вместимость — 10 кг.</div><div class="cc-form-row"><input id="fishName" class="cc-input" type="text" maxlength="55" placeholder="Название рыбы" aria-label="Название рыбы"></div><div class="cc-form-row" style="margin-top:8px"><input id="fishWeight" class="cc-input" type="number" min="0.001" max="10" step="0.001" placeholder="Вес, кг"><input id="fishPrice" class="cc-input" type="number" min="0.01" step="0.01" placeholder="Цена, $"><input id="fishQty" class="cc-input" type="number" min="1" max="40" step="1" value="1" style="flex:.65" title="Количество"></div><button class="cc-btn primary" style="width:100%;margin-top:10px" onclick="addFish()">+ Добавить рыбу</button></div>
+ <div class="cc-panel"><div class="cc-panel-title">🏆 Оптимальный стак <button class="cc-link" onclick="clearFish()">Очистить</button></div><div id="fishResult" class="cc-mini">Добавь улов для расчёта.</div></div>
+ <div class="cc-panel"><div class="cc-panel-title">Весь улов</div><div id="fishList"></div></div>
+ <div id="fishMoodNote" class="cc-notice">Если настроение ниже 30, по твоим данным скупщики платят неполную цену. Неизвестный процент скидки автоматически не придумывается.</div>
+ </div></div>
+
+<div id="tab-planner" class="tab-content"><button class="cc-back" onclick="go('services')">← Инструменты</button><div class="cc-top" style="padding-top:5px"><div><div class="cc-eyebrow">TIME / BP</div><div class="cc-heading">🎯 BP ПЛАНИРОВЩИК</div></div></div><div class="cc-container">
+ <div class="cc-panel"><div class="cc-panel-title">Оптимальный маршрут</div><p class="cc-mini">Укажи реальное время каждого задания. Расчёт учитывает VIP, X2 и выполненные задания. Без времени задания не участвуют — мы не выдумываем длительность.</p><div class="cc-form-row"><label for="plannerBudget" class="cc-form-label">Время:</label><select id="plannerBudget" class="cc-input" onchange="renderBPPlanner()"><option value="30">30 минут</option><option value="60">60 минут</option><option value="120">120 минут</option><option value="180">180 минут</option></select></div><div id="plannerResult" style="margin-top:13px"></div></div>
+ <div class="cc-panel"><div class="cc-panel-title">Длительности заданий</div><input id="plannerSearch" class="cc-input" placeholder="Поиск заданий" oninput="renderBPPlanner()" style="width:100%;box-sizing:border-box;margin-bottom:12px"><div id="plannerTasks" class="cc-catalog"></div></div>
+ </div></div>
+
+<div id="tab-bp" class="tab-content">
+<div class="pro-masthead"><div><div class="pro-eyebrow">BONUS POINTS</div><h1>Бонус поинты</h1><p>Задания, награды и прогресс</p></div><div class="pro-head-icon"><img src="img/casino_img.png" alt="" loading="lazy"></div></div>
     <div class="bp-hero glass-hero" style="margin-bottom: 12px;">
         <div class="hero-stats-grid">
             <div class="stat-box"><div class="stat-val" id="totalBp">0</div><div class="stat-label">BP</div></div>
@@ -850,7 +1404,7 @@ body[class*="theme-white"] .event-input {
             <div class="header-timer-wrap" id="headerTimerWidget">
                 <svg class="ht-progress-svg" preserveAspectRatio="none"><rect class="ht-rect-path" x="0" y="0" width="100%" height="100%" pathLength="100" /></svg>
                 <button class="ht-btn" onclick="changeHeaderTimer(-1)">◀</button>
-                <div class="ht-content" onclick="go('timers', document.querySelectorAll('.nav-btn')[1])">
+                <div class="ht-content" onclick="go('timers')">
                     <span id="htLabel" class="ht-label">Нет активных</span>
                     <span id="htTime" class="ht-time">--:--</span>
                 </div>
@@ -886,6 +1440,7 @@ body[class*="theme-white"] .event-input {
 </div>
 
 <div id="tab-timers" class="tab-content">
+<div class="pro-masthead"><div><div class="pro-eyebrow">TIME MANAGEMENT</div><h1>Таймеры</h1><p>Откаты, шаблоны и напоминания</p></div><div class="pro-head-icon"><img src="img/poshta.png" alt="" loading="lazy"></div></div>
     <div class="header">Таймеры</div>
     
     <div class="section-title">Активные</div>
@@ -940,12 +1495,14 @@ body[class*="theme-white"] .event-input {
 </div>
 
 <div id="tab-kitchen" class="tab-content">
+<div class="pro-masthead"><div><div class="pro-eyebrow">CRAFT &amp; FOOD</div><h1>Кухня</h1><p>Рецепты и игровые эффекты</p></div><div class="pro-head-icon"><img src="img/ferma_img.png" alt="" loading="lazy"></div></div>
     <div class="header" style="color:var(--red)">Кухня</div>
     <div class="sticky-search"><input type="text" class="search-input" id="searchFood" placeholder="🔍 Рецепт или ингредиент..." oninput="renderFood()"></div>
     <div class="list-container" id="listFood"></div>
 </div>
 
 <div id="tab-guides" class="tab-content">
+<div class="pro-masthead"><div><div class="pro-eyebrow">KNOWLEDGE BASE</div><h1>Гайды</h1><p>Проверенные игровые справочники</p></div><div class="pro-head-icon"><img src="img/medical_card_img.png" alt="" loading="lazy"></div></div>
     <div class="header">Гайды</div>
     <div class="segment-wrapper">
         <div class="segment">
@@ -961,6 +1518,7 @@ body[class*="theme-white"] .event-input {
     <div id="guideContent" style="padding-top:10px;"></div>
 </div>
 <div id="tab-contracts" class="tab-content">
+<div class="pro-masthead"><div><div class="pro-eyebrow">TEAM MANAGER</div><h1>Контракты</h1><p>Состав, ротация и история</p></div><div class="pro-head-icon"><img src="img/codes_img.png" alt="" loading="lazy"></div></div>
     <div class="header">Контракты</div>
     
     <!-- Экран ввода пароля -->
@@ -1013,16 +1571,16 @@ body[class*="theme-white"] .event-input {
 </div>
 <!-- НОВАЯ ВКЛАДКА: ИВЕНТ -->
 <div id="tab-event" class="tab-content">
+<div class="pro-masthead"><div><div class="pro-eyebrow">DAILY MISSIONS</div><h1>Ивенты</h1><p>Задания и прогресс персонажей</p></div><div class="pro-head-icon"><img src="img/icon_club_task.png" alt="" loading="lazy"></div></div>
     <div class="header" style="color:var(--accent)">Ивент: Квесты</div>
     <div id="eventTabContent" style="padding: 0 15px 20px;"></div>
 </div>
-<nav class="bottom-nav">
-    <button class="nav-btn active" onclick="go('bp', this)"><div class="nav-icon">📊</div><span class="nav-label">BP</span></button>
-    <button class="nav-btn" onclick="go('timers', this)"><div class="nav-icon">⏱</div><span class="nav-label">Таймер</span></button>
-    <button class="nav-btn" onclick="go('kitchen', this)"><div class="nav-icon">🍔</div><span class="nav-label">Еда</span></button>
-    <button class="nav-btn" onclick="go('guides', this)"><div class="nav-icon">📚</div><span class="nav-label">Гайды</span></button>
-<button class="nav-btn" onclick="go('contracts', this)"><div class="nav-icon">📝</div><span class="nav-label">Контракты</span></button>
-<button class="nav-btn" onclick="go('event', this)"><div class="nav-icon">🎪</div><span class="nav-label">Ивент</span></button>
+<nav class="bottom-nav" aria-label="Основное меню">
+    <button class="nav-btn active" data-tab="dashboard" onclick="go('dashboard', this)"><div class="nav-icon">⌂</div><span class="nav-label">Главная</span></button>
+    <button class="nav-btn" data-tab="bp" onclick="go('bp', this)"><div class="nav-icon">🎯</div><span class="nav-label">BP</span></button>
+    <button class="nav-btn" data-tab="timers" onclick="go('timers', this)"><div class="nav-icon">⏱</div><span class="nav-label">Таймеры</span></button>
+    <button class="nav-btn" data-tab="mood" onclick="go('mood', this)"><div class="nav-icon">🙂</div><span class="nav-label">Настроение</span></button>
+    <button class="nav-btn" data-tab="services" onclick="go('services', this)"><div class="nav-icon">▦</div><span class="nav-label">Ещё</span></button>
 </nav>
 
 <div id="modal" class="modal-wrap" onclick="closeModal(event)">
@@ -1135,6 +1693,11 @@ body[class*="theme-white"] .event-input {
                 </span>
             </label>
         </div>
+        <div class="cc-panel" style="margin-bottom:15px;padding:12px">
+          <label for="notifyVolume" class="cc-form-label">🔉 Громкость сигналов Mini App: <span id="volumeLabel">12%</span></label>
+          <input id="notifyVolume" type="range" min="0" max="25" step="1" value="12" oninput="document.getElementById('volumeLabel').textContent=this.value+'%'; saveNotifySettings()">
+          <div class="cc-mini">Звук при входе отключён: просроченные таймеры обрабатываются бесшумно. Кнопка выше отключает все звуки внутри приложения.</div>
+        </div>
         <div class="section-title" style="margin: 0 0 10px 0; border:none;">Масштаб интерфейса</div>
         <div style="background:var(--bg-element); padding:15px; border-radius:12px; margin-bottom:15px; border:1px solid var(--border);">
             <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:12px; color:var(--text-sub);">
@@ -1167,20 +1730,280 @@ body[class*="theme-white"] .event-input {
 </div>
 
 <script>
+
+// ============================= GTA HELPER 23 =============================
+// All of the following lives inside index.html. Legacy v22 data keys are unchanged.
+const V23_MOOD_KEY='gta_mood_23', V23_FISH_KEY='gta_fish_23', V23_BP_PLAN_KEY='gta_bp_plan_23';
+const MOOD_ACTIONS = [
+  {id:'welfare',n:'Пособие по безработице',d:1,desc:'Получить пособие'},
+  {id:'salary',n:'Зарплата во фракции',d:2,desc:'При получении зарплаты'},
+  {id:'cigarette',n:'Сигареты в магазине 24/7',d:25,cost:350,strength:1,desc:'350$ без наценки; отнимает 1 силу'},
+  {id:'soda',n:'Газировка в автомате',d:10,cost:250,desc:'Покупка за 250$'},
+  {id:'psychologist',n:'Консультация психолога EMS',d:5,cost:300,desc:'Услуга за 300$'},
+  {id:'phone_race',n:'Выиграть гонку через телефон',d:5,desc:'Требуется ставка от 1000$; стоимость неизвестна'},
+  {id:'kart',n:'Выиграть гонку в картинге',d:5},
+  {id:'barber',n:'Покупка в барбершопе',d:10,cost:5000,desc:'Покупка на 5000$'},
+  {id:'hookah',n:'Покурить кальян',d:15,customCd:true,desc:'Есть кулдаун, длительность уточни в ⚙'},
+  {id:'bong_tobacco',n:'Бонг на табаке',d:5},
+  {id:'bong_weed',n:'Бонг на траве',d:15},
+  {id:'casino_number',n:'Выиграть ставку на число в казино',d:5,desc:'Сумма ставки не указана'},
+  {id:'blackjack',n:'Набрать 21 в блэкджеке',d:1},
+  {id:'arm',n:'Выиграть в армрестлинге',d:5},
+  {id:'vape',n:'Покурить вейп',d:5,cd:20,desc:'КД: 20 минут'},
+  {id:'running',n:'Бежать в Nice Mental 01/02',d:1,customCd:true,desc:'Нужно бежать минуту; КД есть, длительность неизвестна'},
+  {id:'pipe',n:'Курить трубку минуту',d:5,customCd:true,desc:'КД есть, длительность неизвестна'},
+  {id:'church',n:'Пожертвование в Epsilon',d:5,desc:'Стоимость пожертвования не указана'},
+  {id:'shower',n:'Использовать душ',d:50},
+  {id:'death',n:'Смерть персонажа',d:-25},
+  {id:'arrest_kpz',n:'Арест в КПЗ',d:-15},
+  {id:'arrest_ft',n:'Арест в ФТ',d:-25},
+  {id:'house',n:'Оплата дома',d:-3,desc:'Сумма платежа не указана'},
+  {id:'apartment',n:'Оплата квартиры',d:-3,desc:'Сумма платежа не указана'},
+  {id:'lease',n:'Оплата лизинга',d:-3,desc:'Сумма платежа не указана'}
+];
+let MOOD={value:null, spent:0, strengthLost:0, hungry:false, history:[], cooldowns:{}, customCooldowns:{}};
+let FISH=[];
+let BP_DURATION={};
+const ccById=id=>document.getElementById(id);
+const ccEscape=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ccNum=x=>(+x||0).toLocaleString('ru-RU',{maximumFractionDigits:2});
+const ccClamp=(v,min,max)=>Math.min(max,Math.max(min,v));
+const ccFormatStamp=ts=>new Date(ts).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+function saveMood() {
+  MOOD.history=MOOD.history.slice(-26);
+  Cloud.setItem(V23_MOOD_KEY,JSON.stringify(MOOD));
+  renderMood(); renderDashboard();
+}
+async function loadV23Data(){
+  const items=await Promise.all([Cloud.getItem(V23_MOOD_KEY),Cloud.getItem(V23_FISH_KEY),Cloud.getItem(V23_BP_PLAN_KEY)]);
+  try { const x=items[0]&&JSON.parse(items[0]); if(x&&typeof x==='object') MOOD={...MOOD,...x,history:Array.isArray(x.history)?x.history.slice(-26):[],cooldowns:x.cooldowns||{},customCooldowns:x.customCooldowns||{}}; } catch(e){console.warn('Mood corrupted',e);}
+  if(MOOD.value!==null) MOOD.value=ccClamp(Number(MOOD.value)||0,0,100);
+  try { const x=items[1]&&JSON.parse(items[1]); if(Array.isArray(x)) FISH=x.filter(e=>e&&Number(e.w)>0&&Number(e.p)>=0).slice(0,40); }catch(e){console.warn('Fish corrupted',e)}
+  try { const x=items[2]&&JSON.parse(items[2]); if(x&&typeof x==='object'&&!Array.isArray(x)) BP_DURATION=x;}catch(e){console.warn('Planner corrupted',e)}
+}
+function setMoodHunger(value){MOOD.hungry=!!value;saveMood();showToast(value?'Режим голода включён':'Режим голода выключен','info')}
+function setMoodManual(){
+  const input=ccById('moodManual');
+  if(!input||input.value.trim()===''||!Number.isFinite(+input.value)||+input.value<0||+input.value>100) return showToast('Укажи число от 0 до 100','error');
+  const next=Math.round(+input.value), prev=MOOD.value;
+  if(prev===next) return;
+  MOOD.history.push({id:'manual',name:'Ручная установка',b:prev,a:next,delta:prev===null?0:next-prev,ts:Date.now(),cost:0});
+  MOOD.value=next; input.value=''; saveMood(); showToast('Настроение: '+next,'success');
+}
+function moodConfiguredCooldown(act){return Number(MOOD.customCooldowns[act.id]??act.cd??0)||0}
+function moodCooldownRemaining(act){return Math.max(0,Math.ceil(((MOOD.cooldowns[act.id]||0)-Date.now())/1000))}
+function setMoodCooldown(id){
+  const act=MOOD_ACTIONS.find(x=>x.id===id); if(!act)return;
+  const old=MOOD.customCooldowns[id]??act.cd??'';
+  const inp=prompt('Кулдаун для «'+act.n+'» в минутах. В источнике точная длительность не указана.',String(old));
+  if(inp===null)return;
+  if(inp.trim()===''||!Number.isFinite(Number(inp))||Number(inp)<0||Number(inp)>1440) return showToast('Введи от 0 до 1440 минут','error');
+  MOOD.customCooldowns[id]=Number(inp);saveMood();
+}
+function applyMood(id){
+  const act=MOOD_ACTIONS.find(x=>x.id===id);
+  if(!act)return;
+  if(MOOD.value===null)return showToast('Сначала введи текущее настроение','error');
+  if(moodCooldownRemaining(act)>0)return showToast('Действие на кулдауне','error');
+  const previous=MOOD.value, next=ccClamp(previous+act.d,0,100), cost=act.cost||0;
+  const cd=moodConfiguredCooldown(act), oldCD=MOOD.cooldowns[id]||0;
+  MOOD.value=next; MOOD.spent+=cost; MOOD.strengthLost+=act.strength||0;
+  if(cd>0)MOOD.cooldowns[id]=Date.now()+cd*60000;
+  MOOD.history.push({id:act.id,name:act.n,b:previous,a:next,delta:act.d,cost,sl:act.strength||0,oldCD,ts:Date.now()});
+  saveMood();
+  showToast((act.d>=0?'+':'')+(next-previous)+' настроение · '+next+'/100',act.d>=0?'success':'info');
+}
+function undoMood(){
+  const evt=MOOD.history.pop();if(!evt)return showToast('История пуста','info');
+  MOOD.value=evt.b;
+  MOOD.spent=Math.max(0,MOOD.spent-(evt.cost||0));
+  MOOD.strengthLost=Math.max(0,MOOD.strengthLost-(evt.sl||0));
+  if(evt.id&&evt.id!=='manual')MOOD.cooldowns[evt.id]=evt.oldCD||0;
+  saveMood(); showToast('Последнее изменение отменено','info');
+}
+function moodStatusText(){
+  if(MOOD.value===null)return 'Укажи текущее настроение персонажа — дальше бот будет считать изменения сам.';
+  if(MOOD.value<30)return `⚠ Настроение ${MOOD.value}/100 — ниже порога 30. По твоим данным: цены у скупщиков рыбы и шкур ниже полных, опыт клубных квестов снижен, шанс мусора повышен, сила в зале не прокачивается и есть штрафы для бизнеса/NPC. До порога осталось ${30-MOOD.value}.`;
+  return `✅ Настроение ${MOOD.value}/100. Порог 30 достигнут: полная цена у скупщиков рыбы и шкур. Штрафы из списка для низкого настроения не действуют.`;
+}
+function renderMood(){
+  if(!ccById('moodAmount'))return;
+  const known=MOOD.value!==null, mood=known?MOOD.value:0;
+  ccById('moodAmount').textContent=known?mood:'—';
+  ccById('moodEmoji').textContent=!known?'😶':mood>=70?'😎':mood>=30?'🙂':'😟';
+  ccById('moodBar').style.width=mood+'%';
+  ccById('moodBar').parentElement.classList.toggle('good',known&&mood>=30);
+  ccById('moodTopStatus').textContent=!known?'НЕТ ДАННЫХ':mood<30?'НИЖЕ 30':'БОНУС АКТИВЕН';
+  ccById('moodTopStatus').className='cc-chip '+(!known?'':mood<30?'bad':'good');
+  ccById('moodBanner').textContent=moodStatusText()+(MOOD.hungry?' ⚠ Голод: скорость естественного снижения настроения ×2.':'');
+  if(ccById('moodHungry'))ccById('moodHungry').checked=!!MOOD.hungry;
+  ccById('moodNeed').textContent=known?Math.max(0,30-mood):'—';
+  ccById('moodSpent').textContent=ccNum(MOOD.spent)+'$';
+  ccById('moodStrength').textContent='−'+ccNum(MOOD.strengthLost);
+  ccById('moodQuick').innerHTML=[['shower','🚿 Душ +50'],['cigarette','🚬 Сигареты +25'],['soda','🥤 Газировка +10'],['death','☠️ Смерть −25']].map(([id,t])=>`<button class="cc-btn" onclick="applyMood('${id}')">${t}</button>`).join('');
+  ccById('moodEffects').innerHTML=`<div class="cc-notice" style="margin-bottom:12px">${known&&mood<30?'⚠ <b>Штрафы активны</b>':'✅ <b>'+(!known?'Порог ещё не отслеживается':'Базовый порог соблюдён')+'</b>'}<br>Полная цена скупки рыбы и шкур — при настроении от 30. Ниже 30: клубный опыт снижен в 2 раза, шанс мусора вместо сокровищ выше, шанс сокровищ и червей ниже, сила в спортзале не растёт, рэкет приносит меньше, агрессия NPC выше.</div><div class="cc-mini">Дополнительный эффект из списка: голод снижается в <b>2 раза быстрее</b>. Он не является отдельным фиксированным штрафом к настроению, поэтому бот не вычитает очки автоматически.</div>`;
+  ccById('moodHistory').innerHTML=MOOD.history.length?MOOD.history.slice().reverse().slice(0,12).map(e=>`<div class="cc-history"><div><b>${ccEscape(e.name||'Действие')}</b><div class="cc-secondary">${ccFormatStamp(e.ts)}</div></div><div class="cc-history-r"><b>${e.b===null?'Старт':e.b} → ${e.a}</b><div class="cc-secondary">${e.cost?'−'+ccNum(e.cost)+'$':'Без известных затрат'}</div></div></div>`).join(''):'<span class="cc-mini">Пока нет действий</span>';
+  renderMoodActions();
+}
+function renderMoodActions(){
+  const container=ccById('moodActions');if(!container)return;
+  const q=(ccById('moodSearch')?.value||'').trim().toLowerCase();
+  const cat=ccById('moodCategory')?.value||'up';
+  const rows=MOOD_ACTIONS.filter(a=>(cat==='all'||(cat==='up'?a.d>0:a.d<0))&&(!q||(a.n+' '+(a.desc||'')).toLowerCase().includes(q)));
+  ccById('moodActionCount').textContent=rows.length+' действий';
+  container.innerHTML=rows.map(a=>{
+    const remain=moodCooldownRemaining(a),cd=moodConfiguredCooldown(a);
+    const info=(a.desc||'')+(a.cost?' · Известная цена '+ccNum(a.cost)+'$':'')+(a.customCd&&!cd?' · КД: ?':cd?' · КД '+cd+' мин':'');
+    return `<div class="cc-flex" style="align-items:stretch"><button class="cc-action" style="flex:1" onclick="applyMood('${a.id}')" ${remain>0?'disabled':''}><div><strong>${ccEscape(a.n)}</strong><small>${ccEscape(info)} <span data-mood-cd="${a.id}">${remain>0?' · Осталось '+fmtTime(remain):''}</span></small></div><span class="cc-delta ${a.d<0?'neg':''}">${a.d>0?'+':''}${a.d}</span></button>${a.customCd?`<div class="cc-cd"><button title="Установить кулдаун" onclick="setMoodCooldown('${a.id}')">⚙</button></div>`:''}</div>`;
+  }).join('')||'<p class="cc-mini">Не найдено</p>';
+}
+function updateMoodCooldownText(){
+  if(!ccById('tab-mood')?.classList.contains('active'))return;
+  for(const a of MOOD_ACTIONS){const el=document.querySelector(`[data-mood-cd="${a.id}"]`);if(!el)continue;const remain=moodCooldownRemaining(a);const btn=el.closest('button');if(btn&&btn.disabled!==(remain>0))btn.disabled=remain>0;el.textContent=remain>0?' · Осталось '+fmtTime(remain):'';}
+}
+function ccBPStats(){
+  let farm=0;for(const i of (BP.done||[])){const t=DB.bp[i];if(t&&!t.r)farm+=(BP.vip?t.v:t.b)*(BP.x2?2:1)}
+  for(const [i,c] of Object.entries(BP.counters||{})){const t=DB.bp[i];if(t&&t.r)farm+=(BP.vip?t.v:t.b)*(BP.x2?2:1)*c}
+  return {farm,total:(BP.start||0)+farm,done:(BP.done||[]).filter(i=>i!==0).length,count:DB.bp.length};
+}
+function renderDashboard(){
+  if(!ccById('ccHomeBP'))return;
+  const s=ccBPStats(),running=(TIMERS.custom||[]).filter(t=>t.run&&t.et>Date.now());
+  ccById('ccHomeBP').textContent=ccNum(s.total);
+  ccById('ccHomeMood').textContent=MOOD.value===null?'—':MOOD.value;
+  ccById('ccHomeTimers').textContent=running.length;
+  ccById('ccHomeBPDone').textContent=s.done+' / '+s.count;
+  ccById('ccHomeBPBar').style.width=(100*s.done/Math.max(1,s.count))+'%';
+  ccById('ccHomeMoodAdvice').textContent=moodStatusText();
+  updateDashboardClocks();
+}
+function updateDashboardClocks(){
+  const el=ccById('ccHomeTimerList');if(!el)return;
+  const running=(TIMERS.custom||[]).filter(t=>t.run&&t.et>Date.now()).sort((a,b)=>a.et-b.et).slice(0,4);
+  el.innerHTML=running.length?running.map(t=>`<div class="cc-mini-timer"><b>${ccEscape(t.l)}</b><time>${fmtTime(Math.max(0,Math.ceil((t.et-Date.now())/1000)))}</time></div>`).join(''):'<div class="cc-mini">Активных таймеров пока нет. Запусти готовый сценарий или создай собственный.</div>';
+}
+function startTimerScenario(id){
+  const templates={daily:['mail','mech','taxi'],long:['club','tarot','casino']};
+  const ids=id==='favorites'?(TIMERS.fav||[]):(templates[id]||[]);
+  const all=[...DB.timers,...(TIMERS.userPresets||[])];
+  const found=ids.map(x=>all.find(t=>t.id===x)).filter(Boolean);
+  if(!found.length)return showToast('Для сценария нет сохранённых таймеров','error');
+  if(!confirm('Запустить одновременно '+found.length+' таймеров?'))return;
+  found.forEach(t=>addTimerRaw(t.s,t.l,true,'gen'));
+  renderDashboard();showToast('Запущено таймеров: '+found.length,'success');
+}
+function saveFish(){Cloud.setItem(V23_FISH_KEY,JSON.stringify(FISH));renderFish()}
+function addFish(){
+  const name=ccById('fishName').value.trim().slice(0,55),w=Number(ccById('fishWeight').value),p=Number(ccById('fishPrice').value),qty=Number(ccById('fishQty').value);
+  if(!name||!Number.isFinite(w)||w<=0||w>10||!Number.isFinite(p)||p<=0||!Number.isInteger(qty)||qty<1||qty>40)return showToast('Заполни название, вес 0–10 кг, цену и количество 1–40','error');
+  if(FISH.length+qty>40)return showToast('Не больше 40 отдельных рыб','error');
+  for(let i=0;i<qty;i++)FISH.push({id:Date.now()+'_'+i+'_'+Math.random().toString(36).slice(2,6),n:name,w:Math.round(w*1000)/1000,p:Math.round(p*100)/100});
+  ccById('fishName').value='';ccById('fishWeight').value='';ccById('fishPrice').value='';ccById('fishQty').value='1';saveFish();
+}
+function delFish(id){FISH=FISH.filter(f=>f.id!==id);saveFish()}
+function clearFish(){if(FISH.length&&confirm('Очистить весь список рыбы?')){FISH=[];saveFish()}}
+function optimizeFish(){
+  // Exact 0/1 knapsack on 1-gram weights, 10,000 gram capacity.
+  const capacity=10000,dp=new Float64Array(capacity+1),masks=new Array(capacity+1).fill(0n);
+  dp.fill(-Infinity);dp[0]=0;
+  FISH.forEach((f,i)=>{const g=Math.round(f.w*1000);if(g<1||g>capacity)return;const bit=1n<<BigInt(i);for(let j=capacity;j>=g;j--)if(Number.isFinite(dp[j-g])&&dp[j-g]+f.p>dp[j]+1e-8){dp[j]=dp[j-g]+f.p;masks[j]=masks[j-g]|bit;}});
+  let best=0;for(let j=1;j<=capacity;j++)if(dp[j]>dp[best]+1e-8)best=j;
+  const mask=masks[best];const picked=FISH.filter((_,i)=>(mask&(1n<<BigInt(i)))!==0n);
+  return {picked,best,total:dp[best],weight:best/1000};
+}
+function renderFish(){
+  if(!ccById('fishList'))return;
+  ccById('fishList').innerHTML=FISH.length?FISH.map(f=>`<div class="cc-fish-row"><div><b>${ccEscape(f.n)}</b><div class="cc-mini">${ccNum(f.w)} кг · ${ccNum(f.p)}$ · ${ccNum(f.p/f.w)} $/кг</div></div><button class="cc-btn" onclick="delFish('${f.id}')" aria-label="Удалить рыбу">✕</button></div>`).join(''):'<p class="cc-mini">Рыба ещё не добавлена.</p>';
+  const r=optimizeFish();const rejected=FISH.length-r.picked.length;
+  ccById('fishResult').innerHTML=`<div class="cc-stats"><div class="cc-stat"><div class="cc-stat-label">Стоимость</div><div class="cc-stat-value good">${ccNum(r.total)}$</div></div><div class="cc-stat"><div class="cc-stat-label">Вес стака</div><div class="cc-stat-value">${ccNum(r.weight)} кг</div></div><div class="cc-stat"><div class="cc-stat-label">На продажу</div><div class="cc-stat-value accent">${rejected}</div></div></div><div class="cc-pbar"><div style="width:${r.weight*10}%"></div></div><div class="cc-mini" style="margin-top:12px">${r.picked.length?'Оставить в стаке:':'Добавь рыбу, чтобы рассчитать:'}</div><div class="cc-catalog" style="margin-top:6px">${r.picked.map(f=>`<div class="cc-flex" style="font-size:12px"><span>${ccEscape(f.n)} · ${ccNum(f.w)} кг</span><b>${ccNum(f.p)}$</b></div>`).join('')}</div><p class="cc-mini">Результат оптимален для введённых экземпляров с точностью веса 1 грамм. Не учитывает возможный дисконт за низкое настроение.</p>`;
+  ccById('fishMoodNote').textContent=MOOD.value===null?'Укажи настроение: полная цена у скупщиков рыбы только от 30.':MOOD.value<30?'⚠ Настроение ниже 30: скупщик рыбы не даёт полную цену, но точный дисконт неизвестен. В расчёте использованы указанные тобой суммы.':'✅ Настроение 30 или выше: по твоим данным скупщик рыбы платит полную цену.';
+}
+function setBpDuration(id,v){
+  if(v===''||!Number.isFinite(Number(v))||Number(v)<=0)delete BP_DURATION[id];
+  else BP_DURATION[id]=ccClamp(Math.round(Number(v)),1,180);
+  Cloud.setItem(V23_BP_PLAN_KEY,JSON.stringify(BP_DURATION)); renderBPPlanner();
+}
+function calcBPPlan(minutes){
+  const items=DB.bp.map((t,i)=>({i,t,d:Number(BP_DURATION[i])||0,points:(BP.vip?t.v:t.b)*(BP.x2?2:1)})).filter(x=>x.d>0&&!x.t.r&&!(BP.done||[]).includes(x.i)&&!(BP.hidden||[]).includes(x.i));
+  const dp=new Float64Array(minutes+1),mask=new Array(minutes+1).fill(0n);
+  for(let i=0;i<items.length;i++){const it=items[i],bit=1n<<BigInt(i);for(let j=minutes;j>=it.d;j--)if(dp[j-it.d]+it.points>dp[j]){dp[j]=dp[j-it.d]+it.points;mask[j]=mask[j-it.d]|bit;}}
+  let best=0;for(let j=1;j<=minutes;j++)if(dp[j]>dp[best])best=j;
+  const selected=items.filter((_,i)=>(mask[best]&(1n<<BigInt(i)))!==0n);
+  return {selected,points:dp[best],used:best,count:items.length};
+}
+function renderBPPlanner(){
+  if(!ccById('plannerTasks'))return;
+  const budget=Number(ccById('plannerBudget')?.value)||30,r=calcBPPlan(budget);
+  ccById('plannerResult').innerHTML=`<div class="cc-stats"><div class="cc-stat"><div class="cc-stat-label">BP за цикл</div><div class="cc-stat-value accent">+${r.points}</div></div><div class="cc-stat"><div class="cc-stat-label">Займёт</div><div class="cc-stat-value">${r.used}м</div></div><div class="cc-stat"><div class="cc-stat-label">Заданий</div><div class="cc-stat-value">${r.selected.length}</div></div></div><div style="margin-top:12px">${r.selected.map(x=>`<div class="cc-mini-timer"><b>${ccEscape(x.t.t)}</b><time>+${x.points} BP · ${x.d}м</time></div>`).join('')||'<p class="cc-mini">Укажи длительность хотя бы одного невыполненного задания ниже.</p>'}</div>`;
+  const search=(ccById('plannerSearch')?.value||'').toLowerCase();
+  const tasks=DB.bp.map((t,i)=>({t,i,p:(BP.vip?t.v:t.b)*(BP.x2?2:1)})).filter(x=>!x.t.r&&!(BP.done||[]).includes(x.i)&&!(BP.hidden||[]).includes(x.i)&&(!search||x.t.t.toLowerCase().includes(search))).sort((a,b)=>(Number(BP_DURATION[b.i]>0)-Number(BP_DURATION[a.i]>0))||b.p-a.p);
+  ccById('plannerTasks').innerHTML=tasks.map(({t,i,p})=>`<div class="cc-flex" style="padding:9px 0;border-bottom:1px solid var(--border)"><div style="flex:1"><b style="font-size:12px">${ccEscape(t.t)}</b><div class="cc-mini">+${p} BP</div></div><input class="cc-input" type="number" min="1" max="180" step="1" style="max-width:82px" placeholder="мин" value="${BP_DURATION[i]||''}" onchange="setBpDuration(${i},this.value)" aria-label="Минут на задание"></div>`).join('')||'<p class="cc-mini">Не найдены невыполненные задания.</p>';
+}
+function exportAllData(){
+  const keys=['gta_bp_22','gta_tm_22','gta_contracts_22','gta_event_22',V23_MOOD_KEY,V23_FISH_KEY,V23_BP_PLAN_KEY,'gta_theme_22','gta_notify_settings_22','gta_work_skills_22','gta_scale_22','gta_hide_completed_22','gta_simple_mode_22','gta_sync_enabled_22'];
+  const data={version:23,created:new Date().toISOString(),values:{}};
+  keys.forEach(k=>{const v=localStorage.getItem(k);if(v!==null)data.values[k]=v});
+  const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+  const a=document.createElement('a');a.href=url;a.download='gta-helper-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  showToast('Резервная копия подготовлена','success');
+}
+async function importAllData(input){
+  const file=input.files?.[0];if(!file)return;
+  try {
+    const data=JSON.parse(await file.text());
+    if(data.version!==23||!data.values||typeof data.values!=='object'||Array.isArray(data.values))throw new Error('Это не резервная копия GTA Helper v23');
+    if(!confirm('Заменить текущие данные сохранением из '+(data.created||'файла')+'?'))return;
+    const allowed=new Set(['gta_bp_22','gta_tm_22','gta_contracts_22','gta_event_22',V23_MOOD_KEY,V23_FISH_KEY,V23_BP_PLAN_KEY,'gta_theme_22','gta_notify_settings_22','gta_work_skills_22','gta_scale_22','gta_hide_completed_22','gta_simple_mode_22']);
+    for(const [k,v] of Object.entries(data.values))if(allowed.has(k)&&typeof v==='string'&&v.length<1e6)localStorage.setItem(k,v);
+    // Turn cloud sync off for safe local recovery; user can reenable afterwards.
+    localStorage.setItem('gta_sync_enabled_22','false');
+    alert('Копия восстановлена локально. Облачная синхронизация временно выключена; включи её в настройках после проверки.');
+    location.reload();
+  }catch(e){showToast('Импорт: '+e.message,'error')}
+  finally{input.value=''}
+}
+// =========================== END V23 MODULES ===========================
+
 // ====================== ДАННЫЕ ======================
 const TIMER_SERVICE_URL = "https://gta-timer.onrender.com";
 // Новые настройки уведомлений по умолчанию
 // Новые настройки уведомлений по умолчанию
-let NOTIFY_SETTINGS = { tg: true, tgSound: true, appPush: true, appSound: true };
+let NOTIFY_SETTINGS = { tg: true, tgSound: false, appPush: true, appSound: false, volume: 0.12 };
+
+// HOTFIX v22: оповещения только о таймерах, завершившихся при активном приложении.
+// При открытии / возвращении в Mini App завершившиеся ранее таймеры очищаются без звука.
+let APP_FOREGROUND_SINCE = Date.now();
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') APP_FOREGROUND_SINCE = Date.now();
+});
+function shouldAlertForExpiry(deadline, now = Date.now()) {
+    const end = Number(deadline);
+    return document.visibilityState === 'visible' &&
+        Number.isFinite(end) &&
+        end >= APP_FOREGROUND_SINCE &&
+        now >= end &&
+        now - end <= 2500;
+}
+let LAST_DING_AT = 0;
 
 function saveNotifySettings() {
     NOTIFY_SETTINGS.tg = document.getElementById('notifyTgToggle').checked;
     NOTIFY_SETTINGS.tgSound = document.getElementById('notifyTgSoundToggle').checked;
     NOTIFY_SETTINGS.appPush = document.getElementById('notifyAppPushToggle').checked;
     NOTIFY_SETTINGS.appSound = document.getElementById('notifyAppSoundToggle').checked;
+    const v = document.getElementById('notifyVolume');
+    if(v) NOTIFY_SETTINGS.volume = Number(v.value)/100;
     localStorage.setItem('gta_notify_settings_22', JSON.stringify(NOTIFY_SETTINGS));
 }
 
+let GH_LAST_SERVER_WARN=0;
+function ghWarnNotify(reason){
+    console.warn('Timer backend',reason);
+    if(Date.now()-GH_LAST_SERVER_WARN>45000){
+        GH_LAST_SERVER_WARN=Date.now();
+        if(typeof showToast==='function')showToast('Таймер запущен локально, но Telegram-уведомление не подтверждено','error');
+    }
+}
 function scheduleNotification(id, delaySeconds, message, notify = true) {
     const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
     if (!userId) return;
@@ -1201,9 +2024,11 @@ function scheduleNotification(id, delaySeconds, message, notify = true) {
             delay: delaySeconds,
             notify: true,
             // Передаем на бэкенд параметр silent (без звука)
-            silent: !NOTIFY_SETTINGS.tgSound 
+            silent: !NOTIFY_SETTINGS.tgSound,
+            initData: window.Telegram?.WebApp?.initData || '' // бэкенд должен проверить подпись для защиты
         })
-    }).catch(err => console.error("Ошибка запуска таймера:", err));
+    }).then(res=>{if(!res.ok)ghWarnNotify('HTTP '+res.status)})
+      .catch(err => ghWarnNotify(err));
 }
 
 function cancelNotification(id) {
@@ -1211,7 +2036,8 @@ function cancelNotification(id) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: String(id) })
-    }).catch(err => console.error("Ошибка отмены таймера:", err));
+    }).then(res=>{if(!res.ok)console.warn('Timer cancel HTTP',res.status)})
+      .catch(err => console.warn('Timer cancel failed',err));
 }
 
 const WORK_RATES = {
@@ -1387,49 +2213,157 @@ let HIDE_COMPLETED = false;
 // Переменная синхронизации (по умолчанию включена)
 let CLOUD_SYNC_ENABLED = localStorage.getItem('gta_sync_enabled_22') !== 'false'; 
 
-const Cloud = {
-    isAvailable: () => window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.CloudStorage,
-    
-    getItem: (key) => {
-        return new Promise((resolve) => {
-            // Если синхронизация выключена - берем ТОЛЬКО из локальной памяти
-            if (!CLOUD_SYNC_ENABLED || !Cloud.isAvailable()) {
-                return resolve(localStorage.getItem(key));
-            }
-
-            const safetyTimeout = setTimeout(() => {
-                console.warn(`Cloud timeout for ${key}, using LocalStorage`);
-                resolve(localStorage.getItem(key));
-            }, 2000);
-
-            window.Telegram.WebApp.CloudStorage.getItem(key, (err, val) => {
-                clearTimeout(safetyTimeout);
-                
-                if (err || !val) {
-                    resolve(localStorage.getItem(key));
-                } else {
-                    localStorage.setItem(key, val);
-                    resolve(val);
+// Telegram CloudStorage: максимум 4096 символов на значение.
+// Запись больших объектов двухфазная: сначала части в неактивный слот,
+// затем указатель/хэш. Старый слот остаётся доступным при сбое записи.
+const GH_CHUNK=3700, GH_META='GH23CH|';
+const GH_CLOUD_DIRTY='gh23_dirty_';
+const GH_WRITES=new Map();
+const GH_RUNNING=new Map();
+const GH_MAX_CHUNKS=64;
+function ghHash(str){
+    let h=2166136261;
+    for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);}
+    return (h>>>0).toString(36);
+}
+function ghCloudStatus(kind,text){
+    const el=document.getElementById('ccSyncStatus');
+    if(!el)return;
+    el.textContent=text;
+    el.dataset.state=kind;
+    el.title=text;
+}
+function ghStorage(){return window.Telegram?.WebApp?.CloudStorage ?? null;}
+function ghReadRaw(key,timeout=5000){
+    return new Promise((resolve,reject)=>{
+        const storage=ghStorage();if(!storage)return reject(new Error('Нет Telegram CloudStorage'));
+        let done=false;
+        const timer=setTimeout(()=>{if(!done){done=true;reject(new Error('Тайм-аут CloudStorage'))}},timeout);
+        try{storage.getItem(key,(err,val)=>{
+            if(done)return;done=true;clearTimeout(timer);
+            if(err)reject(new Error(String(err)));else resolve(val||'');
+        })}catch(e){if(!done){done=true;clearTimeout(timer);reject(e)}}
+    });
+}
+function ghWriteRaw(key,value,timeout=6000){
+    return new Promise((resolve,reject)=>{
+        const storage=ghStorage();if(!storage)return reject(new Error('Нет Telegram CloudStorage'));
+        let done=false;
+        const timer=setTimeout(()=>{if(!done){done=true;reject(new Error('Тайм-аут записи CloudStorage'))}},timeout);
+        try{storage.setItem(key,value,(err,stored)=>{
+            if(done)return;done=true;clearTimeout(timer);
+            if(err || stored===false)reject(new Error(String(err||'Не записано'))); else resolve();
+        })}catch(e){if(!done){done=true;clearTimeout(timer);reject(e)}}
+    });
+}
+async function ghReadCloud(key){
+    const raw=await ghReadRaw(key);
+    if(!raw.startsWith(GH_META))return raw;
+    const meta=raw.slice(GH_META.length).split('|');
+    const [slot,countText,check]=meta;
+    const count=Number(countText);
+    if(!/^[ab]$/.test(slot)||!Number.isInteger(count)||count<1||count>GH_MAX_CHUNKS)throw new Error('Повреждён индекс облачного сохранения');
+    const pieces=await Promise.all(Array.from({length:count},(_,i)=>ghReadRaw(`${key}__${slot}_${i}`)));
+    const assembled=pieces.join('');
+    if(!pieces.every(x=>x.length>0)||ghHash(assembled)!==check)throw new Error('Не все части данных синхронизированы');
+    return assembled;
+}
+async function ghWriteCloud(key,value){
+    if(value.length<=4000){await ghWriteRaw(key,value);return;}
+    const pieces=[];
+    for(let at=0;at<value.length;){
+        let end=Math.min(at+GH_CHUNK,value.length);
+        // Не разрезаем emoji и другие UTF-16 пары между разными ключами.
+        if(end<value.length){const code=value.charCodeAt(end-1);if(code>=0xD800&&code<=0xDBFF)end--}
+        pieces.push(value.slice(at,end));at=end;
+    }
+    const n=pieces.length;
+    if(n>GH_MAX_CHUNKS)throw new Error('Объём данных превышает безопасный лимит облака');
+    // Используем следующий слот, чтобы читатель никогда не получил смесь версий.
+    let old='';try{old=await ghReadRaw(key)}catch(_e){}
+    const oldSlot=old.startsWith(GH_META)?old.slice(GH_META.length).split('|')[0]:'b';
+    const slot=oldSlot==='a'?'b':'a';
+    for(let i=0;i<n;i++)await ghWriteRaw(`${key}__${slot}_${i}`,pieces[i]);
+    await ghWriteRaw(key,`${GH_META}${slot}|${n}|${ghHash(value)}`);
+}
+async function ghFlushKey(key){
+    if(!CLOUD_SYNC_ENABLED||!ghStorage())return;
+    const existing=GH_RUNNING.get(key);
+    if(existing)return existing;
+    const task=(async()=>{
+        for(let iteration=0;iteration<4;iteration++){
+            const data=localStorage.getItem(key);
+            if(data===null)return;
+            try{
+                ghCloudStatus('saving','☁ Сохранение…');
+                await ghWriteCloud(key,data);
+                if(localStorage.getItem(key)===data){
+                    localStorage.removeItem(GH_CLOUD_DIRTY+key);
+                    ghCloudStatus('ok','☁ Сохранено');
+                    return;
                 }
-            });
-        });
-    },
-
-    setItem: (key, value) => {
-        localStorage.setItem(key, value); // Всегда сохраняем локально мгновенно
-        
-        // Если синхронизация включена - пушим еще и в облако
-        if (CLOUD_SYNC_ENABLED && Cloud.isAvailable()) {
-            if (saveTimers[key]) clearTimeout(saveTimers[key]);
-
-            saveTimers[key] = setTimeout(() => {
-                window.Telegram.WebApp.CloudStorage.setItem(key, value, (err, stored) => {
-                    if (err) console.error('Cloud save error:', err);
-                });
-            }, 500);
+            }catch(e){
+                ghCloudStatus('error','⚠ Локально · ошибка облака');
+                console.warn('Cloud write failed for '+key,e);
+                return;
+            }
         }
+        ghSchedule(key,300);
+    })().finally(()=>GH_RUNNING.delete(key));
+    GH_RUNNING.set(key,task);return task;
+}
+function ghSchedule(key,delay=650){
+    clearTimeout(GH_WRITES.get(key));
+    if(!CLOUD_SYNC_ENABLED||!ghStorage())return;
+    GH_WRITES.set(key,setTimeout(()=>{GH_WRITES.delete(key);ghFlushKey(key)},delay));
+}
+const Cloud={
+    isAvailable:()=>!!ghStorage(),
+    async getItem(key){
+        const local=localStorage.getItem(key);
+        if(!CLOUD_SYNC_ENABLED||!Cloud.isAvailable()){
+            ghCloudStatus('local','◉ Локально');return local;
+        }
+        // Если прошлое изменение ещё не успело выгрузиться, не теряем его.
+        if(localStorage.getItem(GH_CLOUD_DIRTY+key)==='1'){
+            ghSchedule(key,1100);return local;
+        }
+        try{
+            const val=await ghReadCloud(key);
+            if(val){localStorage.setItem(key,val);ghCloudStatus('ok','☁ Синхронизация');return val;}
+            if(local!==null){Cloud.setItem(key,local);return local;}
+            return null;
+        }catch(e){
+            ghCloudStatus('error','⚠ Облако недоступно');console.warn('Cloud read failed for '+key,e);
+            return local;
+        }
+    },
+    setItem(key,value){
+        try{
+            localStorage.setItem(key,value);
+            if(CLOUD_SYNC_ENABLED){
+                localStorage.setItem(GH_CLOUD_DIRTY+key,'1');
+                if(Cloud.isAvailable())ghSchedule(key);
+                else ghCloudStatus('local','◉ Локально · ожидает Telegram');
+            }else ghCloudStatus('local','◉ Локально');
+        }catch(e){ghCloudStatus('error','⚠ Ошибка сохранения');console.error('Local save failed',e);}
+    },
+    async syncNow(){
+        const keys=['gta_bp_22','gta_tm_22','gta_contracts_22','gta_event_22',V23_MOOD_KEY,V23_FISH_KEY,V23_BP_PLAN_KEY];
+        if(!CLOUD_SYNC_ENABLED||!Cloud.isAvailable()){showToast('Открой Mini App в Telegram и включи облако','error');return;}
+        keys.forEach(k=>{if(localStorage.getItem(k)!==null)localStorage.setItem(GH_CLOUD_DIRTY+k,'1')});
+        await Promise.all(keys.filter(k=>localStorage.getItem(k)!==null).map(k=>ghFlushKey(k)));
+        const remaining=keys.some(k=>localStorage.getItem(GH_CLOUD_DIRTY+k)==='1');
+        showToast(remaining?'Часть данных осталась локально. Попробуй ещё раз':'Данные синхронизированы',''+(remaining?'error':'success'));
     }
 };
+function ghRetryPending(){
+    if(!CLOUD_SYNC_ENABLED||!Cloud.isAvailable())return;
+    ['gta_bp_22','gta_tm_22','gta_contracts_22','gta_event_22',V23_MOOD_KEY,V23_FISH_KEY,V23_BP_PLAN_KEY].forEach(k=>{
+        if(localStorage.getItem(GH_CLOUD_DIRTY+k)==='1')ghSchedule(k,1800);
+    });
+}
+window.addEventListener('pagehide',()=>{for(const [key,timer] of GH_WRITES){clearTimeout(timer);ghFlushKey(key)}});
 
 async function init() {
     try {
@@ -1492,6 +2426,8 @@ const savedScale = localStorage.getItem('gta_scale_22');
     if(typeof BP.ball8 === 'undefined') BP.ball8 = 0; 
     applyBallStyle(); 
     
+    // V23 data: new keys, preserving all V22 storage and migrations.
+    await loadV23Data();
     // Запускаем отрисовку всех вкладок
     renderBP(); 
     updateBP();
@@ -1511,6 +2447,10 @@ const savedScale = localStorage.getItem('gta_scale_22');
 
     renderEventTab();
     setupDragAndDrop();
+    renderMood(); renderFish(); renderDashboard(); renderBPPlanner();
+    APP_FOREGROUND_SINCE = Date.now(); // загрузка завершена; старые таймеры беззвучны
+    if(typeof ghRetryPending==='function')ghRetryPending();
+    if(typeof ghBackButton==='function')ghBackButton();
     startGlobalTimerLoop();
 }
 
@@ -1523,15 +2463,37 @@ function go(id, btn) {
     document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
     document.getElementById('tab-'+id).classList.add('active');
     document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active'));
-    btn.classList.add('active');
+    const activeNav = ['dashboard','bp','timers','mood'].includes(id) ? id : 'services';
+    const navButton = document.querySelector(`.nav-btn[data-tab="${activeNav}"]`);
+    if(navButton) navButton.classList.add('active');
+    if(id === 'dashboard') renderDashboard();
+    if(id === 'mood') renderMood();
+    if(id === 'fishing') renderFish();
+    if(id === 'planner') renderBPPlanner();
     const savedScroll = SCROLL_POS['tab-'+id] || 0;
     setTimeout(() => window.scrollTo(0, savedScroll), 10);
+    if(typeof ghBackButton==='function')ghBackButton();
 }
 
 // Звук и Пуш для таймеров
 function playDing() {
-    const audio = new Audio('https://notificationsounds.com/storage/sounds/file-sounds-1150-pristine.mp3');
-    audio.play().catch(e => console.log("Звук заблокирован"));
+    // Quiet, short built-in chime; zero network requests; no autoplay on reopening.
+    const now = Date.now();
+    if (now - LAST_DING_AT < 2000 || !NOTIFY_SETTINGS.appSound) return;
+    LAST_DING_AT = now;
+    try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if(!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = 'sine'; o.frequency.value = 660;
+        const volume = Math.max(0,Math.min(0.25,Number(NOTIFY_SETTINGS.volume ?? 0.12))) * .24;
+        g.gain.setValueAtTime(0,ctx.currentTime);
+        g.gain.linearRampToValueAtTime(volume,ctx.currentTime + .015);
+        g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime + .40);
+        o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime + .42);
+        o.onended = () => ctx.close().catch(()=>{});
+    } catch(e) { console.debug('Sound blocked',e); }
 }
 
 function showNativePopup(title) {
@@ -1542,13 +2504,14 @@ function showNativePopup(title) {
 
 // ВАЖНО: теперь функция принимает СЕКУНДЫ
 function addTimerRaw(seconds, label, notify = true, type = 'gen') {
+    if (!Number.isFinite(Number(seconds)) || seconds <= 0 || seconds > 604800) return showToast('Таймер: от 1 сек до 7 дней', 'error');
     if (!TIMERS.custom) TIMERS.custom = [];
     
     let existing = TIMERS.custom.find(t => t.l === label);
     if (existing) {
         existing.rm = seconds; existing.s = seconds;
         existing.ts = Date.now(); existing.et = Date.now() + (seconds * 1000);
-        existing.run = true; existing.type = type; // Обновляем тип
+        existing.run = true; existing.type = type; existing.notify = Boolean(notify); // Обновляем тип и настройки
     } else {
         const timerId = 't_' + Date.now();
         TIMERS.custom.push({
@@ -1558,9 +2521,10 @@ function addTimerRaw(seconds, label, notify = true, type = 'gen') {
         });
     }
     
+    if (existing && !notify) cancelNotification(existing.id);
     if (notify) {
         let existingId = existing ? existing.id : TIMERS.custom[TIMERS.custom.length-1].id;
-        scheduleNotification(existingId, seconds, `⏰ Таймер <b>${label}</b> завершен!`, notify);
+        scheduleNotification(existingId, seconds, `⏰ Таймер <b>${ccEscape(label)}</b> завершен!`, notify);
     }
     saveTm(); renderTimers();
 }
@@ -1666,10 +2630,10 @@ function renderTimers() {
             <div class="timer-bubble ${t.run ? 'running' : ''}" onclick="togTime('${t.id}')">
                 <button class="bubble-close" onclick="event.stopPropagation(); delTime('${t.id}')">✕</button>
                 <div class="circle-wrap">
-                    <svg><circle class="circle-bg" cx="26" cy="26" r="24"/><circle class="circle-progress" cx="26" cy="26" r="24" style="stroke-dashoffset: ${150.8 - pct}"/></svg>
+                    <svg viewBox="0 0 52 52" aria-hidden="true"><circle class="circle-bg" cx="26" cy="26" r="24"/><circle class="circle-progress" cx="26" cy="26" r="24" style="stroke-dashoffset: ${150.8 - pct}"/></svg>
                     <div class="circle-time" id="disp_${t.id}">${fmtTime(t.rm)}</div>
                 </div>
-                <div class="bubble-title">${t.l}</div>
+                <div class="bubble-title">${ccEscape(t.l)}</div>
             </div>`;
         
         if (t.type === 'dm') {
@@ -1721,7 +2685,7 @@ function renderTimerPresets() {
                 <div style="display:flex; align-items:center; gap:8px; width:100%;">
                     <div style="color:#555; font-size:16px; font-weight:bold; letter-spacing:-2px; cursor:grab;">⋮⋮</div>
                     <div style="flex:1; min-width:0; padding-right:16px;">
-                        <div style="font-size:12px; font-weight:700; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${t.l}</div>
+                        <div style="font-size:12px; font-weight:700; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${ccEscape(t.l)}</div>
                         <div style="font-size:11px; font-weight:800; color:var(--text-sub); font-family:monospace; margin-top:2px;">⏱ ${timeStr}</div>
                     </div>
                 </div>
@@ -1762,12 +2726,13 @@ function setupTimersDragAndDrop() {
             else if (TIMERS.fav.length > 0 && emptyMsg) emptyMsg.remove();
         }
     };
+    if (typeof Sortable === 'undefined') return;
     Sortable.create(favEl, sortableOptions); Sortable.create(gridEl, sortableOptions);
     timersSortableInit = true;
 }
 function fmtTimeSimple(s) { const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60; if (h > 0) return `${h}:${pad(m)}:${pad(sec)}`; return `${m}:${pad(sec)}`; }
 
-function saveBP() { Cloud.setItem('gta_bp_22', JSON.stringify(BP)); }
+function saveBP() { Cloud.setItem('gta_bp_22', JSON.stringify(BP)); if(typeof renderDashboard === 'function') renderDashboard(); }
 function toggleVip() { BP.vip = !BP.vip; document.getElementById('btnVip').classList.toggle('active'); saveBP(); renderBP(); updateBP(); }
 function toggleX2() { BP.x2 = !BP.x2; document.getElementById('btnX2').classList.toggle('active'); saveBP(); renderBP(); updateBP(); }
 
@@ -2048,6 +3013,7 @@ function completeInstant(id) {
 }
 
 function setupDragAndDrop() {
+    if(typeof Sortable === 'undefined') return;
     const list = document.getElementById('listBP');
     Sortable.create(list, {
         handle: '.drag-handle',
@@ -2081,7 +3047,7 @@ function setupDragAndDrop() {
     });
 }
 
-function saveTm() { Cloud.setItem('gta_tm_22', JSON.stringify(TIMERS)); }
+function saveTm() { Cloud.setItem('gta_tm_22', JSON.stringify(TIMERS)); if(typeof renderDashboard === 'function') renderDashboard(); }
 
 function updateTimersVisuals() {
     if(TIMERS.custom) {
@@ -2098,11 +3064,9 @@ if(t.rm <= 0) {
                     
                     // Проверяем, разрешил ли юзер пуши на экране
 // Раздельные проверки для звука и пуша на экране
-                    if (NOTIFY_SETTINGS.appSound) {
-                        playDing();
-                    }
-                    if (NOTIFY_SETTINGS.appPush) {
-                        showNativePopup(t.l);
+                    if (shouldAlertForExpiry(t.et, now)) {
+                        if (NOTIFY_SETTINGS.appSound) playDing();
+                        if (NOTIFY_SETTINGS.appPush) showNativePopup(t.l);
                     }
                     
                     TIMERS.custom.splice(i, 1); // Автоудаление
@@ -2133,8 +3097,10 @@ if(t.rm <= 0) {
                 if(diff <= 0) {
                     t.rm = 0; t.run = false; renderBP(); 
                     let taskName = DB.bp[id] ? DB.bp[id].t : "Задача";
-                    showToast(`Задача "${taskName}" готова!`, 'success');
-                    if(window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                    if(shouldAlertForExpiry(t.et,now)){
+                        showToast(`Задача "${taskName}" готова!`, 'success');
+                        if(NOTIFY_SETTINGS.appSound)playDing();
+                    }
                 } else {
                     t.rm = diff;
                     const el = document.getElementById(`loc_timer_${id}`);
@@ -2274,6 +3240,7 @@ function updateEventTimersVisuals() {
     let cIdx = EVENT_STATE.activeChar;
     let now = Date.now();
     let needsRender = false;
+    let anyExpired = false;
 
     EVENT_STATE.chars.forEach((c, cIndex) => {
         c.rows.forEach((row, rIdx) => {
@@ -2286,24 +3253,24 @@ function updateEventTimersVisuals() {
                     }
                 } else if (endTime > 0 && endTime <= now) {
                     row['t'+tNum+'Time'] = 0;
+                    anyExpired = true;
                     if (cIndex === cIdx) needsRender = true;
-                    
-                    let taskName = EVENT_STATE.tasks[rIdx]['t'+tNum] || `Задание ${tNum}`;
-                    if (typeof NOTIFY_SETTINGS !== 'undefined') {
+
+                    // Просроченные за время отсутствия события — только тихая очистка.
+                    if (shouldAlertForExpiry(endTime, now)) {
+                        let taskName = EVENT_STATE.tasks[rIdx]['t'+tNum] || `Задание ${tNum}`;
                         if (NOTIFY_SETTINGS.appSound) playDing();
                         if (NOTIFY_SETTINGS.appPush) showNativePopup(taskName);
-                    } else {
-                        playDing(); showNativePopup(taskName);
                     }
                 }
             });
         });
     });
 
-    if (needsRender) {
-        saveEventData();
-        renderEventTab();
-    }
+    // Сохраняем изменения даже для неактивного персонажа.
+    // Раньше это могло заново запускать уведомления после следующего входа.
+    if (anyExpired) saveEventData();
+    if (needsRender) renderEventTab();
 }
 
 function renderEventTab() {
@@ -2325,14 +3292,14 @@ function renderEventTab() {
         <div class="segment">`;
     for(let i=0; i<3; i++) {
         let n = EVENT_STATE.chars[i].name;
-        html += `<button class="seg-btn ${i === cIdx ? 'active' : ''}" onclick="setEventChar(${i})" style="flex:1; text-align:center;">${n}</button>`;
+        html += `<button class="seg-btn ${i === cIdx ? 'active' : ''}" onclick="setEventChar(${i})" style="flex:1; text-align:center;">${ccEscape(n)}</button>`;
     }
     html += `</div></div>`;
 
     // Имя и кнопка VIP
     html += `
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; background:var(--bg-card); padding:10px 15px; border-radius:12px; border:1px solid var(--border);">
-        <input type="text" value="${charData.name}" onchange="updateEventData('name', this.value)" class="event-input" placeholder="Имя персонажа" style="font-weight:bold; color:var(--accent) !important; background:transparent !important; border:none !important; font-size:16px; padding:0; flex:1;">
+        <input type="text" value="${ccEscape(charData.name)}" onchange="updateEventData('name', this.value)" class="event-input" placeholder="Имя персонажа" style="font-weight:bold; color:var(--accent) !important; background:transparent !important; border:none !important; font-size:16px; padding:0; flex:1;">
         <button class="action-btn ${charData.vip ? 'active' : ''}" style="${charData.vip ? 'color:var(--gold); border-color:var(--gold); background:rgba(251,191,36,0.1);' : 'color:var(--text-sub);'}" onclick="toggleEventVip()">👑 VIP (${charData.vip ? '5ч' : '6ч'})</button>
     </div>
     `;
@@ -2375,16 +3342,16 @@ function renderEventTab() {
             <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:10px; margin-bottom:10px;">
                 <div style="display:flex; gap:8px; align-items:center; flex:1;">
                     <span style="background:rgba(255,255,255,0.05); padding:4px 8px; border-radius:6px; font-weight:bold; font-size:12px; color:var(--text-sub);">#${displayNum}</span>
-                    <input type="text" class="event-input" placeholder="Имя NPC..." value="${taskTexts.npc}" onchange="updateEventData('npc', this.value, ${rIdx})" style="flex:1; font-weight:bold;">
+                    <input type="text" class="event-input" placeholder="Имя NPC..." value="${ccEscape(taskTexts.npc)}" onchange="updateEventData('npc', this.value, ${rIdx})" style="flex:1; font-weight:bold;">
                 </div>
                 <button class="action-btn" style="width:85px; margin-left:10px; justify-content:center; background:${examBg}; color:${examColor}; border-color:${row.exam ? 'var(--green)' : 'rgba(239,68,68,0.3)'}" onclick="toggleEventExam(${rIdx})">${examStatus}</button>
             </div>
             <div style="display:flex; gap:10px; align-items:center; margin-bottom:8px;">
-                <input type="text" class="event-input" placeholder="Задание 1..." value="${taskTexts.t1}" onchange="updateEventData('t1', this.value, ${rIdx})" style="flex:1;">
+                <input type="text" class="event-input" placeholder="Задание 1..." value="${ccEscape(taskTexts.t1)}" onchange="updateEventData('t1', this.value, ${rIdx})" style="flex:1;">
                 ${t1UI}
             </div>
             <div style="display:flex; gap:10px; align-items:center;">
-                <input type="text" class="event-input" placeholder="Задание 2..." value="${taskTexts.t2}" onchange="updateEventData('t2', this.value, ${rIdx})" style="flex:1;">
+                <input type="text" class="event-input" placeholder="Задание 2..." value="${ccEscape(taskTexts.t2)}" onchange="updateEventData('t2', this.value, ${rIdx})" style="flex:1;">
                 ${t2UI}
             </div>
         </div>
@@ -2435,8 +3402,17 @@ function openModal(f) {
         </div>
         <div style="margin-bottom:15px;"><div style="font-size:12px; color:#666; margin-bottom:5px;">ИНГРЕДИЕНТЫ</div><div>${f.ing.map(i=>`<span class="tag">${i}</span>`).join('')}</div></div>
         <div><div style="font-size:12px; color:#666; margin-bottom:5px;">ТРЕБОВАНИЯ</div><span class="tag" style="background:rgba(255,69,58,0.2); color:var(--red)">${f.tool}</span> <span class="tag" style="background:rgba(255,214,10,0.2); color:var(--gold)">Навык: ${f.skill}</span></div>
+        ${f.mood>0?`<button class="cc-btn success" style="width:100%;margin-top:14px" onclick="applyFoodMood(${DB.kitchen.indexOf(f)})">🍽 Съел блюдо · +${f.mood} настроение</button>`:''}
     `;
     document.getElementById('modal').style.display = 'flex';
+}
+function applyFoodMood(index){
+    const food=DB.kitchen[index];if(!food||!Number.isFinite(Number(food.mood)))return;
+    if(MOOD.value===null){showToast('Сначала укажи настроение в разделе «Настроение»','error');return;}
+    const before=MOOD.value;const after=ccClamp(before+Number(food.mood),0,100);
+    MOOD.value=after;MOOD.history.push({id:'food',name:'Блюдо: '+food.name,b:before,a:after,delta:Number(food.mood),cost:0,sl:0,ts:Date.now()});
+    saveMood();document.getElementById('modal').style.display='none';
+    showToast('Настроение +'+(after-before)+' · '+after+'/100','success');
 }
 function closeModal(e) { if(e.target.id === 'modal') document.getElementById('modal').style.display = 'none'; }
 
@@ -2660,6 +3636,8 @@ function openSettingsModal() {
     document.getElementById('notifyTgSoundToggle').checked = NOTIFY_SETTINGS.tgSound;
     document.getElementById('notifyAppPushToggle').checked = NOTIFY_SETTINGS.appPush;
     document.getElementById('notifyAppSoundToggle').checked = NOTIFY_SETTINGS.appSound;
+    document.getElementById('notifyVolume').value = Math.round(100*(NOTIFY_SETTINGS.volume ?? .12));
+    document.getElementById('volumeLabel').textContent = document.getElementById('notifyVolume').value+'%';
     
     const savedScale = localStorage.getItem('gta_scale_22') || 100;
     document.getElementById('scaleRange').value = savedScale;
@@ -2677,17 +3655,12 @@ function toggleSimpleMode() {
 }
 function toggleHideCompleted() { HIDE_COMPLETED = document.getElementById('hideCompletedToggle').checked; localStorage.setItem('gta_hide_completed_22', HIDE_COMPLETED); renderBP(); }
 function toggleSync() {
-    CLOUD_SYNC_ENABLED = document.getElementById('syncToggle').checked;
-    localStorage.setItem('gta_sync_enabled_22', CLOUD_SYNC_ENABLED);
-    
-    if (CLOUD_SYNC_ENABLED) {
-        showToast("Синхронизация включена! Выгружаем данные...", "info");
-        saveBP(); // Принудительно отправляем текущий прогресс в облако
-        saveTm(); // Отправляем таймеры
-        setTimeout(() => showToast("Данные сохранены в облаке", "success"), 1500);
-    } else {
-        showToast("Локальный режим. Облако отключено.", "error");
-    }
+    CLOUD_SYNC_ENABLED=!!document.getElementById('syncToggle').checked;
+    localStorage.setItem('gta_sync_enabled_22', String(CLOUD_SYNC_ENABLED));
+    if(CLOUD_SYNC_ENABLED){
+        if(!Cloud.isAvailable())showToast('Облако доступно только внутри Telegram Mini App','info');
+        else{showToast('Синхронизация включена. Сохраняем данные…','info');Cloud.syncNow();}
+    }else{ghCloudStatus('local','◉ Локальный режим');showToast('Облако отключено. Данные хранятся на устройстве.','info');}
 }
 function changeScale(val) { 
     const listBP = document.getElementById('listBP');
@@ -2700,11 +3673,13 @@ function changeScale(val) {
     localStorage.setItem('gta_scale_22', val); 
 }
 function setTheme(themeName) {
+    if(!window.__proAutoApplying) localStorage.setItem('gh_pro_auto_theme', 'false');
     const isSimple = document.body.classList.contains('simple-mode');
     document.body.className = ''; 
     if(themeName !== 'default') document.body.classList.add(themeName);
     if(isSimple) document.body.classList.add('simple-mode');
     localStorage.setItem('gta_theme_22', themeName);
+    if(typeof ghTelegramInsets==='function')ghTelegramInsets();
     if(window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
 }
 function toggleWrapper(id, headerEl) {
@@ -2723,7 +3698,7 @@ function showToast(msg, type='info') {
     if(!container) { container = document.createElement('div'); container.id = 'toast-container'; document.body.appendChild(container); }
     const toast = document.createElement('div'); toast.className = `toast ${type}`;
     let icon = type === 'success' ? '✅' : (type === 'error' ? '❌' : 'ℹ️');
-    toast.innerHTML = `<div class="toast-icon">${icon}</div><div>${msg}</div>`;
+    toast.innerHTML = `<div class="toast-icon">${icon}</div><div>${ccEscape(msg)}</div>`;
     container.appendChild(toast);
     
     // БЕЗОПАСНАЯ ПРОВЕРКА ВИБРАЦИИ (Защита от зависаний на ПК)
@@ -2846,6 +3821,7 @@ function clearSortList() {
 
 // Инициализация перетягивания внутри редактора
 function setupSortModeDrag() {
+    if(typeof Sortable === 'undefined') return;
     const list = document.getElementById('listSelectedSort');
     if (editSortableInstance) editSortableInstance.destroy();
     
@@ -2872,19 +3848,57 @@ function applyCollapsedState() {
     });
 }
 
-// === СТАРТ ПРИЛОЖЕНИЯ ===
-if (window.Telegram && window.Telegram.WebApp) {
-    window.Telegram.WebApp.ready();
-    window.Telegram.WebApp.expand();
-    try { window.Telegram.WebApp.disableVerticalSwipes(); } catch(e){}
+// === Telegram Mini App bridge ===
+const GTA_TG=window.Telegram?.WebApp;
+function ghVibrate(kind='light'){
+    try{GTA_TG?.HapticFeedback?.impactOccurred(kind)}catch(_){}
 }
-
-// Запускаем всё после того, как все функции уже прочитаны браузером
+function ghTelegramInsets(){
+    const area=GTA_TG?.safeAreaInset||{};
+    const content=GTA_TG?.contentSafeAreaInset||{};
+    const root=document.documentElement;
+    for(const dir of ['top','bottom','left','right']){
+        root.style.setProperty(`--gh-safe-${dir}`,Math.max(0,Number(area[dir]||0),Number(content[dir]||0))+'px');
+    }
+    try{
+        const background=getComputedStyle(document.body).getPropertyValue('--bg-deep').trim()||'#121214';
+        if(/^#[a-f0-9]{6}$/i.test(background)){
+            GTA_TG?.setBackgroundColor?.(background);
+            GTA_TG?.setHeaderColor?.(background);
+            GTA_TG?.setBottomBarColor?.(background);
+        }
+    }catch(_){}
+}
+function ghBackButton(){
+    if(!GTA_TG?.BackButton)return;
+    const current=document.querySelector('.tab-content.active')?.id?.replace('tab-','');
+    if(['dashboard','bp','timers','mood','services'].includes(current))GTA_TG.BackButton.hide();
+    else GTA_TG.BackButton.show();
+}
+function ghBack(){
+    const modal=document.querySelector('.modal-wrap[style*="flex"]');
+    if(modal){modal.style.display='none';return;}
+    go('services');
+}
+function ghMiniAppInit(){
+    if(!GTA_TG){ghCloudStatus('local','◉ Деморежим вне Telegram');return;}
+    try{
+        GTA_TG.ready();GTA_TG.expand();
+        if(GTA_TG.isVersionAtLeast?.('7.7'))GTA_TG.disableVerticalSwipes();
+        GTA_TG.onEvent?.('safeAreaChanged',ghTelegramInsets);
+        GTA_TG.onEvent?.('contentSafeAreaChanged',ghTelegramInsets);
+        GTA_TG.onEvent?.('themeChanged',ghTelegramInsets);
+        GTA_TG.BackButton?.onClick(ghBack);
+        ghTelegramInsets();
+    }catch(e){console.warn('Telegram bridge issue',e)}
+}
+ghMiniAppInit();
+// Ожидаем DOM и скрипт, прежде чем инициализировать приложение.
 init();
 // ====================== МОДУЛЬ КОНТРАКТОВ ======================
 const savedNotify = localStorage.getItem('gta_notify_settings_22');
     if(savedNotify) {
-        NOTIFY_SETTINGS = JSON.parse(savedNotify);
+        try { NOTIFY_SETTINGS = {...NOTIFY_SETTINGS,...JSON.parse(savedNotify)}; } catch(e) {}
     }
 
 const CONTRACTS_SECRET = "1234"; // Задай свой пароль здесь
@@ -3019,6 +4033,7 @@ function rewardContract(shiftIndex) {
 
 let contractSortable = null;
 function setupContractSortable() {
+    if(typeof Sortable === 'undefined') return;
     const el = document.getElementById('contractUsersList');
     if (!el) return;
     if (contractSortable) contractSortable.destroy();
@@ -3135,7 +4150,7 @@ function renderContracts() {
                         <div style="font-size: 14px; display:flex; align-items:center; gap:8px;">
                             <span class="drag-handle-c" style="color:#666; font-size:16px; cursor:grab;">⋮⋮</span>
                             <span style="color:var(--text-sub);">${index + 1}.</span>
-                            <strong>${u.name}</strong> 
+                            <strong>${ccEscape(u.name)}</strong> 
                         </div>
                         <div style="display:flex; gap:10px; align-items:center;">
                             <span class="contract-badge" style="background:rgba(251, 191, 36, 0.1); border:1px solid rgba(251, 191, 36, 0.3);">Итог: 💰 ${u.bills}</span>
@@ -3171,7 +4186,7 @@ function renderContracts() {
                     html += `
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; padding-bottom:4px; border-bottom:1px solid rgba(255,255,255,0.02);">
                             <div style="font-size:13px; color:${color}; font-weight:600;">
-                                ${icon} ${place}. ${u.name} <span style="color:var(--text-sub); font-weight:normal; font-size:11px;">(Всего: 💰 ${u.bills})</span>
+                                ${icon} ${place}. ${ccEscape(u.name)} <span style="color:var(--text-sub); font-weight:normal; font-size:11px;">(Всего: 💰 ${u.bills})</span>
                             </div>
                             <div style="display:flex; gap:4px; align-items:center;">
                                 <input type="number" id="bill_in_${i}_${u.id}" class="contract-input" style="width:35px; padding:2px; height:22px; text-align:center; margin:0; font-size:12px;" placeholder="0">
@@ -3197,12 +4212,12 @@ function renderContracts() {
                 let hHtml = `
                 <div class="contract-block" style="background:rgba(255,255,255,0.02); margin-bottom: 8px; padding: 10px;">
                     <div style="color:var(--accent); font-weight:bold; margin-bottom:6px; display:flex; align-items:center; gap:5px;">
-                        📅 ${h.date}
+                        📅 ${ccEscape(h.date)}
                     </div>
                     <div style="font-size:12px; color:var(--text-sub); line-height:1.5;">
                 `;
                 h.contracts.forEach((cNames, cIdx) => {
-                    hHtml += `<div><strong style="color:#eee;">К${cIdx + 1}:</strong> ${cNames}</div>`;
+                    hHtml += `<div><strong style="color:#eee;">К${cIdx + 1}:</strong> ${ccEscape(cNames)}</div>`;
                 });
                 hHtml += `</div></div>`;
                 historyEl.innerHTML += hHtml;
@@ -3212,6 +4227,111 @@ function renderContracts() {
     
     setupContractSortable();
 }
+</script>
+<script>
+/* GTA HELPER PRO — cosmetic UX enhancement; legacy state logic remains unchanged. */
+(function(){
+ 'use strict';
+ function qs(s,root=document){return root.querySelector(s)}
+ function el(tag,attrs={},content=''){
+  const node=document.createElement(tag);
+  for(const [k,v] of Object.entries(attrs))node.setAttribute(k,v);
+  if(content)node.textContent=content;
+  return node;
+ }
+ function closeSheet(id){let w=document.getElementById(id);if(w)w.style.display='none';}
+ function upgradeSettings(){
+  const wrap=document.getElementById('modalSettings'); if(!wrap||wrap.dataset.proUpgraded)return;
+  wrap.dataset.proUpgraded='1';
+  const modal=qs('.modal',wrap);if(!modal)return;
+  const oldTitle=modal.firstElementChild;
+  const header=el('div',{class:'pro-modal-header'});
+  const t=el('h2',{},'Настройки приложения');header.appendChild(t);
+  const close=el('button',{type:'button',class:'pro-modal-close','aria-label':'Закрыть настройки'},'×');
+  close.addEventListener('click',()=>closeSheet('modalSettings'));header.appendChild(close);
+  if(oldTitle&&oldTitle.textContent.trim()==='Настройки')oldTitle.remove();
+  modal.prepend(header);
+  const titles=[...modal.querySelectorAll(':scope > .section-title')];
+  titles.forEach((h,i)=>{
+    const group=el('details',{class:'pro-settings-group'});
+    if(i===0)group.open=true;
+    const summary=el('summary',{},h.textContent.trim());
+    const body=el('div',{class:'pro-settings-content'});
+    modal.insertBefore(group,h);group.append(summary,body);
+    let cur=h.nextSibling;
+    while(cur && !(cur.nodeType===1 && cur.classList.contains('section-title'))){
+      let next=cur.nextSibling;body.appendChild(cur);cur=next;
+    }
+    h.remove();
+  });
+  const themeGroup=[...modal.querySelectorAll('.pro-settings-group')].find(x=>x.querySelector('summary')?.textContent==='Темы');
+  if(themeGroup){
+   const content=qs('.pro-settings-content',themeGroup);
+   const note=el('div',{class:'cc-mini',style:'margin-bottom:10px'},'Следовать оформлению Telegram или выбрать свою цветовую схему.');
+   const btn=el('button',{type:'button',id:'proAutoTheme',class:'cc-btn',style:'width:100%;margin-bottom:10px'},'◐ Как в Telegram');
+   btn.addEventListener('click',()=>{
+      localStorage.setItem('gh_pro_auto_theme','true');applyAutoTheme();updateThemeControls();
+   });
+   content.prepend(btn);content.prepend(note);
+  }
+  modal.querySelectorAll('.theme-btn').forEach((btn,i)=>{
+    btn.setAttribute('role','button');btn.tabIndex=0;
+    btn.setAttribute('aria-label',['Графит и янтарь','Светлая оранжевая','Тёмная фиолетовая','Тёмная красная','Светлая фиолетовая'][i]||'Тема');
+    btn.addEventListener('click',()=>setTimeout(updateThemeControls,0));
+    btn.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();btn.click();}});
+  });
+  updateThemeControls();
+ }
+ function updateThemeControls(){
+   const btn=document.getElementById('proAutoTheme');if(btn){
+    let yes=localStorage.getItem('gh_pro_auto_theme')==='true';
+    btn.textContent=yes?'✓ Автоматически · тема Telegram':'◐ Использовать тему Telegram';
+    btn.classList.toggle('primary',yes);
+   }
+   const theme=localStorage.getItem('gta_theme_22')||'default';
+   const order=['default','theme-white-orange','theme-black-purple','theme-black-red','theme-white-purple'];
+   document.querySelectorAll('#modalSettings .theme-btn').forEach((b,i)=>{
+    b.style.outline=theme===order[i]&&localStorage.getItem('gh_pro_auto_theme')!=='true'?'3px solid var(--accent)':'';
+    b.style.outlineOffset='3px';
+   });
+ }
+ function telegramIsLight(){
+   const tg=window.Telegram?.WebApp;
+   if(tg?.colorScheme)return tg.colorScheme==='light';
+   return window.matchMedia?.('(prefers-color-scheme: light)').matches||false;
+ }
+ function applyAutoTheme(){
+   if(localStorage.getItem('gh_pro_auto_theme')!=='true')return;
+   window.__proAutoApplying=true;
+   try{if(typeof setTheme==='function')setTheme(telegramIsLight()?'theme-white-orange':'default');}
+   finally{window.__proAutoApplying=false;}
+   updateThemeControls();
+ }
+ function installTheme(){
+   const explicit=localStorage.getItem('gh_pro_auto_theme');
+   if(explicit===null && !localStorage.getItem('gta_theme_22'))localStorage.setItem('gh_pro_auto_theme','true');
+   applyAutoTheme();
+   try{window.Telegram?.WebApp?.onEvent?.('themeChanged',applyAutoTheme)}catch(e){}
+   try{window.matchMedia?.('(prefers-color-scheme: light)')?.addEventListener?.('change',applyAutoTheme)}catch(e){}
+ }
+ function upgradeModal(){
+  const modal=qs('#modal .modal');if(!modal||modal.querySelector('.pro-modal-close'))return;
+  const close=el('button',{type:'button',class:'pro-modal-close',style:'align-self:flex-end;flex:none;margin-bottom:8px','aria-label':'Закрыть окно'},'×');
+  close.addEventListener('click',()=>closeSheet('modal'));modal.prepend(close);
+  const hidden=qs('#modalUnhide .modal');if(hidden&&!hidden.querySelector('.pro-modal-close')){
+   const x=close.cloneNode(true);x.addEventListener('click',()=>closeSheet('modalUnhide'));hidden.prepend(x);
+  }
+ }
+ function upgradeFocus(){
+   document.querySelectorAll('.cc-tile,.nav-btn').forEach(b=>{if(!b.hasAttribute('type'))b.setAttribute('type','button')});
+   document.querySelectorAll('.section-header-toggle').forEach(b=>{b.setAttribute('role','button');b.setAttribute('tabindex','0');
+    b.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();b.click()}})});
+ }
+ function onReady(){
+   try{upgradeSettings();upgradeModal();upgradeFocus();installTheme();}catch(e){console.warn('PRO appearance enhancement:',e)}
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',onReady,{once:true});else onReady();
+})();
 </script>
 </body>
 </html>
