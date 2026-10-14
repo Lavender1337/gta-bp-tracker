@@ -3,149 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>GTA Helper v23 — Command Center</title>
+    <title>GTA Helper PRO v24 — Command Center</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-    // GTA HELPER PRO: animated, touch-first Sortable implementation, embedded in index.html.
-    // Ghost follows the finger, placeholder marks the landing spot, neighbours move with FLIP.
+    // GTA Helper PRO: spring-smoothed pointer follower, FLIP neighbors, animated drop.
+    // Embedded locally: no SortableJS CDN and no separate JS files.
     (function(){
       'use strict';
       const instances=new WeakMap();
+      const reduced=()=>!!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
       const children=root=>Array.from(root.children).filter(e=>e.nodeType===1&&!e.classList.contains('empty-fav-msg'));
-      const reduced=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-      const isElement=x=>x&&x.nodeType===1;
       function create(root,options={}){
         if(!root)return null;
         instances.get(root)?.destroy();
-        let g=null,raf=0,scrollRaf=0,clickBlock=0;
-        const duration=()=>reduced()?0:(Number(options.animation)||210);
-        function placementRoots(){return options.group?
-            ['favoriteTimers','timerGrid'].map(id=>document.getElementById(id)).filter(Boolean):[root]}
-        function dragHandle(target){return !options.handle || !!target.closest(options.handle)}
-        function blocked(target){return !!(options.filter && target.closest(options.filter))}
-        function snapshot(roots){const m=new Map();for(const r of roots)for(const e of children(r))if(e!==g?.item)m.set(e,e.getBoundingClientRect());return m}
-        function animateFlip(before){
-          const time=duration();if(!time)return;
-          for(const [el,old] of before){
+        let drag=null,moveRaf=0,scrollRaf=0,clickBlock=0;
+        const roots=()=>options.group?['favoriteTimers','timerGrid'].map(x=>document.getElementById(x)).filter(Boolean):[root];
+        const duration=()=>reduced()?0:(Number(options.animation)||340);
+        function measure(){
+          const before=new Map();for(const parent of roots())for(const el of children(parent)){
+            if(el!==drag?.item)before.set(el,el.getBoundingClientRect());
+          }return before;
+        }
+        function animatePositions(before){
+          if(!duration())return;
+          for(const [el,first] of before){
             if(!el.isConnected)continue;
-            const now=el.getBoundingClientRect(),dx=old.left-now.left,dy=old.top-now.top;
-            if(Math.abs(dx)+Math.abs(dy)<1)continue;
-            el.getAnimations?.().filter(a=>a.id==='gh-flip').forEach(a=>a.cancel());
-            try{const a=el.animate([{transform:`translate3d(${dx}px,${dy}px,0)`},{transform:'translate3d(0,0,0)'}],{duration:time,easing:'cubic-bezier(.2,.8,.2,1)'});a.id='gh-flip';}catch(_){}
+            const last=el.getBoundingClientRect(),dx=first.left-last.left,dy=first.top-last.top;
+            if(Math.abs(dx)+Math.abs(dy)<.6)continue;
+            // Freeze the visually current location as the start of each FLIP, even on rapid reorders.
+            try{el.getAnimations().filter(a=>a.id==='gh-flip').forEach(a=>a.cancel());}catch(_){ }
+            try{
+              const a=el.animate([
+                {transform:`translate3d(${dx}px,${dy}px,0)`},
+                {transform:'translate3d(0,0,0)'}
+              ],{duration:duration(),easing:'cubic-bezier(.18,.83,.22,1)',fill:'none'});
+              a.id='gh-flip';
+            }catch(_){ }
           }
         }
-        function onDown(e){
-          if(e.button!==undefined&&e.button!==0 || g || !isElement(e.target))return;
-          const target=e.target;
-          if(blocked(target)||!dragHandle(target))return;
-          const item=children(root).find(el=>el.contains(target));if(!item)return;
-          const rect=item.getBoundingClientRect();
-          g={item,from:root,oldIndex:children(root).indexOf(item),pointerId:e.pointerId,
-             startX:e.clientX,startY:e.clientY,x:e.clientX,y:e.clientY,
-             rect,dragging:false,ghost:null};
-        }
-        function haptic(){try{window.Telegram?.WebApp?.HapticFeedback?.selectionChanged?.()}catch(_){}}
+        function haptic(){try{window.Telegram?.WebApp?.HapticFeedback?.selectionChanged?.();}catch(_){}}
         function start(){
-          const x=g;if(!x||x.dragging)return;
-          x.dragging=true;
-          const clone=x.item.cloneNode(true);
-          clone.removeAttribute('id');clone.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
-          clone.classList.add('gh-sort-floating');clone.classList.remove('gh-sort-placeholder');
-          clone.setAttribute('aria-hidden','true');clone.querySelectorAll('button,input,select,textarea').forEach(el=>el.tabIndex=-1);
-          Object.assign(clone.style,{width:x.rect.width+'px',height:x.rect.height+'px',left:x.rect.left+'px',top:x.rect.top+'px',position:'fixed',margin:'0',pointerEvents:'none',zIndex:'99999',boxSizing:'border-box'});
-          x.ghost=clone;
-          document.body.appendChild(clone);
-          x.item.classList.add('gh-sort-placeholder');document.documentElement.classList.add('gh-sorting-active');
-          root.setAttribute('data-gh-sorting','true');
-          haptic();
+          if(!drag||drag.active)return;
+          const d=drag;d.active=true;
+          d.smoothX=d.startX;d.smoothY=d.startY;d.lastTick=performance.now();
+          const clone=d.item.cloneNode(true);
+          clone.removeAttribute('id');clone.querySelectorAll('[id]').forEach(n=>n.removeAttribute('id'));
+          clone.classList.remove('gh-sort-placeholder');clone.classList.add('gh-sort-floating');
+          clone.setAttribute('aria-hidden','true');
+          clone.querySelectorAll('button,input,select,textarea').forEach(n=>n.tabIndex=-1);
+          Object.assign(clone.style,{width:d.rect.width+'px',height:d.rect.height+'px',left:d.rect.left+'px',top:d.rect.top+'px',position:'fixed',margin:'0',pointerEvents:'none',zIndex:'99999',boxSizing:'border-box'});
+          document.body.appendChild(clone);d.ghost=clone;
+          d.item.classList.add('gh-sort-placeholder');
+          document.documentElement.classList.add('gh-sorting-active');
+          d.from.setAttribute('data-gh-sorting','true');
+          haptic();tick();scrollTick();
         }
-        function follow(){
-          raf=0;
-          if(!g||!g.dragging||!g.ghost)return;
-          g.ghost.style.transform=`translate3d(${g.x-g.startX}px,${g.y-g.startY}px,0) rotate(-1.5deg) scale(1.035)`;
+        function tick(){
+          moveRaf=0;const d=drag;if(!d||!d.active||!d.ghost)return;
+          const now=performance.now(),dt=Math.min(40,now-d.lastTick);d.lastTick=now;
+          const ratio=reduced()?1:1-Math.exp(-dt/35);
+          d.smoothX+=(d.x-d.smoothX)*ratio;d.smoothY+=(d.y-d.smoothY)*ratio;
+          const dx=d.smoothX-d.startX,dy=d.smoothY-d.startY;
+          // Smooth translation using transforms avoids left/top layout recalculation.
+          d.ghost.style.transform=`translate3d(${dx}px,${dy}px,0) rotate(-1deg) scale(1.035)`;
+          movePlaceholder();
+          moveRaf=requestAnimationFrame(tick);
         }
         function movePlaceholder(){
-          if(!g||!g.dragging)return;
-          const at=document.elementFromPoint(g.x,g.y);if(!at)return;
-          let targetRoot;
-          if(options.group)targetRoot=placementRoots().find(el=>el===at||el.contains(at));
-          else if(root===at||root.contains(at))targetRoot=root;
-          if(!targetRoot)return;
-          const others=children(targetRoot).filter(el=>el!==g.item);
-          const content=others.map(el=>({el,rect:el.getBoundingClientRect()}));
-          const closest=content.reduce((best,cur)=>{
-            const dx=Math.max(cur.rect.left-g.x,0,g.x-cur.rect.right);
-            const dy=Math.max(cur.rect.top-g.y,0,g.y-cur.rect.bottom);
+          const d=drag;if(!d?.active)return;
+          const at=document.elementFromPoint(d.x,d.y);if(!at)return;
+          const targetRoot=roots().find(r=>r===at||r.contains(at));if(!targetRoot)return;
+          const others=children(targetRoot).filter(el=>el!==d.item);
+          if(!others.length){if(d.item.parentElement!==targetRoot){const before=measure();targetRoot.appendChild(d.item);animatePositions(before);}return;}
+          let best=null;
+          for(const el of others){
+            const r=el.getBoundingClientRect();
+            const dx=Math.max(r.left-d.x,0,d.x-r.right),dy=Math.max(r.top-d.y,0,d.y-r.bottom);
             const dist=dx*dx+dy*dy;
-            return !best||dist<best.dist?{...cur,dist}:best;
-          },null);
-          const before=snapshot(placementRoots());
-          let changed=false;
-          if(closest){
-            const r=closest.rect;
-            // For horizontal templates use X inside the same row; for tasks use Y.
-            const onRow=Math.abs(g.y-(r.top+r.height/2))<r.height*.42 && r.width<135;
-            const insertBefore=onRow?g.x<r.left+r.width/2:g.y<r.top+r.height/2;
-            const anchor=insertBefore?closest.el:closest.el.nextSibling;
-            if(g.item.parentElement!==targetRoot||g.item.nextSibling!==anchor){targetRoot.insertBefore(g.item,anchor);changed=true;}
-          }else if(g.item.parentElement!==targetRoot){targetRoot.appendChild(g.item);changed=true;}
-          if(changed){animateFlip(before);g.lastMove=Date.now();}
-        }
-        function startScroll(){
-          if(scrollRaf)return;
-          function tick(){
-            scrollRaf=0;if(!g||!g.dragging)return;
-            const zone=66,top=45,bottom=window.innerHeight-95;
-            const speed=g.y<top+zone?-Math.min(14,(top+zone-g.y)*.20):g.y>bottom-zone?Math.min(14,(g.y-(bottom-zone))*.20):0;
-            if(speed&&window.scrollY>=0){window.scrollBy(0,speed);movePlaceholder();}
-            scrollRaf=requestAnimationFrame(tick);
+            if(!best||dist<best.dist)best={el,r,dist};
           }
-          scrollRaf=requestAnimationFrame(tick);
+          if(!best)return;
+          const {el,r}=best;
+          const template=el.classList.contains('drag-template');
+          const sameRow=Math.abs(d.y-(r.top+r.height/2))<r.height*.43;
+          const before=template&&sameRow?d.x<r.left+r.width/2:d.y<r.top+r.height/2;
+          const anchor=before?el:el.nextSibling;
+          // Guard against self anchors or no-op mutations to prevent shaking.
+          if(anchor===d.item|| (d.item.parentElement===targetRoot && d.item.nextSibling===anchor))return;
+          const first=measure();targetRoot.insertBefore(d.item,anchor);animatePositions(first);
+          if(targetRoot!==d.lastRoot){d.lastRoot=targetRoot;haptic();}
+        }
+        function scrollTick(){
+          scrollRaf=0;const d=drag;if(!d?.active)return;
+          const zone=64,top=55,bottom=window.innerHeight-76;
+          const speed=d.y<top+zone?-Math.min(12,(top+zone-d.y)*.2):d.y>bottom-zone?Math.min(12,(d.y-(bottom-zone))*.2):0;
+          if(speed)window.scrollBy(0,speed);
+          scrollRaf=requestAnimationFrame(scrollTick);
+        }
+        function cleanup(settle){
+          const d=drag;if(!d)return null;drag=null;
+          cancelAnimationFrame(moveRaf);cancelAnimationFrame(scrollRaf);moveRaf=0;scrollRaf=0;
+          document.documentElement.classList.remove('gh-sorting-active');d.from.removeAttribute('data-gh-sorting');
+          if(d.ghost){
+            const floating=d.ghost;
+            const end=d.item.getBoundingClientRect();
+            const current=floating.getBoundingClientRect();
+            if(settle&&!reduced()){
+              d.item.classList.add('gh-sort-arriving');
+              // Retain the placeholder until the floating card has landed.
+              floating.style.left=current.left+'px';floating.style.top=current.top+'px';floating.style.transform='none';
+              try{
+                const animation=floating.animate([
+                  {transform:'translate3d(0,0,0) scale(1.035)',opacity:1},
+                  {transform:`translate3d(${end.left-current.left}px,${end.top-current.top}px,0) scale(1)`,opacity:.95}
+                ],{duration:reduced()?0:270,easing:'cubic-bezier(.17,.86,.25,1)',fill:'forwards'});
+                const finish=()=>{floating.remove();d.item.classList.remove('gh-sort-placeholder','gh-sort-arriving');};
+                animation.finished.then(finish,finish);
+                setTimeout(finish,420);
+              }catch(_){floating.remove();d.item.classList.remove('gh-sort-placeholder','gh-sort-arriving');}
+            }else{floating.remove();d.item.classList.remove('gh-sort-placeholder','gh-sort-arriving');}
+          }else d.item.classList.remove('gh-sort-placeholder','gh-sort-arriving');
+          return d;
+        }
+        function onDown(e){
+          if((e.button!==undefined&&e.button!==0)||drag||!e.target?.closest)return;
+          if(options.filter&&e.target.closest(options.filter))return;
+          if(options.handle&&!e.target.closest(options.handle))return;
+          const item=children(root).find(el=>el.contains(e.target));if(!item)return;
+          drag={item,from:root,oldIndex:children(root).indexOf(item),pointerId:e.pointerId,
+             startX:e.clientX,startY:e.clientY,x:e.clientX,y:e.clientY,
+             rect:item.getBoundingClientRect(),active:false,ghost:null,lastRoot:root,
+             pointerType:e.pointerType};
         }
         function onMove(e){
-          if(!g||e.pointerId!==g.pointerId)return;
-          g.x=e.clientX;g.y=e.clientY;
-          if(!g.dragging){if(Math.hypot(g.x-g.startX,g.y-g.startY)<7)return;start();}
+          const d=drag;if(!d||e.pointerId!==d.pointerId)return;
+          d.x=e.clientX;d.y=e.clientY;
+          if(!d.active){const threshold=d.pointerType==='touch'?10:5;if(Math.hypot(d.x-d.startX,d.y-d.startY)<threshold)return;start();}
           if(e.cancelable)e.preventDefault();
-          if(!raf)raf=requestAnimationFrame(follow);
-          movePlaceholder();startScroll();
-        }
-        function clear(animate){
-          if(!g)return;const x=g;g=null;
-          cancelAnimationFrame(raf);raf=0;cancelAnimationFrame(scrollRaf);scrollRaf=0;
-          document.documentElement.classList.remove('gh-sorting-active');root.removeAttribute('data-gh-sorting');
-          x.item.classList.remove('gh-sort-placeholder');
-          if(x.ghost){
-            const el=x.ghost;
-            if(animate&&!reduced()){
-              const end=x.item.getBoundingClientRect(),left=x.rect.left+x.x-x.startX,top=x.rect.top+x.y-x.startY;
-              // Set fixed destination; clean up after the settle animation.
-              el.style.transform='none';el.style.left=left+'px';el.style.top=top+'px';
-              el.animate([{left:left+'px',top:top+'px',opacity:1,transform:'scale(1.035)'},{left:end.left+'px',top:end.top+'px',opacity:.4,transform:'scale(1)'}],{duration:180,easing:'ease-out'}).finished.catch(()=>{}).finally(()=>el.remove());
-              setTimeout(()=>el.remove(),350);
-            }else el.remove();
-          }
-          return x;
         }
         function onUp(e){
-          if(!g||e.pointerId!==g.pointerId)return;
-          const x=clear(true);if(!x.dragging)return;
-          clickBlock=Date.now()+350;
-          const to=x.item.parentElement||x.from;
-          const index=children(to).indexOf(x.item);
-          if(x.from!==to||index!==x.oldIndex){
-            haptic();
-            try{options.onEnd?.({item:x.item,from:x.from,to,oldIndex:x.oldIndex,newIndex:index})}catch(err){console.error('Drag end:',err)}
-          }
+          if(!drag||e.pointerId!==drag.pointerId)return;
+          const d=cleanup(true);if(!d.active)return;
+          clickBlock=Date.now()+400;
+          const to=d.item.parentElement||d.from,newIndex=children(to).indexOf(d.item);
+          if(to!==d.from||newIndex!==d.oldIndex){haptic();try{options.onEnd?.({item:d.item,from:d.from,to,oldIndex:d.oldIndex,newIndex})}catch(err){console.error('Drag end',err)}}
         }
-        function onCancel(){clear(false)}
+        function cancel(){cleanup(false)}
         function onClick(e){if(Date.now()<clickBlock){e.preventDefault();e.stopPropagation();}}
         root.addEventListener('pointerdown',onDown);
         document.addEventListener('pointermove',onMove,{passive:false});
         document.addEventListener('pointerup',onUp);
-        document.addEventListener('pointercancel',onCancel);
+        document.addEventListener('pointercancel',cancel);
+        window.addEventListener('blur',cancel);
         root.addEventListener('click',onClick,true);
-        const instance={destroy(){root.removeEventListener('pointerdown',onDown);document.removeEventListener('pointermove',onMove);document.removeEventListener('pointerup',onUp);document.removeEventListener('pointercancel',onCancel);root.removeEventListener('click',onClick,true);clear(false);}};
+        const instance={destroy(){root.removeEventListener('pointerdown',onDown);document.removeEventListener('pointermove',onMove);document.removeEventListener('pointerup',onUp);document.removeEventListener('pointercancel',cancel);window.removeEventListener('blur',cancel);root.removeEventListener('click',onClick,true);cancel();}};
         instances.set(root,instance);return instance;
       }
       window.Sortable={create};
@@ -1380,6 +1391,61 @@ body[class*="theme-white"] .stat-val{color:var(--accent)!important}
 #tab-timers .gh-timer-grip{display:flex;align-items:center;justify-content:center;flex:0 0 27px;width:27px;height:34px;border-radius:9px;background:color-mix(in srgb,var(--accent) 9%,transparent);color:var(--accent);cursor:grab;font-size:23px;font-weight:700;touch-action:none!important;user-select:none;-webkit-user-select:none}
 #tab-bp .drag-handle{min-width:27px!important;width:27px!important;min-height:35px!important;font-size:19px!important;color:var(--accent)!important;border-radius:7px;background:color-mix(in srgb,var(--accent) 8%,transparent)}
 #tab-contracts .drag-handle-c{display:inline-flex;justify-content:center;align-items:center;width:27px;min-height:33px;color:var(--accent)!important;touch-action:none!important;border-radius:7px;background:color-mix(in srgb,var(--accent) 8%,transparent)}
+
+/* GTA Helper PRO v23.3 | proportional UI zoom, compact Telegram dock, refined sorting */
+:root{--gh-ui-scale:1;--gh-dock-size:50px}
+/* Unlike the old BP-only zoom, this scales every feature including the timer rings. */
+.tab-content{zoom:var(--gh-ui-scale)!important}
+#listBP,#contractMainScreen{zoom:1!important}
+.bottom-nav{
+ left:50%!important;right:auto!important;transform:translateX(-50%)!important;
+ width:min(92vw,382px)!important;max-width:calc(100vw - 16px)!important;
+ height:var(--gh-dock-size)!important;min-height:0!important;
+ bottom:calc(7px + env(safe-area-inset-bottom,0px) + var(--gh-safe-bottom))!important;
+ padding:4px 5px!important;box-sizing:border-box!important;
+ border-radius:17px!important;gap:1px!important;
+}
+.bottom-nav .nav-btn{height:40px!important;min-height:0!important;padding:2px 0!important;gap:0!important;border-radius:12px!important;}
+.bottom-nav .nav-icon{font-size:18px!important;height:21px!important;line-height:21px!important;}
+.bottom-nav .nav-label{font-size:9px!important;line-height:12px!important;}
+.bottom-nav .nav-btn::after{bottom:0px!important;height:2px!important}
+body{padding-bottom:calc(77px + env(safe-area-inset-bottom,0px) + var(--gh-safe-bottom))!important}
+#toast-container{bottom:calc(75px + env(safe-area-inset-bottom,0px) + var(--gh-safe-bottom))!important}
+#tab-timers .fab-btn{bottom:calc(74px + env(safe-area-inset-bottom,0px) + var(--gh-safe-bottom))!important}
+#tab-timers .circle-wrap,#tab-timers .circle-wrap svg{max-width:100%}
+.gh-sort-floating{transition:none!important;backface-visibility:hidden;contain:paint;}
+.gh-sort-placeholder{opacity:.19!important;transform:none!important;border-style:dashed!important;transition:background .2s ease,border-color .2s ease!important;}
+.gh-sort-arriving{opacity:.14!important}
+.fish-ocr-paste-tip{margin-top:10px;display:flex;align-items:center;gap:7px;color:var(--text-sub);font-size:11px;line-height:1.5}
+.fish-ocr-paste-tip kbd{border:1px solid var(--pro-line);background:var(--pro-surface);border-radius:6px;padding:3px 6px;color:var(--accent);white-space:nowrap;font:750 11px/1.25 system-ui,sans-serif}
+.fish-ocr-panel:focus-within{scroll-margin-bottom:95px}
+@media(prefers-reduced-motion:reduce){.gh-sort-floating,.gh-sort-placeholder{animation:none!important;transition:none!important}}
+
+/* v23.4 - compact volume preview + robust narrow displays */
+.gh-sound-test{margin-top:9px;width:100%;min-height:38px;display:flex;align-items:center;justify-content:center;gap:6px;font-weight:750!important}
+.bottom-nav .nav-btn{padding-inline:0!important}
+@media(max-width:350px){.bottom-nav{width:calc(100vw - 14px)!important}.bottom-nav .nav-label{font-size:8px!important}.bottom-nav .nav-icon{font-size:17px!important}}
+
+/* GTA Helper 24 — integrated universal tools */
+.gh-quick-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.gh-quick-btn{border:1px solid var(--border);background:var(--bg-card);border-radius:14px;padding:11px;display:flex;align-items:center;text-align:left;gap:9px;color:var(--text-main);cursor:pointer;min-width:0;transition:transform .18s ease,background .2s ease,border-color .2s ease}
+.gh-quick-btn:active{transform:scale(.965);border-color:var(--accent)}
+.gh-quick-icon{font-size:23px;width:32px;text-align:center;flex:none}
+.gh-quick-btn b{display:block;font-size:12px}.gh-quick-btn small{display:block;font-size:10px;color:var(--text-sub);margin-top:2px}
+.gh-v24-sheet{max-width:470px!important}.gh-headline{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}.gh-headline h2{margin:0;color:var(--text-main);font-size:18px}
+.gh-icon-btn{border:1px solid var(--border);background:var(--bg-card);color:var(--text-main);border-radius:10px;min-width:32px;min-height:32px;cursor:pointer;font-size:16px}
+.gh-quick-edit{display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);padding:7px 0;font-size:12px}.gh-quick-edit b{font-size:12px}.gh-grow{flex:1}.gh-quick-check{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-main);cursor:pointer;font-weight:800}.gh-quick-check.checked{background:var(--accent);color:#111}
+.gh-full{width:100%!important;box-sizing:border-box}.gh-scan-preview{display:block;margin:12px 0 9px;max-height:220px;width:100%;object-fit:contain;background:var(--bg-element);border-radius:12px}.gh-scan-preview[hidden]{display:none!important}
+.gh-rule-row{padding:12px 0;border-bottom:1px solid var(--border);min-width:0}.gh-rule-row>b{font-size:12px;line-height:1.4;display:block;margin-bottom:7px}.gh-rule-inputs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.gh-rule-inputs.gh-two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.gh-rule-inputs label,.gh-rules-grid label,.gh-flex-row label{display:block;font-size:10px;color:var(--text-sub);font-weight:600}.gh-rule-inputs input,.gh-rules-grid input,.gh-flex-row input{width:100%;box-sizing:border-box;margin-top:5px;min-width:0}.gh-rules-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}.gh-rules-scroll{max-height:430px;overflow:auto;overscroll-behavior:contain}.gh-flex-row{display:flex;align-items:center;justify-content:space-between;gap:10px}.gh-flex-row>b{margin:0;flex:1}.gh-flex-row label{width:110px;flex:none}.gh-scan-row-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:10px}.gh-scan-row-head b{font-size:12px}
+#ghScanRows .gh-rule-row .cc-input{margin-bottom:7px}.gh-v24-sheet .cc-btn{flex:1}body[class*="theme-white"] .gh-quick-btn,body[class*="theme-white"] .gh-icon-btn{background:#fff;color:#27272a;border-color:#d1d5db}
+@media (max-width:355px){.gh-quick-grid{gap:6px}.gh-quick-btn{padding:9px 6px;gap:5px}.gh-quick-icon{font-size:19px;width:25px}.gh-rule-inputs{gap:4px}.gh-rule-inputs label{font-size:9px}}
+
+
+/* v24: consistent readability on Telegram light themes */
+body[class*="theme-white"] .gh-quick-btn b,body[class*="theme-white"] .gh-quick-edit b,body[class*="theme-white"] .gh-rule-row>b{color:#27272a!important}
+body[class*="theme-white"] .gh-quick-btn small,body[class*="theme-white"] .gh-rule-inputs label{color:#606875!important}
+body[class*="theme-white"] #tab-scanner .cc-mini,body[class*="theme-white"] #tab-rules .cc-mini{color:#626b78!important}
 </style>
 </head>
 <body>
@@ -1392,18 +1458,19 @@ body[class*="theme-white"] .stat-val{color:var(--accent)!important}
 
 <!-- GTA HELPER 23 / Telegram Mini App · github /img assets -->
 <div id="tab-dashboard" class="tab-content active">
- <div class="cc-top"><div><div class="cc-eyebrow">GTA HELPER · PRO V23</div><div class="cc-heading">COMMAND <strong>CENTER</strong></div></div><button class="cc-status" onclick="openSettingsModal()">● НАСТРОЙКИ ⚙</button></div>
+ <div class="cc-top"><div><div class="cc-eyebrow">GTA HELPER · PRO V24</div><div class="cc-heading">COMMAND <strong>CENTER</strong></div></div><button class="cc-status" onclick="openSettingsModal()">● НАСТРОЙКИ ⚙</button></div>
  <div class="cc-container">
   <div class="cc-panel cc-run"><div class="cc-panel-title"><span>Игровая сводка</span><span class="cc-chip">LIVE</span></div>
    <div class="cc-stats"><div class="cc-stat"><div class="cc-stat-label">Bonus Points</div><div class="cc-stat-value accent" id="ccHomeBP">0</div></div><div class="cc-stat"><div class="cc-stat-label">Настроение</div><div class="cc-stat-value" id="ccHomeMood">—</div></div><div class="cc-stat"><div class="cc-stat-label">Таймеры</div><div class="cc-stat-value good" id="ccHomeTimers">0</div></div></div>
    <div style="margin-top:15px" class="cc-flex"><div class="cc-mini">Прогресс заданий BP</div><span class="cc-chip" id="ccHomeBPDone">0 / 0</span></div><div class="cc-hbar" style="margin-top:8px"><div id="ccHomeBPBar"></div></div>
   </div>
   <div class="cc-grid">
-    <button class="cc-tile" onclick="go('mood')"><span class="cc-tile-icon">🙂</span><span class="cc-tile-label">Настроение</span><span class="cc-tile-desc">Бонусы и порог 30</span></button>
+    <button class="cc-tile" onclick="go('mood')"><span class="cc-tile-icon">🙂</span><span class="cc-tile-label">Настроение</span><span class="cc-tile-desc">Бонусы и порог <span id="ghHomeThreshold">30</span></span></button>
     <button class="cc-tile" onclick="go('bp')"><span class="cc-tile-icon"><img loading="lazy" src="img/casino_img.png" alt="" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span hidden>🎯</span></span><span class="cc-tile-label">Bonus Points</span><span class="cc-tile-desc">Прогресс и задачи</span></button>
     <button class="cc-tile" onclick="go('timers')"><span class="cc-tile-icon"><img loading="lazy" src="img/poshta.png" alt="" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span hidden>⏱</span></span><span class="cc-tile-label">Таймеры</span><span class="cc-tile-desc">Управление откатами</span></button>
-    <button class="cc-tile" onclick="go('fishing')"><span class="cc-tile-icon"><img loading="lazy" src="img/icon_fishing.png" alt="" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span hidden>🐟</span></span><span class="cc-tile-label">Рыбалка PRO</span><span class="cc-tile-desc">Лучший стак до 10 кг</span></button>
+    <button class="cc-tile" onclick="go('fishing')"><span class="cc-tile-icon"><img loading="lazy" src="img/icon_fishing.png" alt="" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span hidden>🐟</span></span><span class="cc-tile-label">Рыбалка PRO</span><span class="cc-tile-desc">Лучший стак до <span id="ghFishLimitText">10</span> кг</span></button>
   </div>
+  <div class="cc-panel"><div class="cc-panel-title"><span>⚡ Мои быстрые действия</span><button class="cc-link" type="button" onclick="ghOpenQuickEditor()">Настроить ⚙</button></div><div id="ghQuickGrid" class="gh-quick-grid"><span class="cc-mini">Загружаю кнопки…</span></div></div>
   <div class="cc-panel"><div class="cc-panel-title"><span>⏳ Ближайшие таймеры</span><button class="cc-link" onclick="go('timers')">Все →</button></div><div id="ccHomeTimerList" class="cc-mini">Активных таймеров нет</div></div>
   <div class="cc-panel"><div class="cc-panel-title"><span>⚡ Сценарии быстрого старта</span><button class="cc-link" onclick="go('planner')">BP-планировщик →</button></div>
     <div class="cc-grid"><button class="cc-btn" onclick="startTimerScenario('daily')">📮 Почта + Механик + Такси</button><button class="cc-btn" onclick="startTimerScenario('long')">🎰 Клуб + Таро + Казино</button><button class="cc-btn" onclick="startTimerScenario('favorites')">⭐ Все избранные таймеры</button><button class="cc-btn" onclick="go('planner')">🎯 План на 30–120 минут</button></div>
@@ -1417,21 +1484,23 @@ body[class*="theme-white"] .stat-val{color:var(--accent)!important}
  <div class="cc-container">
    <div class="cc-panel"><div class="cc-flex"><div><div class="cc-mini">Текущий показатель · 0–100</div><div id="moodAmount" class="cc-mood-num">—</div></div><div id="moodEmoji" style="font-size:58px">😶</div></div>
      <div class="cc-hbar" style="height:12px; margin-top:12px;"><div id="moodBar"></div></div>
-     <div class="cc-flex" style="margin-top:8px"><span class="cc-mini">0</span><span class="cc-chip">30 = полный бонус</span><span class="cc-mini">100</span></div>
+     <div class="cc-flex" style="margin-top:8px"><span class="cc-mini">0</span><span class="cc-chip" id="ghMoodThresholdChip">30 = полный бонус</span><span class="cc-mini">100</span></div>
      <div id="moodBanner" class="cc-notice" style="margin-top:15px">Укажи настроение своего персонажа, чтобы начать учёт.</div>
      <div class="cc-form-row" style="margin-top:13px"><input class="cc-input" type="number" min="0" max="100" inputmode="numeric" id="moodManual" placeholder="Точное настроение сейчас" aria-label="Настроение сейчас"><button class="cc-btn primary" onclick="setMoodManual()">Установить</button><button class="cc-btn" onclick="undoMood()" title="Отменить последний шаг">↶</button></div>
    </div>
-   <div class="cc-stats"><div class="cc-stat"><div class="cc-stat-label">До порога 30</div><div class="cc-stat-value accent" id="moodNeed">—</div></div><div class="cc-stat"><div class="cc-stat-label">Известные затраты</div><div class="cc-stat-value" id="moodSpent">0$</div></div><div class="cc-stat"><div class="cc-stat-label">Потеря силы</div><div class="cc-stat-value" id="moodStrength">0</div></div></div>
+   <div class="cc-stats"><div class="cc-stat"><div class="cc-stat-label">До бонусного порога</div><div class="cc-stat-value accent" id="moodNeed">—</div></div><div class="cc-stat"><div class="cc-stat-label">Известные затраты</div><div class="cc-stat-value" id="moodSpent">0$</div></div><div class="cc-stat"><div class="cc-stat-label">Потеря силы</div><div class="cc-stat-value" id="moodStrength">0</div></div></div>
    <div class="cc-panel"><div class="cc-flex"><div><b style="font-size:13px">🍽 Голод персонажа</b><div class="cc-mini">По твоим данным, при голоде настроение падает в 2 раза быстрее. Точная скорость не указана, поэтому баллы автоматически не списываются.</div></div><label class="switch" style="flex:none;position:relative;display:inline-block;width:40px;height:24px"><input id="moodHungry" type="checkbox" onchange="setMoodHunger(this.checked)" aria-label="Голод"><span class="slider" style="position:absolute;inset:0;border-radius:24px"><span class="slider-circle" style="position:absolute;left:3px;bottom:3px;width:18px;height:18px;background:white;border-radius:50%"></span></span></label></div></div>
    <div class="cc-panel"><div class="cc-panel-title">⚡ Быстрые действия</div><div id="moodQuick" class="cc-quick"></div></div>
    <div class="cc-panel"><div class="cc-panel-title"><span>Действия персонажа</span><span class="cc-chip" id="moodActionCount"></span></div><div class="cc-form-row" style="margin-bottom:13px"><input class="cc-input" id="moodSearch" placeholder="Найти действие..." oninput="renderMoodActions()" aria-label="Поиск действий"><select class="cc-input" id="moodCategory" onchange="renderMoodActions()" aria-label="Категория"><option value="up">🙂 Повышают</option><option value="down">🙁 Снижают</option><option value="all">Все</option></select></div><div id="moodActions" class="cc-catalog"></div></div>
-   <div class="cc-panel"><div class="cc-panel-title"><span>Что зависит от настроения?</span><span class="cc-chip">Порог 30</span></div><div id="moodEffects"></div></div>
+   <div class="cc-panel"><div class="cc-panel-title"><span>Что зависит от настроения?</span><span class="cc-chip" id="ghMoodEffectThreshold">Порог 30</span></div><div id="moodEffects"></div></div>
    <div class="cc-panel"><div class="cc-panel-title"><span>🕘 История действий</span><button class="cc-link" onclick="undoMood()">Отменить последнее ↶</button></div><div id="moodHistory" class="cc-mini">Пока пусто</div></div>
  </div>
 </div>
 
 <div id="tab-services" class="tab-content"><div class="cc-top"><div><div class="cc-eyebrow">GAME TOOLS</div><div class="cc-heading">ИНСТРУМЕНТЫ</div></div></div><div class="cc-container">
  <div class="cc-grid">
+   <button class="cc-tile" onclick="go('scanner')"><span class="cc-tile-icon">🔎</span><span class="cc-tile-label">Универсальный OCR</span><span class="cc-tile-desc">Рыба, BP, цены, инвентарь</span></button>
+   <button class="cc-tile" onclick="go('rules')"><span class="cc-tile-icon">⚙️</span><span class="cc-tile-label">Игровые правила</span><span class="cc-tile-desc">Лимиты, награды, КД и цены</span></button>
    <button class="cc-tile" onclick="go('fishing')"><span class="cc-tile-icon"><img loading="lazy" src="img/icon_fishing.png" alt="" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span hidden>🐟</span></span><span class="cc-tile-label">Рыбалка PRO</span><span class="cc-tile-desc">Оптимизация стака 10 кг</span></button>
    <button class="cc-tile" onclick="go('planner')"><span class="cc-tile-icon"><img loading="lazy" src="img/build_img.png" alt="" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span hidden>📈</span></span><span class="cc-tile-label">BP-планировщик</span><span class="cc-tile-desc">Максимум BP за время</span></button>
    <button class="cc-tile" onclick="go('kitchen')"><span class="cc-tile-icon"><img loading="lazy" src="img/ferma_img.png" alt="" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span hidden>🍳</span></span><span class="cc-tile-label">Кухня</span><span class="cc-tile-desc">Все рецепты</span></button>
@@ -1444,12 +1513,27 @@ body[class*="theme-white"] .stat-val{color:var(--accent)!important}
  <div class="cc-notice">Все функции интерфейса и игровые данные находятся в одном <b>index.html</b>. Telegram и облачный сервис уведомлений требуют интернета.</div>
 </div></div>
 
+<div id="tab-scanner" class="tab-content"><button class="cc-back" onclick="go('services')">← Инструменты</button><div class="cc-top" style="padding-top:5px"><div><div class="cc-eyebrow">UNIVERSAL IMAGE SCANNER</div><div class="cc-heading">🔎 УНИВЕРСАЛЬНЫЙ OCR</div></div><span class="cc-chip">BETA</span></div><div class="cc-container">
+ <div class="cc-panel"><div class="cc-panel-title">Что распознаём?</div><select id="ghScanMode" class="cc-input gh-full" onchange="ghScanModeChanged()"><option value="fish">🐟 Рыба — вес и цена</option><option value="bp">🎯 Bonus Points — названия заданий</option><option value="inventory">🎒 Инвентарь — предметы и количество</option><option value="prices">💲 Цены — товары и стоимость</option><option value="text">📋 Просто текст</option></select><p class="cc-mini" id="ghScanHint">Результат нужно проверить вручную: OCR не меняет данные сам.</p>
+ <label class="fish-ocr-picker" for="ghScanFile" style="margin-top:12px"><span class="fish-ocr-camera">📷</span><span><b>Загрузить скриншот</b><small>PNG / JPG / WEBP · до 15 МБ</small></span><span class="fish-ocr-arrow">＋</span></label><input id="ghScanFile" type="file" accept="image/*" hidden onchange="ghScanUpload(this)"><div class="fish-ocr-paste-tip"><kbd>Ctrl + V</kbd> / <kbd>⌘V</kbd> — вставить скриншот прямо в Mini App</div><img id="ghScanPreview" class="gh-scan-preview" alt="Скриншот для распознавания" hidden><button class="cc-btn primary gh-full" id="ghScanStartButton" type="button" onclick="ghScanStart()" disabled>✨ Распознать</button><div class="cc-mini" id="ghScanStatus" role="status" aria-live="polite" style="margin-top:8px">Выбери изображение</div><div class="cc-hbar" style="margin-top:7px"><div id="ghScanProgress" style="width:0%"></div></div></div>
+ <div class="cc-panel" id="ghScanReviewPanel" hidden><div class="cc-panel-title"><span>Распознанные записи</span><span class="cc-chip">ПРОВЕРКА</span></div><div id="ghScanRows"></div><div class="cc-form-row" style="margin-top:12px"><button class="cc-btn" type="button" onclick="ghScanAddRow()">+ Строка</button><button class="cc-btn primary" type="button" onclick="ghScanConfirm()">✓ Сохранить выбранные</button></div><details class="fish-ocr-debug" style="margin-top:12px"><summary>Исходный текст OCR — можно отредактировать</summary><textarea id="ghScanText" class="cc-input gh-full" rows="6" aria-label="Распознанный текст"></textarea><button class="cc-btn" type="button" onclick="ghScanReparse()">Разобрать текст снова</button></details></div>
+ <div class="cc-panel"><div class="cc-panel-title"><span>Справочник распознанных предметов</span><button type="button" class="cc-link" onclick="ghClearCatalog()">Очистить</button></div><p class="cc-mini">Подтверждённые записи из режимов «Инвентарь» и «Цены». Данные хранятся в твоём профиле, а не берутся из игры автоматически.</p><div id="ghCatalogList"></div></div>
+ </div></div>
+<div id="tab-rules" class="tab-content"><button class="cc-back" onclick="go('services')">← Инструменты</button><div class="cc-top" style="padding-top:5px"><div><div class="cc-eyebrow">GAME CONFIGURATION</div><div class="cc-heading">⚙️ ИГРОВЫЕ ПРАВИЛА</div></div></div><div class="cc-container">
+ <div class="cc-panel"><div class="cc-panel-title">Основные лимиты</div><p class="cc-mini">Изменения вступают в силу после сохранения, старые накопленные данные остаются.</p><div class="gh-rules-grid"><label>Порог настроения для бонусов<input class="cc-input" id="ghRuleMoodThreshold" type="number" min="1" max="100" step="1"></label><label>Вместимость стака, кг<input class="cc-input" id="ghRuleFishCapacity" type="number" min="1" max="30" step="0.1"></label></div><button type="button" class="cc-btn primary gh-full" onclick="ghSaveCoreRules()">Сохранить лимиты</button></div>
+ <div class="cc-panel"><div class="cc-panel-title">🙂 Настроение: награды, затраты и кулдауны</div><p class="cc-mini">Цены и кулдауны задаются по игровым правилам твоего сервера; неизвестные значения не подставляются автоматически.</p><input class="cc-input gh-full" id="ghRuleMoodSearch" placeholder="Поиск действия" oninput="ghRenderMoodRules()"><div id="ghRuleMoodList" class="gh-rules-scroll"></div></div>
+ <div class="cc-panel"><div class="cc-panel-title">🎯 Bonus Points: награды</div><input class="cc-input gh-full" id="ghRuleBpSearch" placeholder="Поиск задания" oninput="ghRenderBpRules()"><div id="ghRuleBpList" class="gh-rules-scroll"></div></div>
+ <div class="cc-panel"><div class="cc-panel-title">⏱ Стандартные таймеры</div><p class="cc-mini">Изменение значения влияет на будущие запуски, уже запущенные таймеры не сбрасываются.</p><input class="cc-input gh-full" id="ghRuleTimerSearch" placeholder="Поиск таймера" oninput="ghRenderTimerRules()"><div id="ghRuleTimerList" class="gh-rules-scroll"></div></div>
+ <button class="cc-btn" type="button" style="width:100%;margin-bottom:12px" onclick="ghResetRules()">↺ Восстановить исходные правила</button>
+ </div></div>
+
 <div id="tab-fishing" class="tab-content"><button class="cc-back" onclick="go('services')">← Инструменты</button><div class="cc-top" style="padding-top:5px"><div><div class="cc-eyebrow">OPTIMIZATION ENGINE</div><div class="cc-heading">🐟 РЫБАЛКА PRO</div></div></div><div class="cc-container">
  <div class="cc-panel fish-ocr-panel">
   <div class="cc-panel-title"><span>📷 Улов со скриншота</span><span class="cc-chip">OCR · BETA</span></div>
   <p class="cc-mini">Загрузи скриншот инвентаря или карточек рыбы. Бот попробует найти <b>вес и цену</b> каждой позиции. Проверь распознанные значения перед добавлением: OCR может ошибаться.</p>
   <label class="fish-ocr-picker" for="fishOcrFile"><span class="fish-ocr-camera">📸</span><span><b>Выбрать фото / скриншот</b><small>PNG, JPG, WEBP · до 15 МБ</small></span><span class="fish-ocr-arrow">＋</span></label>
   <input id="fishOcrFile" type="file" accept="image/png,image/jpeg,image/webp,image/*" hidden onchange="fishOcrLoadFile(this)">
+  <div class="fish-ocr-paste-tip"><kbd>Ctrl + V</kbd> Вставь скриншот из буфера обмена — распознавание начнётся автоматически. На Mac: ⌘V.</div>
   <div id="fishOcrPreviewWrap" class="fish-ocr-preview" hidden><img id="fishOcrPreview" alt="Загруженный скриншот" loading="lazy"><div class="fish-ocr-preview-info"><span id="fishOcrFileName"></span><button class="cc-link" type="button" onclick="fishOcrReset()">Удалить</button></div></div>
   <button id="fishOcrStart" class="cc-btn primary" style="width:100%;margin-top:10px" type="button" onclick="fishOcrStart()" disabled>✨ Распознать рыбу</button>
   <div id="fishOcrProgressWrap" class="fish-ocr-progress" hidden><div class="cc-flex"><span id="fishOcrStatus">Подготовка…</span><b id="fishOcrPercent">0%</b></div><div class="cc-hbar"><div id="fishOcrBar" style="width:0%"></div></div></div>
@@ -1713,6 +1797,9 @@ body[class*="theme-white"] .stat-val{color:var(--accent)!important}
     <button class="nav-btn" data-tab="services" onclick="go('services', this)"><div class="nav-icon">▦</div><span class="nav-label">Ещё</span></button>
 </nav>
 
+<div id="ghQuickSheet" class="modal-wrap" onclick="if(event.target===this)ghCloseQuickEditor()">
+ <div class="modal gh-v24-sheet" role="dialog" aria-modal="true" aria-labelledby="ghQuickTitle"><div class="gh-headline"><h2 id="ghQuickTitle">⚡ Быстрые действия</h2><button type="button" class="gh-icon-btn" onclick="ghCloseQuickEditor()" aria-label="Закрыть">✕</button></div><p class="cc-mini">Выбери до 8 кнопок, перетаскивать ничего не нужно: порядок регулируется стрелками.</p><div id="ghQuickEditList"></div><div class="cc-form-row" style="margin-top:12px"><button class="cc-btn" type="button" onclick="ghResetQuick()">По умолчанию</button><button class="cc-btn primary" type="button" onclick="ghCloseQuickEditor()">Готово</button></div></div>
+</div>
 <div id="modal" class="modal-wrap" onclick="closeModal(event)">
     <div class="modal">
         <div style="font-size:20px; font-weight:800; margin-bottom:15px; text-align:center;" id="mTitle"></div>
@@ -1824,9 +1911,15 @@ body[class*="theme-white"] .stat-val{color:var(--accent)!important}
             </label>
         </div>
         <div class="cc-panel" style="margin-bottom:15px;padding:12px">
-          <label for="notifyVolume" class="cc-form-label">🔉 Громкость сигналов Mini App: <span id="volumeLabel">12%</span></label>
-          <input id="notifyVolume" type="range" min="0" max="25" step="1" value="12" oninput="document.getElementById('volumeLabel').textContent=this.value+'%'; saveNotifySettings()">
-          <div class="cc-mini">Звук при входе отключён: просроченные таймеры обрабатываются бесшумно. Кнопка выше отключает все звуки внутри приложения.</div>
+          <label for="notifyVolume" class="cc-form-label">🔊 Громкость сигналов Mini App: <span id="volumeLabel">45%</span></label>
+          <input id="notifyVolume" type="range" min="0" max="100" step="1" value="45" oninput="document.getElementById('volumeLabel').textContent=this.value+'%'; saveNotifySettings()">
+          <label for="ghSoundSelect" class="cc-form-label" style="display:block;margin-top:12px">🎼 Мелодия завершения таймера</label>
+          <select id="ghSoundSelect" class="cc-input" style="display:block;width:100%;margin-top:7px" onchange="ghChooseSound(this.value)">
+           <option value="crystal">🔔 Crystal — звонкий двойной</option><option value="arcade">🕹 Arcade — игровая победа</option><option value="soft">✨ Soft — спокойный</option><option value="retro">👾 Retro — 8-bit</option><option value="urgent">🚨 Alert — тревожный</option><option value="silent">🔕 Silent — без звука</option>
+          </select>
+          <button type="button" class="cc-btn gh-sound-test" onclick="playDing(true)" aria-label="Прослушать сигнал уведомления">🔊 Проверить звук</button>
+          <div class="cc-mini" style="margin-top:7px">Громкость 0–100% регулирует звук приложения. Для системной громкости используй кнопки телефона. Telegram-уведомления регулируются отдельно.</div>
+          <div class="cc-mini">Выбранная мелодия относится только к открытому Mini App; звук сообщений Telegram задаётся самим Telegram. Звук при входе отключён: просроченные таймеры обрабатываются бесшумно. Кнопка выше отключает все звуки внутри приложения.</div>
         </div>
         <div class="section-title" style="margin: 0 0 10px 0; border:none;">Масштаб интерфейса</div>
         <div style="background:var(--bg-element); padding:15px; border-radius:12px; margin-bottom:15px; border:1px solid var(--border);">
@@ -1953,25 +2046,26 @@ function undoMood(){
 }
 function moodStatusText(){
   if(MOOD.value===null)return 'Укажи текущее настроение персонажа — дальше бот будет считать изменения сам.';
-  if(MOOD.value<30)return `⚠ Настроение ${MOOD.value}/100 — ниже порога 30. По твоим данным: цены у скупщиков рыбы и шкур ниже полных, опыт клубных квестов снижен, шанс мусора повышен, сила в зале не прокачивается и есть штрафы для бизнеса/NPC. До порога осталось ${30-MOOD.value}.`;
-  return `✅ Настроение ${MOOD.value}/100. Порог 30 достигнут: полная цена у скупщиков рыбы и шкур. Штрафы из списка для низкого настроения не действуют.`;
+  if(MOOD.value<ghThreshold())return `⚠ Настроение ${MOOD.value}/100 — ниже порога ${ghThreshold()}. По твоим данным: цены у скупщиков рыбы и шкур ниже полных, опыт клубных квестов снижен, шанс мусора повышен, сила в зале не прокачивается и есть штрафы для бизнеса/NPC. До порога осталось ${ghThreshold()-MOOD.value}.`;
+  return `✅ Настроение ${MOOD.value}/100. Порог ${ghThreshold()} достигнут: полная цена у скупщиков рыбы и шкур. Штрафы из списка для низкого настроения не действуют.`;
 }
 function renderMood(){
   if(!ccById('moodAmount'))return;
   const known=MOOD.value!==null, mood=known?MOOD.value:0;
   ccById('moodAmount').textContent=known?mood:'—';
-  ccById('moodEmoji').textContent=!known?'😶':mood>=70?'😎':mood>=30?'🙂':'😟';
+  ghUpdateCoreRuleCopy();
+  ccById('moodEmoji').textContent=!known?'😶':mood>=70?'😎':mood>=ghThreshold()?'🙂':'😟';
   ccById('moodBar').style.width=mood+'%';
-  ccById('moodBar').parentElement.classList.toggle('good',known&&mood>=30);
-  ccById('moodTopStatus').textContent=!known?'НЕТ ДАННЫХ':mood<30?'НИЖЕ 30':'БОНУС АКТИВЕН';
+  ccById('moodBar').parentElement.classList.toggle('good',known&&mood>=ghThreshold());
+  ccById('moodTopStatus').textContent=!known?'НЕТ ДАННЫХ':mood<ghThreshold()?'НИЖЕ '+ghThreshold():'БОНУС АКТИВЕН';
   ccById('moodTopStatus').className='cc-chip '+(!known?'':mood<30?'bad':'good');
   ccById('moodBanner').textContent=moodStatusText()+(MOOD.hungry?' ⚠ Голод: скорость естественного снижения настроения ×2.':'');
   if(ccById('moodHungry'))ccById('moodHungry').checked=!!MOOD.hungry;
-  ccById('moodNeed').textContent=known?Math.max(0,30-mood):'—';
+  ccById('moodNeed').textContent=known?Math.max(0,ghThreshold()-mood):'—';
   ccById('moodSpent').textContent=ccNum(MOOD.spent)+'$';
   ccById('moodStrength').textContent='−'+ccNum(MOOD.strengthLost);
-  ccById('moodQuick').innerHTML=[['shower','🚿 Душ +50'],['cigarette','🚬 Сигареты +25'],['soda','🥤 Газировка +10'],['death','☠️ Смерть −25']].map(([id,t])=>`<button class="cc-btn" onclick="applyMood('${id}')">${t}</button>`).join('');
-  ccById('moodEffects').innerHTML=`<div class="cc-notice" style="margin-bottom:12px">${known&&mood<30?'⚠ <b>Штрафы активны</b>':'✅ <b>'+(!known?'Порог ещё не отслеживается':'Базовый порог соблюдён')+'</b>'}<br>Полная цена скупки рыбы и шкур — при настроении от 30. Ниже 30: клубный опыт снижен в 2 раза, шанс мусора вместо сокровищ выше, шанс сокровищ и червей ниже, сила в спортзале не растёт, рэкет приносит меньше, агрессия NPC выше.</div><div class="cc-mini">Дополнительный эффект из списка: голод снижается в <b>2 раза быстрее</b>. Он не является отдельным фиксированным штрафом к настроению, поэтому бот не вычитает очки автоматически.</div>`;
+  ccById('moodQuick').innerHTML=[['shower','🚿 Душ'],['cigarette','🚬 Сигареты'],['soda','🥤 Газировка'],['death','☠️ Смерть']].map(([id,t])=>{const a=MOOD_ACTIONS.find(x=>x.id===id);return `<button class="cc-btn" onclick="applyMood('${id}')">${t} ${a.d>0?'+':''}${a.d}</button>`}).join('');
+  ccById('moodEffects').innerHTML=`<div class="cc-notice" style="margin-bottom:12px">${known&&mood<ghThreshold()?'⚠ <b>Штрафы активны</b>':'✅ <b>'+(!known?'Порог ещё не отслеживается':'Базовый порог соблюдён')+'</b>'}<br>Полная цена скупки рыбы и шкур — при настроении от ${ghThreshold()}. Ниже порога: клубный опыт снижен в 2 раза, шанс мусора вместо сокровищ выше, шанс сокровищ и червей ниже, сила в спортзале не растёт, рэкет приносит меньше, агрессия NPC выше.</div><div class="cc-mini">Дополнительный эффект из списка: голод снижается в <b>2 раза быстрее</b>. Он не является отдельным фиксированным штрафом к настроению, поэтому бот не вычитает очки автоматически.</div>`;
   ccById('moodHistory').innerHTML=MOOD.history.length?MOOD.history.slice().reverse().slice(0,12).map(e=>`<div class="cc-history"><div><b>${ccEscape(e.name||'Действие')}</b><div class="cc-secondary">${ccFormatStamp(e.ts)}</div></div><div class="cc-history-r"><b>${e.b===null?'Старт':e.b} → ${e.a}</b><div class="cc-secondary">${e.cost?'−'+ccNum(e.cost)+'$':'Без известных затрат'}</div></div></div>`).join(''):'<span class="cc-mini">Пока нет действий</span>';
   renderMoodActions();
 }
@@ -2025,7 +2119,7 @@ function startTimerScenario(id){
 function saveFish(){Cloud.setItem(V23_FISH_KEY,JSON.stringify(FISH));renderFish()}
 function addFish(){
   const name=ccById('fishName').value.trim().slice(0,55),w=Number(ccById('fishWeight').value),p=Number(ccById('fishPrice').value),qty=Number(ccById('fishQty').value);
-  if(!name||!Number.isFinite(w)||w<=0||w>10||!Number.isFinite(p)||p<=0||!Number.isInteger(qty)||qty<1||qty>40)return showToast('Заполни название, вес 0–10 кг, цену и количество 1–40','error');
+  if(!name||!Number.isFinite(w)||w<=0||w>ghFishCapacity()||!Number.isFinite(p)||p<=0||!Number.isInteger(qty)||qty<1||qty>40)return showToast('Заполни название, вес до '+ghFishCapacity()+' кг, цену и количество 1–40','error');
   if(FISH.length+qty>40)return showToast('Не больше 40 отдельных рыб','error');
   for(let i=0;i<qty;i++)FISH.push({id:Date.now()+'_'+i+'_'+Math.random().toString(36).slice(2,6),n:name,w:Math.round(w*1000)/1000,p:Math.round(p*100)/100});
   ccById('fishName').value='';ccById('fishWeight').value='';ccById('fishPrice').value='';ccById('fishQty').value='1';saveFish();
@@ -2034,7 +2128,7 @@ function delFish(id){FISH=FISH.filter(f=>f.id!==id);saveFish()}
 function clearFish(){if(FISH.length&&confirm('Очистить весь список рыбы?')){FISH=[];saveFish()}}
 function optimizeFish(){
   // Exact 0/1 knapsack on 1-gram weights, 10,000 gram capacity.
-  const capacity=10000,dp=new Float64Array(capacity+1),masks=new Array(capacity+1).fill(0n);
+  const capacity=Math.round(ghFishCapacity()*1000),dp=new Float64Array(capacity+1),masks=new Array(capacity+1).fill(0n);
   dp.fill(-Infinity);dp[0]=0;
   FISH.forEach((f,i)=>{const g=Math.round(f.w*1000);if(g<1||g>capacity)return;const bit=1n<<BigInt(i);for(let j=capacity;j>=g;j--)if(Number.isFinite(dp[j-g])&&dp[j-g]+f.p>dp[j]+1e-8){dp[j]=dp[j-g]+f.p;masks[j]=masks[j-g]|bit;}});
   let best=0;for(let j=1;j<=capacity;j++)if(dp[j]>dp[best]+1e-8)best=j;
@@ -2045,8 +2139,8 @@ function renderFish(){
   if(!ccById('fishList'))return;
   ccById('fishList').innerHTML=FISH.length?FISH.map(f=>`<div class="cc-fish-row"><div><b>${ccEscape(f.n)}</b><div class="cc-mini">${ccNum(f.w)} кг · ${ccNum(f.p)}$ · ${ccNum(f.p/f.w)} $/кг</div></div><button class="cc-btn" onclick="delFish('${f.id}')" aria-label="Удалить рыбу">✕</button></div>`).join(''):'<p class="cc-mini">Рыба ещё не добавлена.</p>';
   const r=optimizeFish();const rejected=FISH.length-r.picked.length;
-  ccById('fishResult').innerHTML=`<div class="cc-stats"><div class="cc-stat"><div class="cc-stat-label">Стоимость</div><div class="cc-stat-value good">${ccNum(r.total)}$</div></div><div class="cc-stat"><div class="cc-stat-label">Вес стака</div><div class="cc-stat-value">${ccNum(r.weight)} кг</div></div><div class="cc-stat"><div class="cc-stat-label">На продажу</div><div class="cc-stat-value accent">${rejected}</div></div></div><div class="cc-pbar"><div style="width:${r.weight*10}%"></div></div><div class="cc-mini" style="margin-top:12px">${r.picked.length?'Оставить в стаке:':'Добавь рыбу, чтобы рассчитать:'}</div><div class="cc-catalog" style="margin-top:6px">${r.picked.map(f=>`<div class="cc-flex" style="font-size:12px"><span>${ccEscape(f.n)} · ${ccNum(f.w)} кг</span><b>${ccNum(f.p)}$</b></div>`).join('')}</div><p class="cc-mini">Результат оптимален для введённых экземпляров с точностью веса 1 грамм. Не учитывает возможный дисконт за низкое настроение.</p>`;
-  ccById('fishMoodNote').textContent=MOOD.value===null?'Укажи настроение: полная цена у скупщиков рыбы только от 30.':MOOD.value<30?'⚠ Настроение ниже 30: скупщик рыбы не даёт полную цену, но точный дисконт неизвестен. В расчёте использованы указанные тобой суммы.':'✅ Настроение 30 или выше: по твоим данным скупщик рыбы платит полную цену.';
+  ccById('fishResult').innerHTML=`<div class="cc-stats"><div class="cc-stat"><div class="cc-stat-label">Стоимость</div><div class="cc-stat-value good">${ccNum(r.total)}$</div></div><div class="cc-stat"><div class="cc-stat-label">Вес стака</div><div class="cc-stat-value">${ccNum(r.weight)} кг</div></div><div class="cc-stat"><div class="cc-stat-label">На продажу</div><div class="cc-stat-value accent">${rejected}</div></div></div><div class="cc-pbar"><div style="width:${r.weight/ghFishCapacity()*100}%"></div></div><div class="cc-mini" style="margin-top:12px">${r.picked.length?'Оставить в стаке:':'Добавь рыбу, чтобы рассчитать:'}</div><div class="cc-catalog" style="margin-top:6px">${r.picked.map(f=>`<div class="cc-flex" style="font-size:12px"><span>${ccEscape(f.n)} · ${ccNum(f.w)} кг</span><b>${ccNum(f.p)}$</b></div>`).join('')}</div><p class="cc-mini">Результат оптимален для введённых экземпляров с точностью веса 1 грамм. Не учитывает возможный дисконт за низкое настроение.</p>`;
+  ccById('fishMoodNote').textContent=MOOD.value===null?'Укажи настроение: полная цена у скупщиков рыбы только от '+ghThreshold()+'.':MOOD.value<ghThreshold()?'⚠ Настроение ниже '+ghThreshold()+': скупщик рыбы не даёт полную цену, но точный дисконт неизвестен. В расчёте использованы указанные тобой суммы.':'✅ Настроение '+ghThreshold()+' или выше: по твоим данным скупщик рыбы платит полную цену.';
 }
 function setBpDuration(id,v){
   if(v===''||!Number.isFinite(Number(v))||Number(v)<=0)delete BP_DURATION[id];
@@ -2070,20 +2164,20 @@ function renderBPPlanner(){
   ccById('plannerTasks').innerHTML=tasks.map(({t,i,p})=>`<div class="cc-flex" style="padding:9px 0;border-bottom:1px solid var(--border)"><div style="flex:1"><b style="font-size:12px">${ccEscape(t.t)}</b><div class="cc-mini">+${p} BP</div></div><input class="cc-input" type="number" min="1" max="180" step="1" style="max-width:82px" placeholder="мин" value="${BP_DURATION[i]||''}" onchange="setBpDuration(${i},this.value)" aria-label="Минут на задание"></div>`).join('')||'<p class="cc-mini">Не найдены невыполненные задания.</p>';
 }
 function exportAllData(){
-  const keys=['gta_bp_22','gta_tm_22','gta_contracts_22','gta_event_22',V23_MOOD_KEY,V23_FISH_KEY,V23_BP_PLAN_KEY,'gta_theme_22','gta_notify_settings_22','gta_work_skills_22','gta_scale_22','gta_hide_completed_22','gta_simple_mode_22','gta_sync_enabled_22'];
-  const data={version:23,created:new Date().toISOString(),values:{}};
+  const keys=['gta_bp_22','gta_tm_22','gta_contracts_22','gta_event_22',V23_MOOD_KEY,V23_FISH_KEY,V23_BP_PLAN_KEY,'gta_theme_22','gta_notify_settings_22','gta_work_skills_22','gta_scale_22','gta_hide_completed_22','gta_simple_mode_22','gta_sync_enabled_22','gta_rules_24','gta_quick_24','gta_catalog_24'];
+  const data={version:24,created:new Date().toISOString(),values:{}};
   keys.forEach(k=>{const v=localStorage.getItem(k);if(v!==null)data.values[k]=v});
   const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
-  const a=document.createElement('a');a.href=url;a.download='gta-helper-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  const a=document.createElement('a');a.href=url;a.download='gta-helper-v24-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
   showToast('Резервная копия подготовлена','success');
 }
 async function importAllData(input){
   const file=input.files?.[0];if(!file)return;
   try {
     const data=JSON.parse(await file.text());
-    if(data.version!==23||!data.values||typeof data.values!=='object'||Array.isArray(data.values))throw new Error('Это не резервная копия GTA Helper v23');
+    if(![23,24].includes(data.version)||!data.values||typeof data.values!=='object'||Array.isArray(data.values))throw new Error('Это не резервная копия GTA Helper v23/v24');
     if(!confirm('Заменить текущие данные сохранением из '+(data.created||'файла')+'?'))return;
-    const allowed=new Set(['gta_bp_22','gta_tm_22','gta_contracts_22','gta_event_22',V23_MOOD_KEY,V23_FISH_KEY,V23_BP_PLAN_KEY,'gta_theme_22','gta_notify_settings_22','gta_work_skills_22','gta_scale_22','gta_hide_completed_22','gta_simple_mode_22']);
+    const allowed=new Set(['gta_bp_22','gta_tm_22','gta_contracts_22','gta_event_22',V23_MOOD_KEY,V23_FISH_KEY,V23_BP_PLAN_KEY,'gta_theme_22','gta_notify_settings_22','gta_work_skills_22','gta_scale_22','gta_hide_completed_22','gta_simple_mode_22','gta_rules_24','gta_quick_24','gta_catalog_24']);
     for(const [k,v] of Object.entries(data.values))if(allowed.has(k)&&typeof v==='string'&&v.length<1e6)localStorage.setItem(k,v);
     // Turn cloud sync off for safe local recovery; user can reenable afterwards.
     localStorage.setItem('gta_sync_enabled_22','false');
@@ -2098,7 +2192,7 @@ async function importAllData(input){
 const TIMER_SERVICE_URL = "https://gta-timer.onrender.com";
 // Новые настройки уведомлений по умолчанию
 // Новые настройки уведомлений по умолчанию
-let NOTIFY_SETTINGS = { tg: true, tgSound: false, appPush: true, appSound: false, volume: 0.12 };
+let NOTIFY_SETTINGS = { tg: true, tgSound: false, appPush: true, appSound: false, volume: 0.45, soundId: "crystal" };
 
 // HOTFIX v22: оповещения только о таймерах, завершившихся при активном приложении.
 // При открытии / возвращении в Mini App завершившиеся ранее таймеры очищаются без звука.
@@ -2479,7 +2573,7 @@ const Cloud={
         }catch(e){ghCloudStatus('error','⚠ Ошибка сохранения');console.error('Local save failed',e);}
     },
     async syncNow(){
-        const keys=['gta_bp_22','gta_tm_22','gta_contracts_22','gta_event_22',V23_MOOD_KEY,V23_FISH_KEY,V23_BP_PLAN_KEY];
+        const keys=['gta_bp_22','gta_tm_22','gta_contracts_22','gta_event_22',V23_MOOD_KEY,V23_FISH_KEY,V23_BP_PLAN_KEY,'gta_rules_24','gta_quick_24','gta_catalog_24'];
         if(!CLOUD_SYNC_ENABLED||!Cloud.isAvailable()){showToast('Открой Mini App в Telegram и включи облако','error');return;}
         keys.forEach(k=>{if(localStorage.getItem(k)!==null)localStorage.setItem(GH_CLOUD_DIRTY+k,'1')});
         await Promise.all(keys.filter(k=>localStorage.getItem(k)!==null).map(k=>ghFlushKey(k)));
@@ -2489,7 +2583,7 @@ const Cloud={
 };
 function ghRetryPending(){
     if(!CLOUD_SYNC_ENABLED||!Cloud.isAvailable())return;
-    ['gta_bp_22','gta_tm_22','gta_contracts_22','gta_event_22',V23_MOOD_KEY,V23_FISH_KEY,V23_BP_PLAN_KEY].forEach(k=>{
+    ['gta_bp_22','gta_tm_22','gta_contracts_22','gta_event_22',V23_MOOD_KEY,V23_FISH_KEY,V23_BP_PLAN_KEY,'gta_rules_24','gta_quick_24','gta_catalog_24'].forEach(k=>{
         if(localStorage.getItem(GH_CLOUD_DIRTY+k)==='1')ghSchedule(k,1800);
     });
 }
@@ -2535,13 +2629,9 @@ if (eventDataRaw) {
     const savedSimple = localStorage.getItem('gta_simple_mode_22');
     if(savedSimple === 'true') document.body.classList.add('simple-mode');
 
-const savedScale = localStorage.getItem('gta_scale_22');
-    if(savedScale) {
-        const list = document.getElementById('listBP');
-        const contractScreen = document.getElementById('contractMainScreen');
-        if(list) list.style.zoom = savedScale + '%';
-        if(contractScreen) contractScreen.style.zoom = savedScale + '%';
-    }
+// Keep the previous user's scale, but apply it uniformly to every screen.
+    const savedScale = localStorage.getItem('gta_scale_22');
+    applyInterfaceScale(savedScale || 100);
     
     const savedSkills = localStorage.getItem('gta_work_skills_22');
     if(savedSkills) {
@@ -2558,6 +2648,7 @@ const savedScale = localStorage.getItem('gta_scale_22');
     
     // V23 data: new keys, preserving all V22 storage and migrations.
     await loadV23Data();
+    await ghLoadV24();
     // Запускаем отрисовку всех вкладок
     renderBP(); 
     updateBP();
@@ -2578,6 +2669,7 @@ const savedScale = localStorage.getItem('gta_scale_22');
     renderEventTab();
     setupDragAndDrop();
     renderMood(); renderFish(); renderDashboard(); renderBPPlanner();
+    ghRenderRules();ghRenderCatalog();
     APP_FOREGROUND_SINCE = Date.now(); // загрузка завершена; старые таймеры беззвучны
     if(typeof ghRetryPending==='function')ghRetryPending();
     if(typeof ghBackButton==='function')ghBackButton();
@@ -2606,24 +2698,61 @@ function go(id, btn) {
 }
 
 // Звук и Пуш для таймеров
-function playDing() {
-    // Quiet, short built-in chime; zero network requests; no autoplay on reopening.
-    const now = Date.now();
-    if (now - LAST_DING_AT < 2000 || !NOTIFY_SETTINGS.appSound) return;
-    LAST_DING_AT = now;
+// One AudioContext per Mini App session (reopening does not play any sound).
+// Unlock only on real interaction: mobile Telegram WebViews generally block unattended audio.
+let GH_AUDIO_CTX = null;
+function ghAudioContext() {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if(!Ctx) return null;
+    if(!GH_AUDIO_CTX || GH_AUDIO_CTX.state === 'closed') GH_AUDIO_CTX = new Ctx();
+    return GH_AUDIO_CTX;
+}
+function ghUnlockSound() {
+    if(!NOTIFY_SETTINGS.appSound) return;
     try {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if(!AudioCtx) return;
-        const ctx = new AudioCtx();
-        const o = ctx.createOscillator(), g = ctx.createGain();
-        o.type = 'sine'; o.frequency.value = 660;
-        const volume = Math.max(0,Math.min(0.25,Number(NOTIFY_SETTINGS.volume ?? 0.12))) * .24;
-        g.gain.setValueAtTime(0,ctx.currentTime);
-        g.gain.linearRampToValueAtTime(volume,ctx.currentTime + .015);
-        g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime + .40);
-        o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime + .42);
-        o.onended = () => ctx.close().catch(()=>{});
-    } catch(e) { console.debug('Sound blocked',e); }
+        const ctx=ghAudioContext();
+        if(ctx?.state==='suspended') ctx.resume().catch(()=>{});
+    } catch(e) { console.debug('Audio init',e); }
+}
+document.addEventListener('pointerdown',ghUnlockSound,{passive:true});
+document.addEventListener('keydown',ghUnlockSound);
+function ghChooseSound(id){
+  if(!['crystal','arcade','soft','retro','urgent','silent'].includes(id))id='crystal';
+  NOTIFY_SETTINGS.soundId=id;NOTIFY_SETTINGS.appSound=id!=='silent';
+  document.getElementById('notifyAppSoundToggle').checked=NOTIFY_SETTINGS.appSound;
+  saveNotifySettings();playDing(true);
+}
+function playDing(preview = false) {
+  const now=Date.now();
+  if(!preview && (!NOTIFY_SETTINGS.appSound || now-LAST_DING_AT<2000))return;
+  const level=ccClamp(Number(NOTIFY_SETTINGS.volume??.45),0,1);
+  const id=NOTIFY_SETTINGS.soundId||'crystal';
+  if(!level||id==='silent')return;
+  const songs={
+   crystal:{wave:'sine',notes:[[880,0,.16],[1108,.19,.24]],mix:.24},
+   arcade:{wave:'square',notes:[[523,0,.1],[659,.12,.1],[784,.24,.14],[1047,.4,.29]],mix:.14},
+   soft:{wave:'sine',notes:[[523,0,.34],[659,.23,.37]],mix:.15},
+   retro:{wave:'square',notes:[[784,0,.11],[587,.14,.11],[988,.28,.11],[1175,.42,.2]],mix:.12},
+   urgent:{wave:'sawtooth',notes:[[740,0,.19],[620,.23,.19],[740,.47,.19],[620,.7,.25]],mix:.15}
+  };
+  const song=songs[id]||songs.crystal;
+  try{
+   const ctx=ghAudioContext();if(!ctx)return;
+   if(ctx.state==='suspended')ctx.resume().catch(()=>{});
+   const comp=ctx.createDynamicsCompressor();comp.threshold.value=-12;comp.knee.value=8;comp.ratio.value=3;comp.attack.value=.003;comp.release.value=.13;
+   const master=ctx.createGain();master.gain.value=.85*Math.sqrt(level);master.connect(comp);comp.connect(ctx.destination);
+   const begin=ctx.currentTime+.015;
+   for(const [freq,offset,duration] of song.notes){
+    const osc=ctx.createOscillator(),env=ctx.createGain(),t=begin+offset;
+    osc.type=song.wave;osc.frequency.setValueAtTime(freq,t);env.gain.setValueAtTime(.0001,t);
+    env.gain.exponentialRampToValueAtTime(song.mix,t+.014);
+    env.gain.exponentialRampToValueAtTime(.0001,t+duration);
+    osc.connect(env);env.connect(master);osc.start(t);osc.stop(t+duration+.018);
+    osc.onended=()=>{try{osc.disconnect();env.disconnect()}catch(_){}};
+   }
+   setTimeout(()=>{try{master.disconnect();comp.disconnect()}catch(_){}},1600);
+   if(!preview)LAST_DING_AT=now;
+  }catch(e){console.debug('Sound unavailable',e)}
 }
 
 function showNativePopup(title) {
@@ -3766,8 +3895,9 @@ function openSettingsModal() {
     document.getElementById('notifyTgSoundToggle').checked = NOTIFY_SETTINGS.tgSound;
     document.getElementById('notifyAppPushToggle').checked = NOTIFY_SETTINGS.appPush;
     document.getElementById('notifyAppSoundToggle').checked = NOTIFY_SETTINGS.appSound;
-    document.getElementById('notifyVolume').value = Math.round(100*(NOTIFY_SETTINGS.volume ?? .12));
+    document.getElementById('notifyVolume').value = Math.round(100*(NOTIFY_SETTINGS.volume ?? .45));
     document.getElementById('volumeLabel').textContent = document.getElementById('notifyVolume').value+'%';
+    document.getElementById('ghSoundSelect').value=NOTIFY_SETTINGS.soundId||'crystal';
     
     const savedScale = localStorage.getItem('gta_scale_22') || 100;
     document.getElementById('scaleRange').value = savedScale;
@@ -3792,15 +3922,17 @@ function toggleSync() {
         else{showToast('Синхронизация включена. Сохраняем данные…','info');Cloud.syncNow();}
     }else{ghCloudStatus('local','◉ Локальный режим');showToast('Облако отключено. Данные хранятся на устройстве.','info');}
 }
-function changeScale(val) { 
-    const listBP = document.getElementById('listBP');
-    const contractScreen = document.getElementById('contractMainScreen');
-    
-    if(listBP) listBP.style.zoom = val + '%'; 
-    if(contractScreen) contractScreen.style.zoom = val + '%'; 
-    
-    document.getElementById('scaleVal').innerText = val + '%'; 
-    localStorage.setItem('gta_scale_22', val); 
+function applyInterfaceScale(val) {
+    const n = Math.min(110, Math.max(70, Number(val) || 100));
+    document.documentElement.style.setProperty('--gh-ui-scale', String(n / 100));
+    // Clear the old, section-specific inline zoom inherited from earlier versions.
+    ['listBP','contractMainScreen'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.removeProperty('zoom')});
+    const output=document.getElementById('scaleVal');if(output)output.textContent=n+'%';
+    return n;
+}
+function changeScale(val) {
+    const n=applyInterfaceScale(val);
+    localStorage.setItem('gta_scale_22', String(n));
 }
 function setTheme(themeName) {
     if(!window.__proAutoApplying) localStorage.setItem('gh_pro_auto_theme', 'false');
@@ -4372,21 +4504,57 @@ function fishOcrReset(){
   ['fishOcrPreviewWrap','fishOcrProgressWrap','fishOcrReview','fishOcrError'].forEach(id=>{const el=fishOcrEl(id);if(el)el.hidden=true;});
   fishOcrEl('fishOcrStart').disabled=true;
 }
-function fishOcrLoadFile(input){
-  const file=input?.files?.[0];if(!file)return;
+function fishOcrSetFile(file,autoRecognize=false){
+  if(!file || FISH_OCR_BUSY)return false;
   if(!file.type.startsWith('image/')||file.size>15*1024*1024){
-    fishOcrReset();showToast('Выбери изображение до 15 МБ','error');return;
+    showToast('Нужен скриншот PNG/JPG/WEBP размером до 15 МБ','error');return false;
   }
   if(FISH_OCR_URL)URL.revokeObjectURL(FISH_OCR_URL);
   FISH_OCR_FILE=file;FISH_OCR_URL=URL.createObjectURL(file);FISH_OCR_ROWS=[];FISH_OCR_TEXT='';
   fishOcrEl('fishOcrPreview').src=FISH_OCR_URL;
-  fishOcrEl('fishOcrFileName').textContent=file.name;
+  fishOcrEl('fishOcrFileName').textContent=file.name||'Скриншот из буфера обмена';
   fishOcrEl('fishOcrPreviewWrap').hidden=false;
   fishOcrEl('fishOcrReview').hidden=true;
   fishOcrEl('fishOcrError').hidden=true;
   fishOcrEl('fishOcrProgressWrap').hidden=true;
   fishOcrEl('fishOcrStart').disabled=false;
+  if(autoRecognize){
+    showToast('Скриншот вставлен. Запускаю распознавание…','info');
+    Promise.resolve().then(()=>fishOcrStart());
+  }
+  return true;
 }
+function fishOcrLoadFile(input){
+  const file=input?.files?.[0];if(!file)return;
+  fishOcrSetFile(file,false);
+}
+// Telegram Desktop and ordinary desktop browsers deliver screenshots as clipboard image items.
+// Text-only paste is left untouched. This action is scoped to the fishing screen.
+document.addEventListener('paste',function(e){
+  if(!document.getElementById('tab-fishing')?.classList.contains('active'))return;
+  const clipboard=e.clipboardData;
+  if(!clipboard)return;
+  let file=[...clipboard.files||[]].find(f=>f.type.startsWith('image/'));
+  if(!file){
+    for(const item of [...clipboard.items||[]]){
+      if(item.kind==='file' && item.type.startsWith('image/')){file=item.getAsFile();if(file)break;}
+    }
+  }
+  if(!file)return;
+  // Do not hijack the user's pasted text, only actual image data.
+  e.preventDefault();
+  const image=new File([file],file.name&&file.name!=='image.png'?file.name:'fish-clipboard-'+Date.now()+'.png',{type:file.type||'image/png'});
+  fishOcrSetFile(image,true);
+},true);
+// Optional desktop drop-on-panel, using the exact same OCR path.
+document.addEventListener('dragover',function(e){
+  if(e.target.closest?.('.fish-ocr-panel') && [...e.dataTransfer?.types||[]].includes('Files'))e.preventDefault();
+});
+document.addEventListener('drop',function(e){
+  if(!e.target.closest?.('.fish-ocr-panel'))return;
+  const f=[...e.dataTransfer?.files||[]].find(f=>f.type.startsWith('image/'));
+  if(f){e.preventDefault();fishOcrSetFile(f,true);}
+});
 function fishOcrScript(){
   if(window.Tesseract)return Promise.resolve();
   if(window.__ghTesseractPromise)return window.__ghTesseractPromise;
@@ -4436,7 +4604,7 @@ function fishOcrParseText(text){
     if(name&&current&&(current.w!==null||current.p!==null)&&((w!==null||p!==null)||items.length<30))flush();
     if(!current)current={id:'ocr_'+items.length+'_'+Math.random().toString(36).slice(2,5),n:name||'',w:null,p:null,qty:1,selected:true};
     if(name&&!current.n)current.n=name;
-    if(w!==null&&Number.isFinite(w)&&w>0&&w<=10){
+    if(w!==null&&Number.isFinite(w)&&w>0&&w<=ghFishCapacity()){
       if(current.w!==null&&current.p!==null){flush();current={id:'ocr_'+items.length+'_'+Math.random().toString(36).slice(2,5),n:name||'',w:null,p:null,qty:1,selected:true};}
       current.w=Math.round(w*1000)/1000;
     }
@@ -4472,7 +4640,7 @@ function fishOcrAddRow(){if(FISH_OCR_ROWS.length>=40)return showToast('До 40 �
 function fishOcrReparse(){FISH_OCR_TEXT=fishOcrEl('fishOcrText')?.value||'';if(!FISH_OCR_TEXT)return;FISH_OCR_ROWS=fishOcrParseText(FISH_OCR_TEXT);fishOcrRender();}
 function fishOcrImport(){
   const selected=FISH_OCR_ROWS.filter(row=>row.selected);
-  const valid=selected.filter(row=>Number(row.w)>0&&Number(row.w)<=10&&row.p!==null&&row.p!==''&&Number(row.p)>=0&&Number.isFinite(Number(row.p))&&Number.isInteger(Number(row.qty))&&row.qty>=1&&row.qty<=40);
+  const valid=selected.filter(row=>Number(row.w)>0&&Number(row.w)<=ghFishCapacity()&&row.p!==null&&row.p!==''&&Number(row.p)>=0&&Number.isFinite(Number(row.p))&&Number.isInteger(Number(row.qty))&&row.qty>=1&&row.qty<=40);
   if(!selected.length)return showToast('Отметь хотя бы одну строку','error');
   if(valid.length!==selected.length)return showToast('Проверь вес, цену и количество во всех выбранных строках','error');
   const amount=valid.reduce((sum,row)=>sum+Number(row.qty),0);
@@ -4533,6 +4701,266 @@ document.addEventListener('click',e=>{
   const b=e.target.closest?.('[data-delete-ocr]');if(!b)return;
   FISH_OCR_ROWS.splice(Number(b.dataset.deleteOcr),1);fishOcrRender();
 });
+</script>
+<script>
+/* GTA Helper PRO v24 — single-file enhancements. All OCR writes require human confirmation. */
+const GH24_KEYS={rules:'gta_rules_24',quick:'gta_quick_24',catalog:'gta_catalog_24'};
+const GH24_DEFAULT_RULES={moodThreshold:30,fishCapacity:10,moodActions:{},bpRewards:{},timerSeconds:{}};
+let GH24_RULES=JSON.parse(JSON.stringify(GH24_DEFAULT_RULES));
+let GH24_CATALOG=[];
+const GH24_ACTIONS=[
+ {id:'scan',icon:'🔎',label:'Сканер',detail:'OCR',run:()=>go('scanner')},
+ {id:'fish',icon:'🐟',label:'Рыбалка',detail:'Стак',run:()=>go('fishing')},
+ {id:'bp',icon:'🎯',label:'Bonus Points',detail:'Задания',run:()=>go('bp')},
+ {id:'timers',icon:'⏱',label:'Таймеры',detail:'Откаты',run:()=>go('timers')},
+ {id:'mood',icon:'🙂',label:'Настроение',detail:'Статус',run:()=>go('mood')},
+ {id:'planner',icon:'📈',label:'Планировщик BP',detail:'Маршрут',run:()=>go('planner')},
+ {id:'kitchen',icon:'🍳',label:'Кухня',detail:'Рецепты',run:()=>go('kitchen')},
+ {id:'contracts',icon:'📝',label:'Контракты',detail:'Список',run:()=>go('contracts')},
+ {id:'events',icon:'🎪',label:'Ивенты',detail:'События',run:()=>go('event')},
+ {id:'favorites',icon:'⭐',label:'Все избранные',detail:'Таймеры',run:()=>startTimerScenario('favorites')},
+ {id:'soda',icon:'🥤',label:'Газировка',detail:'+ настроение',run:()=>applyMood('soda')},
+ {id:'cigarette',icon:'🚬',label:'Сигареты',detail:'+ настроение',run:()=>applyMood('cigarette')},
+ {id:'shower',icon:'🚿',label:'Душ',detail:'+ настроение',run:()=>applyMood('shower')}
+];
+const GH24_DEFAULT_QUICK=['scan','fish','bp','timers','mood','planner'];
+let GH24_QUICK=GH24_DEFAULT_QUICK.slice();
+const GH24_ORIGINAL_MOOD=MOOD_ACTIONS.map(a=>({...a}));
+const GH24_ORIGINAL_BP=DB.bp.map(t=>({b:t.b,v:t.v}));
+const GH24_ORIGINAL_TIMERS=DB.timers.map(t=>({id:t.id,s:t.s}));
+const gh24id=id=>document.getElementById(id);
+const gh24esc=ccEscape;
+const gh24round=(num,d=2)=>Math.round(Number(num)*10**d)/10**d;
+function ghThreshold(){return GH24_RULES.moodThreshold||30}
+function ghFishCapacity(){return GH24_RULES.fishCapacity||10}
+function gh24SafeParse(raw,fallback){try{return JSON.parse(raw)}catch(_){return fallback}}
+function gh24RefreshAll(){
+  try{renderMood();renderDashboard();renderFish();renderBP();updateBP();renderBPPlanner();renderTimers();renderTimerPresets();}catch(e){console.warn('Rule update UI',e)}
+}
+function gh24ApplyRules(){
+ const r=GH24_RULES;
+ GH24_ORIGINAL_MOOD.forEach((orig,i)=>{
+  const extra=r.moodActions?.[orig.id]||{};
+  MOOD_ACTIONS[i].desc=extra.cost!==undefined&&orig.cost>0?String(orig.desc||'').split(orig.cost+'$').join(extra.cost+'$'):orig.desc;
+  MOOD_ACTIONS[i].d=Number.isFinite(Number(extra.d)) && extra.d!==undefined?Number(extra.d):orig.d;
+  MOOD_ACTIONS[i].cost=Number.isFinite(Number(extra.cost))&&extra.cost!==undefined?Number(extra.cost):orig.cost;
+  MOOD_ACTIONS[i].cd=Number.isFinite(Number(extra.cd))&&extra.cd!==undefined?Number(extra.cd):orig.cd;
+ });
+ DB.bp.forEach((t,i)=>{
+  const patch=r.bpRewards?.[i]||{},orig=GH24_ORIGINAL_BP[i];
+  t.b=Number.isInteger(patch.b)&&patch.b>=0?patch.b:orig.b;
+  t.v=Number.isInteger(patch.v)&&patch.v>=0?patch.v:orig.v;
+ });
+ DB.timers.forEach((t,i)=>{
+  const value=r.timerSeconds?.[t.id],orig=GH24_ORIGINAL_TIMERS[i];
+  t.s=Number.isInteger(value)&&value>0?value:orig.s;
+ });
+ ghUpdateCoreRuleCopy();
+}
+function ghUpdateCoreRuleCopy(){
+ const node=gh24id('moodEffects');
+ if(gh24id('ghMoodThresholdChip'))gh24id('ghMoodThresholdChip').textContent=ghThreshold()+' = полный бонус';
+ if(gh24id('ghMoodEffectThreshold'))gh24id('ghMoodEffectThreshold').textContent='Порог '+ghThreshold();
+ if(gh24id('ghFishLimitText'))gh24id('ghFishLimitText').textContent=ghFishCapacity();
+ if(gh24id('ghHomeThreshold'))gh24id('ghHomeThreshold').textContent=ghThreshold();
+ const field=gh24id('fishWeight');if(field)field.max=ghFishCapacity();
+ if(gh24id('ghRuleMoodThreshold'))gh24id('ghRuleMoodThreshold').value=ghThreshold();
+ if(gh24id('ghRuleFishCapacity'))gh24id('ghRuleFishCapacity').value=ghFishCapacity();
+}
+async function ghLoadV24(){
+ try{
+  const result=await Promise.all(Object.values(GH24_KEYS).map(k=>Cloud.getItem(k)));
+  const [r,q,cat]=result.map(x=>gh24SafeParse(x,null));
+  if(r && typeof r==='object'&&!Array.isArray(r)){
+   GH24_RULES={...GH24_DEFAULT_RULES,...r,moodActions:r.moodActions||{},bpRewards:r.bpRewards||{},timerSeconds:r.timerSeconds||{}};
+   GH24_RULES.moodThreshold=ccClamp(Number(GH24_RULES.moodThreshold)||30,1,100);
+   GH24_RULES.fishCapacity=ccClamp(Number(GH24_RULES.fishCapacity)||10,1,30);
+  }
+  if(Array.isArray(q))GH24_QUICK=[...new Set(q.filter(id=>GH24_ACTIONS.some(a=>a.id===id)))].slice(0,8);
+  if(Array.isArray(cat))GH24_CATALOG=cat.filter(x=>x&&typeof x.name==='string'&&['inventory','prices'].includes(x.mode)).slice(-120);
+ }catch(e){console.warn('v24 storage unavailable',e)}
+ gh24ApplyRules();ghRenderQuick();ghRenderCatalog();
+}
+function gh24Save(key,obj){Cloud.setItem(key,JSON.stringify(obj))}
+function ghRenderQuick(){
+ const root=gh24id('ghQuickGrid');if(!root)return;
+ root.innerHTML=GH24_QUICK.map(id=>{const a=GH24_ACTIONS.find(x=>x.id===id);return a?`<button class="gh-quick-btn" type="button" onclick="ghRunQuick('${a.id}')"><span class="gh-quick-icon">${a.icon}</span><span><b>${gh24esc(a.label)}</b><small>${gh24esc(a.detail)}</small></span></button>`:''}).join('')||'<p class="cc-mini">Выбери кнопки через «Настроить».</p>';
+}
+function ghRunQuick(id){const a=GH24_ACTIONS.find(x=>x.id===id);if(a)a.run()}
+function ghOpenQuickEditor(){gh24id('ghQuickSheet').style.display='flex';ghRenderQuickEditor();try{window.Telegram?.WebApp?.BackButton?.show?.()}catch(_){}}
+function ghCloseQuickEditor(){gh24id('ghQuickSheet').style.display='none';if(typeof ghBackButton==='function')ghBackButton()}
+function ghRenderQuickEditor(){
+ const root=gh24id('ghQuickEditList');if(!root)return;
+ root.innerHTML=GH24_ACTIONS.map(a=>{const idx=GH24_QUICK.indexOf(a.id),sel=idx>=0;return `<div class="gh-quick-edit"><button class="gh-quick-check ${sel?'checked':''}" type="button" onclick="ghQuickToggle('${a.id}')" aria-label="${sel?'Убрать':'Добавить'} ${gh24esc(a.label)}">${sel?'✓':'+'}</button><span class="gh-quick-icon">${a.icon}</span><b>${gh24esc(a.label)}</b><span class="gh-grow"></span>${sel?`<button class="gh-icon-btn" type="button" aria-label="Вверх" onclick="ghQuickMove('${a.id}',-1)">↑</button><button class="gh-icon-btn" type="button" aria-label="Вниз" onclick="ghQuickMove('${a.id}',1)">↓</button>`:''}</div>`}).join('');
+}
+function ghQuickSave(){gh24Save(GH24_KEYS.quick,GH24_QUICK);ghRenderQuick();ghRenderQuickEditor()}
+function ghQuickToggle(id){if(GH24_QUICK.includes(id))GH24_QUICK=GH24_QUICK.filter(x=>x!==id);else if(GH24_QUICK.length>=8)return showToast('Максимум 8 быстрых действий','error');else GH24_QUICK.push(id);ghQuickSave()}
+function ghQuickMove(id,d){const i=GH24_QUICK.indexOf(id),j=i+d;if(i<0||j<0||j>=GH24_QUICK.length)return;[GH24_QUICK[i],GH24_QUICK[j]]=[GH24_QUICK[j],GH24_QUICK[i]];ghQuickSave()}
+function ghResetQuick(){GH24_QUICK=GH24_DEFAULT_QUICK.slice();ghQuickSave();showToast('Быстрые действия восстановлены','success')}
+function ghSaveCoreRules(){
+ const threshold=Number(gh24id('ghRuleMoodThreshold')?.value),weight=Number(gh24id('ghRuleFishCapacity')?.value);
+ if(!Number.isInteger(threshold)||threshold<1||threshold>100||!Number.isFinite(weight)||weight<1||weight>30)return showToast('Порог: 1–100, стак: 1–30 кг','error');
+ GH24_RULES.moodThreshold=threshold;GH24_RULES.fishCapacity=gh24round(weight,1);
+ ghSaveRules();showToast('Лимиты обновлены','success');
+}
+function ghSaveRules(){gh24Save(GH24_KEYS.rules,GH24_RULES);gh24ApplyRules();gh24RefreshAll()}
+function ghResetRules(){if(!confirm('Восстановить все правила по умолчанию? Данные прогресса сохранятся.'))return;GH24_RULES=JSON.parse(JSON.stringify(GH24_DEFAULT_RULES));ghSaveRules();ghRenderRules();showToast('Исходные игровые правила восстановлены','success')}
+function ghRuleMoodUpdate(id,field,raw){
+ const n=Number(raw),orig=GH24_ORIGINAL_MOOD.find(a=>a.id===id);
+ if(!orig||!Number.isFinite(n)||field==='d'&&(!Number.isInteger(n)||Math.abs(n)>100)||field==='cost'&&(n<0||n>1e9)||field==='cd'&&(n<0||n>1440))return showToast('Неверное число','error');
+ GH24_RULES.moodActions[id]={...(GH24_RULES.moodActions[id]||{}),[field]:n};ghSaveRules();
+}
+function ghRuleBpUpdate(i,field,raw){
+ const n=Number(raw);if(!DB.bp[i]||!['b','v'].includes(field)||!Number.isInteger(n)||n<0||n>1e6)return showToast('Награда должна быть от 0 до 1 000 000','error');
+ GH24_RULES.bpRewards[i]={...(GH24_RULES.bpRewards[i]||{}),[field]:n};ghSaveRules();
+}
+function ghRuleTimerUpdate(id,minutes){
+ const n=Number(minutes);if(!Number.isFinite(n)||n<.1||n>1440)return showToast('Допустимо от 0.1 до 1440 минут','error');
+ GH24_RULES.timerSeconds[id]=Math.round(n*60);ghSaveRules();
+}
+function ghRenderMoodRules(){
+ const root=gh24id('ghRuleMoodList');if(!root)return;
+ const q=(gh24id('ghRuleMoodSearch')?.value||'').toLowerCase();
+ root.innerHTML=MOOD_ACTIONS.filter(a=>a.n.toLowerCase().includes(q)).map(a=>`<div class="gh-rule-row"><b>${gh24esc(a.n)}</b><div class="gh-rule-inputs"><label>± Настроение<input class="cc-input" type="number" step="1" value="${a.d}" onchange="ghRuleMoodUpdate('${a.id}','d',this.value)"></label><label>Стоимость, $<input class="cc-input" type="number" min="0" value="${a.cost??0}" onchange="ghRuleMoodUpdate('${a.id}','cost',this.value)"></label><label>КД, мин<input class="cc-input" type="number" min="0" max="1440" value="${a.cd??0}" onchange="ghRuleMoodUpdate('${a.id}','cd',this.value)"></label></div></div>`).join('')||'<p class="cc-mini">Нет совпадений</p>';
+}
+function ghRenderBpRules(){
+ const root=gh24id('ghRuleBpList');if(!root)return;
+ const q=(gh24id('ghRuleBpSearch')?.value||'').toLowerCase();
+ root.innerHTML=DB.bp.map((t,i)=>({t,i})).filter(x=>x.t.t.toLowerCase().includes(q)).slice(0,35).map(({t,i})=>`<div class="gh-rule-row"><b>${gh24esc(t.t)}</b><div class="gh-rule-inputs gh-two"><label>Обычный BP<input class="cc-input" type="number" min="0" value="${t.b}" onchange="ghRuleBpUpdate(${i},'b',this.value)"></label><label>VIP BP<input class="cc-input" type="number" min="0" value="${t.v}" onchange="ghRuleBpUpdate(${i},'v',this.value)"></label></div></div>`).join('')||'<p class="cc-mini">Нет совпадений</p>';
+}
+function ghRenderTimerRules(){
+ const root=gh24id('ghRuleTimerList');if(!root)return;
+ const q=(gh24id('ghRuleTimerSearch')?.value||'').toLowerCase();
+ root.innerHTML=DB.timers.filter(t=>t.l.toLowerCase().includes(q)).slice(0,50).map(t=>`<div class="gh-rule-row gh-flex-row"><b>${gh24esc(t.l)}</b><label>Минуты<input class="cc-input" type="number" min="0.1" max="1440" step="0.1" value="${gh24round(t.s/60,2)}" onchange="ghRuleTimerUpdate('${t.id}',this.value)"></label></div>`).join('')||'<p class="cc-mini">Нет совпадений</p>';
+}
+function ghRenderRules(){ghUpdateCoreRuleCopy();ghRenderMoodRules();ghRenderBpRules();ghRenderTimerRules()}
+
+/* One OCR pipeline for all five modes; no OCR text automatically changes application data. */
+let GH24_SCAN_FILE=null,GH24_SCAN_URL='',GH24_SCAN_BUSY=false,GH24_SCAN_ROWS=[],GH24_SCAN_RAW='';
+const GH24_SCAN_HINT={fish:'Вес и цена отдельной рыбы. После проверки добавится в калькулятор стака.',bp:'Предлагает совпадения из базы Bonus Points. Отмеченные задания будут помечены выполненными только после подтверждения.',inventory:'Предметы и их количество из скриншота. Ты можешь исправить название и количество.',prices:'Названия и цены. Цены добавятся в личный справочник.',text:'Произвольный текст. Можно копировать, но не записывать как игровые данные.'};
+function ghScanMode(){return gh24id('ghScanMode')?.value||'fish'}
+function ghScanModeChanged(){gh24id('ghScanHint').textContent=GH24_SCAN_HINT[ghScanMode()];GH24_SCAN_ROWS=[];gh24id('ghScanReviewPanel').hidden=true;if(GH24_SCAN_RAW){ghScanReparse()}}
+function ghScanSetFile(file,auto=false){
+ if(GH24_SCAN_BUSY)return false;
+ if(!file||!file.type.startsWith('image/')||file.size>15*1024*1024)return showToast('Нужен PNG/JPG/WEBP до 15 МБ','error');
+ if(GH24_SCAN_URL)URL.revokeObjectURL(GH24_SCAN_URL);
+ GH24_SCAN_FILE=file;GH24_SCAN_URL=URL.createObjectURL(file);GH24_SCAN_ROWS=[];GH24_SCAN_RAW='';
+ gh24id('ghScanPreview').src=GH24_SCAN_URL;gh24id('ghScanPreview').hidden=false;gh24id('ghScanReviewPanel').hidden=true;gh24id('ghScanStartButton').disabled=false;
+ ghScanStatus('Готово к распознаванию',0);if(auto)ghScanStart();return true;
+}
+function ghScanUpload(input){const file=input.files?.[0];if(file)ghScanSetFile(file);input.value=''}
+function ghScanStatus(s,p){gh24id('ghScanStatus').textContent=s;gh24id('ghScanProgress').style.width=ccClamp(p||0,0,100)+'%'}
+document.addEventListener('paste',event=>{
+ if(!gh24id('tab-scanner')?.classList.contains('active'))return;
+ const list=[...(event.clipboardData?.files||[])];for(const item of [...(event.clipboardData?.items||[])])if(item.kind==='file'){const f=item.getAsFile();if(f)list.push(f)}
+ const file=list.find(x=>x.type.startsWith('image/'));
+ if(file){event.preventDefault();ghScanSetFile(file,true)}
+},true);
+document.addEventListener('dragover',event=>{if(event.target.closest?.('#tab-scanner .cc-panel')&&[...(event.dataTransfer?.types||[])].includes('Files'))event.preventDefault()});
+document.addEventListener('drop',event=>{if(!event.target.closest?.('#tab-scanner .cc-panel'))return;const f=[...(event.dataTransfer?.files||[])].find(x=>x.type.startsWith('image/'));if(f){event.preventDefault();ghScanSetFile(f,true)}});
+async function ghScanStart(){
+ if(!GH24_SCAN_FILE||GH24_SCAN_BUSY)return;
+ GH24_SCAN_BUSY=true;gh24id('ghScanStartButton').disabled=true;let worker=null;
+ try{
+  ghScanStatus('Подключаю распознавание…',5);await fishOcrScript();
+  ghScanStatus('Подготавливаю скриншот…',12);const canvas=await fishOcrPrepare(GH24_SCAN_FILE);
+  worker=await Tesseract.createWorker('rus+eng',1,{logger:msg=>{if(Number.isFinite(msg?.progress))ghScanStatus('Распознаю…',Math.min(95,15+msg.progress*80))}});
+  const data=await worker.recognize(canvas);GH24_SCAN_RAW=String(data.data?.text||'').slice(0,16000);
+  gh24id('ghScanText').value=GH24_SCAN_RAW;ghScanReparse();ghScanStatus('Готово · проверь записи',100);
+ }catch(e){console.warn('Universal OCR',e);ghScanStatus('Ошибка: '+(e.message||'Не удалось распознать'),0);showToast('Не удалось распознать скриншот','error')}
+ finally{try{await worker?.terminate()}catch(_){}GH24_SCAN_BUSY=false;gh24id('ghScanStartButton').disabled=!GH24_SCAN_FILE}
+}
+function gh24Norm(s){return String(s||'').toLowerCase().replace(/ё/g,'е').replace(/[^\p{L}\p{N}]+/gu,' ').trim()}
+function gh24ParseBp(text){
+ const lines=String(text).split(/\r?\n/).map(x=>x.trim()).filter(x=>x.length>=4).slice(0,90);
+ const out=[],seen=new Set();
+ for(const raw of lines){
+  const norm=gh24Norm(raw);if(!norm)continue;
+  let best=-1,score=0;
+  DB.bp.forEach((t,i)=>{
+   const target=gh24Norm(t.t);const words=target.split(' ').filter(w=>w.length>=3);
+   const ratio=words.length?words.filter(w=>norm.includes(w)).length/words.length:0;
+   const hit=norm.includes(target)?1:ratio;
+   if(hit>score){score=hit;best=i}
+  });
+  if(score<.55||seen.has(best))continue;
+  seen.add(best);out.push({name:raw,task:best,checked:false});if(out.length>=35)break;
+ }
+ return out;
+}
+function gh24ParseCatalog(text,mode){
+ return String(text).split(/\r?\n/).map(x=>x.trim()).filter(Boolean).slice(0,70).map(line=>{
+  const price=fishOcrExtractPrice(line);
+  const qtyMatch=line.match(/(?:x|×|х|кол(?:-во|ичество)?[: ]|штук[: ]|qty[: ]|шт[: ])\s*(\d{1,4})/iu)||line.match(/(\d{1,4})\s*(?:шт|штук|ед|pcs)(?!\p{L})/iu);
+  const qty=qtyMatch?Number(qtyMatch[1]):1;
+  let name=line.replace(/(?:\$|₴)\s*\d[\d., ]*/gu,' ').replace(/\d[\d., ]*\s*(?:\$|₴|грн|usd)(?!\p{L})/giu,' ').replace(/(?:x|×|х|шт|кол-во|количество)\s*\d+/giu,' ').replace(/\s+/g,' ').trim();
+  if(name.length<2||!/[а-яёa-z]/iu.test(name))return null;
+  return {name:name.slice(0,70),qty:ccClamp(qty,1,9999),price:price??null,checked:false,mode};
+ }).filter(Boolean).slice(0,40);
+}
+function gh24ParseScan(text,mode){
+ if(mode==='fish')return fishOcrParseText(text).map(f=>({name:f.n,qty:f.qty||1,weight:f.w,price:f.p,checked:false}));
+ if(mode==='bp')return gh24ParseBp(text);
+ if(mode==='inventory'||mode==='prices')return gh24ParseCatalog(text,mode);
+ return [];
+}
+function ghScanReparse(){GH24_SCAN_RAW=gh24id('ghScanText').value;GH24_SCAN_ROWS=gh24ParseScan(GH24_SCAN_RAW,ghScanMode());ghScanRender()}
+function ghScanRender(){
+ const mode=ghScanMode(),root=gh24id('ghScanRows');gh24id('ghScanReviewPanel').hidden=false;
+ if(mode==='text'){root.innerHTML='<p class="cc-mini">Текст готов для копирования или ручного редактирования. Автозаписи нет.</p>';return}
+ root.innerHTML=GH24_SCAN_ROWS.map((r,i)=>{
+  const safe=gh24esc;
+  let content='';
+  if(mode==='bp')content=`<label>Найдено: ${safe(r.name)}</label><select class="cc-input gh-full" data-scan-field="task"><option value="">Выбери задание</option>${DB.bp.map((t,j)=>`<option value="${j}" ${r.task===j?'selected':''}>${safe(t.t)}</option>`).join('')}</select>`;
+  else if(mode==='fish')content=`<input class="cc-input gh-full" data-scan-field="name" placeholder="Название рыбы" value="${safe(r.name)}"><div class="gh-rule-inputs"><label>Вес, кг<input class="cc-input" type="number" min="0.001" max="${ghFishCapacity()}" step="0.001" value="${r.weight??''}" data-scan-field="weight"></label><label>Цена, $<input class="cc-input" type="number" min="0" value="${r.price??''}" data-scan-field="price"></label><label>Штук<input class="cc-input" type="number" min="1" max="40" value="${r.qty||1}" data-scan-field="qty"></label></div>`;
+  else content=`<input class="cc-input gh-full" data-scan-field="name" value="${safe(r.name)}" placeholder="Название"><div class="gh-rule-inputs gh-two"><label>Кол-во<input class="cc-input" type="number" min="1" max="9999" data-scan-field="qty" value="${r.qty||1}"></label>${mode==='prices'?`<label>Цена, $<input class="cc-input" type="number" min="0" step="0.01" data-scan-field="price" value="${r.price??''}"></label>`:''}</div>`;
+  return `<div class="gh-rule-row" data-gh-scan="${i}"><div class="gh-scan-row-head"><label><input type="checkbox" data-scan-field="checked" ${r.checked?'checked':''}> <b>Запись ${i+1}</b></label><button class="cc-link" type="button" onclick="ghScanRemove(${i})">Удалить</button></div>${content}</div>`;
+ }).join('')||'<p class="cc-mini">Совпадений нет. Можно добавить строку вручную или изменить текст OCR.</p>';
+}
+document.addEventListener('input',ghScanInputChange);
+document.addEventListener('change',ghScanInputChange);
+function ghScanInputChange(event){
+ const el=event.target,wrap=el.closest?.('[data-gh-scan]');if(!wrap||!el.dataset.scanField)return;
+ const row=GH24_SCAN_ROWS[Number(wrap.dataset.ghScan)];if(!row)return;
+ const key=el.dataset.scanField;
+ row[key]=key==='checked'?el.checked:key==='name'?el.value:key==='task'?(el.value===''?null:Number(el.value)):(el.value===''?null:Number(el.value));
+}
+function ghScanRemove(i){GH24_SCAN_ROWS.splice(i,1);ghScanRender()}
+function ghScanAddRow(){
+ if(GH24_SCAN_ROWS.length>=40)return showToast('Не больше 40 строк','error');
+ const mode=ghScanMode();if(mode==='text')return showToast('В режиме текста редактируй исходный текст','info');
+ GH24_SCAN_ROWS.push(mode==='fish'?{name:'',weight:null,price:null,qty:1,checked:true}:mode==='bp'?{name:'',task:null,checked:true}:{name:'',qty:1,price:null,mode,checked:true});ghScanRender();
+}
+function ghScanConfirm(){
+ const mode=ghScanMode();if(mode==='text')return showToast('Скопируй текст из поля ниже','info');
+ const picked=GH24_SCAN_ROWS.filter(r=>r.checked);
+ if(!picked.length)return showToast('Отметь нужные записи','error');
+ if(mode==='fish'){
+  const valid=picked.every(r=>String(r.name||'').trim().length&&Number(r.weight)>0&&Number(r.weight)<=ghFishCapacity()&&r.price!==null&&Number.isFinite(Number(r.price))&&Number(r.price)>=0&&Number.isInteger(Number(r.qty))&&r.qty>=1&&r.qty<=40);
+  const total=picked.reduce((acc,r)=>acc+Number(r.qty||0),0);
+  if(!valid||FISH.length+total>40)return showToast('Проверь все значения: макс. 40 рыб и вес до лимита','error');
+  const timestamp=Date.now();let number=0;
+  picked.forEach(r=>{for(let i=0;i<Number(r.qty);i++)FISH.push({id:'scan_'+timestamp+'_'+(++number),n:String(r.name).trim().slice(0,55),w:gh24round(r.weight,3),p:gh24round(r.price,2)})});
+  saveFish();showToast('В калькулятор добавлено рыб: '+total,'success');go('fishing');return;
+ }
+ if(mode==='bp'){
+  const ids=picked.map(r=>r.task);
+  if(ids.some(i=>!Number.isInteger(i)||!DB.bp[i])||new Set(ids).size!==ids.length)return showToast('Проверь совпадения заданий BP, без повторов','error');
+  if(!confirm('Пометить выбранные '+ids.length+' заданий Bonus Points выполненными?'))return;
+  BP.done=Array.isArray(BP.done)?BP.done:[];BP.counters=BP.counters||{};BP.times=BP.times||{};
+  ids.forEach(i=>{if(!BP.done.includes(i))BP.done.push(i);if(DB.bp[i].q>1)BP.counters[i]=DB.bp[i].q;BP.times[i]=new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});});
+  saveBP();renderBP();updateBP();showToast('Отмечено заданий: '+ids.length,'success');go('bp');return;
+ }
+ const valid=picked.every(r=>String(r.name||'').trim().length>=2&&Number.isInteger(Number(r.qty))&&Number(r.qty)>0&&Number(r.qty)<=9999&&(mode!=='prices'||(r.price!==null&&Number.isFinite(Number(r.price))&&Number(r.price)>=0)));
+ if(!valid)return showToast('Проверь названия, количество и цену каждой записи','error');
+ for(const r of picked){const normalized=gh24Norm(r.name),idx=GH24_CATALOG.findIndex(x=>x.mode===mode&&gh24Norm(x.name)===normalized);const entry={mode,name:r.name.trim().slice(0,70),qty:Number(r.qty),price:r.price!==null&&Number.isFinite(Number(r.price))?gh24round(r.price,2):null,updated:Date.now()};
+  if(idx>=0)GH24_CATALOG[idx]=entry;else GH24_CATALOG.push(entry);
+ }
+ GH24_CATALOG=GH24_CATALOG.slice(-120);gh24Save(GH24_KEYS.catalog,GH24_CATALOG);ghRenderCatalog();showToast('Сохранено позиций: '+picked.length,'success');
+}
+function ghRenderCatalog(){const root=gh24id('ghCatalogList');if(!root)return;root.innerHTML=GH24_CATALOG.length?GH24_CATALOG.slice().reverse().slice(0,40).map((r,i)=>`<div class="cc-mini-timer"><b>${r.mode==='prices'?'💲':'🎒'} ${gh24esc(r.name)}</b><time>${r.mode==='prices'&&r.price!==null?ccNum(r.price)+'$':'×'+r.qty}</time></div>`).join(''):'<p class="cc-mini">Ещё нет подтверждённых записей.</p>'}
+function ghClearCatalog(){if(!GH24_CATALOG.length)return;if(!confirm('Удалить весь личный каталог предметов и цен?'))return;GH24_CATALOG=[];gh24Save(GH24_KEYS.catalog,GH24_CATALOG);ghRenderCatalog()}
+
 </script>
 <script>
 /* GTA HELPER PRO — cosmetic UX enhancement; legacy state logic remains unchanged. */
