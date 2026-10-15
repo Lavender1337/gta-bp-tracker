@@ -6,157 +6,166 @@
     <title>GTA Helper PRO — Nexus HUD</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-    // GTA Helper PRO: spring-smoothed pointer follower, FLIP neighbors, animated drop.
-    // Embedded locally: no SortableJS CDN and no separate JS files.
+    // NEXUS Motion 26.2 — single floating card, explicit placeholder, stable slots.
+    // Standalone pointer drag engine for BP, timer presets, selected-sort, and contracts.
     (function(){
       'use strict';
       const instances=new WeakMap();
-      const reduced=()=>!!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-      const children=root=>Array.from(root.children).filter(e=>e.nodeType===1&&!e.classList.contains('empty-fav-msg'));
-      function create(root,options={}){
+      const reduce=()=>matchMedia('(prefers-reduced-motion: reduce)').matches||document.body.classList.contains('ux-motion-off');
+      const duration=()=>reduce()?0:document.body.classList.contains('ux-motion-low')?150:230;
+      const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+      function create(root,opts={}){
         if(!root)return null;
         instances.get(root)?.destroy();
-        let drag=null,moveRaf=0,scrollRaf=0,clickBlock=0;
-        const roots=()=>options.group?['favoriteTimers','timerGrid'].map(x=>document.getElementById(x)).filter(Boolean):[root];
-        const duration=()=>reduced()?0:(Number(options.animation)||340);
-        function measure(){
-          const before=new Map();for(const parent of roots())for(const el of children(parent)){
-            if(el!==drag?.item)before.set(el,el.getBoundingClientRect());
-          }return before;
-        }
-        function animatePositions(before){
+        let drag=null,raf=0,scrollRaf=0,lockClickUntil=0;
+        const roots=()=>opts.group?['favoriteTimers','timerGrid'].map(id=>document.getElementById(id)).filter(Boolean):[root];
+        const visible=r=>[...r.children].filter(el=>el.nodeType===1 && el!==drag?.source && el!==drag?.slot && !el.classList.contains('empty-fav-msg') && !el.classList.contains('gh-drop-slot'));
+        function snapshot(){const m=new Map();for(const r of roots())for(const el of visible(r))m.set(el,el.getBoundingClientRect());return m}
+        function animateOthers(before){
           if(!duration())return;
-          for(const [el,first] of before){
+          for(const [el,was] of before){
             if(!el.isConnected)continue;
-            const last=el.getBoundingClientRect(),dx=first.left-last.left,dy=first.top-last.top;
-            if(Math.abs(dx)+Math.abs(dy)<.6)continue;
-            // Freeze the visually current location as the start of each FLIP, even on rapid reorders.
-            try{el.getAnimations().filter(a=>a.id==='gh-flip').forEach(a=>a.cancel());}catch(_){ }
-            try{
-              const a=el.animate([
-                {transform:`translate3d(${dx}px,${dy}px,0)`},
-                {transform:'translate3d(0,0,0)'}
-              ],{duration:duration(),easing:'cubic-bezier(.18,.83,.22,1)',fill:'none'});
-              a.id='gh-flip';
-            }catch(_){ }
+            el.getAnimations?.().filter(a=>a.id==='gh-slide').forEach(a=>a.cancel());
+            const now=el.getBoundingClientRect(),dx=was.left-now.left,dy=was.top-now.top;
+            if(Math.hypot(dx,dy)<1)continue;
+            const anim=el.animate([{translate:`${dx}px ${dy}px`},{translate:'0px 0px'}],{duration:duration(),easing:'cubic-bezier(.2,.8,.2,1)'});
+            anim.id='gh-slide';
           }
         }
-        function haptic(){try{window.Telegram?.WebApp?.HapticFeedback?.selectionChanged?.();}catch(_){}}
-        function start(){
-          if(!drag||drag.active)return;
-          const d=drag;d.active=true;
-          d.smoothX=d.startX;d.smoothY=d.startY;d.lastTick=performance.now();
-          const clone=d.item.cloneNode(true);
-          clone.removeAttribute('id');clone.querySelectorAll('[id]').forEach(n=>n.removeAttribute('id'));
-          clone.classList.remove('gh-sort-placeholder');clone.classList.add('gh-sort-floating');
-          clone.setAttribute('aria-hidden','true');
-          clone.querySelectorAll('button,input,select,textarea').forEach(n=>n.tabIndex=-1);
-          Object.assign(clone.style,{width:d.rect.width+'px',height:d.rect.height+'px',left:d.rect.left+'px',top:d.rect.top+'px',position:'fixed',margin:'0',pointerEvents:'none',zIndex:'99999',boxSizing:'border-box'});
-          document.body.appendChild(clone);d.ghost=clone;
-          d.item.classList.add('gh-sort-placeholder');
-          document.documentElement.classList.add('gh-sorting-active');
-          d.from.setAttribute('data-gh-sorting','true');
-          haptic();tick();scrollTick();
+        function haptic(){try{if(typeof uxHapticsEnabled!=='function'||uxHapticsEnabled())Telegram?.WebApp?.HapticFeedback?.selectionChanged?.()}catch(_){}}
+        function frame(){raf=0;const d=drag;if(!d?.active)return;
+          // Exact pointer tracking; no rubber-band lag or duplicate CSS transition.
+          d.ghost.style.setProperty('transform',`translate3d(${Math.round(d.x-d.x0)}px,${Math.round(d.y-d.y0)}px,0) scale(1.015)`,'important');
         }
-        function tick(){
-          moveRaf=0;const d=drag;if(!d||!d.active||!d.ghost)return;
-          const now=performance.now(),dt=Math.min(40,now-d.lastTick);d.lastTick=now;
-          const ratio=reduced()?1:1-Math.exp(-dt/35);
-          d.smoothX+=(d.x-d.smoothX)*ratio;d.smoothY+=(d.y-d.smoothY)*ratio;
-          const dx=d.smoothX-d.startX,dy=d.smoothY-d.startY;
-          // Smooth translation using transforms avoids left/top layout recalculation.
-          d.ghost.style.transform=`translate3d(${dx}px,${dy}px,0) rotate(-1deg) scale(1.035)`;
-          movePlaceholder();
-          moveRaf=requestAnimationFrame(tick);
+        function requestFrame(){if(!raf)raf=requestAnimationFrame(frame)}
+        function begin(){
+          const d=drag;if(!d||d.active)return;
+          d.active=true;
+          const r=d.rect,css=getComputedStyle(d.source);
+          const frameStyle={backgroundColor:css.backgroundColor,color:css.color,borderColor:css.borderColor,borderRadius:css.borderRadius,padding:css.padding,display:css.display,flexDirection:css.flexDirection,alignItems:css.alignItems,gap:css.gap};
+          const slot=document.createElement('div');slot.className='gh-drop-slot';
+          slot.setAttribute('aria-label','Место вставки');
+          slot.style.cssText=`height:${d.source.offsetHeight}px;width:${d.source.offsetWidth}px;max-width:100%;box-sizing:border-box;flex-shrink:0;margin:${css.margin};`;
+          slot.innerHTML='<span class="gh-drop-slot-label">↳ Переместить сюда</span>';
+          d.source.before(slot);d.slot=slot;
+          // Hide the REAL source, not merely fade it: two visible cards were the v26.1 bug.
+          d.source.style.display='none';
+          const floating=d.source.cloneNode(true);floating.removeAttribute('id');
+          floating.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
+          floating.setAttribute('aria-hidden','true');floating.classList.add('gh-drag-card');
+          floating.classList.remove('gh-sort-placeholder','gh-sort-arriving','gh-sort-dragging');
+          // CSS selectors scoped to #tab-bp no longer apply when card is fixed to body.
+          Object.assign(floating.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',margin:'0',zIndex:'2147483600',pointerEvents:'none',boxSizing:'border-box',...frameStyle,transform:'translate3d(0px,0px,0) scale(1.015)',transition:'none',animation:'none'});
+          // Inherit each label's computed ink/font values, avoiding theme regressions.
+          const old=d.source.querySelectorAll('*'),fresh=floating.querySelectorAll('*');
+          for(let i=0;i<Math.min(old.length,fresh.length);i++){
+            const c=getComputedStyle(old[i]);fresh[i].style.color=c.color;
+            fresh[i].style.fontSize=c.fontSize;fresh[i].style.fontWeight=c.fontWeight;
+          }
+          floating.querySelectorAll('button,input,textarea,select').forEach(el=>el.tabIndex=-1);
+          floating.style.setProperty('transform','translate3d(0px,0px,0) scale(1.015)','important');
+          document.body.appendChild(floating);d.ghost=floating;
+          document.documentElement.classList.add('gh-sort-mode');
+          d.source.parentElement?.setAttribute('data-gh-sorting','1');
+          haptic();requestFrame();autoScroll();
         }
-        function movePlaceholder(){
+        function validDestination(x,y){
+          const target=document.elementFromPoint(x,y);
+          for(const r of roots())if(target&&(r===target||r.contains(target)))return r;
+          for(const r of roots()){
+            const box=r.getBoundingClientRect();if(x>=box.left-5&&x<=box.right+5&&y>=box.top-12&&y<=box.bottom+12)return r;
+          }
+          return null;
+        }
+        function reposition(){
           const d=drag;if(!d?.active)return;
-          const at=document.elementFromPoint(d.x,d.y);if(!at)return;
-          const targetRoot=roots().find(r=>r===at||r.contains(at));if(!targetRoot)return;
-          const others=children(targetRoot).filter(el=>el!==d.item);
-          if(!others.length){if(d.item.parentElement!==targetRoot){const before=measure();targetRoot.appendChild(d.item);animatePositions(before);}return;}
-          let best=null;
-          for(const el of others){
-            const r=el.getBoundingClientRect();
-            const dx=Math.max(r.left-d.x,0,d.x-r.right),dy=Math.max(r.top-d.y,0,d.y-r.bottom);
-            const dist=dx*dx+dy*dy;
-            if(!best||dist<best.dist)best={el,r,dist};
+          const dest=validDestination(d.x,d.y);if(!dest)return;
+          const others=visible(dest);
+          const rect=d.slot.getBoundingClientRect();
+          // Inside the current slot: avoid vibrating back and forth around its edges.
+          if(d.slot.parentElement===dest && d.x>rect.left+12 && d.x<rect.right-12 && d.y>rect.top+Math.min(10,rect.height*.12) && d.y<rect.bottom-Math.min(10,rect.height*.12))return;
+          let next=null;
+          if(others.length){
+            const horizontal=getComputedStyle(dest).display==='grid'||others.some((el,i)=>i>0&&Math.abs(el.getBoundingClientRect().top-others[i-1].getBoundingClientRect().top)<12);
+            for(const el of others){
+              const box=el.getBoundingClientRect();
+              if(d.y < box.top+box.height*.5-(horizontal?box.height*.27:0) ||
+                 (horizontal&&d.y<box.bottom&&d.y>=box.top-box.height*.12&&d.x<box.left+box.width*.5)){
+                next=el;break;
+              }
+            }
           }
-          if(!best)return;
-          const {el,r}=best;
-          const template=el.classList.contains('drag-template');
-          const sameRow=Math.abs(d.y-(r.top+r.height/2))<r.height*.43;
-          const before=template&&sameRow?d.x<r.left+r.width/2:d.y<r.top+r.height/2;
-          const anchor=before?el:el.nextSibling;
-          // Guard against self anchors or no-op mutations to prevent shaking.
-          if(anchor===d.item|| (d.item.parentElement===targetRoot && d.item.nextSibling===anchor))return;
-          const first=measure();targetRoot.insertBefore(d.item,anchor);animatePositions(first);
-          if(targetRoot!==d.lastRoot){d.lastRoot=targetRoot;haptic();}
+          if(next===d.slot ||(d.slot.parentElement===dest&&d.slot.nextElementSibling===next))return;
+          // Don't animate the slot itself; animate only neighbours into the emptied place.
+          const before=snapshot();dest.insertBefore(d.slot,next);animateOthers(before);
+          if(d.lastRoot!==dest){d.lastRoot=dest;haptic()}
         }
-        function scrollTick(){
+        function autoScroll(){
           scrollRaf=0;const d=drag;if(!d?.active)return;
-          const zone=64,top=55,bottom=window.innerHeight-76;
-          const speed=d.y<top+zone?-Math.min(12,(top+zone-d.y)*.2):d.y>bottom-zone?Math.min(12,(d.y-(bottom-zone))*.2):0;
-          if(speed)window.scrollBy(0,speed);
-          scrollRaf=requestAnimationFrame(scrollTick);
+          const top=100,bottom=innerHeight-110;
+          const v=d.y<top? -clamp((top-d.y)*.18,0,12):d.y>bottom?clamp((d.y-bottom)*.18,0,12):0;
+          if(v){window.scrollBy(0,v);reposition();}
+          scrollRaf=requestAnimationFrame(autoScroll);
         }
-        function cleanup(settle){
-          const d=drag;if(!d)return null;drag=null;
-          cancelAnimationFrame(moveRaf);cancelAnimationFrame(scrollRaf);moveRaf=0;scrollRaf=0;
-          document.documentElement.classList.remove('gh-sorting-active');d.from.removeAttribute('data-gh-sorting');
-          if(d.ghost){
-            const floating=d.ghost;
-            const end=d.item.getBoundingClientRect();
-            const current=floating.getBoundingClientRect();
-            if(settle&&!reduced()){
-              d.item.classList.add('gh-sort-arriving');
-              // Retain the placeholder until the floating card has landed.
-              floating.style.left=current.left+'px';floating.style.top=current.top+'px';floating.style.transform='none';
-              try{
-                const animation=floating.animate([
-                  {transform:'translate3d(0,0,0) scale(1.035)',opacity:1},
-                  {transform:`translate3d(${end.left-current.left}px,${end.top-current.top}px,0) scale(1)`,opacity:.95}
-                ],{duration:reduced()?0:270,easing:'cubic-bezier(.17,.86,.25,1)',fill:'forwards'});
-                const finish=()=>{floating.remove();d.item.classList.remove('gh-sort-placeholder','gh-sort-arriving');};
-                animation.finished.then(finish,finish);
-                setTimeout(finish,420);
-              }catch(_){floating.remove();d.item.classList.remove('gh-sort-placeholder','gh-sort-arriving');}
-            }else{floating.remove();d.item.classList.remove('gh-sort-placeholder','gh-sort-arriving');}
-          }else d.item.classList.remove('gh-sort-placeholder','gh-sort-arriving');
-          return d;
+        function cleanup(){cancelAnimationFrame(raf);cancelAnimationFrame(scrollRaf);raf=scrollRaf=0;document.documentElement.classList.remove('gh-sort-mode');roots().forEach(r=>r.removeAttribute('data-gh-sorting'))}
+        function animateLanding(d,end){
+          if(!d.ghost)return;
+          const floating=d.ghost;
+          const start=floating.getBoundingClientRect();
+          floating.style.left=start.left+'px';floating.style.top=start.top+'px';floating.style.setProperty('transform','none','important');
+          if(reduce()){floating.remove();d.source.style.visibility='';return;}
+          let finished=false;const done=()=>{if(finished)return;finished=true;floating.remove();d.source.style.visibility=''};
+          try{const a=floating.animate([
+            {translate:'0px 0px',scale:'1.015',opacity:1},
+            {translate:`${end.left-start.left}px ${end.top-start.top}px`,scale:'1',opacity:.98}
+          ],{duration:260,easing:'cubic-bezier(.22,1,.36,1)',fill:'forwards'});a.finished.then(done,done);setTimeout(done,400)}catch(_){done()}
         }
-        function onDown(e){
-          if((e.button!==undefined&&e.button!==0)||drag||!e.target?.closest)return;
-          if(options.filter&&e.target.closest(options.filter))return;
-          if(options.handle&&!e.target.closest(options.handle))return;
-          const item=children(root).find(el=>el.contains(e.target));if(!item)return;
-          drag={item,from:root,oldIndex:children(root).indexOf(item),pointerId:e.pointerId,
-             startX:e.clientX,startY:e.clientY,x:e.clientX,y:e.clientY,
-             rect:item.getBoundingClientRect(),active:false,ghost:null,lastRoot:root,
-             pointerType:e.pointerType};
+        function finish(commit){
+          const d=drag;if(!d)return;drag=null;cleanup();
+          if(!d.active)return;
+          lockClickUntil=performance.now()+350;
+          if(!commit){
+            const anchor=d.originalNext?.parentElement===d.from?d.originalNext:null;
+            d.from.insertBefore(d.source,anchor);
+            d.slot.remove();d.source.style.display=d.originalDisplay;d.ghost?.remove();return;
+          }
+          const destination=d.slot.parentElement||d.from;
+          destination.insertBefore(d.source,d.slot);d.slot.remove();
+          d.source.style.display=d.originalDisplay;
+          const target=d.source.getBoundingClientRect();
+          d.source.style.visibility='hidden';
+          // Keep one visible floating card until it lands; no double flash.
+          animateLanding(d,target);
+          const newIndex=visible(destination).indexOf(d.source); // source excluded only when drag exists
+          const finalIndex=[...destination.children].filter(el=>el.nodeType===1&&!el.classList.contains('empty-fav-msg')).indexOf(d.source);
+          if(destination!==d.from||finalIndex!==d.oldIndex){
+            haptic();try{opts.onEnd?.({item:d.source,from:d.from,to:destination,oldIndex:d.oldIndex,newIndex:finalIndex})}catch(e){console.error('Drag commit failed',e)}
+          }
         }
-        function onMove(e){
-          const d=drag;if(!d||e.pointerId!==d.pointerId)return;
+        function down(e){
+          if(drag||e.button!=null&&e.button!==0||!e.target.closest)return;
+          if(opts.filter&&e.target.closest(opts.filter))return;
+          if(opts.handle&&!e.target.closest(opts.handle))return;
+          const item=[...root.children].find(el=>el.nodeType===1&&el.contains(e.target)&&!el.classList.contains('empty-fav-msg'));
+          if(!item)return;
+          const rect=item.getBoundingClientRect();drag={source:item,from:root,oldIndex:[...root.children].filter(el=>el.nodeType===1&&!el.classList.contains('empty-fav-msg')).indexOf(item),originalNext:item.nextSibling,originalDisplay:item.style.display,pointerId:e.pointerId,x0:e.clientX,y0:e.clientY,x:e.clientX,y:e.clientY,rect,active:false,lastRoot:root,slot:null,ghost:null};
+        }
+        function move(e){
+          const d=drag;if(!d||d.pointerId!==e.pointerId)return;
           d.x=e.clientX;d.y=e.clientY;
-          if(!d.active){const threshold=d.pointerType==='touch'?10:5;if(Math.hypot(d.x-d.startX,d.y-d.startY)<threshold)return;start();}
-          if(e.cancelable)e.preventDefault();
+          if(!d.active){if(Math.hypot(d.x-d.x0,d.y-d.y0)<(e.pointerType==='touch'?8:5))return;begin();}
+          if(e.cancelable)e.preventDefault();requestFrame();reposition();
         }
-        function onUp(e){
-          if(!drag||e.pointerId!==drag.pointerId)return;
-          const d=cleanup(true);if(!d.active)return;
-          clickBlock=Date.now()+400;
-          const to=d.item.parentElement||d.from,newIndex=children(to).indexOf(d.item);
-          if(to!==d.from||newIndex!==d.oldIndex){haptic();try{options.onEnd?.({item:d.item,from:d.from,to,oldIndex:d.oldIndex,newIndex})}catch(err){console.error('Drag end',err)}}
-        }
-        function cancel(){cleanup(false)}
-        function onClick(e){if(Date.now()<clickBlock){e.preventDefault();e.stopPropagation();}}
-        root.addEventListener('pointerdown',onDown);
-        document.addEventListener('pointermove',onMove,{passive:false});
-        document.addEventListener('pointerup',onUp);
+        function up(e){if(drag?.pointerId===e.pointerId)finish(true)}
+        function cancel(){finish(false)}
+        function blockClick(e){if(performance.now()<lockClickUntil){e.stopImmediatePropagation();e.preventDefault()}}
+        root.addEventListener('pointerdown',down);
+        document.addEventListener('pointermove',move,{passive:false});
+        document.addEventListener('pointerup',up);
         document.addEventListener('pointercancel',cancel);
         window.addEventListener('blur',cancel);
-        root.addEventListener('click',onClick,true);
-        const instance={destroy(){root.removeEventListener('pointerdown',onDown);document.removeEventListener('pointermove',onMove);document.removeEventListener('pointerup',onUp);document.removeEventListener('pointercancel',cancel);window.removeEventListener('blur',cancel);root.removeEventListener('click',onClick,true);cancel();}};
+        document.addEventListener('click',blockClick,true);
+        const instance={destroy(){root.removeEventListener('pointerdown',down);document.removeEventListener('pointermove',move);document.removeEventListener('pointerup',up);document.removeEventListener('pointercancel',cancel);window.removeEventListener('blur',cancel);document.removeEventListener('click',blockClick,true);cancel()}};
         instances.set(root,instance);return instance;
       }
       window.Sortable={create};
@@ -3684,9 +3693,9 @@ function renderTimers() {
     let dmHtml = '';
 
     sorted.forEach(t => {
-        const pct = t.s > 0 ? (t.rm / t.s) * 150.8 : 0;
+        const pct = t.s > 0 ? (Math.max(0,(t.run&&t.et?(t.et-Date.now())/1000:t.rm)) / t.s) * 150.8 : 0;
         const html = `
-            <div class="timer-bubble ${t.run ? 'running' : ''}" onclick="togTime('${t.id}')">
+            <div class="timer-bubble ${t.run ? 'running' : ''}" data-timer-id="${t.id}" onclick="togTime('${t.id}')">
                 <button class="bubble-close" onclick="event.stopPropagation(); delTime('${t.id}')">✕</button>
                 <div class="circle-wrap">
                     <svg viewBox="0 0 52 52" aria-hidden="true"><circle class="circle-bg" cx="26" cy="26" r="24"/><circle class="circle-progress" cx="26" cy="26" r="24" style="stroke-dashoffset: ${150.8 - pct}"/></svg>
@@ -3726,6 +3735,11 @@ function renderTimerPresets() {
     let allPresets = [...DB.timers];
     if (TIMERS.userPresets) {
         allPresets = allPresets.concat(TIMERS.userPresets);
+    }
+    // Preserve manual placement of all template cards, not only favorites.
+    if (Array.isArray(TIMERS.templateOrder) && TIMERS.templateOrder.length) {
+        const ranking = new Map(TIMERS.templateOrder.map((id,index)=>[id,index]));
+        allPresets.sort((a,b)=>(ranking.get(a.id) ?? 999999)-(ranking.get(b.id) ?? 999999));
     }
 
     // Буферы для списков
@@ -3779,7 +3793,13 @@ function setupTimersDragAndDrop() {
         onEnd: function () {
             const newFavs = [];
             favEl.querySelectorAll('.drag-template').forEach(el => newFavs.push(el.getAttribute('data-id')));
-            TIMERS.fav = newFavs; saveTm();
+            TIMERS.fav = newFavs;
+            // Keep the manually sorted regular list between sessions as well.
+            TIMERS.templateOrder = [
+                ...Array.from(favEl.querySelectorAll('.drag-template'),el=>el.dataset.id),
+                ...Array.from(gridEl.querySelectorAll('.drag-template'),el=>el.dataset.id)
+            ];
+            saveTm();
             const emptyMsg = favEl.querySelector('.empty-fav-msg');
             if (TIMERS.fav.length === 0 && !emptyMsg) favEl.innerHTML = '<div class="empty-fav-msg" style="grid-column: 1/-1;">Тяни шаблоны сюда</div>';
             else if (TIMERS.fav.length > 0 && emptyMsg) emptyMsg.remove();
@@ -4136,10 +4156,8 @@ if(t.rm <= 0) {
                     if(elDisp) {
                         elDisp.innerText = fmtTime(t.rm);
                         const svgCircle = elDisp.parentElement.querySelector('.circle-progress');
-                        if(svgCircle) {
-                            const pct = t.s > 0 ? (t.rm / t.s) * 150.8 : 0;
-                            svgCircle.style.strokeDashoffset = 150.8 - pct;
-                        }
+                        // NEXUS Motion drives the SVG continuously from t.et using requestAnimationFrame.
+                        // Don't overwrite its precise fractional value with a 1-second snapshot.
                     }
                 }
             }
@@ -6273,6 +6291,89 @@ window.uxNotifyPreviewQuiet=quietNow;
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
 
+</script>
+<style>
+/* NEXUS Motion 26.2 — clean visible drag, one floating card, one drop slot. */
+html.gh-sort-mode{user-select:none!important;-webkit-user-select:none!important;overscroll-behavior:contain}
+.gh-drop-slot{position:relative!important;display:flex!important;align-items:center!important;justify-content:center!important;flex-direction:column!important;gap:3px!important;min-width:0!important;border:2px dashed color-mix(in srgb,var(--ux-accent,var(--accent)) 78%,transparent)!important;background:color-mix(in srgb,var(--ux-accent,var(--accent)) 9%,var(--bg-card))!important;border-radius:14px!important;box-shadow:inset 0 0 22px color-mix(in srgb,var(--ux-accent,var(--accent)) 10%,transparent)!important;opacity:1!important;transform:none!important;animation:none!important;transition:none!important;pointer-events:none!important;overflow:hidden}
+.gh-drop-slot-label{color:var(--ux-accent,var(--accent));font-weight:800;font-size:11px;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:96%;pointer-events:none}
+#timerGrid .gh-drop-slot,#favoriteTimers .gh-drop-slot{min-height:93px!important;width:85px!important;padding:3px!important;box-sizing:border-box!important}
+#timerGrid .gh-drop-slot-label,#favoriteTimers .gh-drop-slot-label{font-size:9px;white-space:normal;text-align:center}
+.gh-drag-card{position:fixed!important;pointer-events:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important;transition:none!important;box-shadow:0 24px 62px rgba(0,0,0,.50),0 0 0 2px var(--ux-accent,var(--accent))!important;outline:1px solid rgba(255,255,255,.15);border-radius:14px;overflow:hidden;will-change:transform;transform-origin:center center;isolation:isolate;user-select:none!important;-webkit-user-select:none!important;opacity:1!important;filter:none!important}
+.gh-drag-card::before{display:none!important}
+.gh-drag-card .drag-handle,.gh-drag-card .drag-handle-c,.gh-drag-card .gh-timer-grip{opacity:.45}
+@media(prefers-reduced-motion:reduce){.gh-drag-card{will-change:auto}}
+/* NEXUS Motion 26.1 — precise rings, transform-only FLIP, restrained visual polish. */
+body.nx-v26 #tab-timers .circle-progress,
+body.nx-v26 .ht-rect-path{transition:none!important;will-change:stroke-dashoffset;}
+html.gh-sorting-active body.nx-v26 #tab-bp #listBP .task-item,
+html.gh-sorting-active body.nx-v26 #tab-timers .timer-card.drag-template,
+html.gh-sorting-active body.nx-v26 #tab-contracts .contract-card,
+html.gh-sorting-active #listSelectedSort .drag-sort-item{transition-property:border-color,background-color!important;}
+body.nx-v26 .gh-sort-floating{
+  backface-visibility:hidden;isolation:isolate;contain:layout paint;
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+  animation:none!important;transition:none!important;
+  transform-origin:50% 50%;
+}
+body.nx-v26 .gh-sort-floating::before{box-shadow:none!important}
+body.nx-v26 .gh-sort-placeholder{opacity:.13!important;filter:none!important;animation:none!important;}
+body.nx-v26 .gh-sort-arriving{opacity:.08!important;}
+body.nx-v26 #tab-timers .timer-bubble{transform:translateZ(0);backface-visibility:hidden;}
+body.nx-v26 #tab-timers .timer-bubble.running .circle-progress{stroke-linecap:round;}
+@keyframes nx-timer-appear{from{opacity:.4;translate:0 6px;scale:.985}to{opacity:1;translate:0 0;scale:1}}
+body.nx-v26 #tab-timers .timer-bubble{animation:nx-timer-appear .36s cubic-bezier(.16,1,.3,1) both;}
+body.nx-v26.ux-motion-off #tab-timers .timer-bubble{animation:none!important}
+@media(prefers-reduced-motion:reduce){body.nx-v26 #tab-timers .timer-bubble{animation:none!important}}
+</style>
+<script>
+/* NEXUS Motion 26.1: sub-second continuous progress, exact wall-clock time. */
+(function(){
+'use strict';
+let raf=0,lastFrame=0;
+const progressLen=150.8;
+function update(now){
+  raf=0;
+  if(document.visibilityState==='hidden')return;
+  const reduce=window.matchMedia?.('(prefers-reduced-motion:reduce)')?.matches || document.body.classList.contains('ux-motion-off');
+  const low=document.body.classList.contains('ux-motion-low');
+  const interval=reduce?250:low?33:16;
+  if(now-lastFrame>=interval){
+    lastFrame=now;
+    const clock=Date.now();
+    try{
+      if(typeof TIMERS!=='undefined'&&TIMERS.custom){
+        const activePage=document.getElementById('tab-timers')?.classList.contains('active');
+        if(activePage){
+          const index=new Map(TIMERS.custom.map(t=>[String(t.id),t]));
+          document.querySelectorAll('#tab-timers .timer-bubble[data-timer-id]').forEach(el=>{
+            const timer=index.get(el.dataset.timerId);
+            if(!timer)return;
+            const remain=timer.run&&timer.et?Math.max(0,(timer.et-clock)/1000):Math.max(0,timer.rm||0);
+            const fraction=timer.s>0?Math.max(0,Math.min(1,remain/timer.s)):0;
+            const ring=el.querySelector('.circle-progress');
+            if(ring)ring.style.strokeDashoffset=(progressLen*(1-fraction)).toFixed(3);
+          });
+        }
+        const header=document.querySelector('.ht-rect-path');
+        if(header){
+          const active=TIMERS.custom.filter(t=>t.run).sort((a,b)=>a.et-b.et);
+          if(active.length){
+            const idx=typeof headerTimerIdx==='number'?((headerTimerIdx%active.length)+active.length)%active.length:0;
+            const t=active[idx],remain=Math.max(0,(t.et-clock)/1000);
+            header.style.strokeDashoffset=(100*(1-Math.max(0,Math.min(1,remain/Math.max(.01,t.s||1))))).toFixed(3);
+          }
+        }
+      }
+    }catch(err){console.warn('NEXUS smooth timer update:',err)}
+  }
+  raf=requestAnimationFrame(update);
+}
+function start(){if(!raf&&document.visibilityState==='visible'){lastFrame=0;raf=requestAnimationFrame(update)}}
+function stop(){if(raf)cancelAnimationFrame(raf);raf=0}
+document.addEventListener('visibilitychange',()=>document.visibilityState==='visible'?start():stop());
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
 </script>
 <script>
 /* NEXUS HUD 26 — visual structure only. No gameplay state/schema changes. */
