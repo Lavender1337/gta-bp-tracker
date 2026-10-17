@@ -1461,6 +1461,7 @@ body[class*="theme-white"] #tab-scanner .cc-mini,body[class*="theme-white"] #tab
 .gh-scan-presets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0}
 .gh-scan-preset{position:relative;min-width:0;text-align:left;background:var(--bg-card);border:1px solid var(--border);color:var(--text-main);border-radius:13px;padding:11px 11px 10px;cursor:pointer;transition:border-color .2s,background .2s,transform .15s}
 .gh-scan-preset strong{display:block;font-size:12px;line-height:1.3}.gh-scan-preset small{font-size:10px;color:var(--text-sub);display:block;margin-top:4px}
+.gh-scan-presets #ghScanPresetWide{grid-column:1/-1}
 .gh-scan-preset.active{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--bg-card))}
 .gh-scan-preset:active{transform:scale(.98)}
 .gh-scan-microhint{border-left:3px solid var(--accent);padding:8px 11px;background:color-mix(in srgb,var(--accent) 7%,var(--bg-card));border-radius:3px 10px 10px 3px;color:var(--text-sub);font-size:11px;line-height:1.5}
@@ -2395,7 +2396,7 @@ body.ux-day .ax-console .ax-console-mast .ax-btn:not(.primary){color:#f8fafc!imp
 <div class="cc-panel"><div class="cc-panel-title">Что распознаём?</div><select id="ghScanMode" class="cc-input gh-full" onchange="ghScanModeChanged()"><option value="fish">🐟 Рыба — вес и цена</option><option value="bp">🎯 Bonus Points — названия заданий</option><option value="inventory">🎒 Инвентарь — предметы и количество</option><option value="prices">💲 Цены — товары и стоимость</option><option value="text">📋 Просто текст</option></select><p class="cc-mini" id="ghScanHint">Результат нужно проверить вручную: OCR не меняет данные сам.</p>
  <div id="ghScanFishTools" class="gh-fish-tools">
  <div class="gh-fish-choice"><label for="ghScanFishStrategy">Способ чтения рыбы</label><select class="cc-input" id="ghScanFishStrategy" onchange="ghScanFishUI()"><option value="grid">Карточки сеткой — точнее</option><option value="text">Обычный список текста</option></select></div>
- <div id="ghScanFishGridTools"><div class="gh-scan-presets" aria-label="Тип игрового инвентаря"><button class="gh-scan-preset active" id="ghScanPresetPersonal" type="button" onclick="ghScanPreset('personal')"><strong>🎒 Личный инвентарь</strong><small>Сетка 5 × 4</small></button><button class="gh-scan-preset" id="ghScanPresetTrunk" type="button" onclick="ghScanPreset('trunk')"><strong>🚙 Багажник</strong><small>Сетка 6 × 8</small></button></div>
+ <div id="ghScanFishGridTools"><div class="gh-scan-presets" aria-label="Тип игрового инвентаря"><button class="gh-scan-preset active" id="ghScanPresetPersonal" type="button" onclick="ghScanPreset('personal')"><strong>🎒 Личный инвентарь</strong><small>Сетка 5 × 4</small></button><button class="gh-scan-preset" id="ghScanPresetTrunk" type="button" onclick="ghScanPreset('trunk')"><strong>🚙 Багажник</strong><small>Сетка 6 × 8</small></button> <button type="button" id="ghScanPresetWide" onclick="ghScanPreset('wide')" class="gh-scan-preset" aria-label="Широкая сетка 6 на 5"><strong>🐟 Широкий скриншот</strong><small>Сетка 6 × 5</small></button></div>
  <p class="gh-scan-microhint">Сетка выставляется автоматически по выбранному типу. Если на скриншоте видна только часть ячеек, скорректируй область пальцем или мышью. Распознавание не добавляет улов без твоей проверки.</p>
  <div class="gh-fish-controls"><label>Столбцов<input id="ghScanFishCols" class="cc-input" type="number" min="1" max="8" value="5" onchange="ghScanCropGuides()"></label><label>Рядов<input id="ghScanFishRows" class="cc-input" type="number" min="1" max="12" value="4" onchange="ghScanCropGuides()"></label><button type="button" class="cc-btn" onclick="ghScanAutoGrid()">Авторазметка</button><button type="button" class="cc-btn" onclick="ghScanCropClear()">Вручную</button></div>
  <p class="cc-mini" id="ghScanCropStatus">Загрузи скриншот — определю сетку автоматически.</p></div>
@@ -2544,7 +2545,7 @@ body.ux-day .ax-console .ax-console-mast .ax-btn:not(.primary){color:#f8fafc!imp
     <div class="header">Таймеры</div>
     
     <section class="ch-shell" id="chShell" aria-label="Chronos — управление откатами">
-      <div class="ch-toolbar"><div><span class="ch-kicker">CHRONOS ENGINE / 27.2</span><h2>TIME CONTROL <span class="ch-pulse-dot"></span></h2></div><button class="ch-round" onclick="chronosOpenPrefs()" aria-label="Настройки таймеров">⚙</button></div>
+      <div class="ch-toolbar"><div><span class="ch-kicker">CHRONOS ENGINE / 27.4</span><h2>TIME CONTROL <span class="ch-pulse-dot"></span></h2></div><button class="ch-round" onclick="chronosOpenPrefs()" aria-label="Настройки таймеров">⚙</button></div>
       <div class="ch-stat-strip"><div><strong id="chRunning">0</strong><span>В работе</span></div><div><strong id="chPaused">0</strong><span>Пауза</span></div><div><strong id="chReadyCount">0</strong><span>Готово</span></div><div><strong id="chNext">—</strong><span>Ближайший</span></div></div>
       <div class="ch-switch" role="tablist"><button class="on" data-ch-view="focus" onclick="chronosView('focus')">◉ Фокус</button><button data-ch-view="all" onclick="chronosView('all')">▦ Все</button><button data-ch-view="timeline" onclick="chronosView('timeline')">⋮ Таймлайн</button></div>
       <div id="chFocus" class="ch-view"><div id="chHero"></div><div class="ch-section-heading"><b>Следующие события</b><span id="chFocusDesc">Ближайшие откаты</span></div><div id="chUpcoming" class="ch-list"></div></div>
@@ -5803,7 +5804,7 @@ function ghScanFishUI(){
  const stage=gh24id('ghScanCropStage');stage?.classList.toggle('gh-crop-enabled',grid);
  ghScanCropGuides();
 }
-const GH24_SCAN_PRESETS={personal:{cols:5,rows:4},trunk:{cols:6,rows:8}};
+const GH24_SCAN_PRESETS={personal:{cols:5,rows:4},trunk:{cols:6,rows:8},wide:{cols:6,rows:5}};
 let GH24_SCAN_PRESET='personal';
 function ghScanPreset(profile){
  if(!GH24_SCAN_PRESETS[profile])return;
@@ -5812,6 +5813,7 @@ function ghScanPreset(profile){
  gh24id('ghScanFishRows').value=GH24_SCAN_PRESETS[profile].rows;
  gh24id('ghScanPresetPersonal')?.classList.toggle('active',profile==='personal');
  gh24id('ghScanPresetTrunk')?.classList.toggle('active',profile==='trunk');
+ gh24id('ghScanPresetWide')?.classList.toggle('active',profile==='wide');
  if(GH24_SCAN_FILE)ghScanAutoGrid();else ghScanCropGuides();
 }
 function ghScanAutoGrid(){
@@ -5820,7 +5822,7 @@ function ghScanAutoGrid(){
    const w=img.naturalWidth,h=img.naturalHeight;
    // Both reference screenshots have a thin HUD bar above the first row.
    // Exclude it. The trunk screenshot has a narrow scrollbar on the right.
-   const top=ccClamp(21/h,0,.13);
+   const top=0; // Preserve first-row weight badges; previous 21px crop removed them.
    const right=GH24_SCAN_PRESET==='trunk'?Math.min(14/w,.025):0;
    GH24_FISH_CROP={x:0,y:top,w:1-right,h:1-top};
    ghScanCropGuides();
@@ -5831,8 +5833,9 @@ function ghScanSuggestProfile(file){
  ghScanLoadImage(file).then(img=>{
   if(GH24_SCAN_FILE!==file)return;
   const ratio=img.naturalWidth/img.naturalHeight;
-  ghScanPreset(ratio<.95?'trunk':'personal');
-  ghScanStatus('Выбрана разметка '+(ratio<.95?'6 × 8':'5 × 4')+' · проверь линии',0);
+  const type=ratio<.95?'trunk':(img.naturalWidth>=690&&ratio>1.03?'wide':'personal');
+  ghScanPreset(type);
+  ghScanStatus('Предложена сетка '+GH24_SCAN_PRESETS[type].cols+' × '+GH24_SCAN_PRESETS[type].rows+' · проверь совпадение линий',0);
  }).catch(()=>{});
 }
 function ghScanCropClear(){GH24_FISH_CROP=null;GH24_FISH_CROP_DOWN=null;gh24id('ghScanCropRect').hidden=true;gh24id('ghScanCropStatus').textContent='Выдели область карточек на фото. Для уже обрезанного изображения выбери «Весь кадр».';}
@@ -6665,7 +6668,7 @@ function ghAiSegmentsFromImage(img,mode){
   if(fish){
     crop=(typeof GH24_FISH_CROP!=='undefined'&&GH24_FISH_CROP?.w>.05&&GH24_FISH_CROP?.h>.05)?GH24_FISH_CROP:null;
     if(!crop){const r=img.naturalWidth/img.naturalHeight;const trunk=r<.95;
-      crop={x:0,y:Math.min(21/img.naturalHeight,.13),w:1-(trunk?Math.min(14/img.naturalWidth,.025):0),h:1-Math.min(21/img.naturalHeight,.13)};}
+      crop={x:0,y:0,w:1-(trunk?Math.min(14/img.naturalWidth,.025):0),h:1};}
   }else{crop={x:0,y:0,w:1,h:1};}
   const bands=[];
   const step=fish?2:1;
@@ -6685,6 +6688,32 @@ function ghAiSegmentsFromImage(img,mode){
   }
   if(bands.length>6)throw Error('Слишком много рядов для одного запроса');
   return {cols,rows,crop,bands};
+}
+function ghAiWeightAtlas(img,payload,band){
+  // A separate high-resolution contact sheet of only the original weight badges.
+  // The model sees labelled positions without fish icons or names competing for attention.
+  const cw=218,ch=112,header=23; const cols=payload.cols;
+  const count=band.rowEnd-band.rowStart+1;
+  const canvas=document.createElement('canvas');canvas.width=cols*cw;canvas.height=count*ch;
+  const ctx=canvas.getContext('2d',{willReadFrequently:false});
+  ctx.fillStyle='#12161e';ctx.fillRect(0,0,canvas.width,canvas.height);
+  for(let local=0;local<count;local++)for(let ci=0;ci<cols;ci++){
+    const row=band.rowStart+local-1;
+    const cellX=(payload.crop.x+payload.crop.w*ci/cols)*img.naturalWidth;
+    const cellY=(payload.crop.y+payload.crop.h*row/payload.rows)*img.naturalHeight;
+    const cellW=payload.crop.w*img.naturalWidth/cols;
+    const cellH=payload.crop.h*img.naturalHeight/payload.rows;
+    const x=ci*cw,y=local*ch;
+    ctx.fillStyle='#12161e';ctx.fillRect(x,y,cw,ch);
+    ctx.strokeStyle='#536476';ctx.lineWidth=1;ctx.strokeRect(x+.5,y+.5,cw-1,ch-1);
+    ctx.font='bold 15px sans-serif';ctx.fillStyle='#65daff';
+    ctx.fillText('ROW '+(row+1)+' · COL '+(ci+1),x+8,y+17);
+    // Header region must include full uncut number + «кг» at top-right.
+    const yPad=0,weightPart=Math.min(cellH,Math.max(25,cellH*.32));
+    ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+    ctx.drawImage(img,cellX,cellY+yPad,cellW,weightPart,x+5,y+header,cw-10,ch-header-5);
+  }
+  return canvas.toDataURL('image/jpeg',.91).split(',')[1];
 }
 function ghAiThumb(img,crop,cols,rows,row,col){
   const x=(crop.x+crop.w*(col-1)/cols)*img.naturalWidth;
@@ -6845,9 +6874,9 @@ async function ghAiStartViaWorker(){
     ghAiStatus('Подготавливаю изображение…');ghScanStatus('Подготовка скриншота',12);
     const img=await ghScanLoadImage(file),mode=ghScanMode();
     const payload=ghAiSegmentsFromImage(img,mode);
-    const instruction=`Ты OCR-анализатор инвентаря GTA RolePlay. Распознай каждую ВИДИМУЮ карточку ПРИВЯЗАННО К ЕЁ ПОЗИЦИИ. Сетка ${payload.cols} столбцов × ${payload.rows} рядов. В каждой ячейке вес в КГ сверху справа, название снизу, цена указана в круглых скобках со знаком $. Различай рыбу, удочки, одежду, снасти и пустые слоты. Режим: ${mode}. Верни ТОЛЬКО JSON объект формата {"items":[{"row":1,"col":1,"name":"Название", "weight":0.3, "price":1250, "qty":1, "confidence":"high", "note":""}]}. row/col — абсолютные 1-based координаты в общей сетке. Вес и цена — числа без единиц измерения; если цифра НЕ читается, поставь null, НЕ УГАДЫВАЙ. Если вес на экране 0.0 кг, укажи null и note="показан округлённый вес 0.0 кг". Не объединяй разные карточки. Не включай пустые ячейки. Названия оставляй на русском; другие предметы сохраняй с реальными названиями. Уровень confidence high только когда название, вес и цена точно прочитаны. Если это не рыба, можно передать weight/price=null, без домыслов.`;
+    const instruction=`Ты OCR-анализатор инвентаря GTA RolePlay. Распознай каждую ВИДИМУЮ карточку ПРИВЯЗАННО К ЕЁ ПОЗИЦИИ. Сетка ${payload.cols} столбцов × ${payload.rows} рядов. В каждой ячейке вес в КГ сверху справа, название снизу, цена указана в круглых скобках со знаком $. Для каждого фрагмента ниже есть отдельный УВЕЛИЧЕННЫЙ АТЛАС ВЕСОВ с координатами ROW/COL: читай вес именно из этого атласа и сопоставляй его по координатам с названием/ценой из общего снимка. Запрещено переносить вес из соседней карточки. Различай рыбу, удочки, одежду, снасти и пустые слоты. Режим: ${mode}. Верни ТОЛЬКО JSON объект формата {"items":[{"row":1,"col":1,"name":"Название", "weight":0.3, "price":1250, "qty":1, "confidence":"high", "note":""}]}. row/col — абсолютные 1-based координаты в общей сетке. Вес и цена — числа без единиц измерения; если цифра НЕ читается, поставь null, НЕ УГАДЫВАЙ. Если вес на экране 0.0 кг, укажи null и note="показан округлённый вес 0.0 кг". Не объединяй разные карточки. Не включай пустые ячейки. Названия оставляй на русском; другие предметы сохраняй с реальными названиями. Уровень confidence high только когда название, вес и цена точно прочитаны. Если это не рыба, можно передать weight/price=null, без домыслов.`;
     const parts=[{text:instruction}];
-    for(const band of payload.bands){parts.push({text:`Фрагмент исходной сетки: ряды ${band.rowStart}–${band.rowEnd} (нумерация общая), ${payload.cols} столбцов слева направо.`});parts.push({inline_data:{mime_type:'image/jpeg',data:band.data}})}
+    for(const band of payload.bands){parts.push({text:`ОБЩИЙ ФРАГМЕНТ рядов ${band.rowStart}–${band.rowEnd}. Сначала читай названия и цены из этого изображения.`});parts.push({inline_data:{mime_type:'image/jpeg',data:band.data}});if(mode==='fish'){parts.push({text:`АТЛАС ВЕСОВ тех же рядов ${band.rowStart}–${band.rowEnd}. У каждого веса подписаны ROW и COL. Читай только верхнюю цифру массы и символ кг. Если невозможно различить цифры — weight:null.`});parts.push({inline_data:{mime_type:'image/jpeg',data:ghAiWeightAtlas(img,payload,band)}})}}
     ghAiStatus(`Gemini обрабатывает ${payload.bands.length} фрагментов…`);ghScanStatus('Gemini анализирует рыбу',42);
     const ctl=new AbortController();timer=setTimeout(()=>ctl.abort(),90000);
     const response=await request(parts,k,model,ctl.signal);
@@ -6857,7 +6886,7 @@ async function ghAiStartViaWorker(){
       if(!Number.isInteger(row)||!Number.isInteger(col)||row<1||row>payload.rows||col<1||col>payload.cols||!r.name)return null;
       const cell=row+':'+col;if(seen.has(cell))return null;seen.add(cell);
       let name=String(r.name||'').trim().slice(0,85);
-      const value=v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v))?Number(v):null;
+      const value=v=>{if(v===null||v===undefined||v==='')return null;const raw=String(v).trim().replace(/\s+/g,'').replace(/(?:кг|kg|usd|\$|₴)/gi,'').replace(',','.');return /^\d+(?:\.\d+)?$/.test(raw)?Number(raw):null};
       const record={name,weight:value(r.weight)>0?value(r.weight):null,price:value(r.price)>=0?value(r.price):null,
        qty:Math.min(99,Math.max(1,Math.round(Number(r.qty)||1))),cell,checked:false,
        confidence:r.confidence==='high'?.95:r.confidence==='medium'?.65:.3,
@@ -6867,6 +6896,7 @@ async function ghAiStartViaWorker(){
        if(m.recognized)record.name=m.name;
        record.preview=ghAiThumb(img,payload.crop,payload.cols,payload.rows,row,col);
        record.needsReview=record.needsReview||record.weight===null||record.price===null;
+       record.recognized=record.recognized&&!record.needsReview;
       }
       if(mode==='bp'){const p=gh24ParseBp(name);record.task=p.length?p[0].task:null;record.needsReview=!p.length}
       return record;
@@ -6908,6 +6938,15 @@ async function ghAiStartViaWorker(){
 @media(min-width:730px){.ch-hero{grid-template-columns:175px 1fr}.ch-hero-ring{width:175px;height:175px}.ch-hero-time{font-size:27px}.ch-toolbar h2{font-size:30px}.ch-stat-strip>div{min-height:80px}}
 @media(max-width:370px){.ch-hero{grid-template-columns:105px 1fr;gap:8px;padding:12px}.ch-hero-ring{width:103px;height:103px}.ch-hero-time{font-size:17px}.ch-hero-name{font-size:16px}.ch-hero-actions button{padding:8px;font-size:10px}.ch-stat-strip strong{font-size:17px}.ch-stat-strip span{font-size:9px}}
 @media(prefers-reduced-motion:reduce){.ch-hero-ring .fill{filter:none}.ch-switch button{transition:none}}
+
+/* Chronos 27.4: visible paused state and single-tap restart from Ready Queue */
+#tab-timers .ch-hero-paused{border-color:color-mix(in srgb,#9fb1cf 55%,var(--ch-line));background:linear-gradient(135deg,color-mix(in srgb,#92a4bd 12%,var(--bg-card)),var(--ch-panel))}
+#tab-timers .ch-hero-paused .ch-hero-ring{border:5px solid color-mix(in srgb,var(--text-sub) 22%,transparent);border-radius:50%}
+#tab-timers .ch-line.ch-ready-card{flex-wrap:wrap}
+#tab-timers .ch-quick-restart{background:var(--accent)!important;color:#131820!important;border-color:var(--accent)!important;font-weight:900}
+#tab-timers .ch-line .ch-paused-time{color:var(--text-sub)}
+#tab-timers .ch-resume{background:color-mix(in srgb,#57c991 16%,var(--ch-panel))!important;color:#60d7a7!important}
+@media(max-width:375px){#tab-timers .ch-ready-card .ch-line-copy{flex-basis:calc(100% - 54px)}#tab-timers .ch-ready-card .ch-quick-restart{margin-left:45px}#tab-timers .ch-line>button{padding:8px 7px}}
 </style>
 
 <script id="chronos-engine">
@@ -6936,7 +6975,7 @@ function timeline(){const now=Date.now();const out=data().filter(t=>status(t,now
  return out.sort((a,b)=>a.end-b.end)
 }
 function simpleLine(t,ready=false){const label=escape(t.l),id=invoke(t.id);const rest=ready?'Можно выполнить':status(t)==='paused'?'На паузе':`К ${formatEnd(t.et)}`;
- return `<div class="ch-line ${ready?'ch-ready-card':''}"><span class="ch-line-ico">${ready?'✓':t.type==='dm'?'▣':'◷'}</span><span class="ch-line-copy"><b>${label}</b><small>${rest}</small></span>${ready?`<button onclick='chronosAcknowledge(${id})'>Готово ✓</button>`:`<time data-ch-time="${escape(t.id)}">${time(remain(t))}</time>`}<button aria-label="Настройки" onclick='chronosOpenTimer(${id})'>•••</button></div>`}
+ return `<div class="ch-line ${ready?'ch-ready-card':''}"><span class="ch-line-ico">${ready?'✓':t.type==='dm'?'▣':'◷'}</span><span class="ch-line-copy"><b>${label}</b><small>${rest}</small></span>${ready?`<button class="ch-quick-restart" title="Запустить новый цикл" onclick='chronosRestart(${id})'>↻ Повтор</button><button onclick='chronosAcknowledge(${id})'>✓ Убрать</button>`:status(t)==='paused'?`<time class="ch-paused-time">⏸ ${time(remain(t))}</time><button class="ch-resume" onclick='chronosPause(${id})'>▶</button>`:`<time data-ch-time="${escape(t.id)}">${time(remain(t))}</time>`}<button aria-label="Настройки" onclick='chronosOpenTimer(${id})'>•••</button></div>`}
 function empty(msg){return `<div class="ch-empty">${msg}</div>`}
 function card(t){const id=invoke(t.id),stat=status(t),running=stat==='running';const seconds=remain(t),fract=t.s>0?Math.min(1,seconds/t.s):0;
  return `<div class="timer-bubble chrono-timer-card ${running?'running':''}" data-timer-id="${escape(t.id)}"><div class="ch-card-top"><span>${escape(groups[group(t)]||'Личное').toUpperCase()} · ${running?'LIVE':stat==='paused'?'ПАУЗА':'ГОТОВО'}</span><button title="Настройки" onclick='chronosOpenTimer(${id})'>⋯</button></div><div class="circle-wrap"><svg viewBox="0 0 52 52" aria-hidden="true"><circle class="circle-bg" cx="26" cy="26" r="24"/><circle class="circle-progress" cx="26" cy="26" r="24" style="stroke-dashoffset:${(150.8*(1-fract)).toFixed(3)}"/></svg><div class="circle-time" id="disp_${escape(t.id)}">${time(seconds)}</div></div><div class="ch-card-label" title="${escape(t.l)}">${escape(t.l)}</div><div class="ch-card-actions"><button onclick='chronosPause(${id})'>${running?'Ⅱ Пауза':'▶ Старт'}</button><button onclick='chronosRestart(${id})'>↻</button></div></div>`}
@@ -6944,8 +6983,9 @@ function drawHead(){const now=Date.now(),all=data(),run=all.filter(t=>status(t,n
  $('chRunning').textContent=run.length;$('chPaused').textContent=paused.length;$('chReadyCount').textContent=ready.length;$('chReadyBadge').textContent=ready.length;
  const next=ensureNext();$('chNext').textContent=next?time(remain(next,now)):'—';$('chFocusDesc').textContent=`${timeline().length} активных событий`;
  const h=$('chHero');if(next){const id=invoke(next.id);h.innerHTML=`<div class="ch-hero"><div class="ch-hero-ring"><svg viewBox="0 0 120 120" aria-hidden="true"><circle class="base" cx="60" cy="60" r="50"/><circle class="fill" id="chHeroRing" cx="60" cy="60" r="50"/></svg><div class="ch-hero-center"><span class="ch-hero-time" id="chHeroTime">${time(remain(next,now))}</span><small>ОСТАЛОСЬ</small></div></div><div><div class="ch-hero-caption">СЛЕДУЮЩИЙ ОТКАТ</div><div class="ch-hero-name">${escape(next.l)}</div><div class="ch-hero-meta">К ${formatEnd(next.et)} · ${escape(groups[group(next)]||'Личное')}</div><div class="ch-hero-actions"><button class="ch-mini-action primary" onclick='chronosPause(${id})'>Ⅱ Пауза</button><button class="ch-mini-action" onclick='chronosOpenTimer(${id})'>⚙ Настроить</button></div></div></div>`;h.dataset.timer=next.id;
- }else{h.innerHTML=empty('Здесь появится ближайший активный таймер. Запусти шаблон ниже.');h.removeAttribute('data-timer')}
- $('chUpcoming').innerHTML=run.filter(t=>t.id!==next?.id).sort((a,b)=>a.et-b.et).slice(0,4).map(t=>simpleLine(t)).join('')||empty('Пока других активных таймеров нет');
+ }else{const suspended=paused[0];if(suspended){const id=invoke(suspended.id);h.innerHTML=`<div class="ch-hero ch-hero-paused"><div class="ch-hero-ring"><div class="ch-hero-center"><span class="ch-hero-time">${time(remain(suspended))}</span><small>НА ПАУЗЕ</small></div></div><div><div class="ch-hero-caption">ПРИОСТАНОВЛЕНО</div><div class="ch-hero-name">${escape(suspended.l)}</div><div class="ch-hero-actions"><button class="ch-mini-action primary" onclick='chronosPause(${id})'>▶ Продолжить</button><button class="ch-mini-action" onclick='chronosRestart(${id})'>↻ Заново</button></div></div></div>`;}else{h.innerHTML=empty('Здесь появится ближайший активный таймер. Запусти шаблон ниже.')}h.removeAttribute('data-timer')}
+ const waiting=[...run.filter(t=>t.id!==next?.id).sort((a,b)=>a.et-b.et),...paused.filter((t,i)=>next||i>0)];
+ $('chUpcoming').innerHTML=waiting.map(t=>simpleLine(t)).join('')||empty('Запущенных и приостановленных таймеров пока нет');
  $('chReady').innerHTML=ready.slice().sort((a,b)=>(b.completedAt||0)-(a.completedAt||0)).map(t=>simpleLine(t,true)).join('')||empty('Все откаты обработаны. Завершённые таймеры останутся здесь до подтверждения.');
 }
 function drawTimeline(){const list=timeline();$('chTimelineList').innerHTML=list.length?list.slice(0,80).map(t=>`<div class="ch-timeline-row"><div class="ch-timeline-track"><div class="ch-timeline-dot" style="background:${t.type==='bp'?'#60c6df':t.type==='event'?'#bc9bef':'var(--accent)'}"></div></div><div class="ch-timeline-content"><div class="ch-line"><span class="ch-line-ico">${t.type==='bp'?'◎':t.type==='event'?'✦':'◷'}</span><span class="ch-line-copy"><b>${escape(t.name)}</b><small>${escape(t.type==='bp'?'Bonus Points':t.type==='event'?'Ивент':groups[t.group]||'Таймер')} · ${formatEnd(t.end)}</small></span><time>${time((t.end-Date.now())/1000)}</time></div></div></div>`).join(''):empty('Пока нет событий. Таймеры BP и ивентов появятся здесь автоматически.')}
