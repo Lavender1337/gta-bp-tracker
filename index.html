@@ -2390,7 +2390,7 @@ body.ux-day .ax-console .ax-console-mast .ax-btn:not(.primary){color:#f8fafc!imp
     <details class="ai-key-advanced"><summary>Дополнительно: защищённый Worker (необязательно)</summary><label for="ghAiEndpoint">Адрес Cloudflare Worker, если он у тебя есть</label><div class="ai-vision-url"><input id="ghAiEndpoint" class="cc-input" type="url" inputmode="url" spellcheck="false" autocapitalize="off" placeholder="https://....workers.dev" onchange="ghAiSaveEndpoint()"><button type="button" class="cc-btn" onclick="ghAiSaveEndpoint()">✓</button></div><label class="ai-key-remember"><input type="checkbox" id="ghAiUseWorker" onchange="ghAiSaveUseWorker()"> Использовать Worker вместо личного ключа</label></details>
   </div>
   <div class="ai-vision-buttons"><button type="button" id="ghAiStart" class="cc-btn primary ai-vision-start" onclick="ghAiStart()">✦ Распознать через Gemini AI</button><button type="button" class="cc-btn ai-vision-help" onclick="ghAiHelp()" aria-label="Как настроить Vision AI">?</button></div>
-  <p id="ghAiStatus" class="ai-vision-status" role="status" aria-live="polite">Вставь Gemini API Key и скриншот</p>
+  <p id="ghAiStatus" class="ai-vision-status" style="white-space:pre-line;overflow-wrap:anywhere" role="status" aria-live="polite">Вставь Gemini API Key и скриншот</p>
   <p class="ai-vision-footnote">После распознавания проверь вес и цену каждой рыбы. Обычный OCR ниже доступен без ключа.</p>
 </section>
 <div class="cc-panel"><div class="cc-panel-title">Что распознаём?</div><select id="ghScanMode" class="cc-input gh-full" onchange="ghScanModeChanged()"><option value="fish">🐟 Рыба — вес и цена</option><option value="bp">🎯 Bonus Points — названия заданий</option><option value="inventory">🎒 Инвентарь — предметы и количество</option><option value="prices">💲 Цены — товары и стоимость</option><option value="text">📋 Просто текст</option></select><p class="cc-mini" id="ghScanHint">Результат нужно проверить вручную: OCR не меняет данные сам.</p>
@@ -6825,12 +6825,21 @@ async function ghAiStartViaWorker(){
  };
  window.ghAiSaveModel=()=>{const val=$('ghAiModel').value;if(models.has(val))localStorage.setItem(MODEL,val)};
  window.ghAiSaveUseWorker=()=>{localStorage.setItem(WORKER,$('ghAiUseWorker').checked?'1':'0');ghAiStatus($('ghAiUseWorker').checked?'Используется защищённый Worker':'Используется личный ключ на устройстве')};
- const aiError=(status,message)=>{
-  if(status===400)return 'Ошибка запроса или неподдерживаемая модель: '+message;
-  if(status===401||status===403)return 'Ключ отклонён или нет доступа к модели. Проверь настройки ключа в Google AI Studio.';
-  if(status===429)return 'Превышена квота Gemini. Попробуй позже или выбери Flash-Lite.';
-  if(status>=500)return 'Сервис Gemini временно недоступен. Попробуй позже.';
-  return `Gemini HTTP ${status}: ${message.slice(0,150)}`;
+ // Do not conflate 401 (authentication) with 403 (permissions). Keep Google's actual reason.
+ const aiError=(status,problem={})=>{
+  const clean=(s)=>String(s||'').replace(/AQ\.[A-Za-z0-9_-]+/g,'[КЛЮЧ СКРЫТ]').replace(/AIza[A-Za-z0-9_-]+/g,'[КЛЮЧ СКРЫТ]').slice(0,260);
+  const details=Array.isArray(problem?.details)?problem.details:[];
+  const reason=details.map(x=>x?.reason||x?.metadata?.reason).find(Boolean)||problem?.status||'';
+  const message=clean(problem?.message||'Без подробностей от Google');
+  let action='Проверь настройки проекта Google AI Studio и повтори проверку.';
+  if(status===401){
+   action=String(reason).includes('ACCESS_TOKEN_TYPE_UNSUPPORTED')?'Для нового AQ.-ключа это известная ошибка авторизации у части проектов. Создай ключ в НОВОМ проекте AI Studio. Если повторится, проблема может быть на стороне Google.':'Создай новый ключ в Google AI Studio и проверь, что он скопирован полностью.';
+  }else if(status===403){action='Проверь, что в проекте включён Gemini API и ключу разрешён доступ. Возможна блокировка опубликованного ключа.';}
+  else if(status===404){action='Выбранная модель не найдена или недоступна проекту. Попробуй Flash-Lite.';}
+  else if(status===429){action='Превышена квота Gemini или доступный лимит. Попробуй позже или выбери Flash-Lite.';}
+  else if(status===400){action='Проверь модель и параметры запроса.';}
+  else if(status>=500){action='Временный сбой сервиса Google. Повтори позже.';}
+  return `Gemini HTTP ${status}${reason?' · '+clean(reason):''}\nGoogle: ${message}\nСовет: ${action}`;
  };
  async function request(promptParts,keyValue,model,signal,maxOutput=8192){
    let resp;
@@ -6839,7 +6848,7 @@ async function ghAiStartViaWorker(){
     body:JSON.stringify({contents:[{role:'user',parts:promptParts}],generationConfig:{temperature:0,responseMimeType:'application/json',maxOutputTokens:maxOutput}}),signal
    })}catch(e){if(e?.name==='AbortError')throw Error('Истекло время ожидания Gemini');throw Error('Не удалось подключиться к Gemini из Telegram WebView. Проверь интернет или попробуй защищённый Worker.');}
    let data;try{data=await resp.json()}catch{throw Error('Gemini вернул нечитаемый ответ');}
-   if(!resp.ok)throw Error(aiError(resp.status,data?.error?.message||''));
+   if(!resp.ok)throw Error(aiError(resp.status,data?.error||{}));
    const raw=(data?.candidates||[]).flatMap(x=>x?.content?.parts||[]).filter(x=>typeof x?.text==='string').map(x=>x.text).join('\n').trim();
    if(!raw)throw Error('Gemini не вернул текст. Проверь скриншот или выбери другую модель.');
    let parsed;try{parsed=JSON.parse(raw.replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,''));}
@@ -6854,10 +6863,21 @@ async function ghAiStartViaWorker(){
    ghAiStatus('Проверяю ключ (тест использует небольшую часть квоты)…');
    const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),22000);
    try{
-    // Test request uses the same endpoint, but a minimal JSON payload.
+    // Separate authentication from generation so 401, 403 and unavailable models are easy to diagnose.
+    const listResp=await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=100',{
+      method:'GET',headers:{'x-goog-api-key':k},signal:ctl.signal
+    });
+    let listing;try{listing=await listResp.json()}catch{throw Error('Gemini вернул нечитаемый ответ при проверке авторизации');}
+    if(!listResp.ok)throw Error(aiError(listResp.status,listing?.error||{}));
+    const choices=Array.isArray(listing?.models)?listing.models:[];
+    const selected=choices.find(x=>x?.name===`models/${model}`);
+    if(selected && Array.isArray(selected.supportedGenerationMethods) && !selected.supportedGenerationMethods.includes('generateContent')){
+      throw Error(`У ключа есть доступ к Gemini, но модель ${model} не поддерживает generateContent. Выбери другую.`);
+    }
+    ghAiStatus('✓ Ключ принят Google. Проверяю выбранную модель…');
     const p=await request([{text:'Ответь строго JSON объектом: {"items":[]}.'}],k,model,ctl.signal,96);
     ghAiStatus(Array.isArray(p.items)?'✓ Gemini подключён. Можно распознавать скриншоты.':'Неверный ответ теста');
-   }catch(e){ghAiStatus('Не удалось проверить: '+e.message)}finally{clearTimeout(tm)}
+   }catch(e){ghAiStatus('Не удалось проверить:\n'+(e?.name==='AbortError'?'Превышено время ожидания Google':e.message||String(e)))}finally{clearTimeout(tm)}
  };
  window.ghAiStart=async()=>{
    if($('ghAiUseWorker')?.checked)return ghAiStartViaWorker();
