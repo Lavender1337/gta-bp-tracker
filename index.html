@@ -2493,6 +2493,15 @@ body.v28-collapse.v28-scrolled .tab-content.active .nx-page-strap{height:0!impor
 .v28-island-title{font-size:11px;font-weight:800;white-space:nowrap;max-width:min(48vw,180px);overflow:hidden;text-overflow:ellipsis;color:var(--text-main)}
 .v28-island-time{font-size:11px;font-weight:900;white-space:nowrap;color:var(--v28-section-accent);font-variant-numeric:tabular-nums}
 .v28-island button{border:0;border-radius:50%;background:color-mix(in srgb,var(--v28-section-accent) 13%,var(--nx-card));color:var(--text-main);width:29px;height:29px;cursor:pointer}
+/* v29.2: temporary contextual Chronos Island, no permanent overlay */
+.v292-island{animation:v292IslandArrive .23s cubic-bezier(.2,.8,.2,1) both;pointer-events:auto;}
+.v292-island[hidden]{display:none!important;}
+.v292-island button{touch-action:manipulation;pointer-events:auto;}
+.v292-island .v281-island-open{border:1px solid color-mix(in srgb,var(--v28-section-accent) 42%,var(--nx-line))!important;min-width:35px;}
+#v292-island-before{width:125px;max-width:43%;flex-shrink:0;background:var(--nx-card);border:1px solid var(--nx-line);color:var(--text-main);border-radius:9px;padding:7px 6px;font:inherit;font-size:11px;}
+.v292-island-target{outline:2px solid var(--ux-accent)!important;outline-offset:2px}
+@keyframes v292IslandArrive{from{opacity:0;translate:0 -7px}to{opacity:1;translate:0 0}}
+@media(prefers-reduced-motion:reduce){.v292-island{animation:none!important}}
 /* Feedback is local-first; no accidental API-key or Telegram auth export. */
 .v28-options{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--ux-edge,var(--nx-line))}
 .v28-options:first-of-type{border-top:0}
@@ -7508,9 +7517,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 /* v28.1 Signature interaction controller. Gameplay timers stay in Chronos. */
 (()=>{'use strict';
  const KEY='gta_v28_signature_preferences';
- const DEFAULT={island:true,collapse:true,accent:true,order:['hero','next','metrics','tools'],hidden:[],size:{hero:'full',next:'full',metrics:'full',tools:'full'}};
+ const DEFAULT={island:true,islandBeforeSec:60,collapse:true,accent:true,order:['hero','next','metrics','tools'],hidden:[],size:{hero:'full',next:'full',metrics:'full',tools:'full'}};
  const allowed=['hero','next','metrics','tools'];
- function read(){try{const raw=JSON.parse(localStorage.getItem(KEY)||'{}');const order=Array.isArray(raw.order)?[...new Set(raw.order.filter(x=>allowed.includes(x)))]:[];return {...DEFAULT,island:raw.island!==false,collapse:raw.collapse!==false,accent:raw.accent!==false,order:[...order,...allowed.filter(x=>!order.includes(x))],hidden:Array.isArray(raw.hidden)?raw.hidden.filter(x=>allowed.includes(x)):[],size:{...DEFAULT.size,...Object.fromEntries(Object.entries(raw.size||{}).filter(([k,v])=>allowed.includes(k)&&['full','half'].includes(v)))}}}catch(_){return {...DEFAULT,size:{...DEFAULT.size},hidden:[],order:[...DEFAULT.order]}}}
+ function read(){try{const raw=JSON.parse(localStorage.getItem(KEY)||'{}');const order=Array.isArray(raw.order)?[...new Set(raw.order.filter(x=>allowed.includes(x)))]:[];return {...DEFAULT,island:raw.island!==false,islandBeforeSec:[30,60,120,300].includes(Number(raw.islandBeforeSec))?Number(raw.islandBeforeSec):60,collapse:raw.collapse!==false,accent:raw.accent!==false,order:[...order,...allowed.filter(x=>!order.includes(x))],hidden:Array.isArray(raw.hidden)?raw.hidden.filter(x=>allowed.includes(x)):[],size:{...DEFAULT.size,...Object.fromEntries(Object.entries(raw.size||{}).filter(([k,v])=>allowed.includes(k)&&['full','half'].includes(v)))}}}catch(_){return {...DEFAULT,size:{...DEFAULT.size},hidden:[],order:[...DEFAULT.order]}}}
  let settings=read(),stage,editor,lastIsland='',suspended=false,rafPending=false,islandTicker=null;
  const $=id=>document.getElementById(id);
  function persist(){try{localStorage.setItem(KEY,JSON.stringify(settings))}catch(_){}}
@@ -7625,6 +7634,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  function studio(){const panel=$('tab-studio')?.querySelector('.ux-wrap');if(!panel||$('v28-studio'))return;
   const section=document.createElement('section');section.className='ux-panel';section.id='v28-studio';section.innerHTML='<h3>✦ SIGNATURE / VISUAL POLISH <span class="ux-badge">v28</span></h3><p class="ux-note">Новые эффекты без изменения кнопок Chronos. Переключатели сохраняются на устройстве.</p>';
   for(const [key,name,description] of [['island','Dynamic Island','Появляется только при ближайшем или готовом таймере'],['collapse','Smart Collapsible Header','Сворачивать крупные заголовки при прокрутке'],['accent','Adaptive Accent','Подсветка раздела по активности']]){const label=document.createElement('label');label.className='v28-options';const text=document.createElement('span');const strong=document.createElement('b');strong.textContent=name;const small=document.createElement('small');small.textContent=description;text.append(strong,small);const input=document.createElement('input');input.type='checkbox';input.dataset.v28Setting=key;input.checked=settings[key];label.append(text,input);section.appendChild(label)}
+  const row=document.createElement('label');row.className='v28-options';row.innerHTML='<span><b>Показывать островок заранее</b><small>До окончания таймера. Готовые события показываются ещё 2 минуты, затем остаются только в Chronos.</small></span><select id="v292-island-before" aria-label="Когда показать островок"><option value="30">30 секунд</option><option value="60">1 минута</option><option value="120">2 минуты</option><option value="300">5 минут</option></select>';section.appendChild(row);const islandSelect=row.querySelector('select');islandSelect.value=String(settings.islandBeforeSec);row.addEventListener('change',()=>{settings.islandBeforeSec=Number(islandSelect.value);persist();updateIsland()});
   const b=document.createElement('button');b.type='button';b.className='ux-action primary';b.textContent='⚙ Открыть редактор главной';b.addEventListener('click',()=>{window.go?.('dashboard');const btn=$('v28-edit-toggle');if(btn&&editor?.hidden)btn.click();window.scrollTo({top:0,behavior:'smooth'})});section.appendChild(b);
   panel.insertBefore(section,panel.children[1]||null);
   section.addEventListener('change',e=>{const t=e.target;if(t.matches('[data-v28-setting]')){settings[t.dataset.v28Setting]=t.checked;persist();apply()}});
@@ -7635,36 +7645,81 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  }
  function exportFeedback(){const report={app:'GTA Helper PRO',uiVersion:'v28 Signature',time:new Date().toISOString(),screen:{width:innerWidth,height:innerHeight,pixelRatio:devicePixelRatio},activeModule:route(),platform:(navigator.userAgentData?.platform||navigator.platform||'unknown').slice(0,40),visual:{island:settings.island,collapse:settings.collapse,accent:settings.accent},description:($('v28-feedback')?.value||'').slice(0,1500)};
   const blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='gta-helper-feedback-v28.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500)}
+ // Chronos Island v29.2 — a temporary contextual alert, not an always-on timer dock.
+ const ISLAND_READY_MS=120000, ISLAND_PAUSE_GRACE_MS=30000;
+ let pinnedId='',pinUntil=0,dismissedReady=new Map();
+ function islandAdvanceSeconds(){
+  const v=Number(settings.islandBeforeSec);
+  return [30,60,120,300].includes(v)?v:60;
+ }
+ function openIslandTimer(id){
+  const tab=$('tab-timers');if(!tab)return;
+  // This is an explicit navigation, independent from APEX's internal go() shadow.
+  const open=window.go;
+  if(typeof open==='function')open('timers');
+  if(!tab.classList.contains('active')){
+   document.querySelectorAll('.tab-content.active').forEach(el=>el.classList.remove('active'));
+   tab.classList.add('active');
+   document.querySelectorAll('.nav-btn.active').forEach(el=>el.classList.remove('active'));
+   document.querySelector('.nav-btn[data-tab="timers"]')?.classList.add('active');
+  }
+  if(typeof window.chronosView==='function')window.chronosView('focus');
+  // Always open the timer page at its actionable controls; never preserve a previous deep scroll.
+  if(typeof SCROLL_POS!=='undefined')SCROLL_POS['tab-timers']=0;
+  window.scrollTo({top:0,behavior:'instant'});
+  requestAnimationFrame(()=>window.scrollTo(0,0));
+  const target=[...tab.querySelectorAll('[data-timer-id]')].find(el=>el.dataset.timerId===id);
+  if(target){target.classList.add('v292-island-target');setTimeout(()=>target.classList.remove('v292-island-target'),1500)}
+ }
  function initIsland(){if($('v28-island'))return;
-  const island=document.createElement('div');island.className='v28-island v281-island';island.id='v28-island';island.hidden=true;
-  island.setAttribute('aria-label','Управление игровым таймером');
-  island.innerHTML='<span class="v281-island-mark" aria-hidden="true">◷</span><span class="v281-island-copy"><span class="v28-island-title" id="v28-island-name"></span><span class="v28-island-time" id="v28-island-time"></span></span><button type="button" class="v281-island-primary" id="v281-island-action"></button><button type="button" class="v281-island-secondary" id="v281-island-other"></button><button type="button" class="v281-island-open" id="v281-island-open" aria-label="Открыть таймеры">↗</button>';
+  const island=document.createElement('div');island.className='v28-island v281-island v292-island';island.id='v28-island';island.hidden=true;
+  island.setAttribute('aria-label','Скоро завершится игровой таймер');
+  island.setAttribute('role','region');
+  island.innerHTML='<span class="v281-island-mark" aria-hidden="true">◷</span><span class="v281-island-copy"><span class="v28-island-title" id="v28-island-name"></span><span class="v28-island-time" id="v28-island-time"></span></span><button type="button" class="v281-island-primary" id="v281-island-action"></button><button type="button" class="v281-island-secondary" id="v281-island-other"></button><button type="button" class="v281-island-open" id="v281-island-open" title="Перейти к таймерам" aria-label="Открыть таймеры">↗</button>';
   document.body.appendChild(island);
-  $('v281-island-open').addEventListener('click',()=>window.go?.('timers'));
+  $('v281-island-open').addEventListener('click',ev=>{ev.preventDefault();ev.stopPropagation();openIslandTimer(island.dataset.timerId||'')});
   island.addEventListener('click',ev=>{
    const b=ev.target.closest('[data-v281-act]');if(!b)return;
+   ev.preventDefault();ev.stopPropagation();
    const id=island.dataset.timerId,act=b.dataset.v281Act;
    if(!id||!['pause','resume','restart','ack'].includes(act))return;
    const t=(typeof TIMERS!=='undefined'&&TIMERS.custom||[]).find(x=>String(x.id)===id);
    if(!t)return;
+   // Keep the just-paused timer in the island for an immediate resume.
+   if(act==='pause'){pinnedId=id;pinUntil=Date.now()+ISLAND_PAUSE_GRACE_MS}
+   if(act==='resume'){pinnedId=id;pinUntil=Date.now()+8000}
+   if(act==='restart'||act==='ack'){pinnedId='';pinUntil=0}
    if(act==='ack')window.chronosAcknowledge?.(id);
    else if(act==='restart')window.chronosRestart?.(id);
-   else if(act==='pause'||act==='resume')window.chronosPause?.(id);
+   else window.chronosPause?.(id);
    lastIsland='';updateIsland();
   });
-  document.addEventListener('visibilitychange',()=>{if(document.hidden){suspended=true;island.hidden=true}else{suspended=false;updateIsland()}});
+  document.addEventListener('visibilitychange',()=>{
+   if(document.hidden){suspended=true;island.hidden=true;pinnedId='';pinUntil=0}
+   else{suspended=false;updateIsland()}
+  });
   islandTicker=setInterval(()=>{if(!document.hidden)updateIsland()},1000);
  }
- function updateIsland(){const island=$('v28-island');if(!island||!settings.island||suspended||document.hidden){if(island)island.hidden=true;return}
-  const arr=(typeof TIMERS!=='undefined'&&Array.isArray(TIMERS?.custom))?TIMERS.custom:[],now=Date.now();
-  const ready=arr.filter(t=>t&&t.chronoReady===true).sort((a,b)=>(a.completedAt||0)-(b.completedAt||0));
-  const running=arr.filter(t=>t?.run&&Number(t.et)>now).sort((a,b)=>a.et-b.et);
-  const paused=arr.filter(t=>t&&!t.run&&!t.chronoReady&&Number(t.rm)>0);
-  const t=ready[0]||((running[0]&&running[0].et-now<=300000)?running[0]:null)||(!running.length?paused[0]:null);
+ function updateIsland(){
+  const island=$('v28-island');
+  if(!island||!settings.island||suspended||document.hidden){if(island)island.hidden=true;return}
+  const arr=(typeof TIMERS!=='undefined'&&Array.isArray(TIMERS.custom))?TIMERS.custom:[],now=Date.now();
+  // A ready timer remains in Chronos until acknowledged, but must NOT remain in the floating island forever.
+  const ready=arr.filter(t=>t&&(t.chronoReady===true||t.completedAt>0||t.run&&Number(t.et)<=now)
+   && Number(t.completedAt||t.et)>0&&now-Number(t.completedAt||t.et)>=0
+   && now-Number(t.completedAt||t.et)<ISLAND_READY_MS
+   && dismissedReady.get(String(t.id))!==Number(t.completedAt||t.et))
+   .sort((a,b)=>Number(b.completedAt||b.et)-Number(a.completedAt||a.et));
+  const running=arr.filter(t=>t?.run&&Number(t.et)>now&&Number(t.et)-now<=islandAdvanceSeconds()*1000)
+   .sort((a,b)=>a.et-b.et);
+  const pinned=arr.find(t=>String(t.id)===pinnedId&&now<pinUntil&&(!t.chronoReady));
+  if(now>=pinUntil){pinnedId='';pinUntil=0}
+  const t=pinned||ready[0]||running[0];
   if(!t){island.hidden=true;island.dataset.timerId='';lastIsland='';return}
-  const state=t.chronoReady?'ready':t.run?'running':'paused';
-  const seconds=state==='running'?Math.max(0,Math.ceil((t.et-now)/1000)):Math.max(0,Math.ceil(Number(t.rm)||0));
-  const time=state==='ready'?'✓ Готово':state==='paused'?'⏸ '+Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0'):Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');
+  const state=t.chronoReady||t.completedAt||t.run&&Number(t.et)<=now?'ready':t.run?'running':'paused';
+  const seconds=state==='running'?Math.max(0,Math.ceil((Number(t.et)-now)/1000)):Math.max(0,Math.ceil(Number(t.rm)||0));
+  function formatSeconds(s){const m=Math.floor(s/60),sec=String(s%60).padStart(2,'0');return m>=60?Math.floor(m/60)+':'+String(m%60).padStart(2,'0')+':'+sec:m+':'+sec}
+  const time=state==='ready'?'✓ Готово':state==='paused'?'⏸ '+formatSeconds(seconds):formatSeconds(seconds);
   const name=String(t.l||'Таймер').slice(0,80)+(ready.length>1&&state==='ready'?' · +'+(ready.length-1):'');
   const id=String(t.id);const signature=id+'|'+state+'|'+name+'|'+time;
   if(lastIsland!==signature){
