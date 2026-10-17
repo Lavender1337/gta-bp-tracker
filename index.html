@@ -6810,7 +6810,7 @@ async function ghAiStartViaWorker(){
  window.ghAiSavePersonalKey=()=>{
    const value=$('ghAiPersonalKey').value.trim();
    if(!value){ghAiStatus('Вставь ключ из Google AI Studio');return false;}
-   if(!/^[\w-]{15,300}$/.test(value)){ghAiStatus('Проверь ключ: допустимы латинские буквы, цифры, _ и -');return false;}
+   if(!/^[A-Za-z0-9._-]{15,512}$/.test(value)){ghAiStatus('Некорректный формат ключа. Поддерживаются новые ключи AQ. и стандартные AIza. Скопируй ключ целиком из Google AI Studio.');return false;}
    volatileKey=value;
    if($('ghAiRememberKey').checked){localStorage.setItem(STORE,value);sessionStorage.removeItem(STORE);}
    else{sessionStorage.setItem(STORE,value);localStorage.removeItem(STORE);}
