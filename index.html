@@ -2680,6 +2680,61 @@ body.ux-v25.nx-v26 :is(.circle-time,.tc-time,.ht-time,.ch-hero-time,.ch-line>tim
 .gh-type-preview-bottom strong{font-family:var(--gh-font-timer,monospace)!important;font-variant-numeric:tabular-nums;font-size:25px;color:var(--ux-accent)}
 .gh-type-preview-bottom span{font-size:12px;border:1px solid var(--ux-edge);border-radius:8px;padding:5px 8px}
 @media(max-width:390px){.gh-typography-panel .ux-field{align-items:stretch;flex-wrap:wrap}.gh-typography-panel select{max-width:none;width:100%}}
+
+/* GTA Helper PRO · Event Manager / configurable event quests */
+.ev-config-strip{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px;padding:12px 13px;border:1px solid var(--pro-line,var(--border));border-radius:14px;background:linear-gradient(120deg,color-mix(in srgb,var(--accent) 8%,var(--bg-card)),var(--bg-card));box-shadow:inset 0 1px 0 rgba(255,255,255,.035);min-width:0}
+.ev-config-copy{display:flex;flex-direction:column;gap:4px;min-width:0}.ev-config-copy b{font-size:12px;color:var(--text-main);font-weight:850}.ev-config-copy small{font-size:10px;line-height:1.4;color:var(--text-sub)}
+.ev-config-open{display:inline-flex;align-items:center;justify-content:center;gap:6px;flex:none;border:1px solid color-mix(in srgb,var(--accent) 45%,var(--border));border-radius:10px;padding:9px 11px;background:color-mix(in srgb,var(--accent) 13%,var(--bg-card));color:var(--accent);font-size:11px;font-weight:850;cursor:pointer;white-space:nowrap;transition:transform .18s ease,border-color .18s ease,background .18s ease}
+.ev-config-open:active{transform:scale(.97)}
+.event-task-ready{display:flex;flex-direction:column;align-items:stretch;gap:4px;min-width:85px;max-width:104px;flex:none}.event-task-ready small{font-size:9px;color:var(--text-sub);text-align:center;line-height:1.2;white-space:nowrap}
+#eventSettingsModal{z-index:9900!important}
+#eventSettingsModal .event-settings-modal{display:block!important;width:100%!important;max-width:650px!important;max-height:min(90dvh,900px)!important;overflow:auto!important;padding:19px!important;overscroll-behavior:contain}
+#eventSettingsModal .ev-settings-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}
+#eventSettingsModal .ev-settings-eyebrow{font-size:9px;font-weight:900;letter-spacing:.17em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+#eventSettingsModal h2{font-size:21px;line-height:1.15;margin:0;color:var(--text-main);font-weight:950;letter-spacing:-.04em}
+#eventSettingsModal .ev-settings-close{width:34px;height:34px;flex:none;border-radius:10px;border:1px solid var(--border);background:var(--bg-element);color:var(--text-main);font-size:20px;cursor:pointer}
+#eventSettingsModal .ev-settings-note{font-size:11px;line-height:1.55;color:var(--text-sub);margin:8px 0 15px}
+#eventSettingsModal .ev-settings-global{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-bottom:13px}
+#eventSettingsModal .ev-settings-field{display:flex;flex-direction:column;gap:6px;min-width:0;font-size:10px;font-weight:800;color:var(--text-sub)}
+#eventSettingsModal .ev-settings-field input{width:100%;min-width:0;box-sizing:border-box;border:1px solid var(--border)!important;border-radius:10px!important;background:var(--bg-element)!important;color:var(--text-main)!important;padding:10px!important;font-size:13px!important;font-weight:750!important;outline:none}
+#eventSettingsModal .ev-settings-field input:focus{border-color:var(--accent)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 12%,transparent)}
+#eventSettingsModal .ev-settings-count-info{font-size:10px;color:var(--accent);font-weight:800;margin:0 0 12px}
+#eventSettingsModal .ev-settings-list-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--border);margin-top:2px}
+#eventSettingsModal .ev-settings-list-head b{font-size:12px;color:var(--text-main)}#eventSettingsModal .ev-settings-list-head span{font-size:10px;color:var(--text-sub)}
+#eventSettingsModal .ev-settings-add{border:1px solid color-mix(in srgb,var(--accent) 40%,var(--border));border-radius:8px;padding:7px 9px;background:color-mix(in srgb,var(--accent) 10%,var(--bg-element));color:var(--accent);font-size:10px;font-weight:850;white-space:nowrap;cursor:pointer}
+#eventSettingsModal .ev-settings-row{border:1px solid var(--border);border-radius:12px;background:color-mix(in srgb,var(--bg-card) 90%,var(--accent) 2%);margin-bottom:8px;overflow:hidden}
+#eventSettingsModal .ev-settings-row[hidden]{display:none!important}
+#eventSettingsModal .ev-settings-row summary{list-style:none;display:flex;align-items:center;gap:9px;padding:12px;cursor:pointer;min-width:0}
+#eventSettingsModal .ev-settings-row summary::-webkit-details-marker{display:none}
+#eventSettingsModal .ev-settings-row summary:after{content:'＋';margin-left:auto;color:var(--accent);font-size:15px;font-weight:900}
+#eventSettingsModal .ev-settings-row[open] summary:after{content:'−'}
+#eventSettingsModal .ev-settings-row-num{display:grid;place-items:center;width:26px;height:26px;flex:none;border-radius:8px;background:color-mix(in srgb,var(--accent) 12%,var(--bg-element));color:var(--accent);font-size:10px;font-weight:900}
+#eventSettingsModal .ev-settings-row-title{font-size:11px;font-weight:850;color:var(--text-main);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+#eventSettingsModal .ev-settings-row-body{padding:0 11px 12px}
+#eventSettingsModal .ev-settings-taskgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:9px;margin-top:10px}
+#eventSettingsModal .ev-settings-task{min-width:0;padding:10px;border:1px solid var(--border);border-radius:10px;background:color-mix(in srgb,var(--bg-element) 60%,transparent);display:flex;flex-direction:column;gap:8px}
+#eventSettingsModal .ev-settings-task-title{font-size:10px;font-weight:900;color:var(--accent);letter-spacing:.04em}
+#eventSettingsModal .ev-settings-actions{display:flex;gap:9px;justify-content:flex-end;padding-top:14px;margin-top:8px;border-top:1px solid var(--border);position:sticky;bottom:-19px;background:var(--modal-bg);padding-bottom:2px}
+#eventSettingsModal .ev-settings-action{border:1px solid var(--border);background:var(--bg-element);color:var(--text-main);border-radius:11px;padding:11px 15px;font-size:12px;font-weight:850;cursor:pointer}
+#eventSettingsModal .ev-settings-action.primary{background:var(--accent);color:#171923;border-color:transparent}
+@media(max-width:430px){.ev-config-strip{align-items:flex-start}.ev-config-open{padding:9px;font-size:10px}#eventSettingsModal .event-settings-modal{padding:16px!important}#eventSettingsModal .ev-settings-global{grid-template-columns:1fr 1fr}#eventSettingsModal .ev-settings-global .ev-settings-field:first-child{grid-column:1/-1}#eventSettingsModal .ev-settings-taskgrid{grid-template-columns:1fr}#eventSettingsModal .ev-settings-actions{bottom:-16px}#eventSettingsModal .ev-settings-action{flex:1;padding:11px 8px}}
+
+
+#eventSettingsModal .ev-settings-row.disabled{opacity:.72;border-style:dashed}
+#eventSettingsModal .ev-settings-row.disabled .ev-settings-row-title:after{content:' · ОТКЛЮЧЕНО';font-size:8px;color:var(--text-sub);letter-spacing:.05em}
+#eventSettingsModal .ev-settings-row-tools{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 10px;padding:9px 10px;border-radius:9px;background:color-mix(in srgb,var(--accent) 5%,var(--bg-element));}
+#eventSettingsModal .ev-settings-enable{display:flex;align-items:center;gap:7px;font-size:10px;font-weight:850;color:var(--text-main);cursor:pointer}
+#eventSettingsModal .ev-settings-enable input{width:17px;height:17px;accent-color:var(--accent);margin:0}
+#eventSettingsModal .ev-settings-delete{border:1px solid rgba(239,91,118,.3);border-radius:8px;padding:7px 9px;background:rgba(239,91,118,.08);color:#ef7891;font-size:10px;font-weight:850;cursor:pointer}
+#eventSettingsModal .ev-settings-addnpc{border:1px solid color-mix(in srgb,var(--accent) 28%,var(--border));border-radius:13px;padding:12px;margin:0 0 12px;background:color-mix(in srgb,var(--accent) 5%,var(--bg-card))}
+#eventSettingsModal .ev-settings-addnpc-title{font-size:12px;font-weight:900;color:var(--text-main);margin-bottom:10px}
+#eventSettingsModal .ev-settings-addnpc-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(90px,.7fr) auto;align-items:end;gap:9px}
+#eventSettingsModal .ev-settings-addnpc-grid .ev-settings-add{min-height:38px}
+#eventSettingsModal .ev-settings-addnpc-hint{font-size:10px;line-height:1.45;color:var(--text-sub);margin-top:8px}
+#eventSettingsModal .ev-settings-row-actions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:6px}
+#eventSettingsModal .ev-settings-remove-npc{border:1px solid color-mix(in srgb,var(--accent) 35%,var(--border));border-radius:8px;padding:7px 9px;background:color-mix(in srgb,var(--accent) 7%,var(--bg-element));color:var(--accent);font-size:10px;font-weight:850;cursor:pointer}
+@media(max-width:430px){#eventSettingsModal .ev-settings-addnpc-grid{grid-template-columns:minmax(0,1fr) minmax(80px,.6fr)}#eventSettingsModal .ev-settings-addnpc-grid .ev-settings-add{grid-column:1/-1;width:100%}#eventSettingsModal .ev-settings-row-tools{align-items:flex-start;flex-direction:column}#eventSettingsModal .ev-settings-row-actions{width:100%;justify-content:flex-start}}
+
 </style>
 </head>
 <body class="obs-fx-balanced nx-v26 nx-layout-cockpit">
@@ -3145,6 +3200,38 @@ body.ux-v25.nx-v26 :is(.circle-time,.tc-time,.ht-time,.ch-hero-time,.ch-line>tim
             <button class="action-btn" onclick="document.getElementById('modal').style.display='none'" style="width:100%; justify-content:center;">Закрыть</button>
         </div>
     </div>
+</div>
+
+
+<div id="eventSettingsModal" class="modal-wrap" onclick="if(event.target===this)closeEventSettings()">
+ <div class="modal event-settings-modal" role="dialog" aria-modal="true" aria-labelledby="eventSettingsTitle">
+  <div class="ev-settings-head">
+   <div><div class="ev-settings-eyebrow">EVENT CONTROL / CONFIGURATION</div><h2 id="eventSettingsTitle">Редактор ивентов</h2></div>
+   <button type="button" class="ev-settings-close" onclick="closeEventSettings()" aria-label="Закрыть настройки ивентов">×</button>
+  </div>
+  <p class="ev-settings-note">Гибкая настройка: у одного NPC может быть несколько квестов. Можно убрать имя NPC и оставить квест с его таймером или добавить нового NPC сразу с нужным количеством квестов. Каждый квест сохраняет отдельный КД и прогресс.</p>
+  <div class="ev-settings-global">
+   <label class="ev-settings-field">Всего квестовых слотов (1–30)<input id="evConfigQuestCount" type="number" min="1" max="30" step="1" value="10" oninput="eventSettingsCountChanged()"></label>
+   <label class="ev-settings-field">Обычный КД, часы<input id="evConfigDefaultCooldown" type="number" min="0.25" max="720" step="0.25" value="6"></label>
+   <label class="ev-settings-field">VIP КД, часы<input id="evConfigVipCooldown" type="number" min="0.25" max="720" step="0.25" value="5"></label>
+  </div>
+  <div id="evConfigCountInfo" class="ev-settings-count-info">Квестовые слоты; можно назначать одному NPC несколько квестов.</div>
+  <div class="ev-settings-addnpc">
+   <div class="ev-settings-addnpc-title">＋ Добавить NPC и нужное количество квестов</div>
+   <div class="ev-settings-addnpc-grid">
+    <label class="ev-settings-field">Имя NPC<input id="evNewNpcName" type="text" maxlength="100" placeholder="Например, Механик"></label>
+    <label class="ev-settings-field">Количество квестов<input id="evNewNpcQuestCount" type="number" min="1" max="30" step="1" value="2"></label>
+    <button type="button" class="ev-settings-add" onclick="eventAddNpcWithQuests()">Создать NPC</button>
+   </div>
+   <div class="ev-settings-addnpc-hint">Будет создано нужное число отдельных квестовых карточек с одним именем NPC. Названия квестов и КД можно задать ниже.</div>
+  </div>
+  <div class="ev-settings-list-head"><b>Квесты и индивидуальный КД</b><button type="button" class="ev-settings-add" onclick="eventAddQuest()">＋ Добавить пустой квест</button></div>
+  <div id="eventSettingsRows"></div>
+  <div class="ev-settings-actions">
+   <button type="button" class="ev-settings-action" onclick="closeEventSettings()">Отмена</button>
+   <button type="button" class="ev-settings-action primary" onclick="saveEventSettings()">✓ Сохранить изменения</button>
+  </div>
+ </div>
 </div>
 
 <div id="modalSettings" class="modal-wrap" onclick="closeSettingsModal(event)">
@@ -3769,7 +3856,7 @@ let BP = { start:0, done:[], times:{}, hidden:[], counters:{}, vip:false, x2:fal
 let TIMERS = {};
 
 // СОСТОЯНИЕ НОВОЙ ВКЛАДКИ ИВЕНТ
-let EVENT_STATE = { activeChar: 0, tasks: [], chars: [] };
+let EVENT_STATE = { activeChar: 0, tasks: [], chars: [], config: { questCount: 10, cooldownMinutes: 360, vipCooldownMinutes: 300, taskCooldowns: {} } };
 for(let j=0; j<10; j++) EVENT_STATE.tasks.push({ npc: "", t1: "", t2: "" }); // Общие названия
 for(let i=0; i<3; i++) {
     let rows = [];
@@ -3961,6 +4048,8 @@ if (eventDataRaw) {
         console.error("Error loading data", e);
     }
 
+    const eventQuestMigration = migrateEventToSingleQuestPerNpc();
+
     if(!BP.sortOrder || BP.sortOrder.length !== DB.bp.length) {
         BP.sortOrder = DB.bp.map((_, i) => i);
     }
@@ -4019,6 +4108,8 @@ if (eventDataRaw) {
     if(activeGuideBtn) setGuide('payment', activeGuideBtn);
 
     renderEventTab();
+    if (eventQuestMigration.overflow > 0) showToast(`Не удалось перенести ${eventQuestMigration.overflow} вторых квестов: нет свободных карточек. Старые данные сохранены.`, 'error');
+    else if (eventQuestMigration.moved > 0) showToast(`Ивенты обновлены: ${eventQuestMigration.moved} вторых квестов перенесено в отдельные карточки`, 'success');
     setupDragAndDrop();
     renderMood(); renderFish(); renderDashboard(); renderBPPlanner();
     ghRenderRules();ghRenderCatalog();
@@ -4780,7 +4871,125 @@ function delTime(id) {
 
 // ====================== МОДУЛЬ ИВЕНТА ======================
 
-function saveEventData() { Cloud.setItem('gta_event_22', JSON.stringify(EVENT_STATE)); }
+const EVENT_MAX_QUESTS = 30;
+const EVENT_CONFIG_DEFAULTS = { questCount: 10, cooldownMinutes: 360, vipCooldownMinutes: 300, taskCooldowns: {}, disabledQuests: {}, singleQuestPerNpcVersion: 0 };
+function ensureEventStateShape() {
+    if (!EVENT_STATE || typeof EVENT_STATE !== 'object') EVENT_STATE = { activeChar: 0, tasks: [], chars: [], config: {} };
+    if (!Array.isArray(EVENT_STATE.tasks)) EVENT_STATE.tasks = [];
+    if (!Array.isArray(EVENT_STATE.chars)) EVENT_STATE.chars = [];
+    const oldConfig = EVENT_STATE.config && typeof EVENT_STATE.config === 'object' ? EVENT_STATE.config : {};
+    EVENT_STATE.config = { ...EVENT_CONFIG_DEFAULTS, ...oldConfig, taskCooldowns: oldConfig.taskCooldowns && typeof oldConfig.taskCooldowns === 'object' && !Array.isArray(oldConfig.taskCooldowns) ? oldConfig.taskCooldowns : {}, disabledQuests: oldConfig.disabledQuests && typeof oldConfig.disabledQuests === 'object' && !Array.isArray(oldConfig.disabledQuests) ? oldConfig.disabledQuests : {} };
+    EVENT_STATE.config.questCount = Math.max(1, Math.min(EVENT_MAX_QUESTS, Math.round(Number(EVENT_STATE.config.questCount) || 10)));
+    EVENT_STATE.config.cooldownMinutes = Math.max(15, Math.min(43200, Math.round(Number(EVENT_STATE.config.cooldownMinutes) || 360)));
+    EVENT_STATE.config.vipCooldownMinutes = Math.max(15, Math.min(43200, Math.round(Number(EVENT_STATE.config.vipCooldownMinutes) || 300)));
+    EVENT_STATE.activeChar = Math.max(0, Math.min(2, Math.round(Number(EVENT_STATE.activeChar) || 0)));
+    for (let i = 0; i < EVENT_MAX_QUESTS; i++) {
+        const prior = EVENT_STATE.tasks[i] && typeof EVENT_STATE.tasks[i] === 'object' ? EVENT_STATE.tasks[i] : {};
+        EVENT_STATE.tasks[i] = { npc: '', t1: '', t2: '', ...prior };
+    }
+    for (let i = 0; i < 3; i++) {
+        if (!EVENT_STATE.chars[i] || typeof EVENT_STATE.chars[i] !== 'object') EVENT_STATE.chars[i] = { name: `Персонаж ${i+1}`, vip: false, rows: [] };
+        const c = EVENT_STATE.chars[i];
+        if (c.name == null) c.name = `Персонаж ${i+1}`;
+        c.vip = !!c.vip;
+        if (!Array.isArray(c.rows)) c.rows = [];
+        for (let j = 0; j < EVENT_MAX_QUESTS; j++) {
+            const prior = c.rows[j] && typeof c.rows[j] === 'object' ? c.rows[j] : {};
+            c.rows[j] = { t1Time: 0, t2Time: 0, exam: false, ...prior };
+        }
+    }
+    return EVENT_STATE;
+}
+function eventConfig() { ensureEventStateShape(); return EVENT_STATE.config; }
+function eventQuestCount() { return eventConfig().questCount; }
+function eventQuestEnabled(index) { return !eventConfig().disabledQuests[String(index)]; }
+function eventEnabledQuestCount() { let n=0; for(let i=0;i<eventQuestCount();i++) if(eventQuestEnabled(i)) n++; return n; }
+function eventFormatCooldown(minutes) {
+    const total = Math.max(0, Math.round(Number(minutes) || 0));
+    const h = Math.floor(total / 60), m = total % 60;
+    if (h && m) return `${h}ч ${m}м`;
+    if (h) return `${h}ч`;
+    return `${m}м`;
+}
+function eventHoursValue(minutes) { return (Math.max(0, Number(minutes) || 0) / 60).toFixed(2).replace(/\.?0+$/, ''); }
+function getEventCooldownMinutes(rIdx, tNum, charData) {
+    const cfg = eventConfig();
+    const override = Number(cfg.taskCooldowns[`${rIdx}_${tNum}`]) || 0;
+    if (override > 0) return Math.max(1, Math.min(43200, Math.round(override)));
+    const c = charData || EVENT_STATE.chars[EVENT_STATE.activeChar];
+    return c && c.vip ? cfg.vipCooldownMinutes : cfg.cooldownMinutes;
+}
+function saveEventData() { ensureEventStateShape(); Cloud.setItem('gta_event_22', JSON.stringify(EVENT_STATE)); }
+
+// Migrate legacy cards (NPC + two quests) to one quest per NPC card without losing progress.
+// The old second quest is moved into a free card, including its timer and cooldown override.
+function migrateEventToSingleQuestPerNpc() {
+    ensureEventStateShape();
+    const oldCount = Math.min(EVENT_MAX_QUESTS, eventQuestCount());
+    // eventQuestCount() normalizes/rebuilds the config object; take the reference after it.
+    const cfg = EVENT_STATE.config;
+    if (Number(cfg.singleQuestPerNpcVersion) >= 1) return { moved: 0, overflow: 0 };
+    const sources = [];
+    for (let i = 0; i < oldCount; i++) {
+        const task = EVENT_STATE.tasks[i] || {};
+        const hasTitle = String(task.t2 || '').trim().length > 0;
+        const hasTimer = EVENT_STATE.chars.some(c => Number(c.rows[i]?.t2Time) > 0);
+        if (hasTitle || hasTimer) sources.push(i);
+    }
+    const sourceSet = new Set(sources);
+    const occupied = index => {
+        const task = EVENT_STATE.tasks[index] || {};
+        if (String(task.npc || '').trim() || String(task.t1 || '').trim() || String(task.t2 || '').trim()) return true;
+        return EVENT_STATE.chars.some(c => {
+            const row = c.rows[index] || {};
+            return Number(row.t1Time) > 0 || Number(row.t2Time) > 0 || !!row.exam;
+        });
+    };
+    const candidates = [];
+    for (let i = oldCount; i < EVENT_MAX_QUESTS; i++) if (!sourceSet.has(i) && !occupied(i)) candidates.push(i);
+    for (let i = 0; i < oldCount; i++) if (!sourceSet.has(i) && !occupied(i)) candidates.push(i);
+    let moved = 0, overflow = 0, highest = oldCount - 1;
+    const now = Date.now();
+    for (const source of sources) {
+        const target = candidates.shift();
+        if (target == null) { overflow++; continue; }
+        const fromTask = EVENT_STATE.tasks[source];
+        const movedTitle = String(fromTask.t2 || '').trim();
+        const npcName = String(fromTask.npc || '').trim();
+        const oldCdKey = `${source}_2`, newCdKey = `${target}_1`;
+        const oldCd = Number(cfg.taskCooldowns[oldCdKey]) || 0;
+        EVENT_STATE.tasks[target] = { ...(EVENT_STATE.tasks[target] || {}), npc: npcName, t1: movedTitle, t2: '' };
+        if (oldCd > 0 && !(Number(cfg.taskCooldowns[newCdKey]) > 0)) cfg.taskCooldowns[newCdKey] = oldCd;
+        delete cfg.taskCooldowns[oldCdKey];
+        if (cfg.disabledQuests[String(source)]) cfg.disabledQuests[String(target)] = true;
+        else delete cfg.disabledQuests[String(target)];
+        for (let cIdx = 0; cIdx < EVENT_STATE.chars.length; cIdx++) {
+            const charData = EVENT_STATE.chars[cIdx];
+            const fromRow = charData.rows[source];
+            const toRow = charData.rows[target];
+            const endTime = Number(fromRow.t2Time) || 0;
+            toRow.t1Time = endTime;
+            toRow.t2Time = 0;
+            toRow.exam = !!fromRow.exam;
+            fromRow.t2Time = 0;
+            cancelNotification(`evt_${cIdx}_${source}_2`);
+            if (endTime > now) {
+                const delay = Math.max(1, Math.ceil((endTime - now) / 1000));
+                const taskName = movedTitle || 'Квест';
+                const safe = value => String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+                const message = `🎪 Ивент (${safe(charData.name)}): Квест «${safe(taskName)}» у <b>${safe(npcName || `NPC #${source+1}`)}</b> снова доступен!`;
+                scheduleNotification(`evt_${cIdx}_${target}_1`, delay, message, true);
+            }
+        }
+        fromTask.t2 = '';
+        highest = Math.max(highest, target);
+        moved++;
+    }
+    cfg.questCount = Math.max(oldCount, highest + 1);
+    cfg.singleQuestPerNpcVersion = 1;
+    saveEventData();
+    return { moved, overflow };
+}
 
 function setEventChar(idx) {
     EVENT_STATE.activeChar = idx;
@@ -4825,17 +5034,20 @@ function getEventTimerUI(cIdx, rIdx, tNum, endTime) {
             <div style="font-size:10px; font-weight:800; color:var(--accent); letter-spacing:0.5px;">до ${targetTime}</div>
         </div>`;
     } else {
-        return `<button class="action-btn" style="min-width:85px; justify-content:center; background:rgba(16, 185, 129, 0.1); color:var(--green); border-color:rgba(16, 185, 129, 0.3);" onclick="startEventTimer(${rIdx}, ${tNum})">Выполнил</button>`;
+        const cooldownLabel = eventFormatCooldown(getEventCooldownMinutes(rIdx, tNum, EVENT_STATE.chars[cIdx]));
+        return `<div class="event-task-ready"><button class="action-btn" style="width:100%;min-width:85px;justify-content:center;background:rgba(16,185,129,.1);color:var(--green);border-color:rgba(16,185,129,.3);" onclick="startEventTimer(${rIdx}, ${tNum})">Выполнил</button><small>КД ${cooldownLabel}</small></div>`;
     }
 }
 
 function startEventTimer(rIdx, tNum) {
+    ensureEventStateShape();
     let cIdx = EVENT_STATE.activeChar;
     let c = EVENT_STATE.chars[cIdx];
     let row = c.rows[rIdx];
 
-    // КД: VIP = 5 часов (18000 сек), Обычный = 6 часов (21600 сек)
-    let cdSeconds = c.vip ? 18000 : 21600;
+    // Индивидуальный КД задания имеет приоритет; иначе применяется общий КД обычного/VIP персонажа.
+    let cdMinutes = getEventCooldownMinutes(rIdx, tNum, c);
+    let cdSeconds = Math.max(1, Math.round(cdMinutes * 60));
     let endTime = Date.now() + (cdSeconds * 1000);
 
     row['t'+tNum+'Time'] = endTime;
@@ -4843,9 +5055,9 @@ function startEventTimer(rIdx, tNum) {
     renderEventTab();
 
     // Берем имена из общей базы
-    let taskName = EVENT_STATE.tasks[rIdx]['t'+tNum] || `Задание ${tNum}`;
+    let taskName = EVENT_STATE.tasks[rIdx]['t'+tNum] || (tNum === 1 ? 'Квест' : `Задание ${tNum}`);
     let npcName = EVENT_STATE.tasks[rIdx].npc || `NPC #${rIdx+1}`;
-    let msg = `🎪 Ивент (${c.name}): Задание «${taskName}» у <b>${npcName}</b> снова доступно!`;
+    let msg = `🎪 Ивент (${ccEscape(c.name)}): Задание «${ccEscape(taskName)}» у <b>${ccEscape(npcName)}</b> снова доступно!`;
     let notifId = `evt_${cIdx}_${rIdx}_${tNum}`;
 
     scheduleNotification(notifId, cdSeconds, msg, true);
@@ -4864,6 +5076,7 @@ function cancelEventTimer(rIdx, tNum) {
 }
 
 function updateEventTimersVisuals() {
+    ensureEventStateShape();
     if(!EVENT_STATE || !EVENT_STATE.chars) return;
     let cIdx = EVENT_STATE.activeChar;
     let now = Date.now();
@@ -4902,6 +5115,7 @@ function updateEventTimersVisuals() {
 }
 
 function renderEventTab() {
+    ensureEventStateShape();
     const container = document.getElementById('eventTabContent');
     if(!container) return;
 
@@ -4925,25 +5139,24 @@ function renderEventTab() {
     html += `</div></div>`;
 
     // Имя и кнопка VIP
+    const eventCfg = eventConfig();
     html += `
+    <div class="ev-config-strip">
+        <div class="ev-config-copy"><b>NPC / квесты</b><small>${eventEnabledQuestCount()} активно из ${eventQuestCount()} карточек · КД ${eventFormatCooldown(eventCfg.cooldownMinutes)} / VIP ${eventFormatCooldown(eventCfg.vipCooldownMinutes)}</small></div>
+        <button type="button" class="ev-config-open" onclick="openEventSettings()">⚙ Настроить</button>
+    </div>
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; background:var(--bg-card); padding:10px 15px; border-radius:12px; border:1px solid var(--border);">
         <input type="text" value="${ccEscape(charData.name)}" onchange="updateEventData('name', this.value)" class="event-input" placeholder="Имя персонажа" style="font-weight:bold; color:var(--accent) !important; background:transparent !important; border:none !important; font-size:16px; padding:0; flex:1;">
-        <button class="action-btn ${charData.vip ? 'active' : ''}" style="${charData.vip ? 'color:var(--gold); border-color:var(--gold); background:rgba(251,191,36,0.1);' : 'color:var(--text-sub);'}" onclick="toggleEventVip()">👑 VIP (${charData.vip ? '5ч' : '6ч'})</button>
+        <button class="action-btn ${charData.vip ? 'active' : ''}" style="${charData.vip ? 'color:var(--gold); border-color:var(--gold); background:rgba(251,191,36,0.1);' : 'color:var(--text-sub);'}" onclick="toggleEventVip()">👑 VIP (${eventFormatCooldown(charData.vip ? eventCfg.vipCooldownMinutes : eventCfg.cooldownMinutes)})</button>
     </div>
     `;
 
     // --- УМНАЯ СОРТИРОВКА КАРТОЧЕК ---
-    let sortedIndices = charData.rows.map((_, idx) => idx);
+    let sortedIndices = charData.rows.slice(0, eventQuestCount()).map((_, idx) => idx).filter(idx => eventQuestEnabled(idx));
     sortedIndices.sort((a, b) => {
         let rA = charData.rows[a], rB = charData.rows[b];
-        let a1Ready = !rA.t1Time || rA.t1Time <= now;
-        let a2Ready = !rA.t2Time || rA.t2Time <= now;
-        let wA = (a1Ready || a2Ready) ? 0 : Math.min(rA.t1Time, rA.t2Time);
-
-        let b1Ready = !rB.t1Time || rB.t1Time <= now;
-        let b2Ready = !rB.t2Time || rB.t2Time <= now;
-        let wB = (b1Ready || b2Ready) ? 0 : Math.min(rB.t1Time, rB.t2Time);
-
+        let wA = (!rA.t1Time || rA.t1Time <= now) ? 0 : rA.t1Time;
+        let wB = (!rB.t1Time || rB.t1Time <= now) ? 0 : rB.t1Time;
         return wA - wB;
     });
 
@@ -4957,12 +5170,11 @@ function renderEventTab() {
         let examBg = row.exam ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)';
 
         let t1UI = getEventTimerUI(cIdx, rIdx, 1, row.t1Time);
-        let t2UI = getEventTimerUI(cIdx, rIdx, 2, row.t2Time);
 
         let displayNum = rIdx + 1;
         
-        // Визуальное затухание, если оба таймера тикают
-        let allRunning = (row.t1Time > now) && (row.t2Time > now);
+        // Визуальное затухание, пока квест этого NPC находится на КД.
+        let allRunning = row.t1Time > now;
         let cardStyle = allRunning ? "opacity: 0.6; background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.02);" : "";
 
         html += `
@@ -4974,19 +5186,254 @@ function renderEventTab() {
                 </div>
                 <button class="action-btn" style="width:85px; margin-left:10px; justify-content:center; background:${examBg}; color:${examColor}; border-color:${row.exam ? 'var(--green)' : 'rgba(239,68,68,0.3)'}" onclick="toggleEventExam(${rIdx})">${examStatus}</button>
             </div>
-            <div style="display:flex; gap:10px; align-items:center; margin-bottom:8px;">
-                <input type="text" class="event-input" placeholder="Задание 1..." value="${ccEscape(taskTexts.t1)}" onchange="updateEventData('t1', this.value, ${rIdx})" style="flex:1;">
-                ${t1UI}
-            </div>
             <div style="display:flex; gap:10px; align-items:center;">
-                <input type="text" class="event-input" placeholder="Задание 2..." value="${ccEscape(taskTexts.t2)}" onchange="updateEventData('t2', this.value, ${rIdx})" style="flex:1;">
-                ${t2UI}
+                <input type="text" class="event-input" placeholder="Название квеста у NPC..." value="${ccEscape(taskTexts.t1)}" onchange="updateEventData('t1', this.value, ${rIdx})" style="flex:1;">
+                ${t1UI}
             </div>
         </div>
         `;
     });
 
     container.innerHTML = html;
+}
+
+// Event Manager: edit titles, card count, global cooldowns and per-task overrides.
+function openEventSettings() {
+    ensureEventStateShape();
+    const cfg = EVENT_STATE.config;
+    const countInput = document.getElementById('evConfigQuestCount');
+    const defaultInput = document.getElementById('evConfigDefaultCooldown');
+    const vipInput = document.getElementById('evConfigVipCooldown');
+    if (!countInput || !defaultInput || !vipInput) return;
+    countInput.value = cfg.questCount;
+    defaultInput.value = eventHoursValue(cfg.cooldownMinutes);
+    vipInput.value = eventHoursValue(cfg.vipCooldownMinutes);
+    const list = document.getElementById('eventSettingsRows');
+    if (!list) return;
+    list.innerHTML = EVENT_STATE.tasks.slice(0, EVENT_MAX_QUESTS).map((task, i) => {
+        const cd1 = Number(cfg.taskCooldowns[`${i}_1`] || 0);
+        const title = String(task.npc || task.t1 || `NPC / квест ${i+1}`);
+        return `<details class="ev-settings-row" data-ev-settings-row="${i}" ${i === 0 ? 'open' : ''}>
+          <summary><span class="ev-settings-row-num">${String(i+1).padStart(2,'0')}</span><span class="ev-settings-row-title" data-ev-summary-title="${i}">${ccEscape(title)}</span></summary>
+          <div class="ev-settings-row-body">
+            <div class="ev-settings-row-tools"><label class="ev-settings-enable"><input type="checkbox" data-ev-enabled data-ev-row="${i}" ${cfg.disabledQuests[String(i)] ? '' : 'checked'}> Квест включён</label><div class="ev-settings-row-actions"><button type="button" class="ev-settings-remove-npc" onclick="eventRemoveNpc(${i})">Убрать NPC, оставить квест</button><button type="button" class="ev-settings-delete" onclick="eventDeleteQuest(${i})">Очистить всё</button></div></div>
+            <label class="ev-settings-field">NPC (необязательно; можно повторять имя для нескольких квестов)<input type="text" maxlength="100" data-ev-field="npc" data-ev-row="${i}" value="${ccEscape(task.npc)}" placeholder="Пустое поле = квест без NPC"></label>
+            <div class="ev-settings-taskgrid">
+              <div class="ev-settings-task"><div class="ev-settings-task-title">КВЕСТ #${i+1}</div>
+                <label class="ev-settings-field">Название квеста<input type="text" maxlength="120" data-ev-field="t1" data-ev-row="${i}" value="${ccEscape(task.t1)}" placeholder="Например, доставить посылку"></label>
+                <label class="ev-settings-field">КД этого квеста, часы · 0 = общий<input type="number" min="0" max="720" step="0.25" data-ev-cd="1" data-ev-row="${i}" value="${cd1 ? eventHoursValue(cd1) : '0'}"></label>
+              </div>
+            </div>
+          </div>
+        </details>`;
+    }).join('');
+    eventSettingsCountChanged();
+    const modal = document.getElementById('eventSettingsModal');
+    modal.style.display = 'flex';
+    if (!window.__eventSettingsEscBound) {
+        window.__eventSettingsEscBound = true;
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') {
+                const m = document.getElementById('eventSettingsModal');
+                if (m && m.style.display === 'flex') closeEventSettings();
+            }
+        });
+    }
+}
+function eventFormValue(index, field) {
+    const el = document.querySelector(`#eventSettingsRows [data-ev-field="${field}"][data-ev-row="${index}"]`);
+    return el ? String(el.value || '').trim() : String(EVENT_STATE.tasks[index]?.[field] || '').trim();
+}
+function eventSlotHasData(index) {
+    const task = EVENT_STATE.tasks[index] || {};
+    const cdInput = document.querySelector(`#eventSettingsRows [data-ev-cd="1"][data-ev-row="${index}"]`);
+    if (eventFormValue(index, 'npc') || eventFormValue(index, 't1') || String(task.t2 || '').trim() || (Number(cdInput?.value) || 0) > 0) return true;
+    return EVENT_STATE.chars.some(c => {
+        const r = c.rows[index] || {};
+        return Number(r.t1Time) > 0 || Number(r.t2Time) > 0 || !!r.exam;
+    });
+}
+function eventSetFormNpc(index, name) {
+    const input = document.querySelector(`#eventSettingsRows [data-ev-field="npc"][data-ev-row="${index}"]`);
+    if (!input) return false;
+    input.value = name;
+    const details = input.closest('[data-ev-settings-row]');
+    const title = details?.querySelector('[data-ev-summary-title]');
+    if (title) title.textContent = (name || details.querySelector('[data-ev-field="t1"]')?.value || `Квест ${index+1}`).trim();
+    return true;
+}
+function eventRemoveNpc(index) {
+    const i = Number(index);
+    if (!Number.isInteger(i) || i < 0 || i >= EVENT_MAX_QUESTS) return;
+    if (!eventFormValue(i, 'npc')) { showToast('В этой карточке NPC уже не указан; квест и таймер сохранены', 'info'); return; }
+    eventSetFormNpc(i, '');
+    const row = document.querySelector(`#eventSettingsRows [data-ev-settings-row="${i}"]`);
+    if (row) { row.open = true; row.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+    showToast('NPC убран из карточки. Квест и его таймер останутся — нажми «Сохранить изменения».', 'success');
+}
+function eventAddNpcWithQuests() {
+    const nameInput = document.getElementById('evNewNpcName');
+    const questsInput = document.getElementById('evNewNpcQuestCount');
+    const countInput = document.getElementById('evConfigQuestCount');
+    if (!nameInput || !questsInput || !countInput) return;
+    const npcName = nameInput.value.trim();
+    const amount = Number(questsInput.value);
+    const currentCount = Math.max(1, Math.min(EVENT_MAX_QUESTS, parseInt(countInput.value, 10) || 1));
+    if (!npcName) { showToast('Введи имя NPC перед добавлением', 'error'); nameInput.focus(); return; }
+    if (!Number.isInteger(amount) || amount < 1 || amount > EVENT_MAX_QUESTS) { showToast(`Количество квестов должно быть от 1 до ${EVENT_MAX_QUESTS}`, 'error'); questsInput.focus(); return; }
+    // Reuse genuinely empty visible slots first, then append into empty contiguous slots.
+    const slots = [];
+    for (let i = 0; i < currentCount && slots.length < amount; i++) {
+        const enabled = document.querySelector(`#eventSettingsRows [data-ev-enabled][data-ev-row="${i}"]`);
+        if (!eventSlotHasData(i) && enabled) slots.push(i);
+    }
+    let cursor = currentCount;
+    while (slots.length < amount && cursor < EVENT_MAX_QUESTS) {
+        if (eventSlotHasData(cursor)) break; // Never expose or overwrite previously hidden data by surprise.
+        slots.push(cursor++);
+    }
+    if (slots.length < amount) {
+        const available = slots.length;
+        showToast(`Не хватает свободных слотов: нужно ${amount}, безопасно доступно ${available}. Увеличь лимит или очисти пустые карточки.`, 'error');
+        return;
+    }
+    slots.forEach(i => {
+        eventSetFormNpc(i, npcName);
+        const titleInput = document.querySelector(`#eventSettingsRows [data-ev-field="t1"][data-ev-row="${i}"]`);
+        if (titleInput) titleInput.value = '';
+        const enabled = document.querySelector(`#eventSettingsRows [data-ev-enabled][data-ev-row="${i}"]`);
+        if (enabled) enabled.checked = true;
+        const cd = document.querySelector(`#eventSettingsRows [data-ev-cd="1"][data-ev-row="${i}"]`);
+        if (cd) cd.value = '0';
+    });
+    const nextCount = Math.max(currentCount, ...slots.map(i => i + 1));
+    countInput.value = String(nextCount);
+    eventSettingsCountChanged();
+    slots.forEach(i => {
+        const row = document.querySelector(`#eventSettingsRows [data-ev-settings-row="${i}"]`);
+        if (row) row.open = true;
+    });
+    const first = document.querySelector(`#eventSettingsRows [data-ev-settings-row="${slots[0]}"]`);
+    if (first) first.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    nameInput.value = '';
+    const mod100 = amount % 100, mod10 = amount % 10;
+    const questWord = mod10 === 1 && mod100 !== 11 ? 'квестом' : mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14) ? 'квестами' : 'квестами';
+    showToast(`Добавлен NPC «${npcName}» с ${amount} ${questWord}. Нажми «Сохранить изменения», чтобы применить.`, 'success');
+}
+function eventAddQuest() {
+    const input = document.getElementById('evConfigQuestCount');
+    if (!input) return;
+    const current = Math.max(1, Math.min(EVENT_MAX_QUESTS, parseInt(input.value, 10) || 1));
+    if (current >= EVENT_MAX_QUESTS) { showToast(`Достигнут лимит ${EVENT_MAX_QUESTS} карточек`, 'info'); return; }
+    input.value = current + 1;
+    eventSettingsCountChanged();
+    const row = document.querySelector(`#eventSettingsRows [data-ev-settings-row="${current}"]`);
+    if (row) { row.open = true; row.scrollIntoView({behavior:'smooth',block:'nearest'}); }
+}
+function eventSettingsCountChanged() {
+    const input = document.getElementById('evConfigQuestCount');
+    if (!input) return;
+    const count = Math.max(1, Math.min(EVENT_MAX_QUESTS, parseInt(input.value, 10) || 1));
+    document.querySelectorAll('#eventSettingsRows [data-ev-settings-row]').forEach(el => {
+        el.hidden = Number(el.dataset.evSettingsRow) >= count;
+        const enabled = el.querySelector('[data-ev-enabled]');
+        el.classList.toggle('disabled', !!enabled && !enabled.checked);
+    });
+    const info = document.getElementById('evConfigCountInfo');
+    if (info) info.textContent = `${count} из ${EVENT_MAX_QUESTS} квестовых слотов отображаются. Один NPC может иметь несколько квестов; пустое имя NPC оставляет квест самостоятельным. Скрытые слоты и прогресс сохраняются.`;
+}
+function closeEventSettings() {
+    const modal = document.getElementById('eventSettingsModal');
+    if (modal) modal.style.display = 'none';
+}
+function saveEventSettings() {
+    ensureEventStateShape();
+    const countInput = document.getElementById('evConfigQuestCount');
+    const defaultInput = document.getElementById('evConfigDefaultCooldown');
+    const vipInput = document.getElementById('evConfigVipCooldown');
+    const count = Number(countInput?.value);
+    const normalHours = Number(defaultInput?.value);
+    const vipHours = Number(vipInput?.value);
+    if (!Number.isInteger(count) || count < 1 || count > EVENT_MAX_QUESTS) {
+        showToast(`Количество карточек должно быть от 1 до ${EVENT_MAX_QUESTS}`, 'error'); return false;
+    }
+    if (!Number.isFinite(normalHours) || normalHours < 0.25 || normalHours > 720 || !Number.isFinite(vipHours) || vipHours < 0.25 || vipHours > 720) {
+        showToast('Общий КД должен быть от 0,25 до 720 часов', 'error'); return false;
+    }
+    const oldCount = EVENT_STATE.config.questCount;
+    if (count < oldCount) {
+        const now = Date.now();
+        const activeHidden = EVENT_STATE.chars.some(c => c.rows.slice(count).some(r => Number(r.t1Time) > now || Number(r.t2Time) > now));
+        if (activeHidden && !confirm('В карточках, которые будут скрыты, есть активные таймеры. Они продолжат работать и уведомления сохранятся, но карточки не будут видны, пока ты не увеличишь количество. Продолжить?')) return false;
+    }
+    const overrides = { ...EVENT_STATE.config.taskCooldowns };
+    let badOverride = false;
+    document.querySelectorAll('#eventSettingsRows [data-ev-cd]').forEach(input => {
+        const hours = Number(input.value || 0);
+        if (!Number.isFinite(hours) || hours < 0 || hours > 720 || (hours > 0 && hours < 0.25)) { badOverride = true; return; }
+        const key = `${Number(input.dataset.evRow)}_${Number(input.dataset.evCd)}`;
+        delete overrides[key];
+        if (hours > 0) overrides[key] = Math.max(15, Math.round(hours * 60));
+    });
+    if (badOverride) { showToast('Индивидуальный КД: 0 для общего значения или от 0,25 до 720 часов', 'error'); return false; }
+    const nextDisabled = {};
+    document.querySelectorAll('#eventSettingsRows [data-ev-enabled]').forEach(input => { if (!input.checked) nextDisabled[String(Number(input.dataset.evRow))] = true; });
+    const newlyDisabled = Object.keys(nextDisabled).filter(key => !EVENT_STATE.config.disabledQuests[key]);
+    const nowForDisable = Date.now();
+    const disabledWithRunningTimers = newlyDisabled.filter(key => EVENT_STATE.chars.some(c => { const r=c.rows[Number(key)]; return r && (Number(r.t1Time)>nowForDisable || Number(r.t2Time)>nowForDisable); }));
+    if (disabledWithRunningTimers.length && !confirm(`У ${disabledWithRunningTimers.length} отключаемых карточек есть активные таймеры. Таймеры и уведомления продолжат работать, но карточки будут скрыты. Продолжить?`)) return false;
+    const fields = document.querySelectorAll('#eventSettingsRows [data-ev-field]');
+    fields.forEach(input => {
+        const row = Number(input.dataset.evRow), field = input.dataset.evField;
+        if (EVENT_STATE.tasks[row] && ['npc','t1','t2'].includes(field)) EVENT_STATE.tasks[row][field] = input.value.trim();
+    });
+    EVENT_STATE.config.questCount = count;
+    EVENT_STATE.config.cooldownMinutes = Math.round(normalHours * 60);
+    EVENT_STATE.config.vipCooldownMinutes = Math.round(vipHours * 60);
+    EVENT_STATE.config.taskCooldowns = overrides;
+    EVENT_STATE.config.disabledQuests = nextDisabled;
+    saveEventData();
+    closeEventSettings();
+    renderEventTab();
+    showToast('Настройки ивентов сохранены', 'success');
+    return true;
+}
+function eventDeleteQuest(index) {
+    const i = Number(index);
+    if (!Number.isInteger(i) || i < 0 || i >= EVENT_MAX_QUESTS) return;
+    if (!confirm(`Очистить карточку NPC №${i+1}? Название NPC, квест, отметка экзамена и таймеры будут сброшены для всех персонажей. Слот останется отключённым, чтобы не сдвигать другие таймеры.`)) return;
+    if (!saveEventSettings()) return;
+    EVENT_STATE.tasks[i] = { npc: '', t1: '', t2: '' };
+    for (let cIdx = 0; cIdx < EVENT_STATE.chars.length; cIdx++) {
+        const row = EVENT_STATE.chars[cIdx].rows[i];
+        if (row) { row.t1Time = 0; row.t2Time = 0; row.exam = false; }
+        cancelNotification(`evt_${cIdx}_${i}_1`);
+        cancelNotification(`evt_${cIdx}_${i}_2`);
+    }
+    delete EVENT_STATE.config.taskCooldowns[`${i}_1`];
+    delete EVENT_STATE.config.taskCooldowns[`${i}_2`];
+    EVENT_STATE.config.disabledQuests[String(i)] = true;
+    saveEventData();
+    renderEventTab();
+    openEventSettings();
+    showToast('Карточка очищена и отключена', 'success');
+}
+if (!window.__eventSettingsSummaryBound) {
+    window.__eventSettingsSummaryBound = true;
+    document.addEventListener('input', e => {
+        const el = e.target;
+        if (!el || !el.matches) return;
+        if (el.matches('#eventSettingsRows [data-ev-enabled]')) { const card=el.closest('[data-ev-settings-row]'); card?.classList.toggle('disabled',!el.checked); return; }
+        if (!el.matches('#eventSettingsRows [data-ev-field="npc"], #eventSettingsRows [data-ev-field="t1"]')) return;
+        const row = Number(el.dataset.evRow);
+        const details = document.querySelector(`#eventSettingsRows [data-ev-settings-row="${row}"]`);
+        const titleEl = details?.querySelector('[data-ev-summary-title]');
+        if (titleEl) titleEl.textContent = (details.querySelector('[data-ev-field="npc"]')?.value || details.querySelector('[data-ev-field="t1"]')?.value || `NPC / квест ${row+1}`).trim();
+    });
+    document.addEventListener('change', e => {
+        const el=e.target;
+        if(el?.matches?.('#eventSettingsRows [data-ev-enabled]')) el.closest('[data-ev-settings-row]')?.classList.toggle('disabled',!el.checked);
+    });
 }
 // ==========================================================
 
